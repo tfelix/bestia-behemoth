@@ -30,9 +30,11 @@ import java.io.File
  * Loot names items by identifier, the client by id, so this task also reads `items.yml` to translate. A loot
  * chance stays in the server's fixed point (10000 is 100%).
  *
- * It also exports whether a species **hunts on sight**, so its hover name can warn in red. The mob YML does not
- * say that itself: it names an AI profile (`ai:`), and a species is aggressive exactly when that profile under
- * `zone-server/src/main/resources/ai/` lists the `KillEnemy` goal, which is the same test the server's AI makes.
+ * It also exports a species' **temperament** and **activity cycle**, which the compendium shows and the hover name
+ * warns with. The mob YML does not say either itself: it names an AI profile (`ai:`) under
+ * `zone-server/src/main/resources/ai/`. A profile that lists `KillEnemy` attacks on sight (HOSTILE), one that
+ * lists only `KillAttacker` fights back (DEFENSIVE), and one with neither, or no profile, never fights
+ * (PASSIVE) - the same goals the server's AI acts on. The cycle is the profile's `activity_cycle`.
  *
  * A species' **text** lives in the client, because that is where it is translated. The mob YML holds the
  * English source (`name`, `description`) beside the stats, and this task writes it into the `en` column of
@@ -138,10 +140,21 @@ abstract class BestiaDbSyncTask : DefaultTask() {
 
   private data class AiProfileDto(
     val identifier: String,
-    val goals: List<AiGoalDto> = emptyList()
+    val goals: List<AiGoalDto> = emptyList(),
+    /** `ActivityCycle` on the server, lower case in the YML; absent is CATHEMERAL there too. */
+    @JsonProperty("activity_cycle")
+    val activityCycle: String = CATHEMERAL
   ) {
-    /** Mirrors `BestiaDomain`: only a profile that lists `KillEnemy` attacks what it has not been hit by. */
-    val huntsOnSight get() = goals.any { it.name == KILL_ENEMY_GOAL }
+    /**
+     * Mirrors `BestiaDomain`: only `KillEnemy` attacks what has not hit it, and `KillAttacker` is the goal that
+     * answers a hit.
+     */
+    val temperament: String
+      get() = when {
+        goals.any { it.name == KILL_ENEMY_GOAL } -> HOSTILE
+        goals.any { it.name == KILL_ATTACKER_GOAL } -> DEFENSIVE
+        else -> PASSIVE
+      }
   }
 
   /**
@@ -171,7 +184,8 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     "non_combatant" to mob.nonCombatant.toString(),
     "habitat" to quoted(mob.habitat.joinToString(",") { it.uppercase() }),
     "in_compendium" to mob.compendium.toString(),
-    "aggressive" to aggressive(mob, profiles).toString(),
+    "temperament" to quoted(profileOf(mob, profiles)?.temperament ?: PASSIVE),
+    "activity_cycle" to quoted((profileOf(mob, profiles)?.activityCycle ?: CATHEMERAL).uppercase()),
     "level_min" to mob.levelMin.toString(),
     "level_max" to mob.levelMax.toString(),
     "loot_item_ids" to packedInts(mob.loot.map { itemIdOf(it, mob, itemIds) }),
@@ -191,11 +205,11 @@ abstract class BestiaDbSyncTask : DefaultTask() {
   /** Spelled the way Godot saves a packed array, so a `.tres` saved from the editor is no drift. */
   private fun packedInts(values: List<Long>) = "PackedInt32Array(${values.joinToString(", ")})"
 
-  private fun aggressive(mob: MobDto, profiles: Map<String, AiProfileDto>): Boolean {
-    val ai = mob.ai ?: return false
-    val profile = profiles[ai]
+  /** The profile [mob] names, or null for a mob without AI, which never fights and keeps no hours. */
+  private fun profileOf(mob: MobDto, profiles: Map<String, AiProfileDto>): AiProfileDto? {
+    val ai = mob.ai ?: return null
+    return profiles[ai]
       ?: throw GradleException("Mob '${mob.identifier}' names AI profile '$ai', which no ai/*.yml declares. Known: ${profiles.keys.sorted()}")
-    return profile.huntsOnSight
   }
 
   private fun quoted(value: String) = "\"$value\""
@@ -363,6 +377,17 @@ abstract class BestiaDbSyncTask : DefaultTask() {
   companion object {
     /** The goal name in an AI profile's `goals:` that makes it attack on sight, as `BestiaDomain` spells it. */
     private const val KILL_ENEMY_GOAL = "KillEnemy"
+
+    /** The goal that answers a hit, as `BestiaDomain` spells it. */
+    private const val KILL_ATTACKER_GOAL = "KillAttacker"
+
+    /** Temperaments, as `BestiaResource.temperament` spells them. */
+    private const val HOSTILE = "HOSTILE"
+    private const val DEFENSIVE = "DEFENSIVE"
+    private const val PASSIVE = "PASSIVE"
+
+    /** `ActivityCycle`'s default: no fixed rhythm. */
+    private const val CATHEMERAL = "CATHEMERAL"
 
     /** Must mirror `net.bestia.zone.item.equip.EquipmentSlot`'s declaration order exactly. */
     private val SLOT_ORDER = listOf(

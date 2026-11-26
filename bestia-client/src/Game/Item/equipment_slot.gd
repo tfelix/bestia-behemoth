@@ -53,6 +53,18 @@ static func has_slot(mask: int, slot: int) -> bool:
 	return (mask & (1 << slot)) != 0
 
 
+## Every armor type (CLOTH, LIGHT, MEDIUM, HEAVY) - what a master's body can carry. A bestia only what its species
+## declares in [member BestiaResource.armor_types].
+const ALL_ARMOR_TYPES := (1 << 4) - 1
+
+
+## Whether a body that carries the armor types in [param armor_mask] can wear [param item]. Gear with no armor type
+## (weapons, accessories) always can. Mirrors Equipment.canWearArmorType on the server: bit n of the mask is the
+## server's ArmorType ordinal n, and the item stores that ordinal + 1.
+static func wears_armor_type(armor_mask: int, item: ItemResource) -> bool:
+	return item.armor_type <= 0 or (armor_mask & (1 << (item.armor_type - 1))) != 0
+
+
 static func display_name(slot: int) -> String:
 	match slot:
 		Slot.HEAD_UPPER: return "Upper Head"

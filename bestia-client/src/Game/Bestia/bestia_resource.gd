@@ -5,7 +5,7 @@ class_name BestiaResource
 ##
 ## Generated/kept in sync from zone-server's mob YMLs by './gradlew syncBestiaDb', which owns [member
 ## bestia_id], the two text keys, [member kind], [member equip_slots], [member armor_types], [member
-## non_combatant], [member habitat], [member in_compendium], [member aggressive], [member level_min], [member
+## non_combatant], [member habitat], [member in_compendium], [member temperament], [member activity_cycle], [member level_min], [member
 ## level_max], [member size], [member weight_kg], [member loot_item_ids], [member loot_chances] and the four
 ## [code]essence_*[/code] fields. The English text behind the keys is synced
 ## into Localization/bestias.csv, where it is translated. Anything else here is pure presentation with no
@@ -52,9 +52,14 @@ enum PlaceholderShape { SPHERE, CAPSULE, BOX, CYLINDER, PRISM, TORUS }
 ## so a hand-crafted attack gets nowhere either.
 @export var non_combatant: bool = false
 
-## True for a species that attacks on sight rather than only when it is hit: its server AI profile lists the
-## KillEnemy goal. Its hover name shows red so a player can tell before walking up to it.
-@export var aggressive: bool = false
+## How the species meets a player, read off its server AI profile's goals: [code]"HOSTILE"[/code] attacks on
+## sight (KillEnemy), [code]"DEFENSIVE"[/code] fights back once hit (KillAttacker only), [code]"PASSIVE"[/code]
+## never fights. A hostile species' hover name shows red, and the compendium names all three.
+@export var temperament: String = "PASSIVE"
+
+## When the species is awake, its AI profile's activity cycle: [code]"DIURNAL"[/code], [code]"NOCTURNAL"[/code]
+## or [code]"CATHEMERAL"[/code] (no fixed rhythm).
+@export var activity_cycle: String = "CATHEMERAL"
 
 ## The biomes this species spawns in, comma-separated as the mob YAML names them. Empty means anywhere on
 ## land. Read it through [method get_habitat].
@@ -112,3 +117,8 @@ func get_portrait() -> Texture2D:
 
 func get_habitat() -> PackedStringArray:
 	return habitat.split(",", false)
+
+
+## True for a species that attacks on sight rather than only when it is hit.
+func is_hostile() -> bool:
+	return temperament == "HOSTILE"

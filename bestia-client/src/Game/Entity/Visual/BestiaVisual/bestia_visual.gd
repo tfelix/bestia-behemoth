@@ -80,7 +80,7 @@ func setup_visual(msg: VisualComponentSMSG) -> void:
 	var bestia_resource := BestiaDB.get_instance().get_bestia(_bestia_id)
 	if bestia_resource != null and not bestia_resource.name_key.is_empty():
 		_species_name = tr(bestia_resource.name_key)
-	_aggressive = bestia_resource != null and bestia_resource.aggressive
+	_aggressive = bestia_resource != null and bestia_resource.is_hostile()
 	apply_placeholder(bestia_resource)
 	_apply_name_tag()
 

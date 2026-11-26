@@ -45,6 +45,8 @@ var _detail_name: Label
 var _detail_subtitle: Label
 ## Body size and weight, such as "Medium · 60 kg".
 var _detail_body: Label
+## How it meets a player, and when it is awake if it keeps hours, such as "Fights back · Active by day".
+var _detail_temperament: Label
 var _detail_caught: Label
 var _detail_habitat: Label
 var _detail_description: Label
@@ -145,6 +147,9 @@ func _build_detail() -> Control:
 
 	_detail_body = UiStyle.label("", 11, UiStyle.MUTED)
 	detail.add_child(_detail_body)
+
+	_detail_temperament = UiStyle.label("", 11, UiStyle.MUTED)
+	detail.add_child(_detail_temperament)
 
 	var status := UiStyle.hbox(8)
 	detail.add_child(status)
@@ -300,6 +305,8 @@ func _show_detail() -> void:
 	_detail_name.text = tr(species.name_key)
 	_detail_subtitle.text = "%s · %s" % [number_label, tr("BESTIA_KIND_" + species.kind)]
 	_detail_body.text = "%s · %d kg" % [tr("BESTIA_SIZE_" + species.size), species.weight_kg]
+	_detail_temperament.text = _temperament_text(species)
+	_detail_temperament.add_theme_color_override("font_color", UiStyle.DANGER if species.is_hostile() else UiStyle.MUTED)
 	_detail_caught.text = tr("COMPENDIUM_CAUGHT") if entry.Caught else tr("COMPENDIUM_NOT_CAUGHT")
 	_detail_caught.add_theme_color_override("font_color", UiStyle.ACCENT if entry.Caught else UiStyle.MUTED)
 	_detail_habitat.text = "%s: %s" % [tr("COMPENDIUM_HABITAT"), _habitat_text(species)]
@@ -308,6 +315,15 @@ func _show_detail() -> void:
 		tr(species.description_key),
 		tr("COMPENDIUM_FIRST_SEEN") % Time.get_date_string_from_unix_time(entry.FirstSeenUnix),
 	]
+
+
+## The temperament, and the hours it keeps when it keeps any: a species with no rhythm says nothing about
+## them, rather than every entry reading "any time".
+func _temperament_text(species: BestiaResource) -> String:
+	var temperament := tr("BESTIA_TEMPERAMENT_" + species.temperament)
+	if species.activity_cycle == "CATHEMERAL":
+		return temperament
+	return "%s · %s" % [temperament, tr("BESTIA_ACTIVITY_" + species.activity_cycle)]
 
 
 func _habitat_text(species: BestiaResource) -> String:

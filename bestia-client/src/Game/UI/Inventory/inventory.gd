@@ -288,6 +288,8 @@ func _render_items() -> void:
 		inv_item.rolled_stats = item.rolled_stats
 		inv_item.essences = item.essences
 		inv_item.held_essence = item.held_essence
+		if equipment != null and item.item.type == ItemResource.ItemType.EQUIP:
+			inv_item.armor_refusal = equipment.armor_refusal(item.item, selected_entity_id)
 		inv_item.inventory = self
 		inv_item.drop_target = self
 		inv_item.move_requested.connect(_on_own_row_requested.bind(inv_item))

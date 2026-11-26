@@ -21,6 +21,9 @@ signal unequip_requested(slot: int)
 ## False when the wearer's species simply has no such slot - the slot then renders dimmed and
 ## refuses every drop.
 var _available: bool = true
+## The armor types the wearer's body carries, as [member BestiaResource.armor_types]; armor of any other weight
+## is refused at the drop. Set by [Equipment] on every render.
+var armor_mask: int = EquipmentSlot.ALL_ARMOR_TYPES
 var _item: ItemResource = null
 var _unique_id: int = 0
 ## The worn copy, written out by [ItemDetail]. Empty for an empty slot.
@@ -89,7 +92,7 @@ func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	if item_resource == null:
 		return false
 
-	return EquipmentSlot.fits(item_resource, slot)
+	return EquipmentSlot.fits(item_resource, slot) and EquipmentSlot.wears_armor_type(armor_mask, item_resource)
 
 
 func _drop_data(_at_position: Vector2, data: Variant) -> void:

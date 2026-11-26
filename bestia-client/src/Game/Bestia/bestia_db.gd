@@ -58,6 +58,15 @@ func get_equip_slots(bestia_id: int) -> int:
 	return bestia.equip_slots
 
 
+## The armor type mask of a species, or 0 when the species is unknown to this client build.
+func get_armor_types(bestia_id: int) -> int:
+	var bestia = get_bestia(bestia_id)
+	if bestia == null:
+		printerr("BestiaDB: Bestia with ID %s not found" % [bestia_id])
+		return 0
+	return bestia.armor_types
+
+
 func all_bestias() -> Array:
 	return _bestias.values()
 

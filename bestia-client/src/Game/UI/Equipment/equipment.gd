@@ -190,6 +190,32 @@ func _available_mask() -> int:
 	return BestiaDB.get_instance().get_equip_slots(bestia_id)
 
 
+## The armor types [param entity_id]'s body carries: every one for the master (its profession is a
+## server-side rule), only what its species declares for a bestia.
+func _armor_mask(entity_id: int) -> int:
+	if entity_id == _master_entity_id:
+		return EquipmentSlot.ALL_ARMOR_TYPES
+
+	var bestia_id: int = _bestia_id_by_entity.get(entity_id, 0)
+	if bestia_id == 0:
+		return 0
+
+	return BestiaDB.get_instance().get_armor_types(bestia_id)
+
+
+## Why the body of [param entity_id], a bestia, cannot carry [param item]'s armor weight, such as "Blob cannot wear
+## heavy armor.", or "" when it can or its species is not known yet. The inventory dims such a row and passes its
+## own entity, which need not be the one this window has caught up to. Level, profession and the rest stay the
+## server's to judge, and say so when asked.
+func armor_refusal(item: ItemResource, entity_id: int) -> String:
+	var species := BestiaDB.get_instance().get_bestia(_bestia_id_by_entity.get(entity_id, 0))
+	if species == null or entity_id == _master_entity_id or EquipmentSlot.wears_armor_type(species.armor_types, item):
+		return ""
+	if species == null:
+		return ""
+	return tr("EQUIP_CANNOT_WEAR_ARMOR_TYPE") % [tr(species.name_key), tr("ITEM_ARMOR_TYPE_%d" % item.armor_type).to_lower()]
+
+
 ## Worn items of the currently shown entity, by EquipmentSlot ordinal.
 func _worn_by_slot() -> Dictionary:
 	return _worn
@@ -199,11 +225,13 @@ func _render() -> void:
 	_render_quiver()
 
 	var mask := _available_mask()
+	var armor_mask := _armor_mask(_selected_entity_id)
 	var by_slot: Dictionary = _worn_by_slot()
 	var item_db = ItemDB.get_instance()
 
 	for slot_node in _slot_nodes:
 		slot_node.set_available(EquipmentSlot.has_slot(mask, slot_node.slot))
+		slot_node.armor_mask = armor_mask
 
 		var equipped = by_slot.get(slot_node.slot)
 		if equipped == null:
@@ -324,7 +352,8 @@ func equip_to_own_slot(item_id: int, player_item_id: int) -> bool:
 	if slot == EquipmentSlot.Slot.ACCESSORY_1 and _worn_by_slot().has(slot) \
 			and not _worn_by_slot().has(EquipmentSlot.Slot.ACCESSORY_2):
 		slot = EquipmentSlot.Slot.ACCESSORY_2
-	if slot < 0 or not EquipmentSlot.has_slot(_available_mask(), slot):
+	if slot < 0 or not EquipmentSlot.has_slot(_available_mask(), slot) \
+			or not EquipmentSlot.wears_armor_type(_armor_mask(_selected_entity_id), item_resource):
 		return false
 
 	_on_equip_requested(player_item_id, slot)

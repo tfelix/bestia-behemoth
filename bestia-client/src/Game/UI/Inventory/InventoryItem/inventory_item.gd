@@ -80,6 +80,10 @@ var drop_target = null
 ## refusal. Kept apart so the inventory's detail column, which lays out the rest itself, can show just these.
 var extra_detail: String = ""
 
+## Why the bag's owner cannot wear this armor, such as "Blob cannot wear heavy armor.", or "" when it can. A
+## refused row is drawn dimmed and says why.
+var armor_refusal: String = ""
+
 var _is_dragging_self: bool = false
 
 ## The panel style as authored, which [method set_selected] puts back.
@@ -103,6 +107,10 @@ func _ready() -> void:
 		SpellScrollBook.ask([unique_id], _show_spell)
 	if _is_shopping():
 		_show_trade_price()
+	if not armor_refusal.is_empty():
+		modulate = Color(1, 1, 1, 0.35)
+		tooltip_text += "\n" + armor_refusal
+		_add_extra_detail(armor_refusal)
 	if item.item_id == _BESTIA_EGG_ITEM_ID and unique_id != 0:
 		mouse_entered.connect(_inspect_egg, CONNECT_ONE_SHOT)
 
