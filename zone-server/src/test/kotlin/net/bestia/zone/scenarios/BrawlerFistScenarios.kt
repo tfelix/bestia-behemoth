@@ -38,6 +38,7 @@ import net.bestia.zone.skill.persistence.SkillRepository
 import net.bestia.zone.spawn.BestiaEntitySpawner
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.MasterSpawnPointService
+import net.bestia.zone.world.stream.ChunkEntityVisibility
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Order
@@ -78,6 +79,9 @@ class BrawlerFistScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
 
   @Autowired
   private lateinit var catalogue: BestiaCatalogue
+
+  @Autowired
+  private lateinit var visibility: ChunkEntityVisibility
 
   private lateinit var client: GameClientMock
 
@@ -135,10 +139,10 @@ class BrawlerFistScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
 
     await { assertEquals(bareAtk + IRON_FIST_ATK, combat().weapon.atk, "Iron Fist 10") }
 
-    val at = positionOf(brawler())
+    val beside = besideBrawlerInItsChunk()
     // Loads the learnset now: the spawner reads it inside the lease, where SQL is refused.
     catalogue.learnset(BLOB)
-    val blob = world.read { spawner.spawnMob(this, BLOB, at + Vec3L(1, 0, 0), persistent = false) }
+    val blob = world.read { spawner.spawnMob(this, BLOB, beside, persistent = false) }
     dummy = blob
     // A blob that strikes back or wanders off breaks the blows that follow.
     world.modify(blob) { id ->
@@ -227,6 +231,17 @@ class BrawlerFistScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
     val skillId = skillId(identifier)
     world.modify(brawler()) { id -> get(id, Mana::class)!!.apply { max = MANA; current = MANA } }
     client.sendMessage(ActivateSkillCMSG(accountId, skillId, SKILLS.toMap().getValue(identifier), positionOf(brawler()), target))
+  }
+
+  /**
+   * The client holds only the chunk its master stands in, and hears of no blow on a bestia outside it. A master
+   * on a chunk's last tile would have the next chunk one tile away.
+   */
+  private fun besideBrawlerInItsChunk(): Vec3L {
+    val at = positionOf(brawler())
+    val chunk = visibility.chunkAt(at)
+
+    return listOf(at + Vec3L(1, 0, 0), at + Vec3L(-1, 0, 0)).first { visibility.chunkAt(it) == chunk }
   }
 
   private fun stopAttacking() {
