@@ -13,6 +13,7 @@ import net.bestia.zone.item.enchant.ActiveItemEnchantment
 import net.bestia.zone.item.enchant.ItemEnchantmentScripts
 import net.bestia.zone.item.ecs.GroundItemIntegrity
 import net.bestia.zone.item.ecs.GroundItemStack
+import net.bestia.zone.item.ecs.LootClaim
 import net.bestia.zone.item.ecs.LootProtection
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.persistence.Persistent
@@ -34,7 +35,7 @@ class LootItemEntitySpawner(
   /**
    * Spawns a single ground item entity at the given position which can be picked up. A rehydrated item passes
    * the [despawnAt] and [integrityLost] it was persisted with; a fresh drop gets the full time and is unharmed.
-   * Kill loot names the [lootOwner] account, which alone may pick it up for [lootProtectionSeconds].
+   * A [lootOwner] alone may pick it up for [lootProtectionSeconds]. Kill loot passes its [lootClaims] instead.
    *
    * The [enchantments] are the instance's own rows. A rehydrated item passes [enchantedSince] too, and its
    * enchantments are not told again that they were dropped.
@@ -51,6 +52,7 @@ class LootItemEntitySpawner(
     lootOwner: Long? = null,
     /** Null for the world's usual head start. */
     lootProtectionSeconds: Float? = null,
+    lootClaims: List<LootClaim> = emptyList(),
     provenance: ItemProvenance? = null,
     roll: ItemRoll? = null,
     enchantments: List<ActiveItemEnchantment> = emptyList(),
@@ -72,7 +74,12 @@ class LootItemEntitySpawner(
         )
       )
       add(id, GroundItemIntegrity(lost = integrityLost))
-      lootOwner?.let { add(id, LootProtection(it, lootProtectionSeconds ?: zoneConfig.lootProtectionSeconds)) }
+      val claims = lootClaims.ifEmpty {
+        listOfNotNull(lootOwner?.let { LootClaim(setOf(it), lootProtectionSeconds ?: zoneConfig.lootProtectionSeconds) })
+      }
+      if (claims.isNotEmpty()) {
+        add(id, LootProtection(claims))
+      }
       add(id, Persistent)
       if (enchantments.isNotEmpty()) {
         add(id, ItemEnchantments(enchantments, enchantedSince ?: clock.instant()))

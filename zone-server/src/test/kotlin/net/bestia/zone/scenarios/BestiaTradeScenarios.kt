@@ -224,7 +224,7 @@ class BestiaTradeScenarios : BestiaNoSocketScenario() {
     assertEquals(0, applesIn(bestia.id), "a stored bestia carries nothing")
     await {
       val bundle = bundlesOnGround().single()
-      assertEquals(player2, world.read { get(bundle, LootProtection::class)?.ownerAccountId })
+      assertEquals(setOf(player2), world.read { get(bundle, LootProtection::class)?.holders })
     }
     assertFalse(world.read { isAlive(bestia.entityId!!) }, "a stored bestia is not in the world")
   }

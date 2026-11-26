@@ -167,7 +167,7 @@ class BestiaStorageScenarios : BestiaNoSocketScenario(autoClientConnect = false)
       assertTrue(playerBestias.findByIdOrNull(swappedOut.playerBestiaId)!!.isStored)
     }
     val bundle = bundlesOnGround().single()
-    assertEquals(client.connectedPlayerId, world.read { get(bundle, LootProtection::class)?.ownerAccountId })
+    assertEquals(setOf(client.connectedPlayerId), world.read { get(bundle, LootProtection::class)?.holders })
     assertEquals(stoodAt.x to stoodAt.y, positionOf(bundle).let { it.x to it.y })
     await {
       val window = client.getLastReceived(BestiaStorageSMSG::class)

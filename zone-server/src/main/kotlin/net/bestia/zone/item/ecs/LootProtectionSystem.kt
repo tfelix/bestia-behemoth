@@ -7,7 +7,7 @@ import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import org.springframework.stereotype.Component as SpringComponent
 
-/** Frees kill loot for everyone once its [LootProtection] has run out. */
+/** Runs down every [LootProtection], and frees the drop for everyone once its last claim has run out. */
 @SpringComponent
 class LootProtectionSystem : System {
 
@@ -17,9 +17,7 @@ class LootProtectionSystem : System {
 
   override fun update(world: World, deltaTime: Float) {
     world.query(LootProtection::class).each { id ->
-      val protection = get<LootProtection>()
-      protection.remainingSeconds -= deltaTime
-      if (protection.remainingSeconds <= 0f) {
+      if (!get<LootProtection>().countDown(deltaTime)) {
         world.remove(id, LootProtection::class)
       }
     }
