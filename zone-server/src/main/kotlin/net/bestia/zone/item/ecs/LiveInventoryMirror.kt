@@ -6,6 +6,7 @@ import net.bestia.zone.item.container.ReservedItem
 import net.bestia.zone.item.persistence.ItemContainer
 import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.util.EntityId
+import java.time.Instant
 
 // Goods that changed hands in the database are mirrored into the live inventory afterwards. The database
 // moves first, so a crash between the two loses nothing: the next login reads the truth.
@@ -13,7 +14,7 @@ import net.bestia.zone.util.EntityId
 private val LOG = KotlinLogging.logger { }
 
 /** The live bag that shows what this container holds. Reads its lazy slots, so call it outside the world scope. */
-fun ItemContainer.toLiveInventory(itemStats: ItemStatCatalog): Inventory {
+fun ItemContainer.toLiveInventory(itemStats: ItemStatCatalog, now: Instant = Instant.now()): Inventory {
   return Inventory(
     items = slots.map { slot ->
       Inventory.Item(
@@ -31,6 +32,7 @@ fun ItemContainer.toLiveInventory(itemStats: ItemStatCatalog): Inventory {
         rolledStats = slot.rolledStats,
         essences = slot.essences,
         heldEssence = slot.heldEssence,
+        enchantments = slot.enchantments(now),
         provenance = slot.heldProvenance
       )
     }.toMutableList()

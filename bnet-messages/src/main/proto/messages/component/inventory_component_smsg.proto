@@ -4,6 +4,7 @@ package bnet;
 
 import "messages/component/item_stat_value.proto";
 import "messages/component/item_essence.proto";
+import "messages/component/held_item_enchantment.proto";
 
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "InventoryComponentSMSGProto";
@@ -61,6 +62,9 @@ message InventoryItem {
   repeated ItemEssence essences = 17;
   // What an essence gem holds. Unset on every other item.
   ItemEssence held_essence = 18;
+
+  // The spells bound to this copy, like a mail sack's seal. Ended ones are left out.
+  repeated HeldItemEnchantment enchantments = 19;
 }
 
 // In world metres, x east and y north like the server's coordinates.

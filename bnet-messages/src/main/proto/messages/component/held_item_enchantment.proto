@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "HeldItemEnchantmentProto";
+
+// An enchantment on an item in a bag or a slot, for the item's detail. The id is the one in item_enchantments.yml.
+message HeldItemEnchantment {
+  uint32 enchantment_id = 1;
+  // Until it ends, from the moment the message was built; 0 for one without an end.
+  float remaining_seconds = 2;
+}

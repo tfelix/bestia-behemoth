@@ -9,6 +9,9 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import net.bestia.zone.item.enchant.ActiveItemEnchantment
+import net.bestia.zone.item.enchant.ItemEnchantmentId
+import java.time.Instant
 
 class InventoryTest {
   private lateinit var inventory: Inventory
@@ -423,6 +426,39 @@ class InventoryTest {
   }
 
   @Test
+  fun `the client is told what enchants a copy and how long it has left`() {
+    val seal = ActiveItemEnchantment(ItemEnchantmentId.POSTAL_SEAL, strength = 70)
+    val ward = ActiveItemEnchantment(ItemEnchantmentId.KEEPSAKE_WARD, strength = 80, endsAt = Instant.now().plusSeconds(60))
+    inventory.addItem(sack(enchantments = listOf(seal, ward)))
+
+    val sent = inventory.toEntityMessage(entityId = 5L, removed = false) as InventoryComponentSMSG
+
+    val enchantments = sent.items.single().enchantments
+    assertEquals(listOf(1L, 2L), enchantments.map { it.enchantmentId })
+    assertEquals(0f, enchantments[0].remainingSeconds)
+    assertTrue(enchantments[1].remainingSeconds in 55f..60f)
+  }
+
+  @Test
+  fun `an ended enchantment is not sent`() {
+    val ended = ActiveItemEnchantment(ItemEnchantmentId.KEEPSAKE_WARD, strength = 80, endsAt = Instant.now().minusSeconds(1))
+    inventory.addItem(sack(enchantments = listOf(ended)))
+
+    val sent = inventory.toEntityMessage(entityId = 5L, removed = false) as InventoryComponentSMSG
+
+    assertTrue(sent.items.single().enchantments.isEmpty())
+  }
+
+  @Test
+  fun `a copy picked back up shows the enchantments its rows hold`() {
+    inventory.addItem(sack(enchantments = emptyList()))
+    val seal = ActiveItemEnchantment(ItemEnchantmentId.POSTAL_SEAL, strength = 70)
+
+    assertTrue(inventory.mirrorEnchantments(77L, listOf(seal)))
+    assertEquals(listOf(seal), inventory.getItems().single().enchantments)
+  }
+
+  @Test
   fun `a pile leaves its weight to the client`() {
     inventory.addItem(Inventory.Item(itemId = 1, amount = 3, weight = 15))
 
@@ -440,5 +476,9 @@ class InventoryTest {
     }
 
     assertEquals(SyncTargets.Accounts(setOf(1L)), inventory.syncTargets(world, chest))
+  }
+
+  private fun sack(enchantments: List<ActiveItemEnchantment>): Inventory.Item {
+    return Inventory.Item(itemId = 626, amount = 1, uniqueId = 77L, stackable = false, enchantments = enchantments)
   }
 }

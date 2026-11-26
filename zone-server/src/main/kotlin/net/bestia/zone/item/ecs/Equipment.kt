@@ -1,5 +1,7 @@
 package net.bestia.zone.item.ecs
 
+import net.bestia.zone.item.enchant.ActiveItemEnchantment
+import net.bestia.zone.item.enchant.HeldItemEnchantment
 import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.essence.Essence
 import net.bestia.zone.item.stat.StatValue
@@ -13,6 +15,7 @@ import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.equip.hasEquipSlot
 import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.util.EntityId
+import java.time.Instant
 
 /**
  * The live view of what an entity is wearing, mirroring the [net.bestia.zone.item.equip.EquipmentSlot]
@@ -53,7 +56,8 @@ data class Equipment(
     val itemLevel: Int = 0,
     val rolledStats: List<StatValue> = emptyList(),
     val provenance: ItemProvenance? = null,
-    val essences: List<Essence> = emptyList()
+    val essences: List<Essence> = emptyList(),
+    val enchantments: List<ActiveItemEnchantment> = emptyList()
   ) {
     val isBroken: Boolean
       get() = maxDurability > 0 && durability <= 0
@@ -123,6 +127,8 @@ data class Equipment(
   }
 
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
+    val now = Instant.now()
+
     return EquipmentComponentSMSG(
       entityId = entityId,
       items = worn.map { (slot, item) ->
@@ -137,7 +143,8 @@ data class Equipment(
           itemLevel = item.itemLevel,
           rolledStats = item.rolledStats,
           provenance = item.provenance,
-          essences = item.essences
+          essences = item.essences,
+          enchantments = HeldItemEnchantment.of(item.enchantments, now)
         )
       },
       quiverItemIds = quiver.toList()

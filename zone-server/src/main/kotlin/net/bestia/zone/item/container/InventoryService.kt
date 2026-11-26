@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import net.bestia.zone.item.persistence.ItemContainer
 import net.bestia.zone.item.persistence.ContainerSlot
+import java.time.Instant
+import net.bestia.zone.item.enchant.ActiveItemEnchantment
 
 /**
  * The single durable-inventory entry point. Adds/removes items on an owner's [ItemContainer] and
@@ -98,6 +100,12 @@ class InventoryService(
       val item = itemRepository.findByIdOrNull(itemId) ?: throw ItemNotFoundException(itemId.toString())
       grant(container, item, amount, uniqueId, roll, provenance, freshInstanceIds)
     }
+  }
+
+  /** The enchantments still on the copy [instanceId]. A detached instance cannot read its lazy rows itself. */
+  @Transactional(readOnly = true)
+  fun enchantmentsOf(instanceId: Long, now: Instant): List<ActiveItemEnchantment> {
+    return itemInstanceRepository.findByIdOrNull(instanceId)?.enchantments(now).orEmpty()
   }
 
   /**
@@ -786,6 +794,7 @@ class InventoryService(
       provenance = detached.instance?.provenance ?: detached.provenance,
       essences = detached.instance?.essences.orEmpty(),
       heldEssence = detached.instance?.heldEssence,
+      enchantments = detached.instance?.enchantments(Instant.now()).orEmpty(),
     )
   }
 

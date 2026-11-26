@@ -15,6 +15,8 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import net.bestia.zone.item.equip.EquipmentSlot
+import net.bestia.zone.item.enchant.ActiveItemEnchantment
+import java.time.Instant
 
 /**
  * One stack inside an [ItemContainer]. A slot references **either** a template [Item] (a plain,
@@ -120,4 +122,6 @@ class ContainerSlot(
   val rolledStats: List<StatValue> get() = itemInstance?.rolledStats.orEmpty()
   val essences: List<Essence> get() = itemInstance?.essences.orEmpty()
   val heldEssence: Essence? get() = itemInstance?.heldEssence
+
+  fun enchantments(now: Instant): List<ActiveItemEnchantment> = itemInstance?.enchantments(now).orEmpty()
 }

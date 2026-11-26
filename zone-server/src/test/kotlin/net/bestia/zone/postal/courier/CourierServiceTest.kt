@@ -40,6 +40,8 @@ import java.util.Optional
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.util.EntityId
 
 class CourierServiceTest {
 
@@ -127,6 +129,21 @@ class CourierServiceTest {
     assertEquals(500, sack.heldWeight)
     assertEquals(listOf(ActiveItemEnchantment(ItemEnchantmentId.POSTAL_SEAL, PostalSeal.STRENGTH)), sack.enchantments(now))
     assertTrue(listOf(first, second).all { it.sackInstanceId == 555L && it.courierMasterId == COURIER })
+  }
+
+  @Test
+  fun `the courier's bag shows the sack's seal at once`() {
+    every { parcels.findLockedById(1) } returns parcel(weight = 200)
+    every { inventory.mintInstanceForMaster(COURIER, sackTemplate) } returns ItemInstance(item = sackTemplate, id = 555L)
+    val bag = Inventory(mutableListOf())
+    val live = mockk<World>(relaxed = true) { every { get(courier.liveEntityId, Inventory::class) } returns bag }
+    every { world.modify<Any?>(courier.liveEntityId, any()) } answers {
+      secondArg<World.(EntityId) -> Any?>().invoke(live, firstArg())
+    }
+
+    service.take(courier, ashfen, listOf(1))
+
+    assertEquals(listOf(seal), bag.getItems().single().enchantments)
   }
 
   @Test

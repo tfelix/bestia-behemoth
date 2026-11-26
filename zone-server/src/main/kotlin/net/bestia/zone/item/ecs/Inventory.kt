@@ -2,6 +2,8 @@ package net.bestia.zone.item.ecs
 
 import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.PlayerItemIds
+import net.bestia.zone.item.enchant.ActiveItemEnchantment
+import net.bestia.zone.item.enchant.HeldItemEnchantment
 import net.bestia.zone.item.essence.Essence
 import net.bestia.zone.item.stat.StatValue
 import net.bestia.zone.ecs.core.Component
@@ -11,6 +13,7 @@ import net.bestia.zone.sync.Dirtyable
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.sync.SyncTargets
 import net.bestia.zone.message.EntitySMSG
+import java.time.Instant
 
 data class Inventory(
   private val items: MutableList<Item>
@@ -52,6 +55,9 @@ data class Inventory(
     /** Mirrors [net.bestia.zone.item.persistence.ItemInstance.essences]. */
     var essences: List<Essence> = emptyList(),
     val heldEssence: Essence? = null,
+
+    /** Mirrors [net.bestia.zone.item.persistence.ItemInstance.enchantments]. */
+    var enchantments: List<ActiveItemEnchantment> = emptyList(),
 
     /** Who crafted this pile or copy and where; null for a plain one. Piles with different makers never merge. */
     val provenance: ItemProvenance? = null
@@ -357,7 +363,20 @@ data class Inventory(
     return true
   }
 
+  /** Shows the enchantments the copy [uniqueId] really has, which the database knew better. */
+  fun mirrorEnchantments(uniqueId: Long, enchantments: List<ActiveItemEnchantment>): Boolean {
+    if (uniqueId == 0L) return false
+    val item = items.find { it.uniqueId == uniqueId } ?: return false
+
+    item.enchantments = enchantments
+    markDirty()
+
+    return true
+  }
+
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
+    val now = Instant.now()
+
     return InventoryComponentSMSG(
       entityId = entityId,
       items = items.map { item ->
@@ -374,6 +393,7 @@ data class Inventory(
           rolledStats = item.rolledStats,
           essences = item.essences,
           heldEssence = item.heldEssence,
+          enchantments = HeldItemEnchantment.of(item.enchantments, now),
           playerItemId = item.playerItemId,
           provenance = item.provenance,
           mapCircle = if (item.uniqueId == 0L) null else MapCircles.installed.of(item.uniqueId),

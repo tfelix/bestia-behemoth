@@ -94,6 +94,7 @@ class ItemHandover(
       provenance = provenance,
       essences = essences,
       heldEssence = heldEssence,
+      enchantments = enchantments,
     )
   }
 

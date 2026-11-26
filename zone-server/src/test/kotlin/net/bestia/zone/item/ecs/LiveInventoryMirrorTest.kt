@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import net.bestia.zone.item.enchant.ActiveItemEnchantment
+import net.bestia.zone.item.enchant.ItemEnchantmentId
 
 class LiveInventoryMirrorTest {
 
@@ -34,6 +36,16 @@ class LiveInventoryMirrorTest {
     assertEquals(77L, item.uniqueId)
     assertEquals(12, item.durability)
     assertEquals(1, item.rolledStats.size)
+  }
+
+  @Test
+  fun `a granted instance keeps its enchantments`() {
+    val holder = world.createEntity { id -> add(id, inventory) }
+    val seal = ActiveItemEnchantment(ItemEnchantmentId.POSTAL_SEAL, strength = 70)
+
+    world.grantToLive(holder, listOf(reserved(uniqueId = 77L, stackable = false).copy(enchantments = listOf(seal))))
+
+    assertEquals(listOf(seal), inventory.getItems().single().enchantments)
   }
 
   @Test

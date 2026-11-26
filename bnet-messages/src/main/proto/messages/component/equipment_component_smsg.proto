@@ -4,6 +4,7 @@ package bnet;
 
 import "messages/component/item_stat_value.proto";
 import "messages/component/item_essence.proto";
+import "messages/component/held_item_enchantment.proto";
 
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "EquipmentComponentSMSGProto";
@@ -53,4 +54,7 @@ message EquippedItem {
 
   // See InventoryItem.essences.
   repeated ItemEssence essences = 12;
+
+  // See InventoryItem.enchantments.
+  repeated HeldItemEnchantment enchantments = 13;
 }
