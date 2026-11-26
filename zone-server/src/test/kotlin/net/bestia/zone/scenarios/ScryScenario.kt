@@ -7,6 +7,7 @@ import net.bestia.zone.account.Face
 import net.bestia.zone.account.Hairstyle
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.battle.ecs.status.Mana
 import net.bestia.zone.battle.status.RemovalReason
 import net.bestia.zone.battle.status.StatusEffectId
@@ -277,9 +278,16 @@ class ScryScenario : BestiaNoSocketScenario(autoClientConnect = false) {
 
   private fun castScry(at: Vec3L, args: List<Long> = emptyList()) {
     sage.clearMessages()
-    world.modify(sageEntity()) { id ->
-      get(id, Mana::class)!!.apply { max = MANA; current = MANA }
-      remove(id, SkillCooldowns::class)
+    // A pending stat rebuild sets the mana pool back to what the Sage's level allows, which pays for no Scry.
+    // A Scry that begins or ends marks one, so the mana is set only once it has run.
+    await {
+      val topped = world.modify(sageEntity()) { id ->
+        if (has(id, IsStatusValueDirty::class)) return@modify false
+        get(id, Mana::class)!!.apply { max = MANA; current = MANA }
+        remove(id, SkillCooldowns::class)
+        true
+      }
+      assertEquals(true, topped, "no stat rebuild is pending")
     }
     sage.sendMessage(ActivateSkillCMSG(accountId, skillId("M_SCRY"), SCRY_LEVEL, at, targetEntityId = 0L, args = args))
   }
