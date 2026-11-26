@@ -29,7 +29,7 @@ class DoomChatCommand(
     return "/doom - The doomsday at a glance. /doom set <0..1> - Sets the clock. /doom push <delta> - Moves it. " +
       "/doom pace <x|auto> - Fixes its pace. /doom kind <KIND> - Another threat. /doom foreshadow <KIND> - Another " +
       "Foreshadowing. /doom end <lost|saved> [minutes] - Ends the world. /doom end cancel - Stops the end, a Last " +
-      "Stand counts as won. Built threats: " + director.builtKinds().joinToString(", ").ifEmpty { "none" }
+      "Stand counts as won. /doom sequence <lost|saved> - Plays the final sequence for you alone. Built threats: " + director.builtKinds().joinToString(", ").ifEmpty { "none" }
   }
 
   override fun isMatch(cmdText: String): Boolean {
@@ -51,6 +51,7 @@ class DoomChatCommand(
       "kind" -> kind(argument) ?: return false
       "foreshadow" -> foreshadow(argument) ?: return false
       "end" -> end(argument, extra) ?: return false
+      "sequence" -> sequence(playerId, argument) ?: return false
       else -> return false
     }
 
@@ -88,6 +89,12 @@ class DoomChatCommand(
     return "The world ends ($ending) at ${opened.endsAt}."
   }
 
+  private fun sequence(playerId: Long, argument: String): String? {
+    val ending = DoomEnding.entries.firstOrNull { it.name.equals(argument, ignoreCase = true) } ?: return null
+    out.sendToPlayer(playerId, worldEnd.preview(ending))
+    return "Playing the $ending sequence for you. Nothing ends."
+  }
+
   private fun describe(status: DoomsdayStatus): String {
     val origin = status.originX?.let { "(${it.toInt()}, ${status.originY?.toInt()})" } ?: "-"
     val pace = format(status.pace) + if (status.paceOverridden) " fixed" else ""
@@ -105,7 +112,7 @@ class DoomChatCommand(
   }
 
   private companion object {
-    val CMD_REGEX = Regex("""^/doom(?:\s+(set|push|pace|kind|foreshadow|end)\s+(\S+)(?:\s+(\S+))?)?$""")
+    val CMD_REGEX = Regex("""^/doom(?:\s+(set|push|pace|kind|foreshadow|end|sequence)\s+(\S+)(?:\s+(\S+))?)?$""")
 
     /** Long enough to watch the countdown and the final sequence. */
     const val DEFAULT_END_MINUTES = 5L

@@ -618,6 +618,31 @@ ANNOUNCEMENT_LAST_STAND_SOON,The Last Stand: the world falls in %s min.
 ANNOUNCEMENT_LAST_STAND_WON,"The doom is beaten back. The world lives on, for now."
 ANNOUNCEMENT_CALLING,"The world outlived its doom, and the sky begins to open. In %s h, all born of mana are called into a new world."
 ANNOUNCEMENT_CALLING_SOON,The Calling: the sky opens in %s min.
+WORLD_END_LOST_TITLE,The world has ended
+WORLD_END_SAVED_TITLE,The world is saved
+WORLD_END_LIVED,%s lived for %s days.
+WORLD_END_THREAT,Its doom was %s.
+WORLD_END_NO_THREAT,No doom ever came for it.
+WORLD_END_T,It lived to %s%% of its foretold years.
+WORLD_END_NO_TOWN_LOST,Not one town fell.
+WORLD_END_ONE_TOWN_LOST,One town fell.
+WORLD_END_TOWNS_LOST,%s towns fell.
+WORLD_END_NEW_WORLD,A new world is about to be born.
+WORLD_END_RETURN,Return to the title
+WORLD_END_CLOSE,Close
+DOOM_VOLCANIC_ACTIVITY,the fire below
+DOOM_FLOOD,the rising sea
+DOOM_ICE_AGE,the Ice Age
+DOOM_GREAT_DROUGHT,the Great Drought
+DOOM_MANA_BURN,the Mana Burn
+DOOM_DESTROYER,the Destroyer
+DOOM_LONG_NIGHT,the Long Night
+DOOM_WITHERING,the Withering
+DOOM_GREAT_STAMPEDE,the Great Stampede
+DOOM_MANA_STORMS,the Mana Storms
+DOOM_SUNDERING,the Sundering
+DOOM_VOID_TEAR,the Void Tear
+DOOM_CRYSTAL_INFESTATION,the crystal plague
 CHAT_LINE_GUILD,[Guild] %s: %s
 CHAT_LINE_WHISPER_FROM,[From %s] %s
 CHAT_LINE_WHISPER_TO,[To %s] %s

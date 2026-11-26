@@ -1,0 +1,82 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Game/UI/WorldEnd/world_end.gd" id="1_end"]
+[ext_resource type="Shader" path="res://Game/UI/WorldEnd/world_end_burn.gdshader" id="2_burn"]
+[ext_resource type="Shader" path="res://Game/UI/WorldEnd/world_end_light.gdshader" id="3_light"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_burn"]
+shader = ExtResource("2_burn")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_light"]
+shader = ExtResource("3_light")
+
+[node name="WorldEnd" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_end")
+
+[node name="Burn" type="ColorRect" parent="."]
+visible = false
+material = SubResource("ShaderMaterial_burn")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Light" type="ColorRect" parent="."]
+visible = false
+material = SubResource("ShaderMaterial_light")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Column" type="VBoxContainer" parent="Center"]
+custom_minimum_size = Vector2(640, 0)
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="Center/Column"]
+layout_mode = 2
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Gap" type="Control" parent="Center/Column"]
+custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
+
+[node name="Summary" type="VBoxContainer" parent="Center/Column"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="NewWorld" type="Label" parent="Center/Column"]
+layout_mode = 2
+text = "WORLD_END_NEW_WORLD"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Leave" type="Button" parent="Center/Column"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="CallingMusic" type="AudioStreamPlayer" parent="."]

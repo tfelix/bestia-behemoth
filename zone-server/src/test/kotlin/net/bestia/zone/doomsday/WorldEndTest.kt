@@ -187,6 +187,15 @@ class WorldEndTest {
   }
 
   @Test
+  fun `a preview shows the sequence and ends nothing`() {
+    val preview = worldEnd().preview(DoomEnding.SAVED)
+
+    assertEquals(WorldEndSMSG(DoomEnding.SAVED, "Genesis", DoomKind.VOID_TEAR, 300, 100, 2, 90), preview)
+    assertNull(stored)
+    verify(exactly = 0) { events.publishEvent(any<Any>()) }
+  }
+
+  @Test
   fun `a won Last Stand pushes the world back from the brink`() {
     fate = DoomEnding.LOST
     val end = worldEnd()

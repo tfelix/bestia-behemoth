@@ -57,6 +57,7 @@
 [ext_resource type="Script" path="res://Game/UI/Stronghold/plant_empyrite_dialog.gd" id="96_plantemp"]
 [ext_resource type="PackedScene" path="res://Game/UI/Stronghold/Stronghold.tscn" id="97_stronghold"]
 [ext_resource type="PackedScene" path="res://Game/UI/Announcement/AnnouncementBanner.tscn" id="98_announce"]
+[ext_resource type="PackedScene" path="res://Game/UI/WorldEnd/WorldEnd.tscn" id="99_world_end"]
 [ext_resource type="PackedScene" path="res://Game/UI/BestiaStorage/BestiaStoragePanel.tscn" id="99_bestiastorage"]
 [ext_resource type="PackedScene" path="res://Game/UI/Inn/InnPanel.tscn" id="100_inn"]
 [ext_resource type="PackedScene" path="res://Game/UI/BugReport/BugReport.tscn" id="101_bugreport"]
@@ -362,6 +363,9 @@ oversampling_override = 1.0
 
 [node name="PlantEmpyriteDialog" type="ConfirmationDialog" parent="."]
 script = ExtResource("96_plantemp")
+
+[node name="WorldEnd" parent="." instance=ExtResource("99_world_end")]
+layout_mode = 1
 
 [connection signal="equipment_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_equipment_win_toggled"]
 [connection signal="inventory_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_inventory_win_toggled"]
