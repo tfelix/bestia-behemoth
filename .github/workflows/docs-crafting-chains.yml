@@ -1,0 +1,76 @@
+# Keeps the docs page "Crafting Chains" in step with the recipe data. When one of the inputs changes on main,
+# this runs `./gradlew craftGraph` and opens (or updates) one draft PR in bestia-docs. Merging it is still a human call.
+#
+# Needs the repository secret DOCS_REPO_TOKEN: a token with contents and pull-requests write access to
+# tfelix/bestia-docs. GITHUB_TOKEN cannot reach another repository.
+name: Docs crafting chains
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - zone-server/src/main/resources/recipes.yml
+      - zone-server/src/main/resources/gear_recipes.yml
+      - zone-server/src/main/resources/items.yml
+      - zone-server/src/main/resources/starter_kit.yml
+      - bestia-client/src/Localization/items.csv
+      - buildSrc/src/main/kotlin/CraftGraphTask.kt
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One run at a time: they all push the same docs branch.
+concurrency:
+  group: docs-crafting-chains
+  cancel-in-progress: false
+
+env:
+  DOCS_BRANCH: docs/crafting-chains-sync
+  PAGE_DIR: content/docs/mechanics/items-crafting
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: tfelix/bestia-docs
+          ref: master
+          path: docs
+          token: ${{ secrets.DOCS_REPO_TOKEN }}
+
+      - name: Generate the page into the docs checkout
+        run: ./gradlew :zone-server:craftGraph -PdocsDir="$GITHUB_WORKSPACE/docs/$PAGE_DIR"
+
+      - name: Push a branch and open the PR when the page changed
+        working-directory: docs
+        env:
+          GH_TOKEN: ${{ secrets.DOCS_REPO_TOKEN }}
+        run: |
+          if git diff --quiet; then
+            echo "The page is up to date."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$DOCS_BRANCH"
+          git commit -am "docs: Regenerate the crafting chains page from current recipes
+
+          Output of ./gradlew craftGraph at bestia-behemoth ${GITHUB_SHA::9}."
+          git push --force origin "$DOCS_BRANCH"
+
+          # A push updates an open PR by itself. Open one only when none is open.
+          if [ -z "$(gh pr list --head "$DOCS_BRANCH" --state open --json number --jq '.[].number')" ]; then
+            gh pr create --draft --base master --head "$DOCS_BRANCH" \
+              --title "docs: Regenerate the crafting chains page from current recipes" \
+              --body "Unedited output of \`./gradlew craftGraph\`, opened by the Docs crafting chains workflow in bestia-behemoth. The recipe data changed on main."
+          fi
