@@ -104,6 +104,8 @@ func sustain(key: Variant, def: EntityFxDef) -> void:
 	var layer := Layer.new(def, def.duration)
 	layer.sustain_key = key
 	_layers.append(layer)
+	if def.particles_at == EntityFxDef.ParticlesAt.START:
+		_spawn_particles(def, layer.duration)
 	_resume()
 
 
