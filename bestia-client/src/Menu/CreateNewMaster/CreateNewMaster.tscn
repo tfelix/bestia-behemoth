@@ -7,6 +7,7 @@
 [ext_resource type="LabelSettings" uid="uid://k7yxyg5xi86r" path="res://Menu/Shared/muted_text_label_settings.tres" id="5_muted"]
 [ext_resource type="Texture2D" path="res://Theme/Icons/info-circle.svg" id="6_info"]
 [ext_resource type="PackedScene" path="res://Menu/CreateNewMaster/CharacterPreview/CharacterPreview.tscn" id="7_preview"]
+[ext_resource type="PackedScene" path="res://Game/UI/BugReport/BugReport.tscn" id="90_bugreport"]
 
 [node name="CreateNewMaster" type="Control"]
 layout_mode = 3
@@ -611,6 +612,9 @@ custom_minimum_size = Vector2(150, 38)
 layout_mode = 2
 theme_type_variation = &"PrimaryButton"
 text = "Create master"
+
+[node name="BugReport" parent="." instance=ExtResource("90_bugreport")]
+layout_mode = 1
 
 [connection signal="pressed" from="Margin/Layout/Body/StepPanel/Content/Footer/BackButton" to="." method="_on_back_button_pressed"]
 [connection signal="pressed" from="Margin/Layout/Body/StepPanel/Content/Footer/NextButton" to="." method="_on_next_button_pressed"]

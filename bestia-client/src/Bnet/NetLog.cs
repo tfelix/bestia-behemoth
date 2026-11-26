@@ -36,8 +36,13 @@ namespace BestiaBehemothClient.Bnet.Message
   /// </remarks>
   public static class NetLog
   {
-    /// Where a finished line goes, replaceable so the formatting can be tested without an engine.
-    public static Action<string> Sink { get; set; } = line => GD.Print(line);
+    /// Where a finished line goes, replaceable so the formatting can be tested without an engine. Bug reports
+    /// read the recent lines back from <see cref="NetLogTail"/>.
+    public static Action<string> Sink { get; set; } = line =>
+    {
+      NetLogTail.Remember(line);
+      GD.Print(line);
+    };
 
     /// How much the socket says. Summary is the one per second; Detail adds a line per message for
     /// whatever <see cref="SetFilter"/> lets through.

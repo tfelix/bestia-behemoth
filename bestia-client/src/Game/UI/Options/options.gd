@@ -11,6 +11,8 @@ enum PendingAction { NONE, MASTER_SELECT, DISCONNECT, EXIT }
 
 const MASTER_SELECT_SCENE := "res://Menu/MasterSelect/MasterSelect.tscn"
 
+@export var bug_report: BugReport
+
 @onready var _menu: Control = $Menu
 @onready var _countdown: Control = $Countdown
 @onready var _countdown_label: Label = $Countdown/CenterContainer/PanelContainer/VBoxContainer/CountdownLabel
@@ -37,6 +39,7 @@ func _ready() -> void:
 	$Menu/CenterContainer/PanelContainer/VBoxContainer/SettingsButton.pressed.connect(_show_settings)
 	$Menu/CenterContainer/PanelContainer/VBoxContainer/ContinueButton.pressed.connect(_hide_menu)
 	$Menu/CenterContainer/PanelContainer/VBoxContainer/RespawnButton.pressed.connect(_on_respawn_pressed)
+	$Menu/CenterContainer/PanelContainer/VBoxContainer/ReportBugButton.pressed.connect(_on_report_bug_pressed)
 	$Menu/CenterContainer/PanelContainer/VBoxContainer/MasterSelectButton.pressed.connect(_on_master_select_pressed)
 	$Menu/CenterContainer/PanelContainer/VBoxContainer/DisconnectButton.pressed.connect(_on_disconnect_pressed)
 	$Menu/CenterContainer/PanelContainer/VBoxContainer/ExitGameButton.pressed.connect(_on_exit_pressed)
@@ -140,6 +143,12 @@ func _on_respawn_pressed() -> void:
 
 func _on_dead_state_changed(is_dead: bool) -> void:
 	$Menu/CenterContainer/PanelContainer/VBoxContainer/RespawnButton.visible = is_dead
+
+
+## Closes the menu first, so the screenshot shows the game rather than the menu.
+func _on_report_bug_pressed() -> void:
+	_hide_menu()
+	bug_report.open_report()
 
 
 func _on_master_select_pressed() -> void:

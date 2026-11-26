@@ -59,6 +59,7 @@
 [ext_resource type="PackedScene" path="res://Game/UI/Announcement/AnnouncementBanner.tscn" id="98_announce"]
 [ext_resource type="PackedScene" path="res://Game/UI/BestiaStorage/BestiaStoragePanel.tscn" id="99_bestiastorage"]
 [ext_resource type="PackedScene" path="res://Game/UI/Inn/InnPanel.tscn" id="100_inn"]
+[ext_resource type="PackedScene" path="res://Game/UI/BugReport/BugReport.tscn" id="101_bugreport"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -313,7 +314,11 @@ visible = false
 layout_mode = 0
 script = ExtResource("94_readable")
 
-[node name="Options" parent="." unique_id=1824369574 instance=ExtResource("10_opts")]
+[node name="Options" parent="." unique_id=1824369574 node_paths=PackedStringArray("bug_report") instance=ExtResource("10_opts")]
+layout_mode = 1
+bug_report = NodePath("../BugReport")
+
+[node name="BugReport" parent="." instance=ExtResource("101_bugreport")]
 layout_mode = 1
 
 [node name="Death" parent="." unique_id=1824369575 instance=ExtResource("20_death")]

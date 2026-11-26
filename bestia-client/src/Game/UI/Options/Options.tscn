@@ -64,6 +64,10 @@ text = "Respawn"
 layout_mode = 2
 text = "Settings"
 
+[node name="ReportBugButton" type="Button" parent="Menu/CenterContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Report Bug"
+
 [node name="MasterSelectButton" type="Button" parent="Menu/CenterContainer/PanelContainer/VBoxContainer" unique_id=324027276]
 layout_mode = 2
 text = "Master Select"
