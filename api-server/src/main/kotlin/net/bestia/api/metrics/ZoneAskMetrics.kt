@@ -27,6 +27,7 @@ enum class ZoneQueryKind {
   MAP_PLACE,
   HABITAT_TILE,
   WHOSE_TICKET,
+  BUG_REPORT_SNAPSHOT,
   GUILD_EMBLEM,
   TEXT,
   SET_ORDERS,
@@ -79,6 +80,7 @@ enum class ZoneQueryKind {
         is ZoneQuery.MapPlace -> MAP_PLACE
         is ZoneQuery.HabitatTile -> HABITAT_TILE
         is ZoneQuery.WhoseTicket -> WHOSE_TICKET
+        is ZoneQuery.BugReportSnapshot -> BUG_REPORT_SNAPSHOT
         is ZoneQuery.GuildEmblem -> GUILD_EMBLEM
         is ZoneQuery.Text -> TEXT
         is ZoneQuery.SetOrders -> SET_ORDERS

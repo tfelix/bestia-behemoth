@@ -212,6 +212,12 @@ class EcsWorld(
     store(type).has(id)
   }
 
+  override fun componentsOf(id: EntityId): List<Component> {
+    return owner.requireOwned {
+      stores.values.mapNotNull { store -> if (store.size == 0) null else store.get(id) }
+    }
+  }
+
   override fun <T : Component> remove(id: EntityId, type: KClass<T>): T? = owner.requireOwned {
     checkDeclared(type)
     if (iterating) {

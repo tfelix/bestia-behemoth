@@ -248,6 +248,9 @@ sealed interface ZoneAnswer {
 
   data class TicketOwner(val accountId: Long) : ZoneAnswer
 
+  /** Already JSON: a dump of components whose shape the bus contract does not pin down. */
+  data class Snapshot(val json: String) : ZoneAnswer
+
   /** The orders as stored. */
   data class Orders(
     val playerBestiaId: Long,

@@ -39,6 +39,9 @@ interface World {
 
   fun <T : Component> has(id: EntityId, type: KClass<T>): Boolean
 
+  /** Every component on [id], for diagnostics like bug reports. Not for systems: it skips their declared access. */
+  fun componentsOf(id: EntityId): List<Component>
+
   /** A freshly created component starts dirty (see [DirtyTracked]), so adding one already queues it for sync. */
   fun <T : Component> add(id: EntityId, component: T): T
 

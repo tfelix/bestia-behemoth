@@ -6,6 +6,7 @@ import net.bestia.bus.contract.BusRequest
 import net.bestia.bus.contract.ZoneAnswer
 import net.bestia.bus.contract.ZoneQuery
 import net.bestia.zone.companion.query.BestiaQueries
+import net.bestia.zone.companion.query.BugReportSnapshots
 import net.bestia.zone.companion.query.CatalogQueries
 import net.bestia.zone.companion.query.ChatCommand
 import net.bestia.zone.companion.query.CompendiumQueries
@@ -54,6 +55,7 @@ class CompanionRequestDispatcher(
   private val parcels: ParcelQueries,
   private val surveys: SurveyCommands,
   private val texts: TextQueries,
+  private val bugReports: BugReportSnapshots,
 ) : RequestHandler {
 
   override fun handle(request: BusRequest): BusReply {
@@ -77,6 +79,7 @@ class CompanionRequestDispatcher(
       is ZoneQuery.MapPlace -> map.place(id, account, query)
       is ZoneQuery.HabitatTile -> map.habitat(id, account, query)
       is ZoneQuery.WhoseTicket -> tickets.owner(id, query)
+      is ZoneQuery.BugReportSnapshot -> bugReports.snapshot(id, account)
       is ZoneQuery.GuildEmblem -> emblems.emblem(id, query)
       is ZoneQuery.Text -> texts.text(id, query)
       is ZoneQuery.SetOrders -> orders.apply(id, account, query)

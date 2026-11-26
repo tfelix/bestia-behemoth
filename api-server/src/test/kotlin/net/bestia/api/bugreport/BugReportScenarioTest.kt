@@ -61,12 +61,17 @@ class BugReportScenarioTest : ApiScenarioTestBase() {
       .build()
     zoneClient = RedisClient.create(uri)
     zone = ValkeyRequestServer(zoneClient, "zone-1", { request ->
-      val query = request.query as ZoneQuery.WhoseTicket
-      val accountId = query.ticket.removePrefix("ticket-").toLongOrNull()
-      if (accountId != null) {
-        BusReply.ok(request.correlationId, ZoneAnswer.TicketOwner(accountId))
-      } else {
-        BusReply.of(request.correlationId, BusReply.Status.NOT_FOUND)
+      when (val query = request.query) {
+        is ZoneQuery.WhoseTicket -> query.ticket.removePrefix("ticket-").toLongOrNull()
+          ?.let { BusReply.ok(request.correlationId, ZoneAnswer.TicketOwner(it)) }
+          ?: BusReply.of(request.correlationId, BusReply.Status.NOT_FOUND)
+        // Account 9111 has no master in the world.
+        is ZoneQuery.BugReportSnapshot -> if (request.accountId == 9111L) {
+          BusReply.of(request.correlationId, BusReply.Status.NOT_FOUND)
+        } else {
+          BusReply.ok(request.correlationId, ZoneAnswer.Snapshot("""{"masterId":${request.accountId}}"""))
+        }
+        else -> BusReply.of(request.correlationId, BusReply.Status.INVALID)
       }
     })
   }
@@ -102,8 +107,9 @@ class BugReportScenarioTest : ApiScenarioTestBase() {
     assertEquals(77L, report.masterId)
     assertEquals("The wolf walks through walls", report.text)
     val stored = files.findAllByReportId(report.id).associate { it.name to it.content.toString(Charsets.UTF_8) }
-    assertEquals(setOf("screenshot.jpg", "client.log"), stored.keys)
+    assertEquals(setOf("screenshot.jpg", "client.log", "server.json"), stored.keys)
     assertEquals("signed in as <email>", stored["client.log"])
+    assertEquals("""{"masterId":9101}""", stored["server.json"])
   }
 
   @Test
@@ -172,7 +178,7 @@ class BugReportScenarioTest : ApiScenarioTestBase() {
     assertEquals("Trees float", issue.title)
     assertTrue("| `os` | Linux |" in issue.body)
     val folder = "reports/%04d/%02d/%d".format(sent.createdAt.year, sent.createdAt.monthValue, sent.id)
-    assertTrue(github.commits.any { it.keys == setOf("$folder/screenshot.jpg", "$folder/context.json") })
+    assertTrue(github.commits.any { it.keys == setOf("$folder/screenshot.jpg", "$folder/context.json", "$folder/server.json") })
     assertTrue(files.findAllByReportId(sent.id).isEmpty())
   }
 
@@ -226,6 +232,15 @@ class BugReportScenarioTest : ApiScenarioTestBase() {
     assertTrue(comment.startsWith("**Seen again.**"))
     assertTrue("client.log" in comment)
     assertEquals(1, github.issues.count { it.title == issue.title })
+  }
+
+  @Test
+  fun `a report from an account without a master in the world says why the zone's view is missing`() {
+    send(9111, mapOf("text" to "Stuck on the master select screen"))
+
+    val report = reports.findAll().single { it.accountId == 9111L }
+    val server = files.findAllByReportId(report.id).single { it.name == "server.json" }.content.toString(Charsets.UTF_8)
+    assertEquals("""{"unavailable":"the zone answered NOT_FOUND"}""", server)
   }
 
   private fun send(accountId: Long, parts: Map<String, Any>): ResponseEntity<String> {

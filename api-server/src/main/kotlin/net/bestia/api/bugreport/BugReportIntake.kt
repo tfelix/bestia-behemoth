@@ -1,7 +1,7 @@
 package net.bestia.api.bugreport
 
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.support.TransactionTemplate
 import java.time.LocalDateTime
 
 /** Keeps a report until the publisher takes it, unless its account is over its limits or shadow-banned. */
@@ -11,6 +11,8 @@ class BugReportIntake(
   private val reports: BugReportRepository,
   private val files: BugReportFileRepository,
   private val bans: BugReportBanRepository,
+  private val snapshots: ServerSnapshots,
+  private val transactions: TransactionTemplate,
 ) {
 
   data class Submission(
@@ -29,7 +31,6 @@ class BugReportIntake(
     RATE_LIMITED,
   }
 
-  @Transactional
   fun submit(submission: Submission): Outcome {
     if (isOverLimit(submission.accountId)) {
       return Outcome.RATE_LIMITED
@@ -41,8 +42,12 @@ class BugReportIntake(
       return Outcome.ACCEPTED
     }
 
-    val report = reports.save(reportOf(submission, submission.text, BugReport.Status.PENDING))
-    files.saveAll(submission.files.map { BugReportFile(report.id, it.name, it.content) })
+    // Asked before the transaction, so a slow zone holds no database connection.
+    val reportFiles = submission.files + snapshots.snapshotOf(submission.accountId)
+    transactions.executeWithoutResult {
+      val report = reports.save(reportOf(submission, submission.text, BugReport.Status.PENDING))
+      files.saveAll(reportFiles.map { BugReportFile(report.id, it.name, it.content) })
+    }
 
     return Outcome.ACCEPTED
   }
