@@ -9,6 +9,7 @@ import net.bestia.bnet.proto.Vec3OuterClass
 import net.bestia.zone.geometry.Vec3L
 
 data class SelfSMSG(
+  val accountId: Long,
   val masterId: Long,
   val masterEntityId: Long,
   val availableBestias: List<BestiaInfo>,
@@ -59,6 +60,7 @@ data class SelfSMSG(
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
     val selfBuilder = SelfSMSGProto.SelfSMSG.newBuilder()
+      .setAccountId(accountId)
       .setMasterId(masterId)
       .setMasterEntityId(masterEntityId)
       .setBestiaSlotCount(bestiaSlotCount)

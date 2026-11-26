@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "LootClaimComponentSMSGProto";
+
+// Who may pick up an item lying on the ground while only some may, sent to everyone in range. The holders see
+// the item glitter, everyone else sees it faded. Sent again when the claim passes on, as from a member's turn
+// to the whole party, and removed, with removed = true, once anybody may pick it up.
+message LootClaimComponentSMSG {
+  repeated uint64 holder_account_ids = 1;
+  bool removed = 2;
+}
