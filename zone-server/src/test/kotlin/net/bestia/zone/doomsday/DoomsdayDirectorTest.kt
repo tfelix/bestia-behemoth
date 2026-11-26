@@ -46,8 +46,11 @@ class DoomsdayDirectorTest {
       stages += from to to
     }
 
-    override fun step(progress: Double, realSeconds: Double) {
+    var pushes = 0.0
+
+    override fun step(fate: DoomFate, realSeconds: Double): Double {
       stepped += realSeconds
+      return pushes
     }
   }
 
@@ -101,6 +104,16 @@ class DoomsdayDirectorTest {
     assertEquals(15.0 * 86_400, threat.stepped, 1e-6)
     verify { events.publishEvent(DoomStageChanged(DoomKind.VOID_TEAR, 1.0, 2.0, DoomStage.OMENS, DoomStage.ONSET)) }
     verify { signs.remember(stored!!) }
+  }
+
+  @Test
+  fun `the players' deeds push the clock`() {
+    stored = StoredDoomsday(kind = DoomKind.VOID_TEAR, originX = 1.0, originY = 2.0, onsetDay = 0.0, unfoldDays = 100.0)
+    threat.pushes = -0.03
+
+    director().runAt(10.0)
+
+    assertEquals(0.07, stored!!.progress, 1e-9)
   }
 
   @Test
