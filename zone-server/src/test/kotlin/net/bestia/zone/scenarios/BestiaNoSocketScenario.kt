@@ -1,10 +1,13 @@
 package net.bestia.zone.scenarios
 
+import net.bestia.worldgen.core.ChunkPos
+import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.engine.NoSqlOnTickExtension
 import net.bestia.zone.mocks.GameClientMock
 import net.bestia.zone.mocks.GameClientMockFactory
 import net.bestia.zone.world.net.ChunkRequestCMSG
 import net.bestia.zone.world.stream.ChunkManifestSMSG
+import net.bestia.zone.world.stream.ChunkService
 import net.bestia.zone.world.stream.ChunkSubscriptionService
 import org.awaitility.Awaitility
 import org.junit.jupiter.api.AfterAll
@@ -18,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
 import org.springframework.test.context.ActiveProfiles
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 /**
@@ -113,10 +117,53 @@ abstract class BestiaNoSocketScenario(
       client.sendMessage(ChunkRequestCMSG(client.connectedPlayerId, offered))
       await { assertTrue(subscriptions.sentTo(client.connectedPlayerId).isNotEmpty()) }
     }
+
+    holdGroundAroundMaster(client)
+  }
+
+  /**
+   * A master may stand at the edge of its chunk, and a scenario puts things a few metres from it. Later manifests
+   * offer the chunks next to it, which the loop above may never see, so this asks until all of them are served.
+   */
+  private fun holdGroundAroundMaster(client: GameClientMock) {
+    val world = applicationContext.getBean(WorldView::class.java)
+    val subscriptions = applicationContext.getBean(ChunkSubscriptionService::class.java)
+    val accountId = client.connectedPlayerId
+    val asked = HashSet<ChunkPos>()
+
+    await {
+      // Read under a lease, because the subscriptions belong to the tick thread.
+      val (ground, held) = world.read { groundAround(accountId) to subscriptions.sentTo(accountId).toSet() }
+      val offered = ground.values.flatten()
+
+      val unasked = offered - asked
+      if (unasked.isNotEmpty()) {
+        client.sendMessage(ChunkRequestCMSG(accountId, unasked))
+        asked += unasked
+      }
+
+      assertTrue(ground.values.none { it.isEmpty() }, "every column around the master is offered")
+      assertTrue(held.containsAll(offered), "everything offered around the master is served")
+    }
+  }
+
+  /** The chunks offered to [accountId] in its master's chunk column and the eight around it, by column. */
+  private fun groundAround(accountId: Long): Map<ChunkPos, List<ChunkPos>> {
+    val subscriptions = applicationContext.getBean(ChunkSubscriptionService::class.java)
+    val chunks = applicationContext.getBean(ChunkService::class.java)
+    val anchor = assertNotNull(subscriptions.anchorOf(accountId), "the master stands in the world")
+    val offered = subscriptions.announcedTo(accountId).groupBy { it.copy(z = 0) }
+
+    return NEIGHBOUR_OFFSETS.associate { (dx, dy) ->
+      val column = chunks.normalise(ChunkPos(anchor.x + dx, anchor.y + dy))
+      column to offered[column].orEmpty()
+    }
   }
 
   private companion object {
     /** Enough passes to walk the request budget through a view volume; the loop stops early once served. */
     const val REQUEST_ROUNDS = 40
+
+    val NEIGHBOUR_OFFSETS = (-1..1).flatMap { dx -> (-1..1).map { dy -> dx to dy } }
   }
 }
