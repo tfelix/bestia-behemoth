@@ -27,26 +27,28 @@ namespace Bnet {
             "CjFtZXNzYWdlcy9jb21wb25lbnQvaW52ZW50b3J5X2NvbXBvbmVudF9zbXNn",
             "LnByb3RvEgRibmV0GihtZXNzYWdlcy9jb21wb25lbnQvaXRlbV9zdGF0X3Zh",
             "bHVlLnByb3RvGiVtZXNzYWdlcy9jb21wb25lbnQvaXRlbV9lc3NlbmNlLnBy",
-            "b3RvIkIKFkludmVudG9yeUNvbXBvbmVudFNNU0cSIgoFaXRlbXMYAiADKAsy",
-            "Ey5ibmV0LkludmVudG9yeUl0ZW1KBAgBEAIiyAMKDUludmVudG9yeUl0ZW0S",
-            "DwoHaXRlbV9pZBgBIAEoDRIRCgl1bmlxdWVfaWQYAiABKAQSDgoGYW1vdW50",
-            "GAMgASgNEhAKCGVxdWlwcGVkGAQgASgIEhIKCmR1cmFiaWxpdHkYBSABKA0S",
-            "FgoObWF4X2R1cmFiaWxpdHkYBiABKA0SDQoFc2xvdHMYByABKA0SFQoNdXBn",
-            "cmFkZV9sZXZlbBgIIAEoDRISCgppdGVtX2xldmVsGAkgASgNEikKDHJvbGxl",
-            "ZF9zdGF0cxgKIAMoCzITLmJuZXQuSXRlbVN0YXRWYWx1ZRIWCg5wbGF5ZXJf",
-            "aXRlbV9pZBgLIAEoBBISCgpjcmFmdGVkX2J5GAwgASgJEhIKCmNyYWZ0ZWRf",
-            "aW4YDSABKAkSIwoKbWFwX2NpcmNsZRgOIAEoCzIPLmJuZXQuTWFwQ2lyY2xl",
-            "Eg0KBXRpdGxlGA8gASgJEhMKBndlaWdodBgQIAEoDUgAiAEBEiMKCGVzc2Vu",
-            "Y2VzGBEgAygLMhEuYm5ldC5JdGVtRXNzZW5jZRInCgxoZWxkX2Vzc2VuY2UY",
-            "EiABKAsyES5ibmV0Lkl0ZW1Fc3NlbmNlQgkKB193ZWlnaHQiMQoJTWFwQ2ly",
-            "Y2xlEgkKAXgYASABKAESCQoBeRgCIAEoARIOCgZyYWRpdXMYAyABKAFCNAoV",
-            "bmV0LmJlc3RpYS5ibmV0LnByb3RvQhtJbnZlbnRvcnlDb21wb25lbnRTTVNH",
-            "UHJvdG9iBnByb3RvMw=="));
+            "b3RvGi5tZXNzYWdlcy9jb21wb25lbnQvaGVsZF9pdGVtX2VuY2hhbnRtZW50",
+            "LnByb3RvIkIKFkludmVudG9yeUNvbXBvbmVudFNNU0cSIgoFaXRlbXMYAiAD",
+            "KAsyEy5ibmV0LkludmVudG9yeUl0ZW1KBAgBEAIi+QMKDUludmVudG9yeUl0",
+            "ZW0SDwoHaXRlbV9pZBgBIAEoDRIRCgl1bmlxdWVfaWQYAiABKAQSDgoGYW1v",
+            "dW50GAMgASgNEhAKCGVxdWlwcGVkGAQgASgIEhIKCmR1cmFiaWxpdHkYBSAB",
+            "KA0SFgoObWF4X2R1cmFiaWxpdHkYBiABKA0SDQoFc2xvdHMYByABKA0SFQoN",
+            "dXBncmFkZV9sZXZlbBgIIAEoDRISCgppdGVtX2xldmVsGAkgASgNEikKDHJv",
+            "bGxlZF9zdGF0cxgKIAMoCzITLmJuZXQuSXRlbVN0YXRWYWx1ZRIWCg5wbGF5",
+            "ZXJfaXRlbV9pZBgLIAEoBBISCgpjcmFmdGVkX2J5GAwgASgJEhIKCmNyYWZ0",
+            "ZWRfaW4YDSABKAkSIwoKbWFwX2NpcmNsZRgOIAEoCzIPLmJuZXQuTWFwQ2ly",
+            "Y2xlEg0KBXRpdGxlGA8gASgJEhMKBndlaWdodBgQIAEoDUgAiAEBEiMKCGVz",
+            "c2VuY2VzGBEgAygLMhEuYm5ldC5JdGVtRXNzZW5jZRInCgxoZWxkX2Vzc2Vu",
+            "Y2UYEiABKAsyES5ibmV0Lkl0ZW1Fc3NlbmNlEi8KDGVuY2hhbnRtZW50cxgT",
+            "IAMoCzIZLmJuZXQuSGVsZEl0ZW1FbmNoYW50bWVudEIJCgdfd2VpZ2h0IjEK",
+            "CU1hcENpcmNsZRIJCgF4GAEgASgBEgkKAXkYAiABKAESDgoGcmFkaXVzGAMg",
+            "ASgBQjQKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IbSW52ZW50b3J5Q29tcG9u",
+            "ZW50U01TR1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::Bnet.ItemStatValueReflection.Descriptor, global::Bnet.ItemEssenceReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::Bnet.ItemStatValueReflection.Descriptor, global::Bnet.ItemEssenceReflection.Descriptor, global::Bnet.HeldItemEnchantmentReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryComponentSMSG), global::Bnet.InventoryComponentSMSG.Parser, new[]{ "Items" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryItem), global::Bnet.InventoryItem.Parser, new[]{ "ItemId", "UniqueId", "Amount", "Equipped", "Durability", "MaxDurability", "Slots", "UpgradeLevel", "ItemLevel", "RolledStats", "PlayerItemId", "CraftedBy", "CraftedIn", "MapCircle", "Title", "Weight", "Essences", "HeldEssence" }, new[]{ "Weight" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryItem), global::Bnet.InventoryItem.Parser, new[]{ "ItemId", "UniqueId", "Amount", "Equipped", "Durability", "MaxDurability", "Slots", "UpgradeLevel", "ItemLevel", "RolledStats", "PlayerItemId", "CraftedBy", "CraftedIn", "MapCircle", "Title", "Weight", "Essences", "HeldEssence", "Enchantments" }, new[]{ "Weight" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.MapCircle), global::Bnet.MapCircle.Parser, new[]{ "X", "Y", "Radius" }, null, null, null, null)
           }));
     }
@@ -300,6 +302,7 @@ namespace Bnet {
       weight_ = other.weight_;
       essences_ = other.essences_.Clone();
       heldEssence_ = other.heldEssence_ != null ? other.heldEssence_.Clone() : null;
+      enchantments_ = other.enchantments_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -579,6 +582,20 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "enchantments" field.</summary>
+    public const int EnchantmentsFieldNumber = 19;
+    private static readonly pb::FieldCodec<global::Bnet.HeldItemEnchantment> _repeated_enchantments_codec
+        = pb::FieldCodec.ForMessage(154, global::Bnet.HeldItemEnchantment.Parser);
+    private readonly pbc::RepeatedField<global::Bnet.HeldItemEnchantment> enchantments_ = new pbc::RepeatedField<global::Bnet.HeldItemEnchantment>();
+    /// <summary>
+    /// The spells bound to this copy, like a mail sack's seal. Ended ones are left out.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Bnet.HeldItemEnchantment> Enchantments {
+      get { return enchantments_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -612,6 +629,7 @@ namespace Bnet {
       if (Weight != other.Weight) return false;
       if(!essences_.Equals(other.essences_)) return false;
       if (!object.Equals(HeldEssence, other.HeldEssence)) return false;
+      if(!enchantments_.Equals(other.enchantments_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -637,6 +655,7 @@ namespace Bnet {
       if (HasWeight) hash ^= Weight.GetHashCode();
       hash ^= essences_.GetHashCode();
       if (heldEssence_ != null) hash ^= HeldEssence.GetHashCode();
+      hash ^= enchantments_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -721,6 +740,7 @@ namespace Bnet {
         output.WriteRawTag(146, 1);
         output.WriteMessage(HeldEssence);
       }
+      enchantments_.WriteTo(output, _repeated_enchantments_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -797,6 +817,7 @@ namespace Bnet {
         output.WriteRawTag(146, 1);
         output.WriteMessage(HeldEssence);
       }
+      enchantments_.WriteTo(ref output, _repeated_enchantments_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -857,6 +878,7 @@ namespace Bnet {
       if (heldEssence_ != null) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(HeldEssence);
       }
+      size += enchantments_.CalculateSize(_repeated_enchantments_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -925,6 +947,7 @@ namespace Bnet {
         }
         HeldEssence.MergeFrom(other.HeldEssence);
       }
+      enchantments_.Add(other.enchantments_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -1022,6 +1045,10 @@ namespace Bnet {
             input.ReadMessage(HeldEssence);
             break;
           }
+          case 154: {
+            enchantments_.AddEntriesFrom(input, _repeated_enchantments_codec);
+            break;
+          }
         }
       }
     #endif
@@ -1117,6 +1144,10 @@ namespace Bnet {
               HeldEssence = new global::Bnet.ItemEssence();
             }
             input.ReadMessage(HeldEssence);
+            break;
+          }
+          case 154: {
+            enchantments_.AddEntriesFrom(ref input, _repeated_enchantments_codec);
             break;
           }
         }

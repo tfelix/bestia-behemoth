@@ -1,10 +1,12 @@
 package net.bestia.zone.item.container
 
 import net.bestia.zone.item.ItemProvenance
+import net.bestia.zone.item.enchant.ActiveItemEnchantment
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.essence.Essence
 import net.bestia.zone.item.stat.StatValue
 import net.bestia.zone.item.persistence.ContainerSlot
+import java.time.Instant
 
 /**
  * One line of goods held out of an inventory - a trade offer, later an auction listing - carrying everything a caller needs to mirror it without going back to the
@@ -30,6 +32,7 @@ data class ReservedItem(
   val provenance: ItemProvenance? = null,
   val essences: List<Essence> = emptyList(),
   val heldEssence: Essence? = null,
+  val enchantments: List<ActiveItemEnchantment> = emptyList(),
 ) {
 
   fun toLiveItem(): Inventory.Item {
@@ -48,6 +51,7 @@ data class ReservedItem(
       provenance = provenance,
       essences = essences,
       heldEssence = heldEssence,
+      enchantments = enchantments,
     )
   }
 
@@ -60,7 +64,7 @@ data class ReservedItem(
       )
     }
 
-    fun of(slot: ContainerSlot, itemLevel: Int): ReservedItem {
+    fun of(slot: ContainerSlot, itemLevel: Int, now: Instant = Instant.now()): ReservedItem {
       val template = slot.template
 
       return ReservedItem(
@@ -79,6 +83,7 @@ data class ReservedItem(
         provenance = slot.heldProvenance,
         essences = slot.essences,
         heldEssence = slot.heldEssence,
+        enchantments = slot.enchantments(now),
       )
     }
   }

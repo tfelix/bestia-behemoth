@@ -1,6 +1,7 @@
 package net.bestia.zone.item.ecs
 
 import net.bestia.zone.item.ItemProvenance
+import net.bestia.zone.item.enchant.HeldItemEnchantment
 import net.bestia.zone.item.essence.Essence
 import net.bestia.zone.item.stat.StatValue
 import net.bestia.bnet.proto.EquipmentComponentSMSGProto
@@ -28,6 +29,7 @@ data class EquipmentComponentSMSG(
         .setCraftedBy(item.provenance?.crafterName.orEmpty())
         .setCraftedIn(item.provenance?.worldName.orEmpty())
         .addAllEssences(item.essences.map { it.toProto() })
+        .addAllEnchantments(item.enchantments.map { it.toProto() })
         .build()
     }
 
@@ -51,6 +53,7 @@ data class EquipmentComponentSMSG(
     val itemLevel: Int = 0,
     val rolledStats: List<StatValue> = emptyList(),
     val provenance: ItemProvenance? = null,
-    val essences: List<Essence> = emptyList()
+    val essences: List<Essence> = emptyList(),
+    val enchantments: List<HeldItemEnchantment> = emptyList()
   )
 }

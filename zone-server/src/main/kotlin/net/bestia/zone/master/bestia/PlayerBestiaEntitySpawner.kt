@@ -57,6 +57,7 @@ import net.bestia.zone.account.persistence.PlayerBestiaRepository
 import net.bestia.zone.account.persistence.StoredVitals
 import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.bestia.persistence.findByIdOrThrow
+import java.time.Instant
 
 @Component
 class PlayerBestiaEntitySpawner(
@@ -309,6 +310,8 @@ class PlayerBestiaEntitySpawner(
    * server-side half of that rule.
    */
   private fun buildEquipment(playerBestia: PlayerBestia): Equipment {
+    val now = Instant.now()
+
     return Equipment(
       availableSlotMask = playerBestia.bestia.equipSlotMask,
       wearableArmorTypeMask = playerBestia.bestia.armorTypeMask,
@@ -323,7 +326,8 @@ class PlayerBestiaEntitySpawner(
           itemLevel = itemStats.itemLevelOf(slot),
           rolledStats = slot.rolledStats,
           provenance = slot.heldProvenance,
-          essences = slot.essences
+          essences = slot.essences,
+          enchantments = slot.enchantments(now)
         )
       }.toMutableMap(),
       quiver = playerBestia.container.quiver.toMutableList()

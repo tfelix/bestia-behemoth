@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import net.bestia.zone.item.enchant.ActiveItemEnchantment
+import net.bestia.zone.item.enchant.ItemEnchantmentId
 
 class EquipmentChangesTest {
 
@@ -30,6 +32,18 @@ class EquipmentChangesTest {
     assertEquals(77L, worn?.uniqueId)
     assertEquals(30, equipment.get(EquipmentSlot.RIGHT_HAND)?.durability)
     assertTrue(sword.equipped)
+  }
+
+  @Test
+  fun `putting on carries the copy's enchantments into the slot and to the client`() {
+    val seal = ActiveItemEnchantment(ItemEnchantmentId.POSTAL_SEAL, strength = 70)
+    sword.enchantments = listOf(seal)
+
+    changes.putOn(equipment, inventory, EquipmentSlot.RIGHT_HAND, sword, itemLevel = 3)
+
+    assertEquals(listOf(seal), equipment.get(EquipmentSlot.RIGHT_HAND)?.enchantments)
+    val sent = equipment.toEntityMessage(entityId = 5L, removed = false) as EquipmentComponentSMSG
+    assertEquals(listOf(1L), sent.items.single().enchantments.map { it.enchantmentId })
   }
 
   @Test

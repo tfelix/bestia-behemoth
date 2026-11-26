@@ -295,7 +295,8 @@ class CourierService(
     val template = itemRepository.findByIdentifierOrThrow(MAIL_SACK)
     val sack = inventoryService.mintInstanceForMaster(courierMasterId, template)
     sack.heldWeight = weight
-    sack.enchant(ActiveItemEnchantment(ItemEnchantmentId.POSTAL_SEAL, PostalSeal.STRENGTH))
+    val seal = ActiveItemEnchantment(ItemEnchantmentId.POSTAL_SEAL, PostalSeal.STRENGTH)
+    sack.enchant(seal)
 
     wanted.forEach { parcel ->
       parcel.sackInstanceId = sack.id
@@ -305,7 +306,7 @@ class CourierService(
     return ReservedItem(
       offerSlotId = 0L, itemId = template.id, amount = 1, weight = weight, uniqueId = sack.id, stackable = false,
       durability = 0, maxDurability = 0, slots = 0, upgradeLevel = 0, itemLevel = template.baseLevel,
-      rolledStats = emptyList(),
+      rolledStats = emptyList(), enchantments = listOf(seal),
     )
   }
 

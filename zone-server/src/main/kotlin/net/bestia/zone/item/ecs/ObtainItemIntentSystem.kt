@@ -24,6 +24,7 @@ import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.persistence.retryingTransientFailures
+import java.time.Instant
 
 /**
  * Resolves [ObtainItemIntent]s: whichever entity has one attached (master or player bestia,
@@ -281,9 +282,14 @@ class ObtainItemIntentSystem(
           )
         }
         // Otherwise a half-burnt torch picked back up would look, and fold back into its pile, as a fresh one.
+        // The ground only had a copy of the enchantments. A seal's copy ran its return timer, which is no
+        // business of the sack in a bag.
         reattached?.let { instance ->
+          val enchantments = inventoryService.enchantmentsOf(instance.id, Instant.now())
           worldView.modify(entityId) { id ->
-            get(id, Inventory::class)?.mirrorWear(instance.id, instance.durability, instance.maxDurability)
+            val inventory = get(id, Inventory::class) ?: return@modify
+            inventory.mirrorWear(instance.id, instance.durability, instance.maxDurability)
+            inventory.mirrorEnchantments(instance.id, enchantments)
           }
         }
       } catch (e: Exception) {

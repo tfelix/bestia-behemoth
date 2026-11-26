@@ -1,6 +1,7 @@
 package net.bestia.zone.item.ecs
 
 import net.bestia.zone.item.ItemProvenance
+import net.bestia.zone.item.enchant.HeldItemEnchantment
 import net.bestia.zone.item.essence.Essence
 import net.bestia.zone.item.stat.StatValue
 import net.bestia.bnet.proto.InventoryComponentSMSGProto
@@ -33,6 +34,7 @@ data class InventoryComponentSMSG(
         .apply { item.weight?.let { setWeight(it) } }
         .addAllEssences(item.essences.map { it.toProto() })
         .apply { item.heldEssence?.let { setHeldEssence(it.toProto()) } }
+        .addAllEnchantments(item.enchantments.map { it.toProto() })
         .build()
     }
 
@@ -60,6 +62,7 @@ data class InventoryComponentSMSG(
     val title: String? = null,
     val weight: Int? = null,
     val essences: List<Essence> = emptyList(),
-    val heldEssence: Essence? = null
+    val heldEssence: Essence? = null,
+    val enchantments: List<HeldItemEnchantment> = emptyList()
   )
 }

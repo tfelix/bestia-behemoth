@@ -27,21 +27,24 @@ namespace Bnet {
             "CjFtZXNzYWdlcy9jb21wb25lbnQvZXF1aXBtZW50X2NvbXBvbmVudF9zbXNn",
             "LnByb3RvEgRibmV0GihtZXNzYWdlcy9jb21wb25lbnQvaXRlbV9zdGF0X3Zh",
             "bHVlLnByb3RvGiVtZXNzYWdlcy9jb21wb25lbnQvaXRlbV9lc3NlbmNlLnBy",
-            "b3RvIloKFkVxdWlwbWVudENvbXBvbmVudFNNU0cSIQoFaXRlbXMYAiADKAsy",
-            "Ei5ibmV0LkVxdWlwcGVkSXRlbRIXCg9xdWl2ZXJfaXRlbV9pZHMYAyADKA1K",
-            "BAgBEAIingIKDEVxdWlwcGVkSXRlbRIMCgRzbG90GAEgASgNEg8KB2l0ZW1f",
-            "aWQYAiABKA0SEQoJdW5pcXVlX2lkGAMgASgEEhIKCmR1cmFiaWxpdHkYBCAB",
-            "KA0SFgoObWF4X2R1cmFiaWxpdHkYBSABKA0SDQoFc2xvdHMYBiABKA0SFQoN",
-            "dXBncmFkZV9sZXZlbBgHIAEoDRISCgppdGVtX2xldmVsGAggASgNEikKDHJv",
-            "bGxlZF9zdGF0cxgJIAMoCzITLmJuZXQuSXRlbVN0YXRWYWx1ZRISCgpjcmFm",
-            "dGVkX2J5GAogASgJEhIKCmNyYWZ0ZWRfaW4YCyABKAkSIwoIZXNzZW5jZXMY",
-            "DCADKAsyES5ibmV0Lkl0ZW1Fc3NlbmNlQjQKFW5ldC5iZXN0aWEuYm5ldC5w",
-            "cm90b0IbRXF1aXBtZW50Q29tcG9uZW50U01TR1Byb3RvYgZwcm90bzM="));
+            "b3RvGi5tZXNzYWdlcy9jb21wb25lbnQvaGVsZF9pdGVtX2VuY2hhbnRtZW50",
+            "LnByb3RvIloKFkVxdWlwbWVudENvbXBvbmVudFNNU0cSIQoFaXRlbXMYAiAD",
+            "KAsyEi5ibmV0LkVxdWlwcGVkSXRlbRIXCg9xdWl2ZXJfaXRlbV9pZHMYAyAD",
+            "KA1KBAgBEAIizwIKDEVxdWlwcGVkSXRlbRIMCgRzbG90GAEgASgNEg8KB2l0",
+            "ZW1faWQYAiABKA0SEQoJdW5pcXVlX2lkGAMgASgEEhIKCmR1cmFiaWxpdHkY",
+            "BCABKA0SFgoObWF4X2R1cmFiaWxpdHkYBSABKA0SDQoFc2xvdHMYBiABKA0S",
+            "FQoNdXBncmFkZV9sZXZlbBgHIAEoDRISCgppdGVtX2xldmVsGAggASgNEikK",
+            "DHJvbGxlZF9zdGF0cxgJIAMoCzITLmJuZXQuSXRlbVN0YXRWYWx1ZRISCgpj",
+            "cmFmdGVkX2J5GAogASgJEhIKCmNyYWZ0ZWRfaW4YCyABKAkSIwoIZXNzZW5j",
+            "ZXMYDCADKAsyES5ibmV0Lkl0ZW1Fc3NlbmNlEi8KDGVuY2hhbnRtZW50cxgN",
+            "IAMoCzIZLmJuZXQuSGVsZEl0ZW1FbmNoYW50bWVudEI0ChVuZXQuYmVzdGlh",
+            "LmJuZXQucHJvdG9CG0VxdWlwbWVudENvbXBvbmVudFNNU0dQcm90b2IGcHJv",
+            "dG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::Bnet.ItemStatValueReflection.Descriptor, global::Bnet.ItemEssenceReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::Bnet.ItemStatValueReflection.Descriptor, global::Bnet.ItemEssenceReflection.Descriptor, global::Bnet.HeldItemEnchantmentReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.EquipmentComponentSMSG), global::Bnet.EquipmentComponentSMSG.Parser, new[]{ "Items", "QuiverItemIds" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.EquippedItem), global::Bnet.EquippedItem.Parser, new[]{ "Slot", "ItemId", "UniqueId", "Durability", "MaxDurability", "Slots", "UpgradeLevel", "ItemLevel", "RolledStats", "CraftedBy", "CraftedIn", "Essences" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.EquippedItem), global::Bnet.EquippedItem.Parser, new[]{ "Slot", "ItemId", "UniqueId", "Durability", "MaxDurability", "Slots", "UpgradeLevel", "ItemLevel", "RolledStats", "CraftedBy", "CraftedIn", "Essences", "Enchantments" }, null, null, null, null)
           }));
     }
     #endregion
@@ -322,6 +325,7 @@ namespace Bnet {
       craftedBy_ = other.craftedBy_;
       craftedIn_ = other.craftedIn_;
       essences_ = other.essences_.Clone();
+      enchantments_ = other.enchantments_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -498,6 +502,20 @@ namespace Bnet {
       get { return essences_; }
     }
 
+    /// <summary>Field number for the "enchantments" field.</summary>
+    public const int EnchantmentsFieldNumber = 13;
+    private static readonly pb::FieldCodec<global::Bnet.HeldItemEnchantment> _repeated_enchantments_codec
+        = pb::FieldCodec.ForMessage(106, global::Bnet.HeldItemEnchantment.Parser);
+    private readonly pbc::RepeatedField<global::Bnet.HeldItemEnchantment> enchantments_ = new pbc::RepeatedField<global::Bnet.HeldItemEnchantment>();
+    /// <summary>
+    /// See InventoryItem.enchantments.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Bnet.HeldItemEnchantment> Enchantments {
+      get { return enchantments_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -525,6 +543,7 @@ namespace Bnet {
       if (CraftedBy != other.CraftedBy) return false;
       if (CraftedIn != other.CraftedIn) return false;
       if(!essences_.Equals(other.essences_)) return false;
+      if(!enchantments_.Equals(other.enchantments_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -544,6 +563,7 @@ namespace Bnet {
       if (CraftedBy.Length != 0) hash ^= CraftedBy.GetHashCode();
       if (CraftedIn.Length != 0) hash ^= CraftedIn.GetHashCode();
       hash ^= essences_.GetHashCode();
+      hash ^= enchantments_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -604,6 +624,7 @@ namespace Bnet {
         output.WriteString(CraftedIn);
       }
       essences_.WriteTo(output, _repeated_essences_codec);
+      enchantments_.WriteTo(output, _repeated_enchantments_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -656,6 +677,7 @@ namespace Bnet {
         output.WriteString(CraftedIn);
       }
       essences_.WriteTo(ref output, _repeated_essences_codec);
+      enchantments_.WriteTo(ref output, _repeated_enchantments_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -698,6 +720,7 @@ namespace Bnet {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(CraftedIn);
       }
       size += essences_.CalculateSize(_repeated_essences_codec);
+      size += enchantments_.CalculateSize(_repeated_enchantments_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -742,6 +765,7 @@ namespace Bnet {
         CraftedIn = other.CraftedIn;
       }
       essences_.Add(other.essences_);
+      enchantments_.Add(other.enchantments_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -809,6 +833,10 @@ namespace Bnet {
             essences_.AddEntriesFrom(input, _repeated_essences_codec);
             break;
           }
+          case 106: {
+            enchantments_.AddEntriesFrom(input, _repeated_enchantments_codec);
+            break;
+          }
         }
       }
     #endif
@@ -874,6 +902,10 @@ namespace Bnet {
           }
           case 98: {
             essences_.AddEntriesFrom(ref input, _repeated_essences_codec);
+            break;
+          }
+          case 106: {
+            enchantments_.AddEntriesFrom(ref input, _repeated_enchantments_codec);
             break;
           }
         }

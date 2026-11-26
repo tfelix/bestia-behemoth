@@ -73,6 +73,7 @@ import net.bestia.zone.fact.ecs.KnownFacts
 import net.bestia.zone.quest.ecs.ActiveQuests
 import net.bestia.zone.quest.QuestService
 import net.bestia.zone.workexp.WorkExpLedger
+import java.time.Instant
 
 /**
  * Materializes an already persisted [Master] row into a live ECS entity carrying every component a player
@@ -292,6 +293,8 @@ class MasterEntitySpawner(
    * not by a static mask like a bestia species has.
    */
   private fun buildEquipment(master: Master): Equipment {
+    val now = Instant.now()
+
     return Equipment(
       availableSlotMask = EquipmentSlots.ALL,
       worn = master.container.equipped().mapValues { (_, slot) ->
@@ -305,7 +308,8 @@ class MasterEntitySpawner(
           itemLevel = itemStats.itemLevelOf(slot),
           rolledStats = slot.rolledStats,
           provenance = slot.heldProvenance,
-          essences = slot.essences
+          essences = slot.essences,
+          enchantments = slot.enchantments(now)
         )
       }.toMutableMap(),
       quiver = master.container.quiver.toMutableList()

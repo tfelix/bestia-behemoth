@@ -37,6 +37,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.dao.CannotAcquireLockException
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.item.material.ItemMaterial
+import net.bestia.zone.item.enchant.ActiveItemEnchantment
+import net.bestia.zone.item.enchant.ItemEnchantmentId
+import java.time.Instant
 
 @ExtendWith(MockKExtension::class)
 class ObtainItemIntentSystemTest {
@@ -360,6 +363,29 @@ class ObtainItemIntentSystemTest {
       val copy = world.get(looter, Inventory::class)!!.byPlayerItemId(78L)!!
       assertEquals(120, copy.durability)
       assertEquals(360, copy.maxDurability)
+    }
+  }
+
+  @Test
+  fun `a sack picked back up shows the seal its rows hold, not the ground's return timer`() {
+    setUp()
+    stub(sword)
+    val seal = ActiveItemEnchantment(ItemEnchantmentId.POSTAL_SEAL, strength = 70)
+    every { inventoryService.grantToOwner(MASTER_ID, null, sword.id, 1, 78L, any(), any(), any()) } returns
+      ItemInstance(item = sword, id = 78L)
+    every { inventoryService.enchantmentsOf(78L, any()) } returns listOf(seal)
+    val looter = createCarrier(capacityMax = 2475, pos = Vec3L(0, 0, 0))
+    val groundStack = world.createEntity { id ->
+      add(id, Position.fromVec3(Vec3L(0, 0, 0)))
+      add(id, GroundItemStack(itemId = sword.id, amount = 1, uniqueId = 78L))
+      add(id, ItemEnchantments(listOf(seal.copy(endsAt = Instant.now().plusSeconds(30))), Instant.now()))
+    }
+
+    world.modify(looter) { id -> add(id, ObtainItemIntent.LootItemIntent(sourceEntityItemStackId = groundStack)) }
+    world.tick(0.1f)
+
+    Awaitility.await().atMost(Duration.ofSeconds(1)).untilAsserted {
+      assertEquals(listOf(seal), world.get(looter, Inventory::class)!!.byPlayerItemId(78L)!!.enchantments)
     }
   }
 
