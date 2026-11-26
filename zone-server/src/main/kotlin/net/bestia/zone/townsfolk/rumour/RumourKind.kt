@@ -61,4 +61,16 @@ enum class RumourKind(
 
   /** Nobody came: the seal broke, and what it held is free. */
   SEAL_BROKEN(baseImportance = 90, lifetimeDays = 40),
+
+  /** Brigands robbed travellers on the road, and their tracks lead into the hills. See `TownRaidEvent`. */
+  ROAD_ROBBED(baseImportance = 55, lifetimeDays = 3),
+
+  /** The brigands came down from the hills and march on the town. */
+  RAIDERS_MARCH(baseImportance = 75, lifetimeDays = 2),
+
+  /** The brigands and their chief were killed before they could take anything. */
+  RAIDERS_ROUTED(baseImportance = 60, lifetimeDays = 15),
+
+  /** Nobody stopped them: the brigands plundered the town and left. */
+  TOWN_RAIDED(baseImportance = 80, lifetimeDays = 30),
 }

@@ -79,3 +79,18 @@ events:
     felt-from: 2
     loot:
       - { item: mana_crystal, amount: 10 }
+
+  # Brigands eye the richest town of a province that has old enemies in its history, a full purse and few masters
+  # in its streets. They rob the road and camp in the hills for a Bestia day; their tracks lead there. Then they
+  # march on the town, plunder it for a few hours and leave. Killing the chief and the band ends the raid.
+  - id: town-raid
+    script: TownRaid
+    cost: 3
+    weight: 1
+    cooldown: 8
+    lasts: 1.5
+    family: people
+    felt-from: 2
+    loot:
+      - { item: rough_gem, amount: 4 }
+      - { item: silver_ingot, amount: 3 }
