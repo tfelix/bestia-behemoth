@@ -56,6 +56,9 @@ sealed interface ZoneQuery {
    */
   data class WhoseTicket(val ticket: String) : ZoneQuery
 
+  /** The zone's own view of the asker's master and its surroundings, for a bug report. Answered with [ZoneAnswer.Snapshot]. */
+  data object BugReportSnapshot : ZoneQuery
+
   /**
    * A guild emblem by the hash that names it. Not checked against the asker: an emblem shows on every member's
    * name tag, so whoever can see one may see the picture.
