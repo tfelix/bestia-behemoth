@@ -25,16 +25,16 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ch9tZXNzYWdlcy9tYXN0ZXIvc2VsZl9zbXNnLnByb3RvEgRibmV0GiFtZXNz",
-            "YWdlcy9tYXN0ZXIvYmVzdGlhX2luZm8ucHJvdG8iogEKCFNlbGZTTVNHEhEK",
+            "YWdlcy9tYXN0ZXIvYmVzdGlhX2luZm8ucHJvdG8itgEKCFNlbGZTTVNHEhEK",
             "CW1hc3Rlcl9pZBgBIAEoBBIYChBtYXN0ZXJfZW50aXR5X2lkGAIgASgEEisK",
             "EWF2YWlsYWJsZV9iZXN0aWFzGAMgAygLMhAuYm5ldC5CZXN0aWFJbmZvEhkK",
-            "EWJlc3RpYV9zbG90X2NvdW50GAUgASgNSgQIBBAFUhtoYXNfcGVyZm9ybWVk",
-            "X21hc3Rlcl9yaXR1YWxCJgoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQg1TZWxm",
-            "U01TR1Byb3RvYgZwcm90bzM="));
+            "EWJlc3RpYV9zbG90X2NvdW50GAUgASgNEhIKCmFjY291bnRfaWQYBiABKARK",
+            "BAgEEAVSG2hhc19wZXJmb3JtZWRfbWFzdGVyX3JpdHVhbEImChVuZXQuYmVz",
+            "dGlhLmJuZXQucHJvdG9CDVNlbGZTTVNHUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.BestiaInfoReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SelfSMSG), global::Bnet.SelfSMSG.Parser, new[]{ "MasterId", "MasterEntityId", "AvailableBestias", "BestiaSlotCount" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SelfSMSG), global::Bnet.SelfSMSG.Parser, new[]{ "MasterId", "MasterEntityId", "AvailableBestias", "BestiaSlotCount", "AccountId" }, null, null, null, null)
           }));
     }
     #endregion
@@ -85,6 +85,7 @@ namespace Bnet {
       masterEntityId_ = other.masterEntityId_;
       availableBestias_ = other.availableBestias_.Clone();
       bestiaSlotCount_ = other.bestiaSlotCount_;
+      accountId_ = other.accountId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -144,6 +145,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "account_id" field.</summary>
+    public const int AccountIdFieldNumber = 6;
+    private ulong accountId_;
+    /// <summary>
+    /// The player's account, which a loot claim names.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong AccountId {
+      get { return accountId_; }
+      set {
+        accountId_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -163,6 +179,7 @@ namespace Bnet {
       if (MasterEntityId != other.MasterEntityId) return false;
       if(!availableBestias_.Equals(other.availableBestias_)) return false;
       if (BestiaSlotCount != other.BestiaSlotCount) return false;
+      if (AccountId != other.AccountId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -174,6 +191,7 @@ namespace Bnet {
       if (MasterEntityId != 0UL) hash ^= MasterEntityId.GetHashCode();
       hash ^= availableBestias_.GetHashCode();
       if (BestiaSlotCount != 0) hash ^= BestiaSlotCount.GetHashCode();
+      if (AccountId != 0UL) hash ^= AccountId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -205,6 +223,10 @@ namespace Bnet {
         output.WriteRawTag(40);
         output.WriteUInt32(BestiaSlotCount);
       }
+      if (AccountId != 0UL) {
+        output.WriteRawTag(48);
+        output.WriteUInt64(AccountId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -228,6 +250,10 @@ namespace Bnet {
         output.WriteRawTag(40);
         output.WriteUInt32(BestiaSlotCount);
       }
+      if (AccountId != 0UL) {
+        output.WriteRawTag(48);
+        output.WriteUInt64(AccountId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -247,6 +273,9 @@ namespace Bnet {
       size += availableBestias_.CalculateSize(_repeated_availableBestias_codec);
       if (BestiaSlotCount != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(BestiaSlotCount);
+      }
+      if (AccountId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(AccountId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -269,6 +298,9 @@ namespace Bnet {
       availableBestias_.Add(other.availableBestias_);
       if (other.BestiaSlotCount != 0) {
         BestiaSlotCount = other.BestiaSlotCount;
+      }
+      if (other.AccountId != 0UL) {
+        AccountId = other.AccountId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -305,6 +337,10 @@ namespace Bnet {
             BestiaSlotCount = input.ReadUInt32();
             break;
           }
+          case 48: {
+            AccountId = input.ReadUInt64();
+            break;
+          }
         }
       }
     #endif
@@ -338,6 +374,10 @@ namespace Bnet {
           }
           case 40: {
             BestiaSlotCount = input.ReadUInt32();
+            break;
+          }
+          case 48: {
+            AccountId = input.ReadUInt64();
             break;
           }
         }

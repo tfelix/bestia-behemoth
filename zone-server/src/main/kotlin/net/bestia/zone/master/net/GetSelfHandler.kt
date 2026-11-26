@@ -85,6 +85,7 @@ class GetSelfHandler(
     val bestiaInfos = bestiaInfoFactory.getBestiaInfo(bestiaEntities)
 
     return SelfSMSG(
+      accountId = accountId,
       masterId = masterId,
       masterEntityId = selectedMasterEntityId,
       availableBestias = bestiaInfos,

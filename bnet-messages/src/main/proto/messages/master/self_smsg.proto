@@ -26,4 +26,7 @@ message SelfSMSG {
 
   // Same as OwnedBestiasSMSG.bestia_slot_count.
   uint32 bestia_slot_count = 5;
+
+  // The player's account, which a loot claim names.
+  uint64 account_id = 6;
 }
