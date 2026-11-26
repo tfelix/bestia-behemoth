@@ -19,4 +19,6 @@ interface NotebookHeadRepository : JpaRepository<NotebookHead, Long> {
     ownerId: Long,
     collection: String,
   ): NotebookHead?
+
+  fun findAllByCollection(collection: String): List<NotebookHead>
 }

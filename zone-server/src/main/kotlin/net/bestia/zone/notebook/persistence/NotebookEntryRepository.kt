@@ -23,4 +23,6 @@ interface NotebookEntryRepository : JpaRepository<NotebookEntry, Long> {
     ownerId: Long,
     collection: String,
   ): Long
+
+  fun deleteAllByCollection(collection: String)
 }
