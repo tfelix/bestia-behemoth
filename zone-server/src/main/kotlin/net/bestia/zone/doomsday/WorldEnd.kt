@@ -38,6 +38,7 @@ class WorldEnd(
   private val fates: SettlementFates,
   private val out: OutMessageProcessor,
   private val events: ApplicationEventPublisher,
+  private val avatarFall: DoomAvatarFall,
   private val clock: Clock = Clock.systemUTC(),
 ) {
 
@@ -59,6 +60,10 @@ class WorldEnd(
       return
     }
     val open = openWindow() ?: openByFate() ?: return
+    if (avatarFall.take() && open.ending == DoomEnding.LOST) {
+      beatBack()
+      return
+    }
     val left = Duration.between(clock.instant(), open.endsAt)
 
     when {
@@ -79,6 +84,9 @@ class WorldEnd(
     LOG.warn { "The world's end is decided: $ending at ${opened.endsAt}" }
 
     warn(opened, lasting)
+    if (ending == DoomEnding.LOST) {
+      director.lastStandOpened()
+    }
     return opened
   }
 
@@ -127,6 +135,10 @@ class WorldEnd(
     if (!windowRead) {
       window = windows.findById(StoredWorldEnd.ONLY).orElse(null)
       windowRead = true
+      // The Avatar is not stored, so a Last Stand that outlived a restart needs a new one.
+      if (window?.ending == DoomEnding.LOST) {
+        director.lastStandOpened()
+      }
     }
     return window
   }

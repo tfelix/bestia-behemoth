@@ -21,7 +21,11 @@ data class VoidTearConfig(
 
   /** How far deeds push the clock: a knot it swallows brings the end closer, sealing it holds the end off. */
   val swallowPush: Double = 0.01,
+  val sovereignPush: Double = -0.03,
   val sealPush: Double = -0.15,
+
+  /** The level of the Void Sovereign that stands as the Avatar of the Last Stand. */
+  val avatarLevel: Int = 99,
 
   /** How much each rift sealed within its reach in the last week holds it back, up to all of it. */
   val containmentPerSeal: Double = 0.2,

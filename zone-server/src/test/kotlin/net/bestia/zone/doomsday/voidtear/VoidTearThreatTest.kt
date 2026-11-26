@@ -64,6 +64,7 @@ class VoidTearThreatTest {
     concentration = mockk<ManaConcentrationService>(relaxed = true) { every { densityAt(any()) } returns 1.0 },
     provinces = mockk<ProvinceService>(relaxed = true) { every { provinceAt(any(), any()) } returns null },
     eventGround = mockk<EventGround>(relaxed = true),
+    sovereign = VoidSovereign(VoidTearConfig(), mockk(), mockk(), mockk(), mockk()),
     worldService = mockk(relaxed = true),
     bestiaClock = bestiaClock,
     clock = Clock.fixed(Instant.parse("2026-06-01T00:00:00Z"), ZoneOffset.UTC),
@@ -110,6 +111,23 @@ class VoidTearThreatTest {
 
     assertEquals(0.01, threat.step(onset, 300.0), 1e-9)
     assertEquals(0.2, threat.containment(), 1e-9)
+  }
+
+  @Test
+  fun `the Tear calls the Sovereign, and each one that falls holds the end off once`() {
+    threat.step(onset, 300.0)
+    val tear = active.single { it.id == stored!!.riftId }
+    assertEquals("void_sovereign", tear.anchorSpecies)
+
+    tear.anchorSlain = true
+    assertEquals(-0.03, threat.step(onset, 300.0), 1e-9)
+    assertEquals(0.0, threat.step(onset, 300.0), 1e-9)
+
+    tear.anchorSlain = false
+    tear.stage = 5
+    tear.nextAnchorStage = 6
+    threat.step(onset, 300.0)
+    assertEquals(5, tear.nextAnchorStage, "a missed seal window calls the next Sovereign at once")
   }
 
   @Test

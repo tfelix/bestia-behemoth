@@ -1,0 +1,37 @@
+id: 122
+identifier: void_sovereign
+# Anchors the Void Tear, the doomsday's rift, and stands at its core in the Last Stand. The Tear sets its level.
+level-min: 80
+level-max: 80
+name: Void Sovereign
+description: >-
+  A crowned shadow taller than a house that rises from the Void Tear when the world's end draws near. While it
+  stands, the Tear cannot be sealed.
+kind: DEMON
+element: GHOST_4
+size: BIG
+default-attack: MELEE
+aspd: 110
+ai: aggressive_melee
+attack-power: 1.4
+weight: 2000
+health: 160000
+mana: 2000
+experience: 60000
+attributes: { strength: 120, intelligence: 140, vitality: 130, dexterity: 70, willpower: 110, agility: 60 }
+learnset:
+  - { skill: shadow_bolt, level: 16, active: true }
+  - { skill: shockwave, level: 31, active: true }
+# Called by the Void Tear only; no den or ambient site places one.
+event-only: true
+boss: true
+compendium: false
+habitat: []
+spawn-weight: 0
+status-immunities: [STUN, FROZEN, STONING, FEARED, CONFUSED, CONTROLLED]
+equip-slots: []
+armor-types: []
+loot:
+  - { item: mana_crystal, chance: 10000 }
+  - { item: mana_crystal, chance: 10000 }
+  - { item: mana_crystal, chance: 8000 }

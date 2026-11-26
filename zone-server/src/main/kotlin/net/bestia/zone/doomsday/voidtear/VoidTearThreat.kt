@@ -38,8 +38,9 @@ import kotlin.random.Random
  * The Void Tear: a rift at the strongest Wound that never closes on its own. Its stage follows the doom clock, so its
  * hordes and its anchor grow with the doom. It pours mana around itself and seeds rift knots ever further out.
  *
- * Players hold it back by sealing the rifts within its reach, and by sealing the Tear itself, which holds the clock
- * back and keeps the Tear closed for a few days. A knot the Tear swallows brings the end closer.
+ * Players hold it back by sealing the rifts within its reach, and by bringing down its [VoidSovereign] and sealing the
+ * Tear itself, which holds the clock back and keeps the Tear closed for a few days. A knot the Tear swallows brings
+ * the end closer.
  */
 @Component
 class VoidTearThreat(
@@ -52,6 +53,7 @@ class VoidTearThreat(
   private val concentration: ManaConcentrationService,
   private val provinces: ProvinceService,
   private val eventGround: EventGround,
+  private val sovereign: VoidSovereign,
   private val worldService: WorldService,
   private val bestiaClock: BestiaClock,
   private val clock: Clock = Clock.systemUTC(),
@@ -127,12 +129,10 @@ class VoidTearThreat(
     val riftId = row.riftId
     if (riftId != null) {
       return when (rifts.phaseOf(riftId)) {
-        Phase.OPEN, Phase.KNOT -> {
-          keepPace(riftId, fate)
-          0.0
-        }
+        Phase.OPEN, Phase.KNOT -> keepPace(row, riftId, fate)
         Phase.SEALED -> {
           row.riftId = null
+          row.sovereignFallCounted = false
           row.reformsAtDay = today() + config.reformDays
           LOG.info { "The Void Tear was sealed. It tears open again in ${config.reformDays} days" }
           config.sealPush
@@ -158,6 +158,7 @@ class VoidTearThreat(
     val province = provinces.provinceAt(fate.originX, fate.originY)?.index ?: NO_PROVINCE
     val rift = rifts.formKnot(fate.originX, fate.originY, province, now, now)
     synchronized(field) {
+      sovereign.anchor(rift)
       rift.phase = Phase.OPEN
       rift.stage = 1
       rift.opensAtSecond = now
@@ -168,16 +169,27 @@ class VoidTearThreat(
     return rift
   }
 
-  /** An open rift's stage follows its age, so the Tear's age is set to match the clock's stage. */
-  private fun keepPace(riftId: Long, fate: DoomFate) {
-    val rift = rifts.active().firstOrNull { it.id == riftId } ?: return
+  /**
+   * An open rift's stage follows its age, so the Tear's age is set to match the clock's stage. Answers how far a fallen
+   * Sovereign held the end off.
+   */
+  private fun keepPace(row: StoredVoidTear, riftId: Long, fate: DoomFate): Double {
+    val rift = rifts.active().firstOrNull { it.id == riftId } ?: return 0.0
     val stageSeconds = lifecycle.openBestiaSeconds() / RiftLifecycle.STAGES
     val now = now()
-    synchronized(field) {
+    val pushed = synchronized(field) {
       rift.opensAtSecond = now - (riftStageOf(fate.progress) - 1) * stageSeconds
       rift.collapsesAtSecond = now + NEVER_BESTIA_SECONDS
+      sovereign.anchor(rift)
+      sovereign.rise(rift)
+      sovereign.fallen(row, rift)
     }
     rifts.saveAll(listOf(rift))
+    return pushed
+  }
+
+  override fun onLastStand(fate: DoomFate) {
+    sovereign.raiseAvatar(fate)
   }
 
   private fun pour(fate: DoomFate, realSeconds: Double) {

@@ -38,6 +38,10 @@ interface DoomThreat {
   fun onStage(from: DoomStage, to: DoomStage) {
   }
 
+  /** The Last Stand opened: the threat raises its Avatar, whose fall saves the world for now. Off the tick. */
+  fun onLastStand(fate: DoomFate) {
+  }
+
   /**
    * Lets the threat act for [realSeconds], and answers how far the players' deeds pushed the clock since the last
    * step: positive brings the end closer, negative holds it off.
