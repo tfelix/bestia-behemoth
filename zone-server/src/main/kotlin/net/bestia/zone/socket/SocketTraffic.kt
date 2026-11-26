@@ -181,7 +181,7 @@ class SocketTraffic(registry: MeterRegistry = SimpleMeterRegistry()) {
      */
     private val DISCONNECT_REASONS = listOf(
       "AUTH_FAILED", "RATE_LIMITED", "IDLE_TIMEOUT", "UNKNOWN_MESSAGE", "INTERNAL_SERVER_ERROR", "INBOX_OVERFLOW",
-      "OTHER_CONNECTION", "PROTOCOL_MISMATCH", "SERVER_NOT_READY",
+      "OTHER_CONNECTION", "PROTOCOL_MISMATCH", "SERVER_NOT_READY", "WORLD_ENDED",
     ) + KickReason.entries.map { it.name }
 
     private fun reasonOf(reason: String): String {

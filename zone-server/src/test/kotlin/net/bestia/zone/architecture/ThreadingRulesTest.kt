@@ -25,6 +25,7 @@ class ThreadingRulesTest {
     "socket/SocketServer.kt" to "the Netty server",
     "cartography/tile/TileRenderPool.kt" to "map tile rendering, which never touches the world",
     "navigation/region/WaySearches.kt" to "searching the water and terrain grid, which never touches the world",
+    "engine/WorldEndRestart.kt" to "stopping the zone after a world end, which the scheduler it ran on cannot do",
   )
 
   private val startsThreads = Regex("""Executors\.|ScheduledExecutorService|ForkJoinPool\(|[^\w.]Thread\(|@Async|\bthread\(""")

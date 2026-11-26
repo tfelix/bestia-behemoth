@@ -19,4 +19,14 @@ enum Announcement {
   // A guild disbanded, and its Stronghold stands empty for any guild to take. args[0] is the guild's name,
   // args[1] the Stronghold's.
   ANNOUNCEMENT_STRONGHOLD_UNHELD = 2;
+  // The doomsday has run its course and the Last Stand begins. args[0] is the hours until the world falls.
+  ANNOUNCEMENT_LAST_STAND = 3;
+  // args[0] is the minutes until the world falls.
+  ANNOUNCEMENT_LAST_STAND_SOON = 4;
+  // The doom was beaten back, and the world lives on.
+  ANNOUNCEMENT_LAST_STAND_WON = 5;
+  // The world outlived its doom and the Calling begins. args[0] is the hours until the sky opens.
+  ANNOUNCEMENT_CALLING = 6;
+  // args[0] is the minutes until the sky opens.
+  ANNOUNCEMENT_CALLING_SOON = 7;
 }

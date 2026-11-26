@@ -4,18 +4,22 @@ import net.bestia.account.Authority
 import net.bestia.zone.chat.ChatCommand
 import net.bestia.zone.chat.ChatSMSG
 import net.bestia.zone.chat.ChatType
+import net.bestia.zone.doomsday.DoomEnding
 import net.bestia.zone.doomsday.DoomKind
 import net.bestia.zone.doomsday.DoomsdayDirector
 import net.bestia.zone.doomsday.DoomsdayStatus
 import net.bestia.zone.doomsday.ForeshadowKind
+import net.bestia.zone.doomsday.WorldEnd
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Component
+import java.time.Duration
 import java.util.Locale
 
 /** Reads and turns the doom clock, so the doomsday can be seen and tested without waiting months. */
 @Component
 class DoomChatCommand(
   private val director: DoomsdayDirector,
+  private val worldEnd: WorldEnd,
   private val out: OutMessageProcessor,
 ) : ChatCommand() {
 
@@ -24,7 +28,8 @@ class DoomChatCommand(
   override fun getHelpText(): String {
     return "/doom - The doomsday at a glance. /doom set <0..1> - Sets the clock. /doom push <delta> - Moves it. " +
       "/doom pace <x|auto> - Fixes its pace. /doom kind <KIND> - Another threat. /doom foreshadow <KIND> - Another " +
-      "Foreshadowing. Built threats: " + director.builtKinds().joinToString(", ").ifEmpty { "none" }
+      "Foreshadowing. /doom end <lost|saved> [minutes] - Ends the world. /doom end cancel - Stops the end, a Last " +
+      "Stand counts as won. Built threats: " + director.builtKinds().joinToString(", ").ifEmpty { "none" }
   }
 
   override fun isMatch(cmdText: String): Boolean {
@@ -33,7 +38,10 @@ class DoomChatCommand(
 
   override fun execute(playerId: Long, cmdText: String): Boolean {
     val match = CMD_REGEX.find(cmdText.trim()) ?: return false
-    val (verb, argument) = match.destructured
+    val (verb, argument, extra) = match.destructured
+    if (extra.isNotEmpty() && verb != "end") {
+      return false
+    }
 
     val answer = when (verb) {
       "" -> describe(director.status())
@@ -42,6 +50,7 @@ class DoomChatCommand(
       "pace" -> pace(argument) ?: return false
       "kind" -> kind(argument) ?: return false
       "foreshadow" -> foreshadow(argument) ?: return false
+      "end" -> end(argument, extra) ?: return false
       else -> return false
     }
 
@@ -69,6 +78,16 @@ class DoomChatCommand(
     return if (director.repickForeshadow(kind)) "The Foreshadowing is now $kind." else "$kind is not built."
   }
 
+  private fun end(argument: String, minutesText: String): String? {
+    if (argument == "cancel") {
+      return worldEnd.beatBack()?.let { "The world's end ($it) is stopped." } ?: "The world's end is not decided."
+    }
+    val ending = DoomEnding.entries.firstOrNull { it.name.equals(argument, ignoreCase = true) } ?: return null
+    val minutes = if (minutesText.isEmpty()) DEFAULT_END_MINUTES else minutesText.toLongOrNull() ?: return null
+    val opened = worldEnd.open(ending, Duration.ofMinutes(minutes.coerceAtLeast(1)))
+    return "The world ends ($ending) at ${opened.endsAt}."
+  }
+
   private fun describe(status: DoomsdayStatus): String {
     val origin = status.originX?.let { "(${it.toInt()}, ${status.originY?.toInt()})" } ?: "-"
     val pace = format(status.pace) + if (status.paceOverridden) " fixed" else ""
@@ -86,6 +105,9 @@ class DoomChatCommand(
   }
 
   private companion object {
-    val CMD_REGEX = Regex("""^/doom(?:\s+(set|push|pace|kind|foreshadow)\s+(\S+))?$""")
+    val CMD_REGEX = Regex("""^/doom(?:\s+(set|push|pace|kind|foreshadow|end)\s+(\S+)(?:\s+(\S+))?)?$""")
+
+    /** Long enough to watch the countdown and the final sequence. */
+    const val DEFAULT_END_MINUTES = 5L
   }
 }

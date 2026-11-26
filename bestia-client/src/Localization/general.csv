@@ -613,6 +613,11 @@ CHAT_LINE_PARTY,[Party] %s: %s
 CHAT_LINE_ANNOUNCEMENT,[Announcement] %s
 ANNOUNCEMENT_GM,%s
 ANNOUNCEMENT_STRONGHOLD_UNHELD,"The guild %s is gone. %s stands empty, free for any guild to take."
+ANNOUNCEMENT_LAST_STAND,"The end has come, and the Last Stand begins. The world falls in %s h unless its doom is beaten back."
+ANNOUNCEMENT_LAST_STAND_SOON,The Last Stand: the world falls in %s min.
+ANNOUNCEMENT_LAST_STAND_WON,"The doom is beaten back. The world lives on, for now."
+ANNOUNCEMENT_CALLING,"The world outlived its doom, and the sky begins to open. In %s h, all born of mana are called into a new world."
+ANNOUNCEMENT_CALLING_SOON,The Calling: the sky opens in %s min.
 CHAT_LINE_GUILD,[Guild] %s: %s
 CHAT_LINE_WHISPER_FROM,[From %s] %s
 CHAT_LINE_WHISPER_TO,[To %s] %s

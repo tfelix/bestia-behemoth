@@ -14,6 +14,11 @@ data class AnnouncementSMSG(
   enum class Announcement {
     GM,
     STRONGHOLD_UNHELD,
+    LAST_STAND,
+    LAST_STAND_SOON,
+    LAST_STAND_WON,
+    CALLING,
+    CALLING_SOON,
   }
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {

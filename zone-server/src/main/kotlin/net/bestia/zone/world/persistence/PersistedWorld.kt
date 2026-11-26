@@ -145,7 +145,11 @@ class PersistedWorld(
   var winningFaction: Faction? = null,
 
   @Column(nullable = false, updatable = false)
-  val createdAt: Instant
+  val createdAt: Instant,
+
+  /** When the doomsday ended this world, or null while it lives. */
+  @Column(nullable = true)
+  var endedAt: Instant? = null,
 ) {
 
   @Id
