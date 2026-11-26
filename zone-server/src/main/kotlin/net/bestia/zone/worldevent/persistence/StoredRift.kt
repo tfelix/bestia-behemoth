@@ -69,6 +69,10 @@ class StoredRift(
 
   @Column(name = "pipeline_version", nullable = false)
   var pipelineVersion: Long = 0,
+
+  /** The species that anchors it, by identifier. Null for the Rift Warden every rift calls. */
+  @Column(name = "anchor_species", length = 64)
+  var anchorSpecies: String? = null,
 ) {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

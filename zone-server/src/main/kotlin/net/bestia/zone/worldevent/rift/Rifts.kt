@@ -72,6 +72,7 @@ class Rifts(
     rift.x, rift.y, rift.provinceIndex, rift.phase, rift.stage, rift.reservoir, rift.formedAtSecond,
     rift.opensAtSecond, rift.collapsesAtSecond, rift.anchorEntityId, rift.anchorSlain, rift.nextAnchorStage,
     rift.sealWindowEndsAtSecond, rift.nextWaveAtSecond, rift.worldShapeVersion, rift.pipelineVersion,
+    rift.anchorSpecies,
   ).also { it.id = rift.id }
 
   private companion object {

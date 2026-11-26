@@ -71,7 +71,7 @@ class RiftHordes(
 
   private fun callAnchor(world: World, rift: StoredRift) {
     val at = gateGround(rift) ?: return
-    val warden = bestiaCatalogue.byIdentifier(ANCHOR)
+    val warden = bestiaCatalogue.byIdentifier(rift.anchorSpecies ?: ANCHOR)
     val level = kinOf(rift).maxOfOrNull { it.levelMax }?.plus(config.anchorLevelsAboveDens) ?: warden.levelMax
 
     rift.anchorEntityId = spawner.spawnMob(world, warden.id, at, homePosition = at, level = level)
