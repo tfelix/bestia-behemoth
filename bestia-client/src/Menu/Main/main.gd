@@ -9,6 +9,7 @@ extends Control
 
 func _ready() -> void:
 	DisplaySettings.apply_at_launch()
+	CrashReports.install(get_tree())
 	ConnectionManager.disconnect_from_server()
 	_version_label.text = SettingsManager.VERSION
 	_reset_buttons()

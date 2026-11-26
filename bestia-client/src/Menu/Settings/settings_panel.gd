@@ -63,6 +63,7 @@ func _ready() -> void:
 	tabs.add_child(_build_audio_tab())
 	tabs.add_child(_build_video_tab())
 	tabs.add_child(_build_keys_tab())
+	tabs.add_child(_build_privacy_tab())
 	column.add_child(tabs)
 
 	_back_button = Button.new()
@@ -144,6 +145,24 @@ func _build_video_tab() -> Control:
 		SettingsManager.save()
 	)
 	grid.add_child(vsync)
+	return tab
+
+
+func _build_privacy_tab() -> Control:
+	var tab := _tab("Privacy")
+	var grid := _grid()
+	tab.add_child(grid)
+
+	var settings := SettingsManager.get_instance()
+
+	grid.add_child(_name_label("Send crash reports"))
+	var crash_reports := _toggle(settings.send_crash_reports)
+	crash_reports.tooltip_text = "Errors, the game's log and technical data about your computer. Nothing that names you."
+	crash_reports.toggled.connect(func(on: bool):
+		settings.send_crash_reports = on
+		SettingsManager.save()
+	)
+	grid.add_child(crash_reports)
 	return tab
 
 

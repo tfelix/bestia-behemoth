@@ -80,3 +80,11 @@ const FORMAT_VERSION := 1
 @export var fullscreen: bool = false
 
 @export var vsync: bool = true
+
+@export_group("Privacy")
+
+## Sends errors, the log and technical data on their own; see [CrashReports].
+@export var send_crash_reports: bool = true
+
+## Whether the first start already said that crash reports are sent.
+@export var crash_report_notice_shown: bool = false
