@@ -13,6 +13,7 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.test.context.ActiveProfiles
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -250,10 +251,60 @@ class WorldProvisioningTest {
 
     // Every stored player position now points into terrain that does not exist. Announcing that is the whole
     // reason the event exists; `MasterWorldResetListener` is what acts on it.
-    assertEquals(listOf<Any>(WorldRecreatedEvent(service.record)), events.published)
+    assertEquals(listOf<Any>(WorldRecreatedEvent(service.record, WorldRecreatedEvent.Cause.MISMATCH)), events.published)
   }
 
   @Test
+  fun `an ended world is followed by the next incarnation, whatever the policy`() {
+    val ended = worldRepository.save(
+      worldOf(seed = settings.seed!!, widthCells = settings.widthCells, heightCells = settings.heightCells)
+    )
+    ended.endedAt = java.time.Instant.now()
+    worldRepository.save(ended)
+
+    val service = refusingService()
+    service.load()
+
+    assertEquals(2, service.record.incarnation)
+    assertNull(service.record.endedAt)
+    assertNotEquals(ended.seed, service.record.seed, "a new world draws a seed of its own")
+    val recreated = events.published.single() as WorldRecreatedEvent
+    assertEquals(WorldRecreatedEvent.Cause.WORLD_ENDED, recreated.cause)
+    assertEquals(service.record.id, recreated.world.id)
+    assertFalse(service.record.carryOverPending, "the carry-over ran once the event was out")
+  }
+
+  @Test
+  fun `a carry-over that did not finish runs again on the next boot`() {
+    val born = worldRepository.save(
+      worldOf(seed = settings.seed!!, widthCells = settings.widthCells, heightCells = settings.heightCells)
+    )
+    born.carryOverPending = true
+    worldRepository.save(born)
+
+    val service = refusingService()
+    service.load()
+
+    assertEquals(born.id, service.record.id, "the world itself is kept")
+    assertEquals(WorldRecreatedEvent.Cause.WORLD_ENDED, (events.published.single() as WorldRecreatedEvent).cause)
+    assertFalse(worldRepository.findById(born.id).get().carryOverPending)
+  }
+
+  @Test
+  fun `a reborn world keeps its own seed when it is rebuilt`() {
+    val ended = worldRepository.save(worldOf(seed = 4242L, widthCells = 64, heightCells = 64))
+    ended.endedAt = java.time.Instant.now()
+    worldRepository.save(ended)
+    val reborn = provisioning.recreate(freshSeed = true)
+
+    val rebuilt = provisioning.recreate()
+
+    assertEquals(2, rebuilt.incarnation, "rebuilding is not a new world")
+    assertEquals(reborn.seed, rebuilt.seed, "the configured seed names the first world only")
+    assertEquals(emptyList<String>(), rebuilt.driftFrom(settings), "nor does it drift from the configuration")
+  }
+
+    @Test
   fun `drift alone does not refuse the boot`() {
     // Birth settings are documented as ignored once a world exists, and a world quietly keeping its own
     // dimensions is honouring that. Turning it into a failed start would stop running servers over an edit

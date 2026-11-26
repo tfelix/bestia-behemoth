@@ -80,18 +80,26 @@ class WorldService(
     val alreadyExisted = provisioning.exists()
 
     var record = provisioning.findOrCreate()
-    var recreated = false
+    var recreatedBy: WorldRecreatedEvent.Cause? = null
 
     verifyRecordIsComplete(record)
 
-    val drift = record.driftFrom(settings)
-    val incompatibility = incompatibilityOf(record)
+    if (record.endedAt != null) {
+      // Whatever the mismatch policy says: the world is over, and the server exists to run the next one.
+      LOG.warn { "World '${record.name}' ended at ${record.endedAt}. A new world is born." }
+      record = provisioning.recreate(freshSeed = true)
+      recreatedBy = WorldRecreatedEvent.Cause.WORLD_ENDED
+      verifyRecordIsComplete(record)
+    } else if (record.carryOverPending) {
+      LOG.warn { "World '${record.name}' was born, but the carry-over did not finish. Running it again." }
+      recreatedBy = WorldRecreatedEvent.Cause.WORLD_ENDED
+    } else {
+      val drift = record.driftFrom(settings)
+      val incompatibility = incompatibilityOf(record)
 
-    if (incompatibility != null || drift.isNotEmpty()) {
-      recreated = resolve(record, incompatibility, drift)
-
-      if (recreated) {
+      if ((incompatibility != null || drift.isNotEmpty()) && resolve(record, incompatibility, drift)) {
         record = provisioning.recreate()
+        recreatedBy = WorldRecreatedEvent.Cause.MISMATCH
 
         // The fresh row is checked too. If a field is missing from `PersistedWorld` the new row is as
         // incomplete as the one just deleted, and stopping here is what keeps `REGENERATE` from throwing a
@@ -114,7 +122,8 @@ class WorldService(
     )
     val millis = (System.nanoTime() - startedAt) / 1_000_000
 
-    if (!alreadyExisted) {
+    // A reborn world is as new to its players as the first one.
+    if (!alreadyExisted || recreatedBy == WorldRecreatedEvent.Cause.WORLD_ENDED) {
       generated = ensureEnoughSettlements(record, generated) { reroll -> record = reroll }
     } else if (SettlementSpawnPoints.standingSettlementCount(generated) < MIN_STANDING_SETTLEMENTS) {
       LOG.error {
@@ -135,7 +144,10 @@ class WorldService(
     // After `loaded`, so a listener can ask this service where the new spawn is. Deliberately not raised
     // for the settlement-count retry loop above: those regenerations happen before anyone has ever seen
     // this world, so there is nothing for a listener to react to.
-    if (recreated) events.publishEvent(WorldRecreatedEvent(record))
+    recreatedBy?.let { events.publishEvent(WorldRecreatedEvent(record, it)) }
+    if (record.carryOverPending) {
+      loaded = Loaded(provisioning.finishCarryOver(record), generated)
+    }
   }
 
   /**
@@ -159,7 +171,7 @@ class WorldService(
     var attempt = 0
 
     while (SettlementSpawnPoints.standingSettlementCount(generated) < MIN_STANDING_SETTLEMENTS) {
-      if (settings.seed != null) {
+      if (settings.seed != null && record.incarnation <= 1) {
         throw InsufficientSettlementsException(
           "World '${record.name}' (fixed seed ${settings.seed}) has fewer than $MIN_STANDING_SETTLEMENTS " +
               "standing settlements. The seed is pinned in configuration, so regenerating would produce " +
@@ -181,7 +193,7 @@ class WorldService(
             "settlements; drawing a new random seed and regenerating (attempt $attempt/$MAX_SETTLEMENT_RETRIES)."
       }
 
-      record = provisioning.recreate()
+      record = provisioning.recreate(freshSeed = record.incarnation > 1)
       onReroll(record)
       generated = builder.build(
         record.toWorldConfig(), LoggingStageListener, settings.paramsFor(record.previousWinningFaction)
