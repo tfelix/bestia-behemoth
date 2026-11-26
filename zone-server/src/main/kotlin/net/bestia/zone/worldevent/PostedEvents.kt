@@ -1,6 +1,9 @@
 package net.bestia.zone.worldevent
 
 import net.bestia.zone.blackboard.EventNotices
+import net.bestia.zone.cartography.poi.MapPoi
+import net.bestia.zone.cartography.poi.MapPoiIndex
+import net.bestia.zone.cartography.render.MapService
 import net.bestia.zone.place.ecs.PlaceNameService
 import net.bestia.zone.place.ecs.ProvinceService
 import org.springframework.stereotype.Component
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Component
 class PostedEvents(
   private val provinces: ProvinceService,
   private val placeNames: PlaceNameService,
+  private val map: MapPoiIndex,
 ) : EventNotices {
 
   @Volatile
@@ -26,6 +30,14 @@ class PostedEvents(
 
   fun replace(running: List<Running>) {
     posted = running.map { Posted(it.provinceIndex, noticeOf(it)) }
+    // The same notices go on the map, which shows them wherever a master's charts show the ground.
+    map.setWorldEvents(running.zip(posted) { event, post -> poiOf(event.instanceId, post.notice) })
+  }
+
+  private fun poiOf(instanceId: Long, notice: EventNotices.Notice): MapPoi {
+    val x = notice.x.toDouble()
+    val y = notice.y.toDouble()
+    return MapPoi(POI_ID_BASE - instanceId, MapService.WORLD_EVENT, notice.eventId, x, y, notice.placeName, null, null)
   }
 
   private fun noticeOf(running: Running): EventNotices.Notice {
@@ -35,7 +47,19 @@ class PostedEvents(
   }
 
   /** A running event where its ground is now. */
-  data class Running(val eventId: String, val provinceIndex: Int, val x: Long, val y: Long, val stage: Int)
+  data class Running(
+    val instanceId: Long,
+    val eventId: String,
+    val provinceIndex: Int,
+    val x: Long,
+    val y: Long,
+    val stage: Int,
+  )
 
   private data class Posted(val provinceIndex: Int, val notice: EventNotices.Notice)
+
+  private companion object {
+    /** Below the player towns' and the Strongholds' ids, so an event's point meets no other. */
+    const val POI_ID_BASE = -3_000_000_000L
+  }
 }

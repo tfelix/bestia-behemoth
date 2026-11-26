@@ -10,6 +10,8 @@ import net.bestia.worldgen.place.Province
 import net.bestia.worldgen.place.Provinces
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.zone.blackboard.EventNotices
+import net.bestia.zone.cartography.poi.MapPoiIndex
+import net.bestia.zone.cartography.render.MapService
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.place.ecs.PlaceNameService
 import net.bestia.zone.place.ecs.PlaceRef
@@ -117,7 +119,8 @@ class WorldEventDirectorTest {
   fun `the boards of its province post a running event where its ground is`() {
     every { provinceService.provinceAt(any(), any()) } answers { if (firstArg<Double>() < 1_000.0) wild else sanctuary }
     val placeNames = mockk<PlaceNameService> { every { resolve(any(), any()) } returns PlaceRef("Downs") }
-    val posted = PostedEvents(provinceService, placeNames)
+    val map = mockk<MapPoiIndex>(relaxed = true)
+    val posted = PostedEvents(provinceService, placeNames, map)
     val director = WorldEventDirector(
       catalogue, snapshot, provinceService, provinceRows, instances, worldService,
       WorldEventConfig(startChance = 1.0), clock, ledger, rewards, mockk<ContributionJournal>(relaxed = true),
@@ -130,6 +133,7 @@ class WorldEventDirectorTest {
 
     assertEquals(listOf(EventNotices.Notice("apex-roamer", "Downs", 0, 0, 3)), posted.postedAt(10, 10))
     assertTrue(posted.postedAt(5_000, 0).isEmpty(), "a board in another province")
+    verify { map.setWorldEvents(match { pois -> pois.any { it.kind == MapService.WORLD_EVENT && it.business == "apex-roamer" } }) }
   }
 
   @Test
