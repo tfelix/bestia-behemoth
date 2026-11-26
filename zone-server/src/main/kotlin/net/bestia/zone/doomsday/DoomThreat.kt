@@ -13,12 +13,6 @@ interface DoomThreat {
 
   val shape: DoomShape
 
-  /** The lesser threat this one also runs as, before onset, or null if it has none. */
-  val foreshadow: ForeshadowKind?
-    get() {
-      return null
-    }
-
   /** Whether this world has what the threat needs, such as a Wound or a sealed world boss. */
   fun fits(): Boolean
 

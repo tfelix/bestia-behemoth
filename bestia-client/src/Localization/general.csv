@@ -622,6 +622,12 @@ ANNOUNCEMENT_DOOM_ONSET,"Far to the %s, %s has begun."
 ANNOUNCEMENT_DOOM_ESCALATION,"Far to the %s, %s grows stronger."
 ANNOUNCEMENT_DOOM_CATACLYSM,The whole world feels %s now.
 ANNOUNCEMENT_DOOM_RECEDES,"Hope returns: %s weakens, for now."
+ANNOUNCEMENT_FORESHADOW_BEGINS,"Far to the %s, %s begins. It may be a sign of worse to come."
+ANNOUNCEMENT_FORESHADOW_HELD,"The danger has passed: %s was held back, and the world breathes easier."
+ANNOUNCEMENT_FORESHADOW_FAILED,"Nobody stopped %s. It left scars, and something worse draws nearer."
+FORESHADOW_MANA_STORM_SEASON,a season of mana storms
+FORESHADOW_BLIGHT_BLOOM,a blight bloom
+FORESHADOW_HARBINGER,the Harbinger
 WORLD_END_LOST_TITLE,The world has ended
 WORLD_END_SAVED_TITLE,The world is saved
 WORLD_END_LIVED,%s lived for %s days.

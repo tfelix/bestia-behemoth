@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.doomsday.persistence.StoredDoomsday
 import net.bestia.zone.doomsday.persistence.StoredDoomsdayRepository
 import net.bestia.zone.world.WorldService
+import net.bestia.zone.doomsday.foreshadow.ForeshadowRunner
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Scheduled
@@ -26,6 +27,7 @@ class DoomsdayDirector(
   threatBeans: ObjectProvider<DoomThreat>,
   private val signs: DoomsdaySigns,
   private val events: ApplicationEventPublisher,
+  private val foreshadow: ForeshadowRunner,
   private val clock: Clock = Clock.systemUTC(),
 ) {
 
@@ -50,6 +52,7 @@ class DoomsdayDirector(
     val realSeconds = (ageDays - row.steppedToDay).coerceAtLeast(0.0) / config.timeScale * SECONDS_PER_DAY
 
     row.steppedToDay = maxOf(row.steppedToDay, ageDays)
+    row.onsetDay += foreshadow.run(row, ageDays, realSeconds, worldService.record.seed)
     apply(row, after, threat)
     val x = row.originX
     val y = row.originY
@@ -146,11 +149,32 @@ class DoomsdayDirector(
   /** Gives the world another Foreshadowing. For alpha tests; false when [kind] is not built. */
   @Transactional
   fun repickForeshadow(kind: ForeshadowKind): Boolean {
-    if (threats.none { it.foreshadow == kind }) {
+    if (kind !in foreshadow.built()) {
       return false
     }
     val row = current()
     row.foreshadowKind = kind
+    foreshadow.forget()
+    save(row)
+    return true
+  }
+
+  /** Lets the Foreshadowing strike on the next run, also if it struck before. For alpha tests. */
+  @Transactional
+  fun foreshadowNow() {
+    val row = current()
+    foreshadow.forget()
+    row.foreshadowDay = ageDays()
+    row.onsetDay = maxOf(row.onsetDay, row.foreshadowDay + config.foreshadowMaxDays)
+    save(row)
+  }
+
+  /** Ends the running Foreshadowing now. For a GM; false when none runs. */
+  @Transactional
+  fun endForeshadow(contained: Boolean): Boolean {
+    val shift = foreshadow.end(contained) ?: return false
+    val row = current()
+    row.onsetDay += shift
     save(row)
     return true
   }
@@ -167,7 +191,7 @@ class DoomsdayDirector(
 
   private fun current(): StoredDoomsday {
     val row = doomsdays.findById(StoredDoomsday.ONLY).orElseGet {
-      val picked = DoomsdayPicker(config, threats).pick(worldService.record.seed)
+      val picked = DoomsdayPicker(config, threats, foreshadow.built()).pick(worldService.record.seed)
       LOG.info {
         "The world's fate: ${picked.kind ?: "no threat"} sets in on day ${picked.onsetDay.toInt()} and unfolds over " +
           "${picked.unfoldDays.toInt()} days; Foreshadowing ${picked.foreshadowKind ?: "none"} on day " +

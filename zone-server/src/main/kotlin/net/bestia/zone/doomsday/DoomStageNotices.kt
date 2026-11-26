@@ -16,8 +16,8 @@ import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 
 /**
- * Tells the world when the doomsday moves to another stage: every master online reads which way it lies, and the
- * towns near its origin start to talk.
+ * Tells the world when the doomsday moves to another stage, or its Foreshadowing strikes: every master online reads
+ * which way it lies, and the towns near the doomsday's origin start to talk.
  */
 @Component
 class DoomStageNotices(
@@ -46,21 +46,38 @@ class DoomStageNotices(
     }
     val name = "DOOM_${event.kind.name}"
 
-    world.post {
-      query(Master::class, Account::class, Position::class).each { _ ->
-        val args = when (announcement) {
-          Announcement.DOOM_ONSET, Announcement.DOOM_ESCALATION -> listOf(directionTo(get<Position>(), event), name)
-          else -> listOf(name)
-        }
-        out.sendToPlayer(get<Account>().accountId, AnnouncementSMSG(announcement, args))
+    tellEveryone(event.originX, event.originY) { direction ->
+      when (announcement) {
+        Announcement.DOOM_ONSET, Announcement.DOOM_ESCALATION -> AnnouncementSMSG(announcement, listOf(direction, name))
+        else -> AnnouncementSMSG(announcement, listOf(name))
       }
     }
   }
 
-  private fun directionTo(here: Position, event: DoomStageChanged): String {
-    val x = here.x * voxelMetres
-    val y = here.y * voxelMetres
-    return Compass.tokenOf(wrap.deltaX(x, event.originX), wrap.deltaY(y, event.originY))
+  fun foreshadowBegan(kind: ForeshadowKind, x: Double, y: Double) {
+    tellEveryone(x, y) { direction ->
+      AnnouncementSMSG(Announcement.FORESHADOW_BEGINS, listOf(direction, "FORESHADOW_${kind.name}"))
+    }
+  }
+
+  fun foreshadowEnded(kind: ForeshadowKind, contained: Boolean) {
+    val announcement = if (contained) Announcement.FORESHADOW_HELD else Announcement.FORESHADOW_FAILED
+    out.sendToAllConnected(AnnouncementSMSG(announcement, listOf("FORESHADOW_${kind.name}")))
+  }
+
+  /** Sends every master online what [build] makes of the direction from where they stand to [x], [y]. */
+  private fun tellEveryone(x: Double, y: Double, build: (direction: String) -> AnnouncementSMSG) {
+    world.post {
+      query(Master::class, Account::class, Position::class).each { _ ->
+        out.sendToPlayer(get<Account>().accountId, build(directionTo(get<Position>(), x, y)))
+      }
+    }
+  }
+
+  private fun directionTo(here: Position, x: Double, y: Double): String {
+    val fromX = here.x * voxelMetres
+    val fromY = here.y * voxelMetres
+    return Compass.tokenOf(wrap.deltaX(fromX, x), wrap.deltaY(fromY, y))
   }
 
   private fun toVoxel(metres: Double): Long {

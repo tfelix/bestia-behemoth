@@ -23,6 +23,9 @@ data class AnnouncementSMSG(
     DOOM_ESCALATION,
     DOOM_CATACLYSM,
     DOOM_RECEDES,
+    FORESHADOW_BEGINS,
+    FORESHADOW_HELD,
+    FORESHADOW_FAILED,
   }
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {

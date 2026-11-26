@@ -12,6 +12,8 @@ import kotlin.random.Random
 class DoomsdayPicker(
   private val config: DoomsdayConfig,
   private val threats: List<DoomThreat>,
+  /** The Foreshadowings that are built. */
+  private val foreshadows: List<ForeshadowKind> = emptyList(),
 ) {
 
   fun pick(worldSeed: Long): StoredDoomsday {
@@ -59,7 +61,7 @@ class DoomsdayPicker(
   }
 
   private fun foreshadowFor(random: Random): ForeshadowKind? {
-    val built = threats.mapNotNull { it.foreshadow }.sorted()
+    val built = foreshadows.sorted()
     val forced = config.forceForeshadow?.takeIf { it in built }
     if (config.forceForeshadow != null && forced == null) {
       LOG.warn { "Forced Foreshadowing ${config.forceForeshadow} is not built; drawing one instead" }

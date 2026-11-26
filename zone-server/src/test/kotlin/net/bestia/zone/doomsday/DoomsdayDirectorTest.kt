@@ -5,6 +5,7 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import net.bestia.worldgen.vector.Vec2d
+import net.bestia.zone.doomsday.foreshadow.ForeshadowRunner
 import net.bestia.zone.doomsday.persistence.StoredDoomsday
 import net.bestia.zone.doomsday.persistence.StoredDoomsdayRepository
 import net.bestia.zone.world.WorldService
@@ -71,13 +72,14 @@ class DoomsdayDirectorTest {
   }
   private val signs = mockk<DoomsdaySigns>(relaxed = true)
   private val events = mockk<ApplicationEventPublisher>(relaxed = true)
+  private val foreshadow = mockk<ForeshadowRunner>(relaxed = true)
   private val threats = mockk<ObjectProvider<DoomThreat>> {
     every { orderedStream() } answers { Stream.of(threat) }
   }
 
   private fun director(nowDays: Double = 0.0, config: DoomsdayConfig = DoomsdayConfig()): DoomsdayDirector {
     val now = BORN.plusSeconds((nowDays * 86_400).toLong())
-    return DoomsdayDirector(config, repository, worldService, threats, signs, events, Clock.fixed(now, ZoneOffset.UTC))
+    return DoomsdayDirector(config, repository, worldService, threats, signs, events, foreshadow, Clock.fixed(now, ZoneOffset.UTC))
   }
 
   @Test

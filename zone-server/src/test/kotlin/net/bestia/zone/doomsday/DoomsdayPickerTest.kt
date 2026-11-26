@@ -12,7 +12,6 @@ class DoomsdayPickerTest {
   private class FakeThreat(
     override val kind: DoomKind,
     private val fits: Boolean = true,
-    override val foreshadow: ForeshadowKind? = null,
   ) : DoomThreat {
     override val shape = DoomShape.ACTOR
     override fun fits(): Boolean {
@@ -25,14 +24,16 @@ class DoomsdayPickerTest {
   }
 
   private val threats = listOf(
-    FakeThreat(DoomKind.VOID_TEAR, foreshadow = ForeshadowKind.MANA_STORM_SEASON),
-    FakeThreat(DoomKind.WITHERING, foreshadow = ForeshadowKind.BLIGHT_BLOOM),
+    FakeThreat(DoomKind.VOID_TEAR),
+    FakeThreat(DoomKind.WITHERING),
     FakeThreat(DoomKind.FLOOD, fits = false),
   )
 
+  private val foreshadows = listOf(ForeshadowKind.MANA_STORM_SEASON, ForeshadowKind.BLIGHT_BLOOM)
+
   @Test
   fun `the same world always gets the same fate`() {
-    val picker = DoomsdayPicker(DoomsdayConfig(), threats)
+    val picker = DoomsdayPicker(DoomsdayConfig(), threats, foreshadows)
     val first = picker.pick(SEED)
     val again = picker.pick(SEED)
 
@@ -45,7 +46,7 @@ class DoomsdayPickerTest {
   @Test
   fun `times stay within the configured windows`() {
     val config = DoomsdayConfig()
-    val picker = DoomsdayPicker(config, threats)
+    val picker = DoomsdayPicker(config, threats, foreshadows)
 
     for (seed in 1L..200L) {
       val fate = picker.pick(seed)
@@ -57,7 +58,7 @@ class DoomsdayPickerTest {
 
   @Test
   fun `only a threat that fits the world is drawn`() {
-    val picker = DoomsdayPicker(DoomsdayConfig(), threats)
+    val picker = DoomsdayPicker(DoomsdayConfig(), threats, foreshadows)
     val drawn = (1L..200L).map { picker.pick(it).kind }.toSet()
 
     assertEquals(setOf(DoomKind.VOID_TEAR, DoomKind.WITHERING), drawn)
@@ -66,7 +67,7 @@ class DoomsdayPickerTest {
   @Test
   fun `a forced threat is taken with its forced origin`() {
     val config = DoomsdayConfig(forceKind = DoomKind.WITHERING, forceOriginX = 5.0, forceOriginY = 6.0)
-    val fate = DoomsdayPicker(config, threats).pick(SEED)
+    val fate = DoomsdayPicker(config, threats, foreshadows).pick(SEED)
 
     assertEquals(DoomKind.WITHERING, fate.kind)
     assertEquals(5.0, fate.originX)
@@ -75,17 +76,19 @@ class DoomsdayPickerTest {
 
   @Test
   fun `a forced threat that does not fit falls back to a drawn one`() {
-    val fate = DoomsdayPicker(DoomsdayConfig(forceKind = DoomKind.FLOOD), threats).pick(SEED)
+    val fate = DoomsdayPicker(DoomsdayConfig(forceKind = DoomKind.FLOOD), threats, foreshadows).pick(SEED)
 
     assertTrue(fate.kind in setOf(DoomKind.VOID_TEAR, DoomKind.WITHERING), "drawn instead: ${fate.kind}")
   }
 
   @Test
-  fun `the Foreshadowing comes only from built threats and can be forced`() {
-    val drawn = (1L..200L).map { DoomsdayPicker(DoomsdayConfig(), threats).pick(it).foreshadowKind }.toSet()
+  fun `the Foreshadowing comes only from built ones and can be forced`() {
+    val picker = DoomsdayPicker(DoomsdayConfig(), threats, foreshadows)
+    val drawn = (1L..200L).map { picker.pick(it).foreshadowKind }.toSet()
     assertEquals(setOf(ForeshadowKind.MANA_STORM_SEASON, ForeshadowKind.BLIGHT_BLOOM), drawn)
 
-    val forced = DoomsdayPicker(DoomsdayConfig(forceForeshadow = ForeshadowKind.BLIGHT_BLOOM), threats).pick(SEED)
+    val forcing = DoomsdayConfig(forceForeshadow = ForeshadowKind.BLIGHT_BLOOM)
+    val forced = DoomsdayPicker(forcing, threats, foreshadows).pick(SEED)
     assertEquals(ForeshadowKind.BLIGHT_BLOOM, forced.foreshadowKind)
   }
 
