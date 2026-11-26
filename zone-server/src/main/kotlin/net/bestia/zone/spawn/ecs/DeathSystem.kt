@@ -189,7 +189,7 @@ class DeathSystem(
     val species = world.bestiaSpeciesOf(entityId)
       ?: return
 
-    val loot = world.get(entityId, TakenDamage::class)?.let { lootClaims.of(world, it) }
+    val loot = world.get(entityId, TakenDamage::class)?.let { lootClaims.of(world, it, position) }
     val chanceFactor = loot
       ?.let { lootChanceModifiers.fold(1.0) { factor, modifier -> factor * modifier.factor(world, it.leadAccount) } }
       ?: 1.0

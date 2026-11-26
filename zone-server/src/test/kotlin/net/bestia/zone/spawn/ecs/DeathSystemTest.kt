@@ -49,7 +49,7 @@ class DeathSystemTest {
     mobLootSpawner = lootSpawner,
     deletionQueue = deletionQueue,
     expSplitter = KillExpSplitter(ConnectionInfoService(), PartyRulesConfig()),
-    lootClaims = KillLootClaims(ConnectionInfoService(), WorldRulesConfig(tickRate = 10)),
+    lootClaims = KillLootClaims(ConnectionInfoService(), WorldRulesConfig(tickRate = 10), PartyRulesConfig()),
     notableKills = mockk<KillReporter>(relaxed = true),
     spill = { x, y -> spilledAt += x to y },
   )
@@ -236,7 +236,7 @@ class DeathSystemTest {
       mobLootSpawner = lootSpawner,
       deletionQueue = deletionQueue,
       expSplitter = KillExpSplitter(ConnectionInfoService(), PartyRulesConfig()),
-      lootClaims = KillLootClaims(ConnectionInfoService(), WorldRulesConfig(tickRate = 10)),
+      lootClaims = KillLootClaims(ConnectionInfoService(), WorldRulesConfig(tickRate = 10), PartyRulesConfig()),
       notableKills = mockk<KillReporter>(relaxed = true),
       spill = { _, _ -> },
       killObservers = listOf(observer),

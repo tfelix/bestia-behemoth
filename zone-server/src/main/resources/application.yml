@@ -47,11 +47,14 @@ party:
   # Seats in a party, the owner's included. Open invitations hold a seat each.
   max-size: 12
   name-max-length: 20
-  # Even share: who stands within this many metres of a kill (flat on the map, from their master or the entity
-  # they play) shares its EXP. The bonus is added to the shared EXP when at least two members share it.
+  # Even share and Take turns: who stands within this many metres of a kill (flat on the map, from their master or
+  # the entity they play) shares its EXP or takes a turn at its loot. The bonus is added to the shared EXP when at
+  # least two members share it.
   exp-share-range-metres: 100
   even-share-bonus-percent: 30
   invitation-timeout-seconds: 60
+  # Take turns: a drop waits this long for the member whose turn it is, then the whole party may pick it up.
+  take-turns-claim-seconds: 30
 
 guild:
   name-max-length: 24
