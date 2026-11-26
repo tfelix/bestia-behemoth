@@ -8,6 +8,7 @@
 # before it ends by itself. Both in Bestia days. `loot` is what everyone who fought or held ground for it splits
 # by their share when players end it; nobody needs to accept anything to take part. `family` is what Observation
 # calls it (mana, beasts, earth, sky, people) and `felt-from` how many times further than a small event it is felt.
+# Once an event runs, the blackboards of its province post it, unless it says `posted: false`.
 events:
   # The strongest bestia of the province's own dens, born mana-touched and a few levels up, roams in from the
   # province edge toward the thickest mana. Killing it ends the event.
@@ -48,6 +49,8 @@ events:
     cooldown: 3
     lasts: 0.5
     family: beasts
+    # Hunters find it by the hints and the sky. A notice in town would give it away.
+    posted: false
     loot:
       - { item: mana_crystal, amount: 3 }
 

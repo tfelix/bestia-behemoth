@@ -45,6 +45,7 @@ class WorldEventDirector(
   private val rewards: ContractRewards,
   private val journal: ContributionJournal,
   private val runningEvents: RunningEvents? = null,
+  private val postedEvents: PostedEvents? = null,
 ) {
 
   @Scheduled(fixedDelay = RUN_EVERY_MS, initialDelay = RUN_EVERY_MS)
@@ -68,7 +69,9 @@ class WorldEventDirector(
       .forEach { signals -> maybeStart(signals, rows.getValue(signals.province.index), now) }
 
     journal.save()
-    runningEvents?.replace(running().mapNotNull { brewingOf(it, now) })
+    val stillRunning = running()
+    runningEvents?.replace(stillRunning.mapNotNull { brewingOf(it, now) })
+    postedEvents?.replace(stillRunning.mapNotNull(::postedOf))
   }
 
   /** Starts [entry] where [signals] say, whatever the budget, the quiet or the mana. For a GM. */
@@ -198,6 +201,17 @@ class WorldEventDirector(
       stage = event.stageOf(instance),
       changesInSeconds = event.changesAtSecond(instance)?.let { ((it - now) / clock.speedFactor).toLong() },
     )
+  }
+
+  /** A running event as the boards of its province post it: where its ground is now, as the town hears of it. */
+  private fun postedOf(instance: WorldEventInstance): PostedEvents.Running? {
+    val entry = catalogue.of(instance.eventId)?.takeIf { it.posted } ?: return null
+    val event = catalogue.eventOf(entry)
+    val ground = event.heldArea(instance)
+    val x = ground?.x?.toLong() ?: instance.x
+    val y = ground?.y?.toLong() ?: instance.y
+
+    return PostedEvents.Running(entry.id, instance.provinceIndex, x, y, event.stageOf(instance).ordinal + 1)
   }
 
   /** Every master standing on the ground of a running event holds it for another run. */

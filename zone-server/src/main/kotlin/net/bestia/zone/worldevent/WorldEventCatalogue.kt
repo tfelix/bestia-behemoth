@@ -28,6 +28,8 @@ data class WorldEventEntry(
   val family: String = "mana",
   /** How many times further than a small event Observation feels it. */
   val feltFrom: Double = 1.0,
+  /** Whether the boards of its province post it once it runs. */
+  val posted: Boolean = true,
 )
 
 /** A pile of one item that the contributors of an event split by their share. */
