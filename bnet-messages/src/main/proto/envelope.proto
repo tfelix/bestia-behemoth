@@ -102,6 +102,7 @@ import "messages/party/request_disband_party_cmsg.proto";
 import "messages/party/request_party_invitation_cmsg.proto";
 import "messages/party/request_party_info_cmsg.proto";
 import "messages/party/set_party_exp_share_cmsg.proto";
+import "messages/party/set_party_loot_share_cmsg.proto";
 import "messages/guild/create_guild_cmsg.proto";
 import "messages/guild/request_guild_info_cmsg.proto";
 import "messages/guild/invite_to_guild_cmsg.proto";
@@ -353,6 +354,7 @@ message Envelope {
     RequestPartyInvitationCMSG request_party_invitation = 612;
     RequestPartyInfoCMSG request_party_info = 613;
     SetPartyExpShareCMSG set_party_exp_share = 614;
+    SetPartyLootShareCMSG set_party_loot_share = 615;
 
     // GUILD 620
     CreateGuildCMSG create_guild = 620;

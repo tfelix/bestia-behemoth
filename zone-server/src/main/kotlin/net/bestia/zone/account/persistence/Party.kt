@@ -2,6 +2,8 @@ package net.bestia.zone.account.persistence
 
 import jakarta.persistence.*
 import net.bestia.zone.identity.ecs.PartyExpShare
+import net.bestia.zone.identity.ecs.PartyLootShare
+import org.hibernate.annotations.ColumnDefault
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.type.SqlTypes
 
@@ -31,6 +33,13 @@ class Party(
   @JdbcTypeCode(SqlTypes.VARCHAR)
   @Column(name = "exp_share", nullable = false, length = 16)
   var expShare: PartyExpShare = PartyExpShare.EVEN_SHARE
+
+  /** Defaulted in the schema too, so `ddl-auto: update` fills the parties that existed before the column. */
+  @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.VARCHAR)
+  @ColumnDefault("'PARTY_SHARE'")
+  @Column(name = "loot_share", nullable = false, length = 16)
+  var lootShare: PartyLootShare = PartyLootShare.PARTY_SHARE
 
   /**
    * Every master in the party, the owner included, each once. `Master.party` is set on the owner too, so a

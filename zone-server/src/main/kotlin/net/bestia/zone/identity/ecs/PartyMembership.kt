@@ -17,6 +17,7 @@ data class PartyMembership(
   val partyId: Long,
   val members: Set<Member>,
   val expShare: PartyExpShare,
+  val lootShare: PartyLootShare = PartyLootShare.PARTY_SHARE,
 ) : Component {
 
   data class Member(

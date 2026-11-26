@@ -5,6 +5,7 @@ import net.bestia.bnet.proto.PartyInfoSmsgProto
 import net.bestia.bnet.proto.Vec3OuterClass
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.PartyExpShare
+import net.bestia.zone.identity.ecs.PartyLootShare
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.util.EntityId
 
@@ -18,6 +19,7 @@ data class PartyInfoSMSG(
   val partyName: String,
   val member: List<PartyMember>,
   val expShare: PartyExpShare,
+  val lootShare: PartyLootShare,
   val ownerMasterId: Long,
 ) : SMSG {
 
@@ -62,6 +64,12 @@ data class PartyInfoSMSG(
         when (expShare) {
           PartyExpShare.EACH_TAKE -> PartyInfoSmsgProto.PartyExpShare.PARTY_EXP_SHARE_EACH_TAKE
           PartyExpShare.EVEN_SHARE -> PartyInfoSmsgProto.PartyExpShare.PARTY_EXP_SHARE_EVEN_SHARE
+        }
+      )
+      .setLootShare(
+        when (lootShare) {
+          PartyLootShare.PARTY_SHARE -> PartyInfoSmsgProto.PartyLootShare.PARTY_LOOT_SHARE_PARTY_SHARE
+          PartyLootShare.TAKE_TURNS -> PartyInfoSmsgProto.PartyLootShare.PARTY_LOOT_SHARE_TAKE_TURNS
         }
       )
       .setOwnerMasterId(ownerMasterId)
@@ -120,6 +128,7 @@ data class PartyInfoSMSG(
       partyName = "",
       member = emptyList(),
       expShare = PartyExpShare.EVEN_SHARE,
+      lootShare = PartyLootShare.PARTY_SHARE,
       ownerMasterId = 0
     )
   }

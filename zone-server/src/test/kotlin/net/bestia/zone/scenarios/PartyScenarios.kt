@@ -3,6 +3,7 @@ package net.bestia.zone.scenarios
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.bnet.proto.OperationSuccessProto.OpSuccess
 import net.bestia.zone.identity.ecs.PartyExpShare
+import net.bestia.zone.identity.ecs.PartyLootShare
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OperationSuccessSMSG
 import net.bestia.zone.party.DisbandPartySMSG
@@ -19,6 +20,7 @@ import net.bestia.zone.party.net.RequestDisbandPartyCMSG
 import net.bestia.zone.party.net.RequestPartyInfoCMSG
 import net.bestia.zone.party.net.RequestPartyInvitationCMSG
 import net.bestia.zone.party.net.SetPartyExpShareCMSG
+import net.bestia.zone.party.net.SetPartyLootShareCMSG
 import net.bestia.zone.session.ConnectionInfoService
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Order
@@ -221,6 +223,29 @@ class PartyScenarios : BestiaNoSocketScenario() {
     await {
       listOf(clientPlayer1, clientPlayer2).forEach { client ->
         assertEquals(PartyExpShare.EACH_TAKE, client.tryGetLastReceived(PartyInfoSMSG::class)?.expShare)
+      }
+    }
+  }
+
+  @Test
+  @Order(12)
+  fun `only the owner picks the loot mode`() {
+    clientPlayer2.sendMessage(SetPartyLootShareCMSG(clientPlayer2.connectedPlayerId, PartyLootShare.TAKE_TURNS))
+
+    assertEquals(
+      OperationErrorSMSG(OpError.PARTY_NO_PERMISSION),
+      clientPlayer2.tryGetLastReceived(OperationErrorSMSG::class)
+    )
+  }
+
+  @Test
+  @Order(13)
+  fun `the owner's loot mode reaches every member`() {
+    clientPlayer1.sendMessage(SetPartyLootShareCMSG(clientPlayer1.connectedPlayerId, PartyLootShare.TAKE_TURNS))
+
+    await {
+      listOf(clientPlayer1, clientPlayer2).forEach { client ->
+        assertEquals(PartyLootShare.TAKE_TURNS, client.tryGetLastReceived(PartyInfoSMSG::class)?.lootShare)
       }
     }
   }
