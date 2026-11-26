@@ -133,6 +133,29 @@ class WorldEventDirectorTest {
   }
 
   @Test
+  fun `the world carries only so many big events at once`() {
+    val raid = object : WorldEvent {
+      override val script = "TownRaid"
+      override fun start(signals: ProvinceSignals) = WorldEvent.Started(Vec3L(1, 2, 3), subjectId = 7)
+    }
+    val raids = WorldEventCatalogue(
+      listOf(raid, NeverFits("ApexRoamer"), NeverFits("Rift"), NeverFits("RareBestia"), NeverFits("AlphaRises"), NeverFits("OldSeal")),
+    ).also { it.load() }
+    fun directorCarrying(maxBigEvents: Int) = WorldEventDirector(
+      raids, snapshot, provinceService, provinceRows, instances, worldService,
+      WorldEventConfig(startChance = 1.0, maxBigEvents = maxBigEvents), clock, ledger, rewards, mockk<ContributionJournal>(relaxed = true),
+    )
+
+    directorCarrying(0).runAt(now)
+    now += 5 * DAY
+    directorCarrying(0).runAt(now)
+    assertTrue(events.isEmpty(), "the world is full")
+
+    directorCarrying(1).runAt(now)
+    assertEquals("town-raid", events.single().eventId)
+  }
+
+  @Test
   fun `a sanctuary never starts one`() {
     now += 5 * DAY
     director.runAt(now)
