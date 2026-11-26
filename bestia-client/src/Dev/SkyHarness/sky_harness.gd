@@ -13,8 +13,9 @@ const CLEAR := 0
 const CLOUDY := 1
 const THUNDERSTORM := 5
 
-## name, hour, day of the month, weather kind, cloud cover, wind m/s, mood strength, which way to look, and the
-## mana tier (0 Calm to 7 Burn), which takes over the mood when it is above Calm.
+## name, hour, day of the month, weather kind, cloud cover, wind m/s, mood strength, which way to look, the mana
+## tier (0 Calm to 7 Burn), the doomsday's kind and how strongly it is felt (0 to 4). The mana and the doomsday
+## take over the mood when they are felt.
 const SHOTS := [
 	["noon_clear", 13.0, 15, CLEAR, 0.0, 3.0, 0.0, "anti_sun"],
 	["noon_cumulus", 11.0, 15, CLEAR, 0.45, 6.0, 0.0, "anti_sun"],
@@ -24,7 +25,10 @@ const SHOTS := [
 	# What a live server sent on 2026-10-27: a dry grey day with a gale under it.
 	["cloudy_gale", 12.0, 15, CLOUDY, 0.71, 20.0, 0.0, "anti_sun"],
 	["storm", 15.0, 15, THUNDERSTORM, 1.0, 18.0, 0.0, "anti_sun"],
-	["doomsday", 20.8, 15, CLEAR, 0.4, 5.0, 1.0, "sun"],
+	["doomsday", 20.8, 15, CLEAR, 0.4, 5.0, 0.0, "sun", 0, "DESTROYER", 4],
+	["doom_void_dusk", 20.8, 15, CLEAR, 0.4, 5.0, 0.0, "sun", 0, "VOID_TEAR", 4],
+	["doom_void_noon_faint", 13.0, 15, CLEAR, 0.3, 4.0, 0.0, "anti_sun", 0, "VOID_TEAR", 2],
+	["doom_blight_noon", 13.0, 15, CLEAR, 0.45, 4.0, 0.0, "anti_sun", 0, "WITHERING", 4],
 	["mana_ominous_night", 1.0, 15, CLEAR, 0.25, 2.0, 0.0, "moon", 3],
 	["mana_storms_dusk", 20.8, 15, CLEAR, 0.4, 4.0, 0.0, "sun", 4],
 ]
@@ -104,6 +108,8 @@ func _apply(shot: Array) -> void:
 	weather.DebugWindSpeed = shot[5]
 	weather.DebugWindDirectionDegrees = 30.0
 	weather.DebugManaTier = shot[8] if shot.size() > 8 else 0
+	weather.DebugDoomKind = shot[9] if shot.size() > 9 else ""
+	weather.DebugDoomLevel = shot[10] if shot.size() > 10 else 0
 
 	# A shot shows the weather it asked for, not one still easing in from the previous shot.
 	weather.SkySeconds = 0.2

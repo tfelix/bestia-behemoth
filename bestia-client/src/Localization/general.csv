@@ -618,6 +618,10 @@ ANNOUNCEMENT_LAST_STAND_SOON,The Last Stand: the world falls in %s min.
 ANNOUNCEMENT_LAST_STAND_WON,"The doom is beaten back. The world lives on, for now."
 ANNOUNCEMENT_CALLING,"The world outlived its doom, and the sky begins to open. In %s h, all born of mana are called into a new world."
 ANNOUNCEMENT_CALLING_SOON,The Calling: the sky opens in %s min.
+ANNOUNCEMENT_DOOM_ONSET,"Far to the %s, %s has begun."
+ANNOUNCEMENT_DOOM_ESCALATION,"Far to the %s, %s grows stronger."
+ANNOUNCEMENT_DOOM_CATACLYSM,The whole world feels %s now.
+ANNOUNCEMENT_DOOM_RECEDES,"Hope returns: %s weakens, for now."
 WORLD_END_LOST_TITLE,The world has ended
 WORLD_END_SAVED_TITLE,The world is saved
 WORLD_END_LIVED,%s lived for %s days.
@@ -1100,6 +1104,7 @@ SENSE_EVENT_FAMILY_beasts,something among the beasts
 SENSE_EVENT_FAMILY_earth,something in the earth
 SENSE_EVENT_FAMILY_sky,something in the sky
 SENSE_EVENT_FAMILY_people,something among people
+SENSE_EVENT_FAMILY_doom,something that could end the world
 WORLD_EVENT_RIFT,a rift
 WORLD_EVENT_APEX_ROAMER,an apex beast
 WORLD_EVENT_RARE_BESTIA,a rare bestia
