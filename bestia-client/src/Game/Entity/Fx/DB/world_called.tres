@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="EntityFxDef" format=3]
+
+[ext_resource type="Script" path="res://Game/Entity/Fx/entity_fx_def.gd" id="1_def"]
+[ext_resource type="PackedScene" path="res://Game/Entity/Fx/Particles/LightMotes.tscn" id="2_motes"]
+
+[sub_resource type="Curve" id="Curve_silhouette"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.4, 0.85), 0.0, 0.0, 0, 0, Vector2(1, 0.85), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Curve" id="Curve_glow"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.35, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Curve" id="Curve_rim"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.3, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Curve" id="Curve_dissolve"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.4, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[resource]
+script = ExtResource("1_def")
+kind = "WORLD_CALLED"
+duration = 6.0
+hold_end = true
+silhouette = SubResource("Curve_silhouette")
+glow = SubResource("Curve_glow")
+rim = SubResource("Curve_rim")
+dissolve = SubResource("Curve_dissolve")
+glow_colour = Color(1, 0.95, 0.82, 1)
+rim_colour = Color(1, 0.97, 0.88, 1)
+particles = ExtResource("2_motes")
+particles_at = 1

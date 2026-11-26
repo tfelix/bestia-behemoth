@@ -102,6 +102,11 @@ class WorldEnd(
     return open.ending
   }
 
+  /** The final sequence as it would play now, for a GM to look at. Ends nothing. */
+  fun preview(ending: DoomEnding): WorldEndSMSG {
+    return summaryOf(ending, config.endSequenceSeconds.toInt())
+  }
+
   /** A master who logs in during the final sequence sees it too. */
   @EventListener
   fun onConnected(event: AccountConnectedEvent) {
@@ -154,7 +159,7 @@ class WorldEnd(
     if (sequence != null) {
       return
     }
-    val playing = summaryOf(open)
+    val playing = summaryOf(open.ending, secondsLeft(open))
     sequence = playing
     val told = out.sendToAllConnected(playing)
     LOG.warn { "Playing the world's final sequence for $told connection(s)" }
@@ -162,7 +167,7 @@ class WorldEnd(
 
   private fun finish(open: StoredWorldEnd) {
     playSequence(open)
-    val summary = summaryOf(open)
+    val summary = summaryOf(open.ending, 0)
     val world = worldService.record
     val now = clock.instant()
 
@@ -186,18 +191,18 @@ class WorldEnd(
     events.publishEvent(WorldEndedEvent(open.ending))
   }
 
-  private fun summaryOf(open: StoredWorldEnd): WorldEndSMSG {
+  private fun summaryOf(ending: DoomEnding, secondsLeft: Int): WorldEndSMSG {
     val world = worldService.record
     val status = director.status()
 
     return WorldEndSMSG(
-      ending = open.ending,
+      ending = ending,
       worldName = world.name,
       threat = status.kind,
       daysLived = Duration.between(world.createdAt, clock.instant()).toDays().toInt(),
       tPercent = status.tPercent.roundToInt(),
       townsLost = fates.fallen().size,
-      secondsLeft = secondsLeft(open),
+      secondsLeft = secondsLeft,
     )
   }
 

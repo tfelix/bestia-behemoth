@@ -161,6 +161,15 @@ func construction_sites_near(tile: Vector3, radius: float) -> Array:
 
 ## Returns the Entity node for entity_id, or null if it is not currently known
 ## (out of range / not yet synced).
+## Every master and bestia in view: all that is born of mana. Townsfolk are not.
+func get_mana_born_entities() -> Array[Entity]:
+	var born: Array[Entity] = []
+	for entity: Entity in _entities.values():
+		if entity.is_creature() and not entity.is_townsfolk():
+			born.append(entity)
+	return born
+
+
 func get_entity(entity_id: int) -> Entity:
 	return _entities.get(entity_id)
 

@@ -43,6 +43,10 @@ signal conversation_received(message: ConversationSMSG)
 signal readable_received(message: ReadableSMSG)
 ## Emitted when the server tells every connected player something: a GM's words, or news of the world.
 signal announcement_received(message: AnnouncementSMSG)
+## The world ends. The server closes the connection after the message's seconds.
+signal world_end_received(message: WorldEndSMSG)
+## The server closed the connection because the world ended, while the final sequence plays on.
+signal world_ended
 signal operation_success(message: OperationSuccess)
 signal operation_error(message: OperationError)
 ## Emitted when another player asks us to trade. Account-scoped for the reason [signal dialog_received] is:
@@ -356,6 +360,10 @@ var account_id: int = 0
 # Set while we deliberately drop the connection (logout to main menu) so the socket-closed handler
 # routes to the main menu instead of the "connection lost" screen.
 var _intentional_disconnect: bool = false
+
+# Set once the final sequence started, so the world end's disconnect leaves the player on it instead of the
+# "connection lost" screen.
+var _world_end_seen: bool = false
 
 
 func _ready() -> void:
@@ -1891,6 +1899,9 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		readable_received.emit(message)
 	elif message is AnnouncementSMSG:
 		announcement_received.emit(message)
+	elif message is WorldEndSMSG:
+		_world_end_seen = true
+		world_end_received.emit(message)
 	elif message is CraftableRecipesSMSG:
 		craftable_recipes_received.emit(message)
 	elif message is DiscoveryResultSMSG:
@@ -2062,6 +2073,9 @@ func _on_bnet_socket_connection_status_changed(status: int) -> void:
 			SceneManager.goto_scene("res://Menu/Main/Main.tscn")
 		elif _socket.LastDisconnectReason == "PROTOCOL_MISMATCH":
 			_goto_connection_lost(ConnectionError.PROTOCOL_MISMATCH)
+		elif _socket.LastDisconnectReason == "WORLD_ENDED" and _world_end_seen:
+			_world_end_seen = false
+			world_ended.emit()
 		else:
 			_goto_connection_lost(ConnectionError.ZONE_CONNECTION_LOST)
 	elif status == 1:
