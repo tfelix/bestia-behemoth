@@ -9,7 +9,10 @@ import net.bestia.zone.worldevent.contract.ContributionLedger
 import net.bestia.worldgen.place.Province
 import net.bestia.worldgen.place.Provinces
 import net.bestia.worldgen.vector.Vec2d
+import net.bestia.zone.blackboard.EventNotices
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.place.ecs.PlaceNameService
+import net.bestia.zone.place.ecs.PlaceRef
 import net.bestia.zone.place.ecs.ProvinceService
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.mana.ManaField.Cell
@@ -108,6 +111,25 @@ class WorldEventDirectorTest {
     assertEquals(1, events.size)
     assertEquals(wild.index, events.single().provinceIndex)
     assertEquals(0.0, rows.getValue(wild.index).budget, 1e-9)
+  }
+
+  @Test
+  fun `the boards of its province post a running event where its ground is`() {
+    every { provinceService.provinceAt(any(), any()) } answers { if (firstArg<Double>() < 1_000.0) wild else sanctuary }
+    val placeNames = mockk<PlaceNameService> { every { resolve(any(), any()) } returns PlaceRef("Downs") }
+    val posted = PostedEvents(provinceService, placeNames)
+    val director = WorldEventDirector(
+      catalogue, snapshot, provinceService, provinceRows, instances, worldService,
+      WorldEventConfig(startChance = 1.0), clock, ledger, rewards, mockk<ContributionJournal>(relaxed = true),
+      postedEvents = posted,
+    )
+
+    director.runAt(now)
+    now += 5 * DAY
+    director.runAt(now)
+
+    assertEquals(listOf(EventNotices.Notice("apex-roamer", "Downs", 0, 0, 3)), posted.postedAt(10, 10))
+    assertTrue(posted.postedAt(5_000, 0).isEmpty(), "a board in another province")
   }
 
   @Test
