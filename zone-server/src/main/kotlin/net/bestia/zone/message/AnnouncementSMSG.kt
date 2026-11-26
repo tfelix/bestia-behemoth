@@ -19,6 +19,10 @@ data class AnnouncementSMSG(
     LAST_STAND_WON,
     CALLING,
     CALLING_SOON,
+    DOOM_ONSET,
+    DOOM_ESCALATION,
+    DOOM_CATACLYSM,
+    DOOM_RECEDES,
   }
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {

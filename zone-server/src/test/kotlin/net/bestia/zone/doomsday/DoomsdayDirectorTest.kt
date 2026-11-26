@@ -3,6 +3,7 @@ package net.bestia.zone.doomsday
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import io.mockk.verify
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.zone.doomsday.persistence.StoredDoomsday
 import net.bestia.zone.doomsday.persistence.StoredDoomsdayRepository
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.ObjectProvider
+import org.springframework.context.ApplicationEventPublisher
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneOffset
@@ -64,13 +66,15 @@ class DoomsdayDirectorTest {
     every { isLoaded } returns true
     every { record } returns world
   }
+  private val signs = mockk<DoomsdaySigns>(relaxed = true)
+  private val events = mockk<ApplicationEventPublisher>(relaxed = true)
   private val threats = mockk<ObjectProvider<DoomThreat>> {
     every { orderedStream() } answers { Stream.of(threat) }
   }
 
   private fun director(nowDays: Double = 0.0, config: DoomsdayConfig = DoomsdayConfig()): DoomsdayDirector {
     val now = BORN.plusSeconds((nowDays * 86_400).toLong())
-    return DoomsdayDirector(config, repository, worldService, threats, Clock.fixed(now, ZoneOffset.UTC))
+    return DoomsdayDirector(config, repository, worldService, threats, signs, events, Clock.fixed(now, ZoneOffset.UTC))
   }
 
   @Test
@@ -85,7 +89,9 @@ class DoomsdayDirectorTest {
 
   @Test
   fun `the clock runs after onset, tells the threat of a new stage and lets it act`() {
-    stored = StoredDoomsday(kind = DoomKind.VOID_TEAR, onsetDay = 10.0, unfoldDays = 100.0, progress = 0.14)
+    stored = StoredDoomsday(
+      kind = DoomKind.VOID_TEAR, originX = 1.0, originY = 2.0, onsetDay = 10.0, unfoldDays = 100.0, progress = 0.14,
+    )
 
     director().runAt(15.0)
 
@@ -93,6 +99,8 @@ class DoomsdayDirectorTest {
     assertEquals(DoomStage.ONSET, stored!!.stage)
     assertEquals(listOf(DoomStage.OMENS to DoomStage.ONSET), threat.stages)
     assertEquals(15.0 * 86_400, threat.stepped, 1e-6)
+    verify { events.publishEvent(DoomStageChanged(DoomKind.VOID_TEAR, 1.0, 2.0, DoomStage.OMENS, DoomStage.ONSET)) }
+    verify { signs.remember(stored!!) }
   }
 
   @Test

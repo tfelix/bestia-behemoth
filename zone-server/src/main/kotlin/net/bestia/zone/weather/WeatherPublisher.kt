@@ -46,6 +46,7 @@ class WeatherPublisher(
   private val skillIds: SkillIds,
   private val manaSense: ManaSense,
   private val manaTiers: ManaTiers? = null,
+  private val doomSkies: DoomSkies? = null,
 ) {
 
   /**
@@ -101,7 +102,7 @@ class WeatherPublisher(
     val mana = manaSense.read(Vec3L(voxelX, voxelY, ground.toLong()), weatherSenseLevel)
     val tier = manaTiers?.tierAt(Vec3L(voxelX, voxelY, ground.toLong())) ?: ManaTier.CALM
     val message = WeatherSMSG.of(at.regionId, at.state, at.temperature, hazardVoxel, forecast, cover)
-      .copy(mana = mana, manaTier = tier)
+      .copy(mana = mana, manaTier = tier, doom = doomSkies?.at(voxelX, voxelY) ?: DoomSky.CLEAR)
 
     val now = System.currentTimeMillis()
     val previous = lastSent[accountId]
@@ -155,7 +156,8 @@ class WeatherPublisher(
         (previous.hazardX != current.hazardX || previous.hazardY != current.hazardY) ||
         groundChanged(previous.ground, current.ground) ||
         manaChanged(previous.mana, current.mana) ||
-        previous.manaTier != current.manaTier
+        previous.manaTier != current.manaTier ||
+        previous.doom != current.doom
 
   private fun groundChanged(previous: GroundCover, current: GroundCover): Boolean {
     return abs(previous.wetness - current.wetness) >= config.wetnessBand ||

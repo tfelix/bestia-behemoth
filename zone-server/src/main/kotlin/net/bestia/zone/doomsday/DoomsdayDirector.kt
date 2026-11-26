@@ -5,6 +5,7 @@ import net.bestia.zone.doomsday.persistence.StoredDoomsday
 import net.bestia.zone.doomsday.persistence.StoredDoomsdayRepository
 import net.bestia.zone.world.WorldService
 import org.springframework.beans.factory.ObjectProvider
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -23,6 +24,8 @@ class DoomsdayDirector(
   private val doomsdays: StoredDoomsdayRepository,
   private val worldService: WorldService,
   threatBeans: ObjectProvider<DoomThreat>,
+  private val signs: DoomsdaySigns,
+  private val events: ApplicationEventPublisher,
   private val clock: Clock = Clock.systemUTC(),
 ) {
 
@@ -51,7 +54,7 @@ class DoomsdayDirector(
     if (ageDays >= row.onsetDay) {
       threat?.step(row.progress, realSeconds)
     }
-    doomsdays.save(row)
+    save(row)
   }
 
   @Transactional
@@ -106,7 +109,7 @@ class DoomsdayDirector(
   fun overridePace(pace: Double?) {
     val row = current()
     row.paceOverride = pace?.coerceIn(0.0, config.maxPace)
-    doomsdays.save(row)
+    save(row)
   }
 
   /** Gives the world another threat and starts its clock over. For alpha tests; false when [kind] cannot run here. */
@@ -121,7 +124,7 @@ class DoomsdayDirector(
     row.originY = origin.y
     row.progress = 0.0
     row.stage = DoomStage.OMENS
-    doomsdays.save(row)
+    save(row)
     LOG.info { "Doomsday changed to $kind at (${origin.x}, ${origin.y})" }
     return true
   }
@@ -134,7 +137,7 @@ class DoomsdayDirector(
     }
     val row = current()
     row.foreshadowKind = kind
-    doomsdays.save(row)
+    save(row)
     return true
   }
 
@@ -149,21 +152,29 @@ class DoomsdayDirector(
   }
 
   private fun current(): StoredDoomsday {
-    return doomsdays.findById(StoredDoomsday.ONLY).orElseGet {
+    val row = doomsdays.findById(StoredDoomsday.ONLY).orElseGet {
       val picked = DoomsdayPicker(config, threats).pick(worldService.record.seed)
       LOG.info {
         "The world's fate: ${picked.kind ?: "no threat"} sets in on day ${picked.onsetDay.toInt()} and unfolds over " +
           "${picked.unfoldDays.toInt()} days; Foreshadowing ${picked.foreshadowKind ?: "none"} on day " +
           "${picked.foreshadowDay.toInt()}"
       }
-      doomsdays.save(picked)
+      save(picked)
     }
+    signs.remember(row)
+    return row
+  }
+
+  private fun save(row: StoredDoomsday): StoredDoomsday {
+    val saved = doomsdays.save(row)
+    signs.remember(saved)
+    return saved
   }
 
   private fun change(next: (StoredDoomsday) -> DoomClock.State): DoomStage {
     val row = current()
     apply(row, next(row), threatOf(row))
-    doomsdays.save(row)
+    save(row)
     return row.stage
   }
 
@@ -176,6 +187,12 @@ class DoomsdayDirector(
       val progress = String.format(Locale.ROOT, "%.3f", state.progress)
       LOG.info { "Doomsday ${row.kind} moved from $from to ${state.stage} at $progress" }
       threat?.onStage(from, state.stage)
+      val kind = row.kind
+      val x = row.originX
+      val y = row.originY
+      if (kind != null && x != null && y != null) {
+        events.publishEvent(DoomStageChanged(kind, x, y, from, state.stage))
+      }
     }
   }
 

@@ -720,6 +720,9 @@ RUMOUR_RAIDERS_ROUTED_2,"The brigands are dead. Whoever did it saved us more tha
 RUMOUR_TOWN_RAIDED_ASK,What happened here?
 RUMOUR_TOWN_RAIDED_1,"The brigands came, and nobody stopped them. They broke into the stores and took what they could carry."
 RUMOUR_TOWN_RAIDED_2,"We had no one to fight them. They walked through the streets like they owned them, and then they were gone."
+RUMOUR_DOOM_GROWS_ASK,Why is everyone so afraid?
+RUMOUR_DOOM_GROWS_1,"Something is wrong with the world out there. The old ones say it has happened before, and that it ended everything."
+RUMOUR_DOOM_GROWS_2,"Travellers stopped coming from that way. The last one would not say what they saw. They just kept packing."
 RUMOUR_MISDEED_SEEN_ASK,Is there anybody I should watch out for?
 RUMOUR_MISDEED_SEEN_1,"{name}. They did something terrible in a town not far from here, and people there will not forget it."
 RUMOUR_MISDEED_SEEN_2,"Word came from down the road: keep away from {name}. Folk there saw what they did."
