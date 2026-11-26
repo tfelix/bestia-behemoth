@@ -61,6 +61,7 @@ import net.bestia.zone.util.EntityId
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.spoor.TrackReading
 import net.bestia.zone.battle.ecs.damage.IncomingDamage
+import net.bestia.zone.battle.Element
 /**
  * The real [SkillWorld]: every operation is charged against the cast's [SkillBudget]. A cast resolves on the
  * tick thread (see [SkillExecutionService]), so it uses the [World] directly.
@@ -366,6 +367,18 @@ class BudgetedSkillWorld(
     budget.charge()
 
     services.statusEffects.removeEffect(world, entityId, effectId, RemovalReason.DISPELLED)
+  }
+
+  override fun endowWeapon(entityId: EntityId, element: Element, level: Int): Boolean {
+    budget.charge()
+
+    return services.weaponEndowment?.endow(world, entityId, element, level, castPotency) ?: false
+  }
+
+  override fun liftWeaponEndow(entityId: EntityId) {
+    budget.charge()
+
+    services.weaponEndowment?.lift(world, entityId)
   }
 
   override fun dispel(entityId: EntityId): Int {

@@ -19,6 +19,13 @@ import net.bestia.zone.item.material.ItemMaterial
 import net.bestia.zone.item.persistence.Item
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import net.bestia.zone.item.enchant.itemEnchantmentScriptsOf
+import net.bestia.zone.battle.Element
+import net.bestia.zone.item.enchant.ActiveItemEnchantment
+import net.bestia.zone.item.enchant.EndowedWeapon
+import net.bestia.zone.item.enchant.ItemEnchantmentId
+import java.time.Instant
+import org.junit.jupiter.api.Assertions.assertNull
 
 class EquipmentStatusContributorTest {
 
@@ -27,7 +34,8 @@ class EquipmentStatusContributorTest {
     EquipmentScriptRegistry(listOf(StatBonusEquipmentScript(), IronSwordScript())),
     catalog,
     itemTemplatesOf(),
-    essenceStatsOf()
+    essenceStatsOf(),
+    itemEnchantmentScriptsOf()
   )
   private val world = testWorld()
   private val context = StatusValueRecalcContext(BaseStatusValues(1, 1, 1, 1, 1, 1), baseSpeed = 1f)
@@ -84,7 +92,8 @@ class EquipmentStatusContributorTest {
       weaponType = WeaponType.DAGGER, material = ItemMaterial.METAL
     )
     val contributor = EquipmentStatusContributor(
-      EquipmentScriptRegistry(listOf(StatBonusEquipmentScript())), catalog, itemTemplatesOf(dagger), essenceStatsOf()
+      EquipmentScriptRegistry(listOf(StatBonusEquipmentScript())), catalog, itemTemplatesOf(dagger), essenceStatsOf(),
+      itemEnchantmentScriptsOf()
     )
     catalog.load(mapOf(1L to ItemStatSheet(attack = 20), dagger.id to ItemStatSheet(attack = 7)))
     val equipment = Equipment(availableSlotMask = EquipmentSlots.ALL)
@@ -108,7 +117,8 @@ class EquipmentStatusContributorTest {
     val shield = piece(3L, EquipmentSlot.LEFT_HAND, ArmorType.HEAVY)
     val boots = piece(4L, EquipmentSlot.FOOTGEAR, ArmorType.LIGHT)
     val contributor = EquipmentStatusContributor(
-      EquipmentScriptRegistry(listOf(StatBonusEquipmentScript())), catalog, itemTemplatesOf(cuirass, shield, boots), essenceStatsOf()
+      EquipmentScriptRegistry(listOf(StatBonusEquipmentScript())), catalog, itemTemplatesOf(cuirass, shield, boots),
+      essenceStatsOf(), itemEnchantmentScriptsOf()
     )
     val equipment = Equipment(availableSlotMask = EquipmentSlots.ALL)
     listOf(cuirass, shield, boots).forEach { equipment.equip(it.equipSlot!!, Equipment.EquippedItem(itemId = it.id, uniqueId = it.id)) }
@@ -118,6 +128,51 @@ class EquipmentStatusContributorTest {
     contributor.contribute(context, world, knight)
 
     assertEquals(listOf(ArmorType.LIGHT, ArmorType.HEAVY, ArmorType.HEAVY), context.wornArmorTypes.sorted())
+  }
+
+  @Test
+  fun `an endowed weapon in hand strikes as its element and harder per level`() {
+    val fighter = wieldingEndowed(EquipmentSlot.RIGHT_HAND, endsAt = Instant.now().plusSeconds(60))
+
+    endowAware().contribute(context, world, fighter)
+
+    assertEquals(Element.FIRE, context.weaponElement)
+    assertEquals(10, context.attackPercent)
+  }
+
+  @Test
+  fun `an ended endow does nothing`() {
+    val fighter = wieldingEndowed(EquipmentSlot.RIGHT_HAND, endsAt = Instant.now().minusSeconds(1))
+
+    endowAware().contribute(context, world, fighter)
+
+    assertNull(context.weaponElement)
+  }
+
+  @Test
+  fun `an endowed second blade does not lend its element`() {
+    val fighter = wieldingEndowed(EquipmentSlot.LEFT_HAND, endsAt = Instant.now().plusSeconds(60))
+
+    endowAware().contribute(context, world, fighter)
+
+    assertNull(context.weaponElement)
+  }
+
+  private fun endowAware(): EquipmentStatusContributor {
+    return EquipmentStatusContributor(
+      EquipmentScriptRegistry(emptyList()), catalog, itemTemplatesOf(), essenceStatsOf(),
+      itemEnchantmentScriptsOf(EndowedWeapon())
+    )
+  }
+
+  private fun wieldingEndowed(slot: EquipmentSlot, endsAt: Instant): Long {
+    val endow = ActiveItemEnchantment(
+      ItemEnchantmentId.ENDOWED_WEAPON, strength = 60, value = Element.FIRE.ordinal, endsAt = endsAt, level = 2
+    )
+    val equipment = Equipment(availableSlotMask = EquipmentSlots.ALL)
+    equipment.equip(slot, Equipment.EquippedItem(itemId = 1, uniqueId = 1L, enchantments = listOf(endow)))
+
+    return world.createEntity { id -> add(id, equipment) }
   }
 
   private fun wearing(vararg items: Pair<EquipmentSlot, Int>): Long {

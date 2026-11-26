@@ -10,4 +10,6 @@ message HeldItemEnchantment {
   uint32 enchantment_id = 1;
   // Until it ends, from the moment the message was built; 0 for one without an end.
   float remaining_seconds = 2;
+  // The element an endow lends the weapon, as the server's Element name like "FIRE"; empty for anything else.
+  string element = 3;
 }

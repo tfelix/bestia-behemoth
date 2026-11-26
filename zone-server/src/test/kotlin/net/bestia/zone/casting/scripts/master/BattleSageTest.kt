@@ -26,7 +26,7 @@ class BattleSageTest {
   }
 
   @Test
-  fun `Endow takes only fire, water, wind or earth and stores the element on the ally`() {
+  fun `Endow takes only fire, water, wind or earth and stores the element on an ally without a weapon`() {
     val sut = Endow(LineOfSightService())
 
     assertEquals(OpError.SKILL_INVALID_CHOICE, sut.checkCastStart(testWorld(), 1L, 1, listOf(Element.HOLY.ordinal.toLong())))
@@ -43,6 +43,23 @@ class BattleSageTest {
     assertEquals(StatusEffectId.MASTER_ENDOWED.id, applied.effectId)
     assertEquals(Element.WIND.ordinal, applied.amount)
     assertEquals(2, applied.level)
+  }
+
+  @Test
+  fun `Endow binds to the weapon an ally holds and lifts an anointing or a body endow`() {
+    val world = RecordingSkillWorld().apply { wieldingWeapon += BattleContextFixture.DEFENDER_ID }
+    val ctx = SkillContextFixture.skillCtx(
+      BattleContextFixture.entityCtx(), world, skillLevel = 2, args = listOf(Element.WIND.ordinal.toLong())
+    )
+
+    Endow(LineOfSightService()).execute(ctx)
+
+    assertEquals(listOf(BattleContextFixture.DEFENDER_ID to Element.WIND), world.endowedWeapons)
+    assertEquals(emptyList<Any>(), world.appliedEffects)
+    assertEquals(
+      listOf(StatusEffectId.ASPERSIO.id, StatusEffectId.MASTER_ENDOWED.id),
+      world.removedEffects.map { it.second }
+    )
   }
 
   @Test

@@ -115,10 +115,11 @@ class PriestHolySkillsTest {
   }
 
   @Test
-  fun `Aspersio anoints the ally's weapon at the cast level`() {
+  fun `Aspersio anoints the ally's weapon at the cast level and lifts an endow off it`() {
     Aspersio(LineOfSightService()).execute(ctx(level = 3))
 
     assertEquals(listOf(StatusEffectId.ASPERSIO.id to 3), world.appliedEffects.map { it.effectId to it.level })
+    assertEquals(listOf(target), world.liftedWeaponEndows)
   }
 
   @Test

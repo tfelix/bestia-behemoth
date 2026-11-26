@@ -25,14 +25,14 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci5tZXNzYWdlcy9jb21wb25lbnQvaGVsZF9pdGVtX2VuY2hhbnRtZW50LnBy",
-            "b3RvEgRibmV0IkgKE0hlbGRJdGVtRW5jaGFudG1lbnQSFgoOZW5jaGFudG1l",
-            "bnRfaWQYASABKA0SGQoRcmVtYWluaW5nX3NlY29uZHMYAiABKAJCMQoVbmV0",
-            "LmJlc3RpYS5ibmV0LnByb3RvQhhIZWxkSXRlbUVuY2hhbnRtZW50UHJvdG9i",
-            "BnByb3RvMw=="));
+            "b3RvEgRibmV0IlkKE0hlbGRJdGVtRW5jaGFudG1lbnQSFgoOZW5jaGFudG1l",
+            "bnRfaWQYASABKA0SGQoRcmVtYWluaW5nX3NlY29uZHMYAiABKAISDwoHZWxl",
+            "bWVudBgDIAEoCUIxChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CGEhlbGRJdGVt",
+            "RW5jaGFudG1lbnRQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.HeldItemEnchantment), global::Bnet.HeldItemEnchantment.Parser, new[]{ "EnchantmentId", "RemainingSeconds" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.HeldItemEnchantment), global::Bnet.HeldItemEnchantment.Parser, new[]{ "EnchantmentId", "RemainingSeconds", "Element" }, null, null, null, null)
           }));
     }
     #endregion
@@ -79,6 +79,7 @@ namespace Bnet {
     public HeldItemEnchantment(HeldItemEnchantment other) : this() {
       enchantmentId_ = other.enchantmentId_;
       remainingSeconds_ = other.remainingSeconds_;
+      element_ = other.element_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -115,6 +116,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "element" field.</summary>
+    public const int ElementFieldNumber = 3;
+    private string element_ = "";
+    /// <summary>
+    /// The element an endow lends the weapon, as the server's Element name like "FIRE"; empty for anything else.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Element {
+      get { return element_; }
+      set {
+        element_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -132,6 +148,7 @@ namespace Bnet {
       }
       if (EnchantmentId != other.EnchantmentId) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(RemainingSeconds, other.RemainingSeconds)) return false;
+      if (Element != other.Element) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -141,6 +158,7 @@ namespace Bnet {
       int hash = 1;
       if (EnchantmentId != 0) hash ^= EnchantmentId.GetHashCode();
       if (RemainingSeconds != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(RemainingSeconds);
+      if (Element.Length != 0) hash ^= Element.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -167,6 +185,10 @@ namespace Bnet {
         output.WriteRawTag(21);
         output.WriteFloat(RemainingSeconds);
       }
+      if (Element.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Element);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -185,6 +207,10 @@ namespace Bnet {
         output.WriteRawTag(21);
         output.WriteFloat(RemainingSeconds);
       }
+      if (Element.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Element);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -200,6 +226,9 @@ namespace Bnet {
       }
       if (RemainingSeconds != 0F) {
         size += 1 + 4;
+      }
+      if (Element.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Element);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -218,6 +247,9 @@ namespace Bnet {
       }
       if (other.RemainingSeconds != 0F) {
         RemainingSeconds = other.RemainingSeconds;
+      }
+      if (other.Element.Length != 0) {
+        Element = other.Element;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -246,6 +278,10 @@ namespace Bnet {
             RemainingSeconds = input.ReadFloat();
             break;
           }
+          case 26: {
+            Element = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -271,6 +307,10 @@ namespace Bnet {
           }
           case 21: {
             RemainingSeconds = input.ReadFloat();
+            break;
+          }
+          case 26: {
+            Element = input.ReadString();
             break;
           }
         }

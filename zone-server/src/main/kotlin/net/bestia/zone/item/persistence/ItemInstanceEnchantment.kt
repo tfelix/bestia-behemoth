@@ -36,10 +36,12 @@ class ItemInstanceEnchantment(
   strength: Int,
   value: Int,
   endsAt: Instant?,
+  level: Int,
 ) {
 
   constructor(itemInstance: ItemInstance, enchantment: ActiveItemEnchantment) : this(
-    itemInstance, enchantment.enchantment.id, enchantment.strength, enchantment.value, enchantment.endsAt
+    itemInstance, enchantment.enchantment.id, enchantment.strength, enchantment.value, enchantment.endsAt,
+    enchantment.level
   )
 
   @Column(nullable = false)
@@ -52,6 +54,10 @@ class ItemInstanceEnchantment(
   @Column(name = "ends_at")
   var endsAt: Instant? = endsAt
 
+  // The default fills the column for rows `ddl-auto: update` finds already there.
+  @Column(name = "enchantment_level", nullable = false, columnDefinition = "INT DEFAULT 0 NOT NULL")
+  var level: Int = level
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   val id: Long = 0
@@ -61,12 +67,13 @@ class ItemInstanceEnchantment(
     strength = enchantment.strength
     value = enchantment.value
     endsAt = enchantment.endsAt
+    level = enchantment.level
   }
 
   /** Null for a row whose enchantment was removed from the catalog. */
   fun toActive(): ActiveItemEnchantment? {
     val enchantment = ItemEnchantmentId.findById(enchantmentId) ?: return null
 
-    return ActiveItemEnchantment(enchantment, strength, value, endsAt)
+    return ActiveItemEnchantment(enchantment, strength, value, endsAt, level)
   }
 }

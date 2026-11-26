@@ -25,6 +25,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bestia.zone.item.enchant.ActiveItemEnchantment
+import net.bestia.zone.item.enchant.ItemEnchantmentId
+import java.time.Instant
 
 /**
  * The database removal comes first and gates the ground item, so a drop can never copy an item. Both halves have
@@ -155,6 +158,24 @@ class DropItemHandlerTest {
 
     assertEquals(listOf(78L), inventory.getItems().filter { it.itemId == SWORD }.map { it.uniqueId })
     verify { spawner.spawnLootItem(world, itemId = SWORD, amount = 1, pos = any(), uniqueId = 77L) }
+  }
+
+  @Test
+  fun `a dropped copy carries its enchantments onto the ground`() {
+    every { inventoryService.removeNamedFromOwner(MASTER_ID, null, SWORD, 1, 77L, null) } returns
+      ItemContainer.RemovedItem(uniqueId = 77L, instance = null)
+    val endow = ActiveItemEnchantment(
+      ItemEnchantmentId.ENDOWED_WEAPON, strength = 64, value = 3, endsAt = Instant.now().plusSeconds(60), level = 1
+    )
+    world.get(entity, Inventory::class)!!
+      .addItem(Inventory.Item(SWORD, amount = 1, uniqueId = 77L, stackable = false, enchantments = listOf(endow)))
+
+    sut.handle(world, DropItemCMSG(ACCOUNT_ID, playerItemId = 77L, amount = 1))
+    pending!!.invoke()
+
+    verify {
+      spawner.spawnLootItem(world, itemId = SWORD, amount = 1, pos = any(), uniqueId = 77L, enchantments = listOf(endow))
+    }
   }
 
   /** Worn a moment ago, so the database still has it free: only the live Equipment knows it is worn. */

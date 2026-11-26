@@ -1,6 +1,7 @@
 package net.bestia.zone.item.enchant
 
 import net.bestia.bnet.proto.HeldItemEnchantmentProto
+import net.bestia.zone.battle.Element
 import java.time.Duration
 import java.time.Instant
 
@@ -9,12 +10,15 @@ data class HeldItemEnchantment(
   val enchantmentId: Long,
   /** 0 for an enchantment without an end. */
   val remainingSeconds: Float,
+  /** What an endow lends the weapon; null for anything else. */
+  val element: Element? = null,
 ) {
 
   fun toProto(): HeldItemEnchantmentProto.HeldItemEnchantment {
     return HeldItemEnchantmentProto.HeldItemEnchantment.newBuilder()
       .setEnchantmentId(enchantmentId.toInt())
       .setRemainingSeconds(remainingSeconds)
+      .setElement(element?.name.orEmpty())
       .build()
   }
 
@@ -23,7 +27,14 @@ data class HeldItemEnchantment(
     fun of(enchantments: List<ActiveItemEnchantment>, now: Instant): List<HeldItemEnchantment> {
       return enchantments
         .filterNot { it.hasEnded(now) }
-        .map { HeldItemEnchantment(it.enchantment.id, remainingSecondsOf(it, now)) }
+        .map { HeldItemEnchantment(it.enchantment.id, remainingSecondsOf(it, now), elementOf(it)) }
+    }
+
+    /** An endow keeps its element as an ordinal in [ActiveItemEnchantment.value]; the client names it. */
+    private fun elementOf(enchantment: ActiveItemEnchantment): Element? {
+      val isEndow = enchantment.enchantment == ItemEnchantmentId.ENDOWED_WEAPON
+
+      return if (isEndow) Element.entries[enchantment.value] else null
     }
 
     private fun remainingSecondsOf(enchantment: ActiveItemEnchantment, now: Instant): Float {

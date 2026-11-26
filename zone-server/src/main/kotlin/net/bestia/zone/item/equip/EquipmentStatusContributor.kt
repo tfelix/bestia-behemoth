@@ -7,12 +7,14 @@ import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
+import net.bestia.zone.item.enchant.ItemEnchantmentScripts
 import net.bestia.zone.item.essence.EssenceStats
 import net.bestia.zone.item.equip.script.EquipmentScriptRegistry
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.item.stat.ItemStats
 import org.springframework.stereotype.Component
+import java.time.Clock
 
 @Component
 class EquipmentStatusContributor(
@@ -20,6 +22,8 @@ class EquipmentStatusContributor(
   private val itemStatCatalog: ItemStatCatalog,
   private val templates: ItemTemplateRegistry,
   private val essences: EssenceStats,
+  private val enchantmentScripts: ItemEnchantmentScripts,
+  private val clock: Clock = Clock.systemUTC(),
 ) : StatusValueContributor {
 
   override val reads: ComponentClassSet = setOf(Equipment::class)
@@ -46,8 +50,17 @@ class EquipmentStatusContributor(
     context.wornArmorTypes = worn.values.mapNotNull { templates.templateOf(it.itemId)?.armorType }
 
     context.potencyFocus += focusOf(context.heldWeaponType) + focusOf(context.offHandWeaponType)
+    applyEnchantmentsOf(rightHand, context)
 
     essences.applyTo(context, worn.values)
+  }
+
+  /** Only the weapon hand: an endow is on the blade that strikes, not on a shield or a second blade. */
+  private fun applyEnchantmentsOf(weapon: Equipment.EquippedItem?, context: StatusValueRecalcContext) {
+    val now = clock.instant()
+    weapon?.enchantments
+      ?.filterNot { it.hasEnded(now) }
+      ?.forEach { enchantmentScripts.of(it.enchantment).onWielderRecalc(context, it) }
   }
 
   /** A second weapon, rather than a shield or a tome. */

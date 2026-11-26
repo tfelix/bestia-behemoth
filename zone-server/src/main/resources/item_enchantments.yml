@@ -19,3 +19,9 @@ itemEnchantments:
     # A Dispel of less Potency cannot break it at all.
     dispelThreshold: 60
     script: KeepsakeWardEnchantment
+
+  # The Sage's Endow on the weapon in hand. `value` is the element's ordinal, `level` the skill level.
+  - id: 3
+    identifier: ENDOWED_WEAPON
+    dispellable: true
+    script: EndowedWeapon

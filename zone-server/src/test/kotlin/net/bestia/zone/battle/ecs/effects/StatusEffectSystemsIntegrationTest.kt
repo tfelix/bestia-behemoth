@@ -47,6 +47,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.item.material.ItemMaterial
+import net.bestia.zone.item.enchant.itemEnchantmentScriptsOf
 
 /**
  * Exercises [StatusEffectDurationSystem] and [StatusValueRecalcSystem] wired together against a
@@ -208,7 +209,7 @@ class StatusEffectSystemsIntegrationTest {
         StatusValueRecalcSystem(
           definitionRegistry,
           scriptRegistry,
-          EquipmentStatusContributor(equipmentScriptRegistry, ItemStatCatalog(), itemTemplatesOf(), essenceStatsOf()),
+          EquipmentStatusContributor(equipmentScriptRegistry, ItemStatCatalog(), itemTemplatesOf(), essenceStatsOf(), itemEnchantmentScriptsOf()),
           passiveSkillScriptRegistry,
           conditionValueCalculator,
           combatValuesPool

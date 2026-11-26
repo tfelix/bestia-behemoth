@@ -27,6 +27,7 @@ import net.bestia.zone.skill.persistence.Skill
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import net.bestia.zone.item.enchant.itemEnchantmentScriptsOf
 
 /** A master's passive that reaches bestias works on them at the master's level. */
 class OwnerPassiveReachTest {
@@ -49,7 +50,7 @@ class OwnerPassiveReachTest {
       StatusValueRecalcSystem(
         StatusEffectDefinitionRegistry(),
         StatusEffectScriptRegistry(emptyList()),
-        EquipmentStatusContributor(EquipmentScriptRegistry(emptyList()), ItemStatCatalog(), itemTemplatesOf(), essenceStatsOf()),
+        EquipmentStatusContributor(EquipmentScriptRegistry(emptyList()), ItemStatCatalog(), itemTemplatesOf(), essenceStatsOf(), itemEnchantmentScriptsOf()),
         PassiveSkillScriptRegistry(listOf(passive)).apply { bind(listOf(meditation)) { false } },
         ConditionValueCalculator(),
         CombatValuesPool()
