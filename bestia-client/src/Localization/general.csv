@@ -512,6 +512,8 @@ ITEM_DETAIL_ENCHANTMENTS,Enchantments
 ITEM_ENCHANTMENT_TIME_LEFT,{time} left
 ITEM_ENCHANTMENT_1,Postal Seal
 ITEM_ENCHANTMENT_2,Keepsake Ward
+ITEM_ENCHANTMENT_3,Endow {element}
+ITEM_ENCHANTMENT_ENDED,worn off
 QUIVER_SLOT_EMPTY,Drop arrows here. The leftmost is shot first; double click to take one out.
 CRAFT_HINT_TOO,too {pole}
 CRAFT_POLE_STATE_NEG,fluid
