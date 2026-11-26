@@ -708,6 +708,18 @@ RUMOUR_SEAL_REINFORCED_2,"Someone made the seal whole again. Whoever it was, the
 RUMOUR_SEAL_BROKEN_ASK,What broke out there?
 RUMOUR_SEAL_BROKEN_1,"The seal broke. Nobody came, and now whatever it held is loose. Lock your doors."
 RUMOUR_SEAL_BROKEN_2,"I heard it go, like ice on a lake. The ground shook, and the sky went strange over the place where the seal stood."
+RUMOUR_ROAD_ROBBED_ASK,Is the road safe?
+RUMOUR_ROAD_ROBBED_1,"Brigands. They robbed a merchant on the road this morning and took his mules too. The tracks go up into the hills."
+RUMOUR_ROAD_ROBBED_2,"A family came in with nothing but the clothes they wore. Five or six men with knives, they said, and they went off uphill with everything."
+RUMOUR_RAIDERS_MARCH_ASK,What is all the shouting?
+RUMOUR_RAIDERS_MARCH_1,"The brigands are coming down from the hills! Bar your door. Anyone who can fight, go to the gate."
+RUMOUR_RAIDERS_MARCH_2,"They are here. A whole band, with their chief in front. They know we have nobody to stop them."
+RUMOUR_RAIDERS_ROUTED_ASK,What happened to the brigands?
+RUMOUR_RAIDERS_ROUTED_1,"Someone went after them and killed the lot, chief and all. The road is safe again, and we can sleep."
+RUMOUR_RAIDERS_ROUTED_2,"The brigands are dead. Whoever did it saved us more than a few coins. I would buy them a drink."
+RUMOUR_TOWN_RAIDED_ASK,What happened here?
+RUMOUR_TOWN_RAIDED_1,"The brigands came, and nobody stopped them. They broke into the stores and took what they could carry."
+RUMOUR_TOWN_RAIDED_2,"We had no one to fight them. They walked through the streets like they owned them, and then they were gone."
 RUMOUR_MISDEED_SEEN_ASK,Is there anybody I should watch out for?
 RUMOUR_MISDEED_SEEN_1,"{name}. They did something terrible in a town not far from here, and people there will not forget it."
 RUMOUR_MISDEED_SEEN_2,"Word came from down the road: keep away from {name}. Folk there saw what they did."

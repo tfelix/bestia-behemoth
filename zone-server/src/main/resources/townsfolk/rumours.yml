@@ -41,3 +41,8 @@ rumours:
   SEAL_CRACKING: { variants: 2, slots: [] }
   SEAL_REINFORCED: { variants: 2, slots: [] }
   SEAL_BROKEN: { variants: 2, slots: [] }
+  # No slots: a band is "the brigands" and its camp is "up in the hills". See TownRaidEvent.
+  ROAD_ROBBED: { variants: 2, slots: [] }
+  RAIDERS_MARCH: { variants: 2, slots: [] }
+  RAIDERS_ROUTED: { variants: 2, slots: [] }
+  TOWN_RAIDED: { variants: 2, slots: [] }
