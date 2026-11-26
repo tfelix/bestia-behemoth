@@ -1,8 +1,5 @@
 package net.bestia.zone.worldevent.alpha
 
-import net.bestia.worldgen.vector.Aabb
-import net.bestia.worldgen.vector.FeatureKind
-import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.bestia.BestiaCatalogue
@@ -11,6 +8,7 @@ import net.bestia.zone.spawn.ecs.WildSpawnerService
 import net.bestia.zone.world.SettlementLoreService
 import net.bestia.zone.world.WorldRecreatedEvent
 import net.bestia.zone.world.WorldService
+import net.bestia.zone.worldevent.nearestRoad
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import kotlin.math.hypot
@@ -50,7 +48,7 @@ class AlphaDens(
     return dens.dens.mapNotNull { den ->
       val species = bestiaCatalogue.find(den.bestiaId)?.takeIf(::hunts) ?: return@mapNotNull null
       val at = Vec2d(den.position.x * voxel, den.position.y * voxel)
-      val prowl = nearestRoad(at) ?: towardTown(at, towns) ?: return@mapNotNull null
+      val prowl = nearestRoad(generated, at, ROAD_REACH) ?: towardTown(at, towns) ?: return@mapNotNull null
       AlphaDen(den, species, at, prowl)
     }
   }
@@ -60,18 +58,6 @@ class AlphaDens(
     if (species.boss || species.worldBoss || species.corruptedOnly || species.eventOnly) return false
     val profile = species.aiProfile?.let(aiProfiles::get) ?: return false
     return profile.goals.any { it.name == KILL_ENEMY_GOAL }
-  }
-
-  private fun nearestRoad(at: Vec2d): Vec2d? {
-    val area = Aabb(at.x - ROAD_REACH, at.y - ROAD_REACH, at.x + ROAD_REACH, at.y + ROAD_REACH)
-    return worldService.generated.world.features.query(area)
-      .asSequence()
-      .filter { it.kind == FeatureKind.ROAD || it.kind == FeatureKind.STREET }
-      .filterIsInstance<PolylineFeature>()
-      .map { it.centerline.project(at) }
-      .filter { it.distance <= ROAD_REACH }
-      .minByOrNull { it.distance }
-      ?.point
   }
 
   private fun towardTown(at: Vec2d, towns: Collection<Vec2d>): Vec2d? {
