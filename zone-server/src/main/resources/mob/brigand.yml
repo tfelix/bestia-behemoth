@@ -1,0 +1,33 @@
+id: 120
+identifier: brigand
+level-min: 20
+level-max: 30
+name: Brigand
+description: >-
+  An outlaw in patched leather who lives by robbing the road. Brigands camp in the hills above a rich town and
+  come down in a band when they think nobody will stop them.
+kind: HUMANOID
+element: NORMAL
+size: MEDIUM
+default-attack: MELEE
+aspd: 90
+ai: aggressive_melee
+attack-power: 1.0
+weight: 70
+health: 900
+mana: 80
+experience: 160
+attributes: { strength: 20, intelligence: 8, vitality: 18, dexterity: 16, willpower: 10, agility: 18 }
+learnset: []
+# A raid brings them at the level of the province's own bestia; see TownRaidEvent. No den or ambient site places one.
+event-only: true
+compendium: false
+habitat: []
+spawn-weight: 0
+equip-slots: []
+armor-types: []
+loot:
+  - { item: salted_meat, chance: 3000 }
+  - { item: ale, chance: 2000 }
+  - { item: leather, chance: 2000 }
+  - { item: rope, chance: 1500 }
