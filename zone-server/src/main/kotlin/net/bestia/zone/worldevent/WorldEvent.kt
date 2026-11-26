@@ -2,6 +2,7 @@ package net.bestia.zone.worldevent
 
 import net.bestia.zone.casting.sense.BrewingEvents
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.honor.HonorAct
 import net.bestia.zone.worldevent.persistence.WorldEventInstance
 
 /**
@@ -36,6 +37,9 @@ interface WorldEvent {
 
   /** The Bestia second it next moves on, such as a knot opening, or null when there is no such moment. */
   fun changesAtSecond(instance: WorldEventInstance): Long? = null
+
+  /** The honor everyone who helped end it earns, here and in the nearest town. */
+  fun honorAct(instance: WorldEventInstance): HonorAct = HonorAct.DEFEND_SETTLEMENT
 
   /** Takes back whatever the event put into the world, when it runs out or a GM cancels it. */
   fun end(instance: WorldEventInstance) {}

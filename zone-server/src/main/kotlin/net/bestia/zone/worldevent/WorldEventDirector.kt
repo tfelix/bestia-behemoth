@@ -175,7 +175,11 @@ class WorldEventDirector(
     val key = entry?.let { keyOf(it, instance) }
     if (key != null) {
       // Only an event players ended pays; one that ran out or was called off leaves its contributors nothing.
-      if (outcome == Outcome.DEFEATED) rewards.grant(key, entry, instance) else ledger.forget(key)
+      if (outcome == Outcome.DEFEATED) {
+        rewards.grant(key, entry, instance, catalogue.eventOf(entry).honorAct(instance))
+      } else {
+        ledger.forget(key)
+      }
     }
 
     LOG.info { "World event ${instance.eventId} in province ${instance.provinceIndex} ended: $outcome" }
