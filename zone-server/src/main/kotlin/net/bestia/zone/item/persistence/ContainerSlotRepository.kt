@@ -3,6 +3,7 @@ package net.bestia.zone.item.persistence
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 
 interface ContainerSlotRepository : JpaRepository<ContainerSlot, Long> {
 
@@ -18,4 +19,12 @@ interface ContainerSlotRepository : JpaRepository<ContainerSlot, Long> {
   @Modifying
   @Query("UPDATE ContainerSlot s SET s.reservedByTradeId = null WHERE s.reservedByTradeId IS NOT NULL")
   fun clearAllTradeReservations(): Int
+
+  /** Every slot but the gear worn in a bag of one of [wearers]. For the carry-over into a new world. */
+  @Modifying
+  @Query(
+    "DELETE FROM ContainerSlot s WHERE s.equippedIn IS NULL " +
+      "OR s.container.id IN (SELECT c.id FROM ItemContainer c WHERE c.type NOT IN :wearers)"
+  )
+  fun deleteAllButWornBy(@Param("wearers") wearers: Collection<ItemContainer.Type>): Int
 }

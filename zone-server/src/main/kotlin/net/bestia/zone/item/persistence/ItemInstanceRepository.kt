@@ -18,6 +18,10 @@ interface ItemInstanceRepository : JpaRepository<ItemInstance, Long> {
   @Modifying
   @Query("update ItemInstance i set i.item = :item where i.id in :ids")
   fun retemplate(@Param("ids") ids: Collection<Long>, @Param("item") item: Item): Int
+
+  /** Instances that no slot holds any more. */
+  @Query("SELECT i.id FROM ItemInstance i WHERE NOT EXISTS (SELECT s.id FROM ContainerSlot s WHERE s.itemInstance = i)")
+  fun findIdsInNoSlot(): List<Long>
 }
 
 fun ItemInstanceRepository.findByIdOrThrow(instanceId: Long): ItemInstance =

@@ -141,6 +141,16 @@ class NotebookService(
     return Result.Deleted(head.revision, key)
   }
 
+  /**
+   * Empties a collection for every owner. Each head moves on, so a client that still holds the old entries sees
+   * they are gone.
+   */
+  @Transactional
+  fun clearAll(collectionId: String) {
+    entries.deleteAllByCollection(collectionId)
+    heads.findAllByCollection(collectionId).forEach { it.revision += 1 }
+  }
+
   /** One entry read as its collection's type, for server code that acts on it - sending a bestia along a route. */
   @Transactional(readOnly = true)
   fun <T : Any> read(owner: Owner, collection: NotebookCollection<T>, key: String): T? {

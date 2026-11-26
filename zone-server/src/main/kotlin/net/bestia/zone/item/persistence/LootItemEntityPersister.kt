@@ -106,6 +106,6 @@ class LootItemEntityPersister(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
-    private const val KIND = "loot"
+    const val KIND = "loot"
   }
 }

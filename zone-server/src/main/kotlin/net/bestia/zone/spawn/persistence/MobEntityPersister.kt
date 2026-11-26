@@ -139,7 +139,7 @@ class MobEntityPersister(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
-    private const val KIND = "mob"
+    const val KIND = "mob"
     private const val NO_HP = -1
   }
 }
