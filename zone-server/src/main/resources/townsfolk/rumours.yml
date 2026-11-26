@@ -46,3 +46,4 @@ rumours:
   RAIDERS_MARCH: { variants: 2, slots: [] }
   RAIDERS_ROUTED: { variants: 2, slots: [] }
   TOWN_RAIDED: { variants: 2, slots: [] }
+  DOOM_GROWS: { variants: 2, slots: [] }

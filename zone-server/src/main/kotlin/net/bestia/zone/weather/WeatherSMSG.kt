@@ -37,6 +37,9 @@ data class WeatherSMSG(
 
   /** How the mana feels here. Sent to everyone; never the density itself. */
   val manaTier: ManaTier = ManaTier.CALM,
+
+  /** How the doomsday shows in the sky here. Sent to everyone. */
+  val doom: DoomSky = DoomSky.CLEAR,
 ) : SMSG {
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
@@ -49,6 +52,8 @@ data class WeatherSMSG(
       .setWindDirection(windDirection.toFloat())
       .setTemperatureCelsius(temperatureCelsius.toFloat())
       .setManaTier(wireTierOf(manaTier))
+      .setDoomKind(doom.kind)
+      .setDoomLevel(doom.level)
 
     forecast?.let {
       weather

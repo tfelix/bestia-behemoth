@@ -25,7 +25,7 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ch9tZXNzYWdlcy9tYXAvd2VhdGhlcl9zbXNnLnByb3RvEgRibmV0GhptZXNz",
-            "YWdlcy9tYXAvd2VhdGhlci5wcm90byLGBQoLV2VhdGhlclNNU0cSEQoJcmVn",
+            "YWdlcy9tYXAvd2VhdGhlci5wcm90byLtBQoLV2VhdGhlclNNU0cSEQoJcmVn",
             "aW9uX2lkGAEgASgNEh8KBGtpbmQYCiABKA4yES5ibmV0LldlYXRoZXJLaW5k",
             "EhEKCWludGVuc2l0eRgLIAEoAhITCgtjbG91ZF9jb3ZlchgMIAEoAhISCgp3",
             "aW5kX3NwZWVkGA0gASgCEhYKDndpbmRfZGlyZWN0aW9uGA4gASgCEhsKE3Rl",
@@ -40,17 +40,18 @@ namespace Bnet {
             "aXJlY3Rpb24YPyABKAISHAoUc3Ryb25nZXJfbWFuYV9tZXRyZXMYQCABKAIS",
             "FwoPaGFzX3dlYWtlcl9tYW5hGEEgASgIEh0KFXdlYWtlcl9tYW5hX2RpcmVj",
             "dGlvbhhCIAEoAhIaChJ3ZWFrZXJfbWFuYV9tZXRyZXMYQyABKAISIQoJbWFu",
-            "YV90aWVyGEYgASgOMg4uYm5ldC5NYW5hVGllckoECBUQFlIYZmVsdF90ZW1w",
-            "ZXJhdHVyZV9jZWxzaXVzKroBCghNYW5hVGllchISCg5NQU5BX1RJRVJfQ0FM",
-            "TRAAEhYKEk1BTkFfVElFUl9TVElSUklORxABEhQKEE1BTkFfVElFUl9VTkVB",
-            "U1kQAhIVChFNQU5BX1RJRVJfT01JTk9VUxADEhQKEE1BTkFfVElFUl9TVE9S",
-            "TVMQBBITCg9NQU5BX1RJRVJfRVZFTlQQBRIWChJNQU5BX1RJRVJfU0lDS05F",
-            "U1MQBhISCg5NQU5BX1RJRVJfQlVSThAHQikKFW5ldC5iZXN0aWEuYm5ldC5w",
-            "cm90b0IQV2VhdGhlclNNU0dQcm90b2IGcHJvdG8z"));
+            "YV90aWVyGEYgASgOMg4uYm5ldC5NYW5hVGllchIRCglkb29tX2tpbmQYRyAB",
+            "KAkSEgoKZG9vbV9sZXZlbBhIIAEoBUoECBUQFlIYZmVsdF90ZW1wZXJhdHVy",
+            "ZV9jZWxzaXVzKroBCghNYW5hVGllchISCg5NQU5BX1RJRVJfQ0FMTRAAEhYK",
+            "Ek1BTkFfVElFUl9TVElSUklORxABEhQKEE1BTkFfVElFUl9VTkVBU1kQAhIV",
+            "ChFNQU5BX1RJRVJfT01JTk9VUxADEhQKEE1BTkFfVElFUl9TVE9STVMQBBIT",
+            "Cg9NQU5BX1RJRVJfRVZFTlQQBRIWChJNQU5BX1RJRVJfU0lDS05FU1MQBhIS",
+            "Cg5NQU5BX1RJRVJfQlVSThAHQikKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IQ",
+            "V2VhdGhlclNNU0dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.WeatherReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.ManaTier), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.WeatherSMSG), global::Bnet.WeatherSMSG.Parser, new[]{ "RegionId", "Kind", "Intensity", "CloudCover", "WindSpeed", "WindDirection", "TemperatureCelsius", "HasForecast", "ForecastKind", "ForecastInSeconds", "HasHazard", "HazardX", "HazardY", "HazardRadiusMetres", "GroundWetness", "HasSnow", "SnowLine", "SnowFull", "HasMana", "Mana", "HasStrongerMana", "StrongerManaDirection", "StrongerManaMetres", "HasWeakerMana", "WeakerManaDirection", "WeakerManaMetres", "ManaTier" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.WeatherSMSG), global::Bnet.WeatherSMSG.Parser, new[]{ "RegionId", "Kind", "Intensity", "CloudCover", "WindSpeed", "WindDirection", "TemperatureCelsius", "HasForecast", "ForecastKind", "ForecastInSeconds", "HasHazard", "HazardX", "HazardY", "HazardRadiusMetres", "GroundWetness", "HasSnow", "SnowLine", "SnowFull", "HasMana", "Mana", "HasStrongerMana", "StrongerManaDirection", "StrongerManaMetres", "HasWeakerMana", "WeakerManaDirection", "WeakerManaMetres", "ManaTier", "DoomKind", "DoomLevel" }, null, null, null, null)
           }));
     }
     #endregion
@@ -153,6 +154,8 @@ namespace Bnet {
       weakerManaDirection_ = other.weakerManaDirection_;
       weakerManaMetres_ = other.weakerManaMetres_;
       manaTier_ = other.manaTier_;
+      doomKind_ = other.doomKind_;
+      doomLevel_ = other.doomLevel_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -546,6 +549,34 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "doom_kind" field.</summary>
+    public const int DoomKindFieldNumber = 71;
+    private string doomKind_ = "";
+    /// <summary>
+    /// The doomsday as the sky shows it here: its kind, such as VOID_TEAR, or empty while none is felt, and how strongly
+    /// it is felt, from 0 (not at all) to 4 (at its heart).
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string DoomKind {
+      get { return doomKind_; }
+      set {
+        doomKind_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "doom_level" field.</summary>
+    public const int DoomLevelFieldNumber = 72;
+    private int doomLevel_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int DoomLevel {
+      get { return doomLevel_; }
+      set {
+        doomLevel_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -588,6 +619,8 @@ namespace Bnet {
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(WeakerManaDirection, other.WeakerManaDirection)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(WeakerManaMetres, other.WeakerManaMetres)) return false;
       if (ManaTier != other.ManaTier) return false;
+      if (DoomKind != other.DoomKind) return false;
+      if (DoomLevel != other.DoomLevel) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -622,6 +655,8 @@ namespace Bnet {
       if (WeakerManaDirection != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(WeakerManaDirection);
       if (WeakerManaMetres != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(WeakerManaMetres);
       if (ManaTier != global::Bnet.ManaTier.Calm) hash ^= ManaTier.GetHashCode();
+      if (DoomKind.Length != 0) hash ^= DoomKind.GetHashCode();
+      if (DoomLevel != 0) hash ^= DoomLevel.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -748,6 +783,14 @@ namespace Bnet {
         output.WriteRawTag(176, 4);
         output.WriteEnum((int) ManaTier);
       }
+      if (DoomKind.Length != 0) {
+        output.WriteRawTag(186, 4);
+        output.WriteString(DoomKind);
+      }
+      if (DoomLevel != 0) {
+        output.WriteRawTag(192, 4);
+        output.WriteInt32(DoomLevel);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -866,6 +909,14 @@ namespace Bnet {
         output.WriteRawTag(176, 4);
         output.WriteEnum((int) ManaTier);
       }
+      if (DoomKind.Length != 0) {
+        output.WriteRawTag(186, 4);
+        output.WriteString(DoomKind);
+      }
+      if (DoomLevel != 0) {
+        output.WriteRawTag(192, 4);
+        output.WriteInt32(DoomLevel);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -956,6 +1007,12 @@ namespace Bnet {
       }
       if (ManaTier != global::Bnet.ManaTier.Calm) {
         size += 2 + pb::CodedOutputStream.ComputeEnumSize((int) ManaTier);
+      }
+      if (DoomKind.Length != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeStringSize(DoomKind);
+      }
+      if (DoomLevel != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(DoomLevel);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1049,6 +1106,12 @@ namespace Bnet {
       }
       if (other.ManaTier != global::Bnet.ManaTier.Calm) {
         ManaTier = other.ManaTier;
+      }
+      if (other.DoomKind.Length != 0) {
+        DoomKind = other.DoomKind;
+      }
+      if (other.DoomLevel != 0) {
+        DoomLevel = other.DoomLevel;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -1177,6 +1240,14 @@ namespace Bnet {
             ManaTier = (global::Bnet.ManaTier) input.ReadEnum();
             break;
           }
+          case 570: {
+            DoomKind = input.ReadString();
+            break;
+          }
+          case 576: {
+            DoomLevel = input.ReadInt32();
+            break;
+          }
         }
       }
     #endif
@@ -1302,6 +1373,14 @@ namespace Bnet {
           }
           case 560: {
             ManaTier = (global::Bnet.ManaTier) input.ReadEnum();
+            break;
+          }
+          case 570: {
+            DoomKind = input.ReadString();
+            break;
+          }
+          case 576: {
+            DoomLevel = input.ReadInt32();
             break;
           }
         }

@@ -113,6 +113,11 @@ message WeatherSMSG {
    * not: it is what anybody standing there would see. The density behind it is only ever in `mana` above.
    */
   ManaTier mana_tier = 70;
+
+  // The doomsday as the sky shows it here: its kind, such as VOID_TEAR, or empty while none is felt, and how strongly
+  // it is felt, from 0 (not at all) to 4 (at its heart).
+  string doom_kind = 71;
+  int32 doom_level = 72;
 }
 
 /** The steps of the mana ladder, lowest first. A newer server may send a step this build does not know. */

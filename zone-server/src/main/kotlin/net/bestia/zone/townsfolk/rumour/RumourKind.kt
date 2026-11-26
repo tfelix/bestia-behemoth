@@ -73,4 +73,7 @@ enum class RumourKind(
 
   /** Nobody stopped them: the brigands plundered the town and left. */
   TOWN_RAIDED(baseImportance = 80, lifetimeDays = 30),
+
+  /** The doomsday reached a new stage. Told around where it began. */
+  DOOM_GROWS(baseImportance = 90, lifetimeDays = 30),
 }

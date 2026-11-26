@@ -26,14 +26,17 @@ namespace Bnet {
           string.Concat(
             "CidtZXNzYWdlcy9zeXN0ZW0vYW5ub3VuY2VtZW50X3Ntc2cucHJvdG8SBGJu",
             "ZXQiSgoQQW5ub3VuY2VtZW50U01TRxIoCgxhbm5vdW5jZW1lbnQYASABKA4y",
-            "Ei5ibmV0LkFubm91bmNlbWVudBIMCgRhcmdzGAIgAygJKv4BCgxBbm5vdW5j",
+            "Ei5ibmV0LkFubm91bmNlbWVudBIMCgRhcmdzGAIgAygJKv0CCgxBbm5vdW5j",
             "ZW1lbnQSHAoYQU5OT1VOQ0VNRU5UX1VOU1BFQ0lGSUVEEAASEwoPQU5OT1VO",
             "Q0VNRU5UX0dNEAESIgoeQU5OT1VOQ0VNRU5UX1NUUk9OR0hPTERfVU5IRUxE",
             "EAISGwoXQU5OT1VOQ0VNRU5UX0xBU1RfU1RBTkQQAxIgChxBTk5PVU5DRU1F",
             "TlRfTEFTVF9TVEFORF9TT09OEAQSHwobQU5OT1VOQ0VNRU5UX0xBU1RfU1RB",
             "TkRfV09OEAUSGAoUQU5OT1VOQ0VNRU5UX0NBTExJTkcQBhIdChlBTk5PVU5D",
-            "RU1FTlRfQ0FMTElOR19TT09OEAdCLgoVbmV0LmJlc3RpYS5ibmV0LnByb3Rv",
-            "QhVBbm5vdW5jZW1lbnRTbXNnUHJvdG9iBnByb3RvMw=="));
+            "RU1FTlRfQ0FMTElOR19TT09OEAcSGwoXQU5OT1VOQ0VNRU5UX0RPT01fT05T",
+            "RVQQCBIgChxBTk5PVU5DRU1FTlRfRE9PTV9FU0NBTEFUSU9OEAkSHwobQU5O",
+            "T1VOQ0VNRU5UX0RPT01fQ0FUQUNMWVNNEAoSHQoZQU5OT1VOQ0VNRU5UX0RP",
+            "T01fUkVDRURFUxALQi4KFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IVQW5ub3Vu",
+            "Y2VtZW50U21zZ1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.Announcement), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -75,6 +78,22 @@ namespace Bnet {
     /// args[0] is the minutes until the sky opens.
     /// </summary>
     [pbr::OriginalName("ANNOUNCEMENT_CALLING_SOON")] CallingSoon = 7,
+    /// <summary>
+    /// The doomsday manifests. args[0] is the direction it lies in, args[1] its name, both as text keys.
+    /// </summary>
+    [pbr::OriginalName("ANNOUNCEMENT_DOOM_ONSET")] DoomOnset = 8,
+    /// <summary>
+    /// The doomsday spreads. args[0] is the direction it lies in, args[1] its name, both as text keys.
+    /// </summary>
+    [pbr::OriginalName("ANNOUNCEMENT_DOOM_ESCALATION")] DoomEscalation = 9,
+    /// <summary>
+    /// The doomsday covers the world. args[0] is its name as a text key.
+    /// </summary>
+    [pbr::OriginalName("ANNOUNCEMENT_DOOM_CATACLYSM")] DoomCataclysm = 10,
+    /// <summary>
+    /// The doomsday was pushed back a stage. args[0] is its name as a text key.
+    /// </summary>
+    [pbr::OriginalName("ANNOUNCEMENT_DOOM_RECEDES")] DoomRecedes = 11,
   }
 
   #endregion
