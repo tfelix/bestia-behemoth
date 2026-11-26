@@ -20,6 +20,10 @@ class StoredVoidTear(
   @Column(name = "reforms_at_day")
   var reformsAtDay: Double? = null,
 
+  /** Whether the fall of the Sovereign that anchors the Tear now has pushed the clock already. */
+  @Column(name = "sovereign_fall_counted", nullable = false)
+  var sovereignFallCounted: Boolean = false,
+
   /** Real epoch days on which a rift within its reach was sealed, for its containment. Comma-separated. */
   @Column(name = "recent_seals", nullable = false, length = 2048)
   var recentSeals: String = "",

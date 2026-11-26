@@ -97,6 +97,15 @@ class DoomsdayDirector(
     return doomClock.ending(stateOf(row), ageDays(), row.lifeSpanDays)
   }
 
+  /** Tells the threat the Last Stand opened, so it raises its Avatar. */
+  @Transactional
+  fun lastStandOpened() {
+    val row = current()
+    val x = row.originX ?: return
+    val y = row.originY ?: return
+    threatOf(row)?.onLastStand(DoomFate(x, y, row.progress, row.stage))
+  }
+
   /** Moves the clock by [delta], for a deed or a GM. */
   @Transactional
   fun push(delta: Double): DoomStage {

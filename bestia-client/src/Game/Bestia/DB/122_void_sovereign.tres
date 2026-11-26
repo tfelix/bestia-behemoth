@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 122
+name_key = "BESTIA_VOID_SOVEREIGN"
+description_key = "BESTIA_VOID_SOVEREIGN_DESC"
+placeholder_shape = 4
+placeholder_colour = Color(0.28, 0.08, 0.42, 1)
+placeholder_scale = 2.4
+placeholder_glow = 1.5
+kind = "DEMON"
+equip_slots = 0
+armor_types = 0
+non_combatant = false
+habitat = ""
+in_compendium = false
+temperament = "HOSTILE"
+activity_cycle = "CATHEMERAL"
+level_min = 80
+level_max = 80
+loot_item_ids = PackedInt32Array(6, 6, 6)
+loot_chances = PackedInt32Array(10000, 10000, 8000)
+size = "BIG"
+weight_kg = 2000
+essence_group = ""
+essence_effect = ""
+essence_target = ""
+essence_drawback = ""

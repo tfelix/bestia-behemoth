@@ -5,6 +5,8 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import net.bestia.zone.doomsday.persistence.StoredWorldEnd
+import net.bestia.zone.entity.ecs.EventCreature
+import net.bestia.zone.entity.observe.KillFact
 import net.bestia.zone.doomsday.persistence.StoredWorldEndRepository
 import net.bestia.zone.doomsday.persistence.WorldLegacy
 import net.bestia.zone.doomsday.persistence.WorldLegacyRepository
@@ -98,9 +100,10 @@ class WorldEndTest {
     every { sendToAllConnected(capture(broadcasts)) } returns 2
   }
   private val events = mockk<ApplicationEventPublisher>(relaxed = true)
+  private val avatarFall = DoomAvatarFall()
 
   private fun worldEnd(): WorldEnd {
-    return WorldEnd(DoomsdayConfig(), director, windows, legacies, worlds, worldService, fates, out, events, clock)
+    return WorldEnd(DoomsdayConfig(), director, windows, legacies, worlds, worldService, fates, out, events, avatarFall, clock)
   }
 
   private fun later(duration: Duration) {
@@ -209,6 +212,21 @@ class WorldEndTest {
     verify { windows.delete(any()) }
     assertEquals(Announcement.LAST_STAND_WON, announcements().last().first)
     assertEquals(1, announcements().count { it.first == Announcement.LAST_STAND })
+  }
+
+  @Test
+  fun `the Last Stand raises the Avatar, and its fall wins the Last Stand`() {
+    fate = DoomEnding.LOST
+    val end = worldEnd()
+    end.run()
+    verify { director.lastStandOpened() }
+
+    avatarFall.onKill(mockk(), KillFact(1L, mockk(), emptySet(), 99, true, EventCreature(DoomAvatarFall.EVENT, 0)))
+    fate = null
+    end.run()
+
+    verify { director.set(0.85) }
+    verify { windows.delete(any()) }
   }
 
   private companion object {
