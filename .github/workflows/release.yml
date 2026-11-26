@@ -23,7 +23,7 @@ jobs:
       version: ${{ steps.release.outputs.version }}
     steps:
       - id: release
-        uses: googleapis/release-please-action@v4
+        uses: googleapis/release-please-action@v5
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
@@ -44,21 +44,21 @@ jobs:
       IMAGE: ghcr.io/${{ github.repository_owner }}/bestia-${{ matrix.module }}
       VERSION: ${{ needs.release-please.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 21
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v5
       - run: ./gradlew :${{ matrix.module }}:bootJar
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.IMAGE }}
           flavor: latest=false
@@ -67,7 +67,7 @@ jobs:
             type=semver,pattern={{major}}.{{minor}},value=${{ env.VERSION }}
             type=raw,value=latest
       - id: push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: docker/server.Dockerfile
@@ -78,7 +78,7 @@ jobs:
           cache-from: type=gha,scope=${{ matrix.module }}
           cache-to: type=gha,mode=max,scope=${{ matrix.module }}
           sbom: true
-      - uses: actions/attest-build-provenance@v2
+      - uses: actions/attest-build-provenance@v3
         with:
           subject-name: ${{ env.IMAGE }}
           subject-digest: ${{ steps.push.outputs.digest }}
@@ -106,8 +106,8 @@ jobs:
       PRESET: ${{ matrix.preset }}
       BINARY: ${{ matrix.binary }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 8.0.x
       - uses: chickensoft-games/setup-godot@v2
@@ -134,7 +134,7 @@ jobs:
           else
             tar czf "$ARCHIVE.tar.gz" "$ARCHIVE"
           fi
-      - uses: actions/attest-build-provenance@v2
+      - uses: actions/attest-build-provenance@v3
         with:
           subject-path: ${{ runner.temp }}/${{ env.ARCHIVE }}.*
       - name: Upload to the release
@@ -154,8 +154,8 @@ jobs:
     env:
       ARCHIVE: bestia-deploy-${{ needs.release-please.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version-file: companion-app/.nvmrc
           cache: npm
@@ -173,7 +173,7 @@ jobs:
           cp deploy/compose.yaml deploy/Caddyfile deploy/.env.example "$RUNNER_TEMP/$ARCHIVE/"
           cp -r companion-app/build "$RUNNER_TEMP/$ARCHIVE/companion"
           cd "$RUNNER_TEMP" && zip -qr "$ARCHIVE.zip" "$ARCHIVE"
-      - uses: actions/attest-build-provenance@v2
+      - uses: actions/attest-build-provenance@v3
         with:
           subject-path: ${{ runner.temp }}/${{ env.ARCHIVE }}.zip
       - name: Upload to the release
