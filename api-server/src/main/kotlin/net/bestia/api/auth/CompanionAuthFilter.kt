@@ -15,8 +15,8 @@ import org.springframework.web.server.ResponseStatusException
  * Every call under `/v1/companion/` names the one account it acts for, in one of two ways:
  *
  * - `Bearer <companion token>`, the companion app's, good for everything;
- * - `Ticket <ticket>`, the game client's HTTP ticket from its socket handshake, good for the map and the guild
- *   emblems only.
+ * - `Ticket <ticket>`, the game client's HTTP ticket from its socket handshake, good for the map, the guild
+ *   emblems, the texts and bug reports only.
  *
  * The OpenAPI document and the push key are public, and the socket authenticates in its first frame, because a
  * browser cannot put a header on a WebSocket handshake. Paths are judged as the servlet decoded and normalised
@@ -38,7 +38,7 @@ class CompanionAuthFilter(
   override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain) {
     val path = pathOf(request)
     val map = MAP_ROUTE.matches(path)
-    val ticketRoute = map || EMBLEM_ROUTE.matches(path) || TEXT_ROUTE.matches(path)
+    val ticketRoute = map || EMBLEM_ROUTE.matches(path) || TEXT_ROUTE.matches(path) || path == BUG_REPORT_PATH
     val authorization = request.getHeader(HttpHeaders.AUTHORIZATION)
     val scheme = AuthMetrics.Scheme.of(authorization)
     val accountId = try {
@@ -91,11 +91,13 @@ class CompanionAuthFilter(
     private const val TICKET = "Ticket"
     private val PUBLIC_PATHS = setOf("/v1/companion/ws", "/v1/companion/openapi.json", "/v1/companion/push/key")
 
-    /** The map routes of `MapController`; with [EMBLEM_ROUTE] and [TEXT_ROUTE], the only routes a game client's ticket opens. */
+    /** The map routes of `MapController`; with [EMBLEM_ROUTE], [TEXT_ROUTE] and [BUG_REPORT_PATH], the only routes a game client's ticket opens. */
     private val MAP_ROUTE = Regex("""^/v1/companion/masters/\d+/map/(meta|find|places/\d+|[tps]/\d+/-?\d+/-?\d+(\.png|\.json)?|h/\d+/\d+/-?\d+/-?\d+\.png)$""")
 
     private val EMBLEM_ROUTE = Regex("""^/v1/companion/emblems/[0-9a-f]{64}\.png$""")
 
     private val TEXT_ROUTE = Regex("""^/v1/companion/texts/[0-9a-f]{32}/[a-z]{2}$""")
+
+    private const val BUG_REPORT_PATH = "/v1/companion/bug-reports"
   }
 }

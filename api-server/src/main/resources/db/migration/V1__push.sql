@@ -36,3 +36,48 @@ CREATE TABLE push_preference
     updated_at        DATETIME(6) NOT NULL,
     PRIMARY KEY (account_id)
 ) ENGINE = InnoDB;
+
+-- A bug report from the game client, kept here until it is published as an issue in the private reports repo.
+CREATE TABLE bug_report
+(
+    id              BIGINT      NOT NULL AUTO_INCREMENT,
+    account_id      BIGINT      NOT NULL,
+    -- As the client named it: only a hint for whoever reads the issue.
+    master_id       BIGINT      NULL,
+    kind            VARCHAR(16) NOT NULL,
+    -- Hex SHA-256 of a crash's exception type and top frames; equal signatures are one crash.
+    signature       CHAR(64)    NULL,
+    status          VARCHAR(16) NOT NULL,
+    client_version  VARCHAR(64) NULL,
+    -- Null for a shadow-banned sender, whose report is answered but not kept.
+    text            TEXT        NULL,
+    issue_number    INT         NULL,
+    attempts        INT         NOT NULL,
+    next_attempt_at DATETIME(6) NULL,
+    created_at      DATETIME(6) NOT NULL,
+    PRIMARY KEY (id)
+) ENGINE = InnoDB;
+
+CREATE INDEX idx_bug_report_account_created ON bug_report (account_id, created_at);
+CREATE INDEX idx_bug_report_status ON bug_report (status, next_attempt_at);
+
+-- The files of a report not yet published; deleted once they are committed to the reports repo.
+CREATE TABLE bug_report_file
+(
+    id        BIGINT      NOT NULL AUTO_INCREMENT,
+    report_id BIGINT      NOT NULL,
+    name      VARCHAR(64) NOT NULL,
+    content   LONGBLOB    NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_bug_report_file_name UNIQUE (report_id, name),
+    CONSTRAINT fk_bug_report_file_report FOREIGN KEY (report_id) REFERENCES bug_report (id) ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+-- Accounts whose reports are answered as if accepted, and then dropped.
+CREATE TABLE bug_report_ban
+(
+    account_id BIGINT       NOT NULL,
+    reason     VARCHAR(255) NULL,
+    created_at DATETIME(6)  NOT NULL,
+    PRIMARY KEY (account_id)
+) ENGINE = InnoDB;

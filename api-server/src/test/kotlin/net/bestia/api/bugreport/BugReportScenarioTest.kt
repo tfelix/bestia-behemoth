@@ -1,0 +1,167 @@
+package net.bestia.api.bugreport
+
+import io.lettuce.core.RedisClient
+import io.lettuce.core.RedisURI
+import net.bestia.api.ApiScenarioTestBase
+import net.bestia.api.ApiTestContainers
+import net.bestia.bus.contract.BusReply
+import net.bestia.bus.contract.ZoneAnswer
+import net.bestia.bus.contract.ZoneQuery
+import net.bestia.bus.valkey.ValkeyRequestServer
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.core.io.ByteArrayResource
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
+import org.springframework.util.LinkedMultiValueMap
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+
+/** Reports sent the way the game client sends them: multipart, with its ticket, which a stand-in zone resolves. */
+class BugReportScenarioTest : ApiScenarioTestBase() {
+
+  @Autowired
+  private lateinit var rest: TestRestTemplate
+
+  @Autowired
+  private lateinit var reports: BugReportRepository
+
+  @Autowired
+  private lateinit var files: BugReportFileRepository
+
+  @Autowired
+  private lateinit var bans: BugReportBanRepository
+
+  private lateinit var zoneClient: RedisClient
+  private lateinit var zone: ValkeyRequestServer
+
+  @BeforeAll
+  fun startZone() {
+    val uri = RedisURI.Builder.redis(ApiTestContainers.valkey.host, ApiTestContainers.valkey.getMappedPort(6379))
+      .withAuthentication("zone", "zone-dev-password".toCharArray())
+      .build()
+    zoneClient = RedisClient.create(uri)
+    zone = ValkeyRequestServer(zoneClient, "zone-1", { request ->
+      val query = request.query as ZoneQuery.WhoseTicket
+      val accountId = query.ticket.removePrefix("ticket-").toLongOrNull()
+      if (accountId != null) {
+        BusReply.ok(request.correlationId, ZoneAnswer.TicketOwner(accountId))
+      } else {
+        BusReply.of(request.correlationId, BusReply.Status.NOT_FOUND)
+      }
+    })
+  }
+
+  @AfterAll
+  fun stopZone() {
+    zone.close()
+    zoneClient.shutdown()
+  }
+
+  @Test
+  fun `a report is kept with its files, the log scrubbed`() {
+    val response = send(
+      accountId = 9101,
+      parts = mapOf(
+        "text" to "The wolf walks through walls",
+        "masterId" to "77",
+        "clientVersion" to "bclient/0.0.1",
+        "screenshot" to file(JPEG),
+        "log" to file("signed in as ayla@example.com".toByteArray()),
+      ),
+    )
+
+    assertEquals(202, response.statusCode.value())
+    val report = reports.findAll().single { it.accountId == 9101L }
+    assertEquals(BugReport.Status.PENDING, report.status)
+    assertEquals(BugReport.Kind.MANUAL, report.kind)
+    assertEquals(77L, report.masterId)
+    assertEquals("The wolf walks through walls", report.text)
+    val stored = files.findAllByReportId(report.id).associate { it.name to it.content.toString(Charsets.UTF_8) }
+    assertEquals(setOf("screenshot.jpg", "client.log"), stored.keys)
+    assertEquals("signed in as <email>", stored["client.log"])
+  }
+
+  @Test
+  fun `a report needs a ticket`() {
+    val parts = LinkedMultiValueMap<String, Any>().apply { add("text", "hello") }
+    val headers = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
+
+    val response = rest.postForEntity(PATH, HttpEntity(parts, headers), String::class.java)
+
+    assertEquals(401, response.statusCode.value())
+  }
+
+  @Test
+  fun `a report without text, a crash without signature and a fake screenshot are refused`() {
+    assertEquals(400, send(9102, mapOf("text" to "   ")).statusCode.value())
+    assertEquals(400, send(9102, mapOf("text" to "NullReferenceException", "kind" to "crash")).statusCode.value())
+    assertEquals(400, send(9102, mapOf("text" to "see image", "screenshot" to file("<svg/>".toByteArray()))).statusCode.value())
+    assertTrue(reports.findAll().none { it.accountId == 9102L })
+  }
+
+  @Test
+  fun `a crash report keeps its signature`() {
+    val signature = "a".repeat(64)
+
+    val response = send(9103, mapOf("text" to "NullReferenceException at Foo.Bar", "kind" to "crash", "signature" to signature))
+
+    assertEquals(202, response.statusCode.value())
+    val report = reports.findAll().single { it.accountId == 9103L }
+    assertEquals(BugReport.Kind.CRASH, report.kind)
+    assertEquals(signature, report.signature)
+  }
+
+  @Test
+  fun `an account over its hourly limit is told to wait`() {
+    repeat(3) { assertEquals(202, send(9104, mapOf("text" to "report $it")).statusCode.value()) }
+
+    val response = send(9104, mapOf("text" to "one too many"))
+
+    assertEquals(429, response.statusCode.value())
+    assertEquals(3, reports.findAll().count { it.accountId == 9104L })
+  }
+
+  @Test
+  fun `a shadow-banned account is answered as usual, and nothing of its report is kept`() {
+    bans.save(BugReportBan(9105, "spam"))
+
+    val response = send(9105, mapOf("text" to "spam spam spam", "screenshot" to file(JPEG)))
+
+    assertEquals(202, response.statusCode.value())
+    val report = reports.findAll().single { it.accountId == 9105L }
+    assertEquals(BugReport.Status.SHADOWED, report.status)
+    assertNull(report.text)
+    assertTrue(files.findAllByReportId(report.id).isEmpty())
+  }
+
+  private fun send(accountId: Long, parts: Map<String, Any>): ResponseEntity<String> {
+    val body = LinkedMultiValueMap<String, Any>().apply { parts.forEach { (name, value) -> add(name, value) } }
+    val headers = HttpHeaders().apply {
+      contentType = MediaType.MULTIPART_FORM_DATA
+      set(HttpHeaders.AUTHORIZATION, "Ticket ticket-$accountId")
+    }
+
+    return rest.postForEntity(PATH, HttpEntity(body, headers), String::class.java)
+  }
+
+  /** A part with a file name, so Spring hands it to the controller as a file. */
+  private fun file(bytes: ByteArray): ByteArrayResource {
+    return object : ByteArrayResource(bytes) {
+      override fun getFilename(): String {
+        return "upload"
+      }
+    }
+  }
+
+  private companion object {
+    const val PATH = "/v1/companion/bug-reports"
+    val JPEG = byteArrayOf(0xFF.toByte(), 0xD8.toByte(), 0xFF.toByte(), 0xE0.toByte())
+  }
+}
