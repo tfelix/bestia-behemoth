@@ -13,6 +13,7 @@ import net.bestia.zone.prop.PropKindRegistry
 import net.bestia.zone.prop.WorldObjectResidencyService
 import net.bestia.zone.prop.persistence.OmenScarRepository
 import net.bestia.zone.world.WorldService
+import net.bestia.zone.world.mana.ManaField
 import net.bestia.zone.world.mana.ManaField.Cell
 import net.bestia.zone.world.mana.ManaTier
 import net.bestia.zone.world.mana.ManaTiers.Change
@@ -72,6 +73,13 @@ class OmenRaiserTest {
     sut.onTiersChanged(world, risingCells(200, ManaTier.STORMS, ManaTier.OMINOUS))
 
     assertEquals(0, scars.count)
+  }
+
+  @Test
+  fun `a collapsed rift scars its cell whatever the share`() {
+    (0 until 50).forEach { sut.raiseAt(world, 20_000.0 + it * ManaField.CELL_METRES, 20_000.0) }
+
+    assertEquals(50, scars.count)
   }
 
   @Test

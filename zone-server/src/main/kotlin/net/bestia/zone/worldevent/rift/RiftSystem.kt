@@ -15,6 +15,7 @@ import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.prop.omen.OmenRaiser
 import net.bestia.zone.townsfolk.rumour.RumourKind
 import net.bestia.zone.townsfolk.rumour.RumourService
 import net.bestia.zone.util.EntityId
@@ -45,6 +46,7 @@ class RiftSystem(
   private val hordes: RiftHordes,
   private val seals: RiftSeals,
   private val statusEffects: StatusEffectService,
+  private val omens: OmenRaiser,
 ) : System {
 
   private val lifecycle = RiftLifecycle(config, RiftField(field, ground), realSecondsPerBestiaSecond = 1.0 / clock.speedFactor)
@@ -77,6 +79,7 @@ class RiftSystem(
       hordes.tend(world, active, now)
       keepGates(world, active)
       rifts.saveAll(active)
+      news.filter { (_, what) -> what == News.COLLAPSED }.forEach { (rift, _) -> omens.raiseAt(world, rift.x, rift.y) }
       news.forEach { (rift, what) -> tell(rift, what) }
       sealed.forEach { tell(it, News.SEALED) }
     }
