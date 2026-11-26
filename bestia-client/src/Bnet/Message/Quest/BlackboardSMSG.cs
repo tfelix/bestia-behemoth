@@ -14,6 +14,7 @@ namespace BestiaBehemothClient.Bnet.Message.Quest
     [Export] public int MaxPostings { get; set; }
     [Export] public int MaxAmount { get; set; }
     [Export] public long MaxCoinsEach { get; set; }
+    [Export] public Godot.Collections.Array<BlackboardNoticeEntry> Notices { get; set; } = [];
 
     public static BlackboardSMSG FromProto(global::Bnet.BlackboardSMSG proto)
     {
@@ -33,6 +34,10 @@ namespace BestiaBehemothClient.Bnet.Message.Quest
       foreach (var quest in proto.Quests)
       {
         board.Quests.Add(QuestEntry.FromProto(quest));
+      }
+      foreach (var notice in proto.Notices)
+      {
+        board.Notices.Add(BlackboardNoticeEntry.FromProto(notice));
       }
 
       return board;

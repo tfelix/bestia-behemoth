@@ -1061,6 +1061,10 @@ SENSE_EVENT_FAMILY_sky,something in the sky
 SENSE_EVENT_FAMILY_people,something among people
 WORLD_EVENT_RIFT,a rift
 WORLD_EVENT_APEX_ROAMER,an apex beast
+WORLD_EVENT_RARE_BESTIA,a rare bestia
+WORLD_EVENT_ALPHA_RISES,an alpha
+WORLD_EVENT_OLD_SEAL,a cracking seal
+WORLD_EVENT_TOWN_RAID,brigands
 SENSE_EVENT_STAGE_1,stirring
 SENSE_EVENT_STAGE_2,gathering
 SENSE_EVENT_STAGE_3,about to break
@@ -1455,6 +1459,9 @@ BLACKBOARD_EMPTY,No quests are posted yet. Post one to have others bring you wha
 BLACKBOARD_GROUP_SIGNED,Signed
 BLACKBOARD_GROUP_OPEN,Open
 BLACKBOARD_GROUP_YOURS,Posted by you
+BLACKBOARD_GROUP_EVENTS,Trouble in the land
+BLACKBOARD_NOTICE,%s near %s (%s)
+BLACKBOARD_NOTICE_HINT,"Nobody signs this. Whoever helps shares the loot and the honor."
 BLACKBOARD_SUBTITLE,Posted by %s · ends in %s · suggested Lv %d
 BLACKBOARD_PROGRESS,%d / %d delivered
 BLACKBOARD_PROGRESS_YOURS,%d / %d delivered (you: %d)

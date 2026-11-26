@@ -64,6 +64,8 @@ class BlackboardService(
   private val clock: Clock = Clock.systemUTC(),
   /** Absent in a zone where nothing posts for the towns. */
   private val townDeliveries: TownDeliveries? = null,
+  /** Absent in a zone without world events. */
+  private val eventNotices: EventNotices? = null,
 ) {
 
   /** Acts on [request] and answers with the board as it now stands, and the refusal first if there was one. */
@@ -233,7 +235,9 @@ class BlackboardService(
     // What the towns ask for comes first: it is about the place the board stands in.
     val listed = quests.boardFor(visit.masterId, QuestOrigin.TOWN) + quests.boardFor(visit.masterId, QuestOrigin.BLACKBOARD)
 
-    return BlackboardSMSG(visit.boardEntityId, visit.placeName, listed, terms)
+    val notices = visit.boardAt?.let { eventNotices?.postedAt(it.x, it.y) }.orEmpty()
+
+    return BlackboardSMSG(visit.boardEntityId, visit.placeName, listed, terms, notices)
   }
 
   private fun settle(posting: BlackboardPosting, status: QuestStatus) {

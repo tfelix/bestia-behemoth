@@ -55,8 +55,9 @@ class BlackboardInteraction(
     val masterEntityId = sessions.getSelectedMasterEntityId(accountId)
     val master = world.get(masterEntityId, Master::class) ?: return null
     val placeName = world.get(actorId, Place::class)?.place?.name ?: ""
+    val boardAt = world.get(boardId, Position::class)?.toVec3L()
 
-    return BoardVisit(accountId, master.masterId, masterEntityId, master.name, boardId, placeName)
+    return BoardVisit(accountId, master.masterId, masterEntityId, master.name, boardId, placeName, boardAt)
   }
 
   private fun isInReach(world: World, actorId: EntityId, boardId: EntityId): Boolean {
