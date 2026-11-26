@@ -2,6 +2,7 @@ package net.bestia.zone.scenarios
 
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.account.AccountFactory
+import net.bestia.zone.aoi.EntityVisibility
 import net.bestia.zone.ai.ecs.AiAgent
 import net.bestia.zone.account.BodyType
 import net.bestia.zone.account.Face
@@ -38,6 +39,7 @@ import net.bestia.zone.skill.persistence.SkillRepository
 import net.bestia.zone.spawn.BestiaEntitySpawner
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.MasterSpawnPointService
+import net.bestia.zone.world.stream.ChunkService
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Order
@@ -87,6 +89,12 @@ class WizardArcaneScenarios : BestiaNoSocketScenario(autoClientConnect = false) 
 
   @Autowired
   private lateinit var cooldowns: SkillCooldownService
+
+  @Autowired
+  private lateinit var visibility: EntityVisibility
+
+  @Autowired
+  private lateinit var chunks: ChunkService
 
   private lateinit var client: GameClientMock
 
@@ -161,13 +169,15 @@ class WizardArcaneScenarios : BestiaNoSocketScenario(autoClientConnect = false) 
   @Test
   @Order(3)
   fun `each bolt and Soul Break strike a wild bestia, and Soul Break tears at its mana`() {
-    val at = world.read { getOrThrow(wizard(), Position::class).toVec3L() }
+    val at = besideWizard(3)
     // Loads the learnset now: the spawner reads it inside the lease, where SQL is refused.
     catalogue.learnset(BLOB)
-    val blob = world.read { spawner.spawnMob(this, BLOB, at + Vec3L(3, 0, 0), persistent = false) }
+    val blob = world.read { spawner.spawnMob(this, BLOB, at, persistent = false) }
     foe = blob
     // A blob that strikes back breaks every cast bar after the first hit.
     world.modify(blob) { id -> remove(id, AiAgent::class) }
+    // A blow is shown to whoever sees the blob, which a new entity only has once a tick placed it in its chunk.
+    await { assertTrue(accountId in visibility.observersOf(blob)) }
 
     for (identifier in listOf("M_FIREBOLT", "M_ICE_BOLT", "M_THUNDER_BOLT", "M_EARTH_SPIKE", "M_SOUL_BREAK")) {
       val skillId = skillId(identifier)
@@ -242,6 +252,18 @@ class WizardArcaneScenarios : BestiaNoSocketScenario(autoClientConnect = false) 
     client.sendMessage(ActivateSkillCMSG(accountId, skillId, level, at, target))
   }
 
+  /**
+   * [tiles] east or west of the Wizard, whichever stays in its chunk. The client asks for no terrain, so it holds
+   * only the chunk the Wizard stands in, and hears of no blow on a blob across that chunk's edge.
+   */
+  private fun besideWizard(tiles: Long): Vec3L {
+    val at = positionOf(wizard())
+    val chunkSize = chunks.config.chunkSize.toLong()
+    val towardsMiddle = if (Math.floorMod(at.x, chunkSize) < chunkSize / 2) 1L else -1L
+
+    return at + Vec3L(towardsMiddle * tiles, 0, 0)
+  }
+
   private fun levelOf(identifier: String): Int = SKILLS.toMap().getValue(identifier)
 
   private fun areasOf(identifier: String): List<EntityId> {
@@ -268,6 +290,8 @@ class WizardArcaneScenarios : BestiaNoSocketScenario(autoClientConnect = false) 
   private fun ownBestias(): List<EntityId> {
     return world.read { OwnedBestia.ownedBy(this, masterId) }.map { it.entityId }
   }
+
+  private fun positionOf(entityId: EntityId): Vec3L = world.read { getOrThrow(entityId, Position::class).toVec3L() }
 
   private fun skillId(identifier: String): Long = assertNotNull(skills.findByIdentifier(identifier)).id
 
