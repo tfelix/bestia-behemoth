@@ -51,8 +51,13 @@ class DoomsdayDirector(
 
     row.steppedToDay = maxOf(row.steppedToDay, ageDays)
     apply(row, after, threat)
-    if (ageDays >= row.onsetDay) {
-      threat?.step(row.progress, realSeconds)
+    val x = row.originX
+    val y = row.originY
+    if (threat != null && x != null && y != null && ageDays >= row.onsetDay) {
+      val pushed = threat.step(DoomFate(x, y, row.progress, row.stage), realSeconds)
+      if (pushed != 0.0) {
+        apply(row, doomClock.push(stateOf(row), pushed), threat)
+      }
     }
     save(row)
   }

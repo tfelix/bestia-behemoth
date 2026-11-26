@@ -38,7 +38,11 @@ interface DoomThreat {
   fun onStage(from: DoomStage, to: DoomStage) {
   }
 
-  /** Lets the threat act for [realSeconds] at progress [progress]. */
-  fun step(progress: Double, realSeconds: Double) {
+  /**
+   * Lets the threat act for [realSeconds], and answers how far the players' deeds pushed the clock since the last
+   * step: positive brings the end closer, negative holds it off.
+   */
+  fun step(fate: DoomFate, realSeconds: Double): Double {
+    return 0.0
   }
 }

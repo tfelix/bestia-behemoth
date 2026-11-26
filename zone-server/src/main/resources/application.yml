@@ -429,6 +429,15 @@ doomsday:
   last-stand-push-back-to: 0.85
   # Clients play their final sequence this long before the server closes every connection.
   end-sequence-seconds: 90
+  # The Void Tear, at its onset and at the end of its clock. Days are real days.
+  void-tear:
+    motes-per-day-at-onset: 100000
+    motes-per-day-at-end: 600000
+    seed-reach-at-onset-metres: 4000
+    seed-reach-at-end-metres: 30000
+    knots-per-day-at-onset: 0.5
+    knots-per-day-at-end: 4.0
+    reform-days: 3.0
   # Alpha tests: force the threat, the Foreshadowing or the origin (metres) of a new world.
   # force-kind: VOID_TEAR
   # force-foreshadow: MANA_STORM_SEASON
