@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://fevomu0ug42t" path="res://Menu/MasterSelect/master_select.gd" id="1_5datu"]
 [ext_resource type="Texture2D" uid="uid://6agwh7nujv76" path="res://Menu/Main/Background/landscape-nature-clouds-cloudy.jpg" id="2_lqhqb"]
+[ext_resource type="PackedScene" path="res://Game/UI/BugReport/BugReport.tscn" id="90_bugreport"]
 
 [node name="MasterSelect" type="Control" unique_id=1412103480]
 layout_mode = 3
@@ -68,3 +69,6 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 horizontal_alignment = 1
+
+[node name="BugReport" parent="." instance=ExtResource("90_bugreport")]
+layout_mode = 1

@@ -1,0 +1,145 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Game/UI/BugReport/bug_report.gd" id="1_report"]
+[ext_resource type="Script" path="res://Game/UI/BugReport/bug_report_upload.gd" id="2_upload"]
+[ext_resource type="Texture2D" path="res://Theme/Icons/bug.svg" id="3_bug"]
+
+[node name="BugReport" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_report")
+
+[node name="BugButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -108.0
+offset_top = -30.0
+offset_right = -6.0
+offset_bottom = -4.0
+grow_horizontal = 0
+grow_vertical = 0
+tooltip_text = "Found a bug? Tell us what happened."
+focus_mode = 0
+theme_override_constants/icon_max_width = 16
+theme_override_font_sizes/font_size = 13
+text = "Report bug"
+icon = ExtResource("3_bug")
+
+[node name="Toast" type="Label" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -326.0
+offset_top = -82.0
+offset_right = -6.0
+offset_bottom = -38.0
+grow_horizontal = 0
+grow_vertical = 0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Dialog" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Scrim" type="ColorRect" parent="Dialog"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.02, 0.04, 0.72)
+
+[node name="Center" type="CenterContainer" parent="Dialog"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Dialog/Center"]
+layout_mode = 2
+
+[node name="Column" type="VBoxContainer" parent="Dialog/Center/Panel"]
+custom_minimum_size = Vector2(520, 0)
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="Dialog/Center/Panel/Column"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Report a bug"
+
+[node name="Hint" type="Label" parent="Dialog/Center/Panel/Column"]
+layout_mode = 2
+text = "What happened, and what did you expect? The first line becomes the title. Technical data about your game and computer is sent with it; nothing that names you."
+autowrap_mode = 3
+
+[node name="ReportText" type="TextEdit" parent="Dialog/Center/Panel/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 160)
+layout_mode = 2
+placeholder_text = "The wolf walked through the wall of my house..."
+wrap_mode = 1
+
+[node name="ScreenshotRow" type="HBoxContainer" parent="Dialog/Center/Panel/Column"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Thumbnail" type="TextureRect" parent="Dialog/Center/Panel/Column/ScreenshotRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 90)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="AttachScreenshot" type="CheckBox" parent="Dialog/Center/Panel/Column/ScreenshotRow"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Attach this screenshot"
+
+[node name="Status" type="Label" parent="Dialog/Center/Panel/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="Buttons" type="HBoxContainer" parent="Dialog/Center/Panel/Column"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 12
+
+[node name="CancelButton" type="Button" parent="Dialog/Center/Panel/Column/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 36)
+layout_mode = 2
+text = "Cancel"
+
+[node name="SendButton" type="Button" parent="Dialog/Center/Panel/Column/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 36)
+layout_mode = 2
+text = "Send"
+
+[node name="Upload" type="Node" parent="."]
+script = ExtResource("2_upload")
