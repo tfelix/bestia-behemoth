@@ -81,3 +81,13 @@ CREATE TABLE bug_report_ban
     created_at DATETIME(6)  NOT NULL,
     PRIMARY KEY (account_id)
 ) ENGINE = InnoDB;
+
+-- The issue each crash signature was published as, so a crash seen again joins it instead of opening another.
+CREATE TABLE bug_crash_signature
+(
+    signature       CHAR(64)    NOT NULL,
+    issue_number    INT         NOT NULL,
+    -- When the issue last got a comment with a new occurrence's files; at most one per comment interval.
+    last_comment_at DATETIME(6) NULL,
+    PRIMARY KEY (signature)
+) ENGINE = InnoDB;

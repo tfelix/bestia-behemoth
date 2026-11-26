@@ -1,6 +1,7 @@
 package net.bestia.api.bugreport
 
 import org.springframework.boot.context.properties.ConfigurationProperties
+import java.time.Duration
 
 @ConfigurationProperties(prefix = "bug-reports")
 data class BugReportProperties(
@@ -8,6 +9,8 @@ data class BugReportProperties(
   val perHour: Int? = null,
   /** Reports one account may send per day; null for no limit. */
   val perDay: Int? = null,
+  /** How often a crash seen again may add a comment with its files to its issue. */
+  val crashCommentInterval: Duration = Duration.ofHours(1),
   val github: GitHub = GitHub(),
 ) {
 

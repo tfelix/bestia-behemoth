@@ -9,6 +9,8 @@ interface BugReportRepository : JpaRepository<BugReport, Long> {
 
   fun countByAccountIdAndCreatedAtAfter(accountId: Long, after: LocalDateTime): Long
 
+  fun countBySignatureAndStatusIn(signature: String, statuses: Collection<BugReport.Status>): Long
+
   /** Reports in [status] whose next attempt is due, oldest first. */
   @Query(
     "select r from BugReport r where r.status = :status and (r.nextAttemptAt is null or r.nextAttemptAt <= :now) order by r.id"
