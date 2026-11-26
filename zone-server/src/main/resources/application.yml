@@ -423,6 +423,12 @@ doomsday:
   min-pace: 0.25
   max-pace: 3.0
   stage-hysteresis: 0.02
+  # The Last Stand and the Calling run this long before the world ends.
+  end-window-hours: 24
+  # Winning the Last Stand sets the clock back to this.
+  last-stand-push-back-to: 0.85
+  # Clients play their final sequence this long before the server closes every connection.
+  end-sequence-seconds: 90
   # Alpha tests: force the threat, the Foreshadowing or the origin (metres) of a new world.
   # force-kind: VOID_TEAR
   # force-foreshadow: MANA_STORM_SEASON

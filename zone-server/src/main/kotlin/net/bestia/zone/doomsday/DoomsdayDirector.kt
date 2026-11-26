@@ -82,6 +82,13 @@ class DoomsdayDirector(
     )
   }
 
+  /** How the world ends now, or null while it goes on. */
+  @Transactional
+  fun ending(): DoomEnding? {
+    val row = current()
+    return doomClock.ending(stateOf(row), ageDays(), row.lifeSpanDays)
+  }
+
   /** Moves the clock by [delta], for a deed or a GM. */
   @Transactional
   fun push(delta: Double): DoomStage {

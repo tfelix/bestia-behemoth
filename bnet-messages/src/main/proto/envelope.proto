@@ -227,6 +227,7 @@ import "messages/stronghold/stronghold_smsg.proto";
 import "messages/stronghold/stronghold_tab_cmsg.proto";
 import "messages/stronghold/stronghold_tab_smsg.proto";
 import "messages/system/announcement_smsg.proto";
+import "messages/system/world_end_smsg.proto";
 import "messages/inn/inn_smsg.proto";
 import "messages/inn/set_inn_save_point_cmsg.proto";
 import "messages/inn/tend_bestias_cmsg.proto";
@@ -534,6 +535,9 @@ message Envelope {
 
     // GM MAP 993
     GmManaLayerSMSG gm_mana_layer = 993;
+
+    // DOOMSDAY 994
+    WorldEndSMSG world_end = 994;
 
     // MISC
   }

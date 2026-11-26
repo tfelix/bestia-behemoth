@@ -26,11 +26,14 @@ namespace Bnet {
           string.Concat(
             "CidtZXNzYWdlcy9zeXN0ZW0vYW5ub3VuY2VtZW50X3Ntc2cucHJvdG8SBGJu",
             "ZXQiSgoQQW5ub3VuY2VtZW50U01TRxIoCgxhbm5vdW5jZW1lbnQYASABKA4y",
-            "Ei5ibmV0LkFubm91bmNlbWVudBIMCgRhcmdzGAIgAygJKmUKDEFubm91bmNl",
-            "bWVudBIcChhBTk5PVU5DRU1FTlRfVU5TUEVDSUZJRUQQABITCg9BTk5PVU5D",
-            "RU1FTlRfR00QARIiCh5BTk5PVU5DRU1FTlRfU1RST05HSE9MRF9VTkhFTEQQ",
-            "AkIuChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CFUFubm91bmNlbWVudFNtc2dQ",
-            "cm90b2IGcHJvdG8z"));
+            "Ei5ibmV0LkFubm91bmNlbWVudBIMCgRhcmdzGAIgAygJKv4BCgxBbm5vdW5j",
+            "ZW1lbnQSHAoYQU5OT1VOQ0VNRU5UX1VOU1BFQ0lGSUVEEAASEwoPQU5OT1VO",
+            "Q0VNRU5UX0dNEAESIgoeQU5OT1VOQ0VNRU5UX1NUUk9OR0hPTERfVU5IRUxE",
+            "EAISGwoXQU5OT1VOQ0VNRU5UX0xBU1RfU1RBTkQQAxIgChxBTk5PVU5DRU1F",
+            "TlRfTEFTVF9TVEFORF9TT09OEAQSHwobQU5OT1VOQ0VNRU5UX0xBU1RfU1RB",
+            "TkRfV09OEAUSGAoUQU5OT1VOQ0VNRU5UX0NBTExJTkcQBhIdChlBTk5PVU5D",
+            "RU1FTlRfQ0FMTElOR19TT09OEAdCLgoVbmV0LmJlc3RpYS5ibmV0LnByb3Rv",
+            "QhVBbm5vdW5jZW1lbnRTbXNnUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.Announcement), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -52,6 +55,26 @@ namespace Bnet {
     /// args[1] the Stronghold's.
     /// </summary>
     [pbr::OriginalName("ANNOUNCEMENT_STRONGHOLD_UNHELD")] StrongholdUnheld = 2,
+    /// <summary>
+    /// The doomsday has run its course and the Last Stand begins. args[0] is the hours until the world falls.
+    /// </summary>
+    [pbr::OriginalName("ANNOUNCEMENT_LAST_STAND")] LastStand = 3,
+    /// <summary>
+    /// args[0] is the minutes until the world falls.
+    /// </summary>
+    [pbr::OriginalName("ANNOUNCEMENT_LAST_STAND_SOON")] LastStandSoon = 4,
+    /// <summary>
+    /// The doom was beaten back, and the world lives on.
+    /// </summary>
+    [pbr::OriginalName("ANNOUNCEMENT_LAST_STAND_WON")] LastStandWon = 5,
+    /// <summary>
+    /// The world outlived its doom and the Calling begins. args[0] is the hours until the sky opens.
+    /// </summary>
+    [pbr::OriginalName("ANNOUNCEMENT_CALLING")] Calling = 6,
+    /// <summary>
+    /// args[0] is the minutes until the sky opens.
+    /// </summary>
+    [pbr::OriginalName("ANNOUNCEMENT_CALLING_SOON")] CallingSoon = 7,
   }
 
   #endregion

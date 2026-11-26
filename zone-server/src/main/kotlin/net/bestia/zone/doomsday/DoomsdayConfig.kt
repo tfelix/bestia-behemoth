@@ -29,6 +29,10 @@ data class DoomsdayConfig(
   val maxPace: Double = 3.0,
   val stageHysteresis: Double = 0.02,
 
+  val endWindowHours: Double = 24.0,
+  val lastStandPushBackTo: Double = 0.85,
+  val endSequenceSeconds: Long = 90,
+
   /** Alpha-test overrides for a new world: this threat, this Foreshadowing, this origin in metres. */
   val forceKind: DoomKind? = null,
   val forceForeshadow: ForeshadowKind? = null,

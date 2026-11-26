@@ -23,6 +23,12 @@ class ZoneReadinessService {
     LOG.info { "Zone is ready - accepting client logins." }
   }
 
+  /** For a zone that is about to stop, so nobody logs in to a world that is going away. */
+  fun refuseLogins() {
+    ready = false
+    LOG.info { "Zone refuses client logins until it restarts." }
+  }
+
   companion object {
     private val LOG = KotlinLogging.logger { }
   }

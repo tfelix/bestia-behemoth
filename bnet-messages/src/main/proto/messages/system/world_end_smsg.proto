@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "WorldEndSmsgProto";
+
+// The world ends. Sent to everyone shortly before the server closes every connection, so each client can play its
+// final sequence and show what the world lived through.
+message WorldEndSMSG {
+  WorldEnding ending = 1;
+  string world_name = 2;
+  // The doomsday's kind, such as VOID_TEAR. Empty when no threat came.
+  string threat = 3;
+  int32 days_lived = 4;
+  // How far into its foretold life span the world lived, in percent.
+  int32 t_percent = 5;
+  int32 towns_lost = 6;
+  // Until the server closes the connection.
+  int32 seconds_left = 7;
+}
+
+enum WorldEnding {
+  WORLD_ENDING_UNSPECIFIED = 0;
+  // The doomsday consumed the world.
+  WORLD_ENDING_LOST = 1;
+  // The world outlived its doom, and everything born of mana is called into the next one.
+  WORLD_ENDING_SAVED = 2;
+}
