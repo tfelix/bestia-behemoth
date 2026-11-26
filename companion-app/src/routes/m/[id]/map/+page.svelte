@@ -790,6 +790,12 @@
 		clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
 	}
 
+	.map :global(.service-world_event span) {
+		background: #eb5c9e;
+		border-radius: 0;
+		clip-path: polygon(50% 0, 63% 37%, 100% 50%, 63% 63%, 50% 100%, 37% 63%, 0 50%, 37% 37%);
+	}
+
 	.map :global(.mark span) {
 		display: block;
 		width: 100%;

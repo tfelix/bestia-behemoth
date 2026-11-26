@@ -130,4 +130,15 @@ class MapPoiIndexTest {
     assertEquals(seed, index.liveIn(Aabb(0.0, 0.0, 4_000.0, 4_000.0)).single { it.id == seed.id })
     assertNotEquals(before, index.revision)
   }
+
+  @Test
+  fun `a posted world event is on the map until the next run replaces it`() {
+    val raid = MapPoi(-3_000_000_007L, MapService.WORLD_EVENT, "town-raid", 1_000.0, 2_000.0, "Ashford", null, null)
+
+    index.setWorldEvents(listOf(raid))
+    assertEquals(raid, index.liveIn(Aabb(0.0, 0.0, 4_000.0, 4_000.0)).single { it.id == raid.id })
+
+    index.setWorldEvents(emptyList())
+    assertTrue(index.liveIn(Aabb(0.0, 0.0, 4_000.0, 4_000.0)).none { it.id == raid.id })
+  }
 }
