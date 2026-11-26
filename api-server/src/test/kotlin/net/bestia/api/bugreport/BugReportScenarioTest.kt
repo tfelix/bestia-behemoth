@@ -46,6 +46,9 @@ class BugReportScenarioTest : ApiScenarioTestBase() {
   private lateinit var publisher: BugReportPublisher
 
   @Autowired
+  private lateinit var crashes: BugCrashSignatureRepository
+
+  @Autowired
   private lateinit var github: RecordingGitHub
 
   private lateinit var zoneClient: RedisClient
@@ -194,6 +197,35 @@ class BugReportScenarioTest : ApiScenarioTestBase() {
     reports.save(failed)
     publisher.publishDue()
     assertEquals(BugReport.Status.SENT, reports.findById(waiting.id).get().status)
+  }
+
+  @Test
+  fun `a crash seen again joins its issue, and adds its files only once the comment interval is over`() {
+    val crash = mapOf("text" to "NullReferenceException at Foo.Bar", "kind" to "crash", "signature" to "b".repeat(64))
+    send(9108, crash + ("log" to file("first".toByteArray())))
+    publisher.publishDue()
+    val issue = github.issue(reports.findAll().single { it.accountId == 9108L }.issueNumber!!)
+    assertEquals("Crash: NullReferenceException at Foo.Bar", issue.title)
+    assertTrue("| Occurrences | 1, last seen" in issue.body)
+
+    send(9109, crash + ("log" to file("second".toByteArray())))
+    publisher.publishDue()
+
+    assertEquals(issue.number, reports.findAll().single { it.accountId == 9109L }.issueNumber)
+    assertTrue("| Occurrences | 2, last seen" in issue.body)
+    assertTrue(github.comments.none { it.first == issue.number })
+
+    val known = crashes.findById("b".repeat(64)).get()
+    known.lastCommentAt = LocalDateTime.now().minusHours(2)
+    crashes.save(known)
+    send(9110, crash + ("log" to file("third".toByteArray())))
+    publisher.publishDue()
+
+    assertTrue("| Occurrences | 3, last seen" in issue.body)
+    val comment = github.comments.single { it.first == issue.number }.second
+    assertTrue(comment.startsWith("**Seen again.**"))
+    assertTrue("client.log" in comment)
+    assertEquals(1, github.issues.count { it.title == issue.title })
   }
 
   private fun send(accountId: Long, parts: Map<String, Any>): ResponseEntity<String> {

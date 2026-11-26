@@ -62,6 +62,8 @@ bug-reports:
   # Reports one account may send per hour and per day. Remove a line for no limit.
   per-hour: 10
   per-day: 30
+  # A crash seen again bumps its issue's count every time, but adds its files as a comment at most this often.
+  crash-comment-interval: PT1H
   github:
     # token (BUG_REPORTS_GITHUB_TOKEN), repo (BUG_REPORTS_GITHUB_REPO): the private reports repo. Without both,
     # reports are kept here and nothing is published. Give the token to one api-server instance only.

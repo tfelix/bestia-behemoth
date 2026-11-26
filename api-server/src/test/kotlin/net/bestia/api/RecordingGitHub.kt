@@ -12,10 +12,11 @@ import java.util.concurrent.atomic.AtomicInteger
 @TestConfiguration(proxyBeanMethods = false)
 class RecordingGitHub {
 
-  data class Issue(val number: Int, val title: String, val body: String, val labels: List<String>)
+  data class Issue(val number: Int, val title: String, @Volatile var body: String, val labels: List<String>)
 
   val commits = CopyOnWriteArrayList<Map<String, ByteArray>>()
   val issues = CopyOnWriteArrayList<Issue>()
+  val comments = CopyOnWriteArrayList<Pair<Int, String>>()
 
   /** While true, every call fails as an unreachable GitHub would. */
   @Volatile
@@ -39,7 +40,26 @@ class RecordingGitHub {
         issues += issue
         return issue.number
       }
+
+      override fun issueBody(number: Int): String {
+        failIfDown()
+        return issue(number).body
+      }
+
+      override fun editIssueBody(number: Int, body: String) {
+        failIfDown()
+        issue(number).body = body
+      }
+
+      override fun comment(number: Int, body: String) {
+        failIfDown()
+        comments += number to body
+      }
     }
+  }
+
+  fun issue(number: Int): Issue {
+    return issues.single { it.number == number }
   }
 
   private fun failIfDown() {

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class BugReportIssueTest {
@@ -47,6 +48,18 @@ class BugReportIssueTest {
     val body = issueOf(report(text = "look ```` here")).body
 
     assertTrue("`````text\nlook ```` here\n`````" in body)
+  }
+
+  @Test
+  fun `a crash's occurrences row is kept current, unless someone removed it`() {
+    val first = BugReportIssue.Occurrences(1, LocalDateTime.of(2026, 11, 26, 20, 15), "bclient/0.0.1")
+    val third = BugReportIssue.Occurrences(3, LocalDateTime.of(2026, 11, 27, 9, 0), "bclient/0.0.2")
+    val body = BugReportIssue.of(report(kind = BugReport.Kind.CRASH), emptyList(), null, first).body
+
+    assertTrue("| Occurrences | 1, last seen 2026-11-26 20:15 in bclient/0.0.1 |" in body)
+    val updated = BugReportIssue.withOccurrences(body, third)
+    assertEquals(body.replace("1, last seen 2026-11-26 20:15 in bclient/0.0.1", "3, last seen 2026-11-27 09:00 in bclient/0.0.2"), updated)
+    assertNull(BugReportIssue.withOccurrences("edited by hand", third))
   }
 
   private fun issueOf(report: BugReport): BugReportIssue {

@@ -46,6 +46,18 @@ class GitHubReportsClient(properties: BugReportProperties, builder: RestClient.B
     return issue["number"].asInt()
   }
 
+  override fun issueBody(number: Int): String {
+    return get("$repoPath/issues/$number")["body"]?.asText().orEmpty()
+  }
+
+  override fun editIssueBody(number: Int, body: String) {
+    rest.patch().uri("$repoPath/issues/$number").body(mapOf("body" to body)).retrieve().toBodilessEntity()
+  }
+
+  override fun comment(number: Int, body: String) {
+    post("$repoPath/issues/$number/comments", mapOf("body" to body))
+  }
+
   private fun blob(content: ByteArray): String {
     val encoded = Base64.getEncoder().encodeToString(content)
 

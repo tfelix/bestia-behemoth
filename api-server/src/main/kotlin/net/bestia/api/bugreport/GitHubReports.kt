@@ -8,4 +8,10 @@ interface GitHubReports {
 
   /** Returns the new issue's number. */
   fun openIssue(title: String, body: String, labels: List<String>): Int
+
+  fun issueBody(number: Int): String
+
+  fun editIssueBody(number: Int, body: String)
+
+  fun comment(number: Int, body: String)
 }

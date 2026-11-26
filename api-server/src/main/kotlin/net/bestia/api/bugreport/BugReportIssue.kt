@@ -2,6 +2,7 @@ package net.bestia.api.bugreport
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 /**
@@ -23,6 +24,14 @@ data class BugReportIssue(val title: String, val body: String, val labels: List<
     }
   }
 
+  /** How often a crash was reported; kept current in its issue's summary. */
+  data class Occurrences(val count: Long, val lastSeenAt: LocalDateTime, val clientVersion: String?) {
+
+    fun describe(): String {
+      return "$count, last seen ${lastSeenAt.format(RECEIVED)} in ${clientVersion ?: "an unknown client"}"
+    }
+  }
+
   companion object {
     private val JSON = jacksonObjectMapper()
     private val RECEIVED = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
@@ -37,8 +46,29 @@ data class BugReportIssue(val title: String, val body: String, val labels: List<
       "chunks.bin" to "chunk dump around the camera, for the dev harnesses",
     )
 
-    fun of(report: BugReport, files: List<BugReportFile>, links: Files?): BugReportIssue {
-      return BugReportIssue(titleOf(report), bodyOf(report, files, links), labelsOf(report))
+    private const val OCCURRENCES = "Occurrences"
+    private val OCCURRENCES_ROW = Regex("^\\| $OCCURRENCES \\|.*\\|$", RegexOption.MULTILINE)
+
+    fun of(report: BugReport, files: List<BugReportFile>, links: Files?, occurrences: Occurrences? = null): BugReportIssue {
+      return BugReportIssue(titleOf(report), bodyOf(report, files, links, occurrences), labelsOf(report))
+    }
+
+    /** A crash seen again, as a comment on the issue its signature already has. */
+    fun commentOf(report: BugReport, files: List<BugReportFile>, links: Files?): String {
+      return "**Seen again.**\n\n" + bodyOf(report, files, links, occurrences = null)
+    }
+
+    /** [body] with its occurrences row brought up to date, or null when someone removed the row. */
+    fun withOccurrences(body: String, occurrences: Occurrences): String? {
+      if (!OCCURRENCES_ROW.containsMatchIn(body)) {
+        return null
+      }
+
+      return body.replace(OCCURRENCES_ROW, Regex.escapeReplacement(occurrencesRow(occurrences)))
+    }
+
+    private fun occurrencesRow(occurrences: Occurrences): String {
+      return "| $OCCURRENCES | ${occurrences.describe()} |"
     }
 
     private fun titleOf(report: BugReport): String {
@@ -61,7 +91,7 @@ data class BugReportIssue(val title: String, val body: String, val labels: List<
       return listOfNotNull(kindLabel, versionLabel)
     }
 
-    private fun bodyOf(report: BugReport, files: List<BugReportFile>, links: Files?): String {
+    private fun bodyOf(report: BugReport, files: List<BugReportFile>, links: Files?, occurrences: Occurrences?): String {
       val names = files.map { it.name }
       val screenshot = names.firstOrNull { it.startsWith("screenshot.") }
 
@@ -69,6 +99,7 @@ data class BugReportIssue(val title: String, val body: String, val labels: List<
         appendLine("| | |")
         appendLine("|---|---|")
         summaryOf(report).forEach { (key, value) -> appendLine("| $key | ${cell(value)} |") }
+        occurrences?.let { appendLine(occurrencesRow(it)) }
         files.firstOrNull { it.name == "context.json" }?.let { contextRowsOf(it.content) }
           ?.forEach { (key, value) -> appendLine("| `$key` | ${cell(value)} |") }
 
