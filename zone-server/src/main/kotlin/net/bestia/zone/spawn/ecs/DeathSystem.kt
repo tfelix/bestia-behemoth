@@ -34,6 +34,7 @@ class DeathSystem(
   private val mobLootSpawner: MobLootSpawner,
   private val deletionQueue: PersistedEntityDeletionQueue,
   private val expSplitter: KillExpSplitter,
+  private val lootClaims: KillLootClaims,
   private val notableKills: KillReporter,
   private val spill: GroundSpill,
   private val levies: List<KillExpLevy> = emptyList(),
@@ -56,7 +57,7 @@ class DeathSystem(
       Nature::class,
       EventCreature::class,
       DenMember::class,
-    ) + expSplitter.reads + levies.flatMap { it.reads } + lootChanceModifiers.flatMap { it.reads } +
+    ) + expSplitter.reads + lootClaims.reads + levies.flatMap { it.reads } + lootChanceModifiers.flatMap { it.reads } +
       killObservers.flatMap { it.reads }
 
   // `Dead` is written rather than read: `bled` is set here, the same way PlayerDeathSystem sets `resolved`.
@@ -188,11 +189,11 @@ class DeathSystem(
     val species = world.bestiaSpeciesOf(entityId)
       ?: return
 
-    val killer = world.get(entityId, TakenDamage::class)?.topAccount(world)
-    val chanceFactor = killer
-      ?.let { account -> lootChanceModifiers.fold(1.0) { factor, modifier -> factor * modifier.factor(world, account) } }
+    val loot = world.get(entityId, TakenDamage::class)?.let { lootClaims.of(world, it) }
+    val chanceFactor = loot
+      ?.let { lootChanceModifiers.fold(1.0) { factor, modifier -> factor * modifier.factor(world, it.leadAccount) } }
       ?: 1.0
-    mobLootSpawner.spawnLoot(world, species, position, lootOwner = killer, chanceFactor = chanceFactor)
+    mobLootSpawner.spawnLoot(world, species, position, loot, chanceFactor)
   }
 
   /**
