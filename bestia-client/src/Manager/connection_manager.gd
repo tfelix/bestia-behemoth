@@ -350,6 +350,8 @@ var rtt_ms: int = -1
 var _ping_sent_at_ms: int = -1
 
 var selected_master_info: MasterInfo = null
+## From the first SelfSMSG; 0 before it. A loot claim names the accounts that may pick a drop up.
+var account_id: int = 0
 
 # Set while we deliberately drop the connection (logout to main menu) so the socket-closed handler
 # routes to the main menu instead of the "connection lost" screen.
@@ -1863,6 +1865,7 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 	elif message is EntitySMSG:
 		entity_received.emit(message)
 	elif message is SelfSMSG:
+		account_id = message.AccountId
 		self_received.emit(message)
 	elif message is OwnedBestiasSMSG:
 		owned_bestias_received.emit(message)
