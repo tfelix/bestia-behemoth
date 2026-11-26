@@ -29,6 +29,7 @@ var _post_item_id: int = 0
 var _post_days: int = 0
 
 var _title: Label
+var _notices: VBoxContainer
 var _search: LineEdit
 var _list: VBoxContainer
 var _empty: Label
@@ -110,6 +111,9 @@ func _build() -> void:
 	var left := UiStyle.vbox(6)
 	left.custom_minimum_size = Vector2(250, 0)
 	columns.add_child(left)
+
+	_notices = UiStyle.vbox(2)
+	left.add_child(_notices)
 
 	_search = LineEdit.new()
 	_search.placeholder_text = tr("BLACKBOARD_SEARCH")
@@ -278,12 +282,42 @@ func _on_opened(msg: BlackboardSMSG) -> void:
 	_post_amount.max_value = msg.MaxAmount
 	_post_coins.max_value = msg.MaxCoinsEach
 	_build_runs(msg.Runs)
+	_show_notices(msg.Notices, player)
 	if not was_open:
 		_hide_form()
 	_refresh_list()
 
 	if not was_open:
 		blackboard_opened.emit()
+
+
+## The world events of the province, first: they are what the town talks about. Nobody signs them.
+func _show_notices(notices: Array, player: Entity) -> void:
+	for child in _notices.get_children():
+		child.queue_free()
+	if notices.is_empty():
+		return
+
+	_notices.add_child(UiStyle.label(tr("BLACKBOARD_GROUP_EVENTS"), 11, UiStyle.MUTED))
+	for notice in notices:
+		var line := UiStyle.label(_notice_text(notice, player), 12, UiStyle.ACCENT)
+		line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		line.tooltip_text = tr("BLACKBOARD_NOTICE_HINT")
+		line.mouse_filter = Control.MOUSE_FILTER_PASS
+		_notices.add_child(line)
+	_notices.add_child(HSeparator.new())
+
+
+func _notice_text(notice: BlackboardNoticeEntry, player: Entity) -> String:
+	var name := tr("WORLD_EVENT_" + notice.EventId.to_upper().replace("-", "_"))
+	var text := tr("BLACKBOARD_NOTICE") % [name.left(1).to_upper() + name.substr(1), notice.PlaceName, tr("SENSE_EVENT_STAGE_%d" % notice.Stage)]
+	if player == null:
+		return text
+
+	var here := Vector3(player.global_position.x, 0.0, player.global_position.z)
+	var there := Vector3(float(notice.X), 0.0, float(notice.Y))
+	var bearing := CompassStrip.bearing_between(here, there)
+	return "%s · %s %.1fkm" % [text, CompassStrip.name_of(bearing), here.distance_to(there) / 1000.0]
 
 
 func _refresh_list() -> void:

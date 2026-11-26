@@ -12,6 +12,7 @@ data class BlackboardSMSG(
   val placeName: String,
   val quests: List<QuestView>,
   val terms: Terms,
+  val notices: List<EventNotices.Notice> = emptyList(),
 ) : SMSG {
 
   /** What the poster may pick, so the client prices a quest the way the board will. */
@@ -35,9 +36,20 @@ data class BlackboardSMSG(
     terms.feePercentByDays.toSortedMap().forEach { (days, percent) ->
       board.addRuns(BlackboardSmsgProto.BlackboardRun.newBuilder().setDays(days).setFeePercent(percent))
     }
+    notices.forEach { board.addNotices(it.toProto()) }
 
     return EnvelopeProto.Envelope.newBuilder()
       .setBlackboard(board)
+      .build()
+  }
+
+  private fun EventNotices.Notice.toProto(): BlackboardSmsgProto.BlackboardNotice {
+    return BlackboardSmsgProto.BlackboardNotice.newBuilder()
+      .setEventId(eventId)
+      .setPlaceName(placeName)
+      .setX(x)
+      .setY(y)
+      .setStage(stage)
       .build()
   }
 }

@@ -18,10 +18,23 @@ message BlackboardSMSG {
   uint32 max_postings = 6;
   uint32 max_amount = 7;
   int64 max_coins_each = 8;
+  // The world events running in the board's province. Nobody signs them.
+  repeated BlackboardNotice notices = 9;
 }
 
 // One run a quest may be posted for, and the fee it costs in percent of the pay.
 message BlackboardRun {
   uint32 days = 1;
   uint32 fee_percent = 2;
+}
+
+// A running world event a board posts. Whoever helps shares its loot and honor.
+message BlackboardNotice {
+  // The world_events.yml id, which the client names.
+  string event_id = 1;
+  string place_name = 2;
+  int64 x = 3;
+  int64 y = 4;
+  // 1 stirring, 2 gathering, 3 about to break.
+  uint32 stage = 5;
 }

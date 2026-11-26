@@ -12,6 +12,7 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.economy.WorldReserve
 import net.bestia.zone.entity.GameMetrics.CoinSource
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.item.persistence.Item
@@ -95,7 +96,7 @@ class BlackboardServiceTest {
     }
   }
 
-  private fun serviceAt(at: Instant): BlackboardService {
+  private fun serviceAt(at: Instant, notices: EventNotices? = null): BlackboardService {
     return BlackboardService(
       quests, postings, inventory,
       mockk<CommodityItems> { every { coinItemId() } returns COIN },
@@ -105,7 +106,7 @@ class BlackboardServiceTest {
       },
       mockk<ItemRepository> { every { findById(COIN) } returns Optional.of(mockk<Item>()) }, parcels, reserve,
       mockk<QuestLevelHint> { every { suggestedLevelOf(IRON_ORE) } returns 18 },
-      world, mockk(relaxed = true), transactions, config, Clock.fixed(at, ZoneOffset.UTC),
+      world, mockk(relaxed = true), transactions, config, Clock.fixed(at, ZoneOffset.UTC), eventNotices = notices,
     )
   }
 
@@ -211,6 +212,14 @@ class BlackboardServiceTest {
 
     signedView(questId, required = 10, progress = 0, itemId = 99L)
     assertEquals(OpError.BLACKBOARD_NOTHING_TO_HAND_IN, service.handIn(delivererVisit(), BlackboardRequest.HandIn(questId, 1)))
+  }
+
+  @Test
+  fun `a board lists the world events posted where it stands`() {
+    val raid = EventNotices.Notice("town-raid", "Ashford", 1_500, 0, 2)
+    val board = serviceAt(now) { x, y -> if (x == 10L && y == 20L) listOf(raid) else emptyList() }
+
+    assertEquals(listOf(raid), board.boardFor(visit().copy(boardAt = Vec3L(10, 20, 0))).notices)
   }
 
   private fun delivererVisit(): BoardVisit {
