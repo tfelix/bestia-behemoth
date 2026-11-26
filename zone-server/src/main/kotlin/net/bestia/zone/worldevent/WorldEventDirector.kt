@@ -223,7 +223,7 @@ class WorldEventDirector(
     val x = ground?.x?.toLong() ?: instance.x
     val y = ground?.y?.toLong() ?: instance.y
 
-    return PostedEvents.Running(entry.id, instance.provinceIndex, x, y, event.stageOf(instance).ordinal + 1)
+    return PostedEvents.Running(instance.id, entry.id, instance.provinceIndex, x, y, event.stageOf(instance).ordinal + 1)
   }
 
   /** Every master standing on the ground of a running event holds it for another run. */
