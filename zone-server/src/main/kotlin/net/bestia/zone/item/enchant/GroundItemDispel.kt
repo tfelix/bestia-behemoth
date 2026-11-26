@@ -1,6 +1,7 @@
 package net.bestia.zone.item.enchant
 
 import net.bestia.zone.battle.attack.ThreadLocalRandomSource
+import net.bestia.zone.battle.potency.Potency
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.item.ecs.GroundItemStack
 import net.bestia.zone.item.ecs.ItemEnchantments
@@ -13,8 +14,9 @@ import org.springframework.transaction.support.TransactionTemplate
 import java.util.Random
 
 /**
- * Dispel aimed at an enchanted item on the ground. Each enchantment holds against it with its own strength, and the
- * target's SMDEF plays no part: an item has none. Dispel on a creature is [net.bestia.zone.battle.StatusEffectService.dispel].
+ * Dispel aimed at an enchanted item on the ground. Each enchantment holds against the cast's Potency with its own
+ * strength, and the target's SMDEF plays no part: an item has none. Dispel on a creature is
+ * [net.bestia.zone.battle.StatusEffectService.dispel].
  */
 @Component
 class GroundItemDispel(
@@ -26,11 +28,11 @@ class GroundItemDispel(
   private val random: Random = ThreadLocalRandomSource,
 ) {
 
-  /** On the tick. Returns what broke; each one rolls `baseChancePercent - strength`. */
-  fun dispel(world: World, groundEntity: EntityId, baseChancePercent: Int): List<ActiveItemEnchantment> {
+  /** On the tick. Returns what broke; each one rolls [Potency.dispelChancePercent] against its strength. */
+  fun dispel(world: World, groundEntity: EntityId, baseChancePercent: Int, potency: Int): List<ActiveItemEnchantment> {
     val ground = world.get(groundEntity, ItemEnchantments::class) ?: return emptyList()
 
-    val broken = ground.enchantments.filter { isDispellable(it) && breaks(baseChancePercent - it.strength) }
+    val broken = ground.enchantments.filter { breaks(chancePercentAgainst(it, baseChancePercent, potency)) }
     if (broken.isEmpty()) {
       return broken
     }
@@ -47,12 +49,17 @@ class GroundItemDispel(
     return broken
   }
 
-  private fun isDispellable(enchantment: ActiveItemEnchantment): Boolean {
-    return catalog.getOrThrow(enchantment.enchantment).dispellable
+  private fun chancePercentAgainst(enchantment: ActiveItemEnchantment, baseChancePercent: Int, potency: Int): Double {
+    val definition = catalog.getOrThrow(enchantment.enchantment)
+    if (!definition.dispellable) {
+      return 0.0
+    }
+
+    return Potency.dispelChancePercent(baseChancePercent, potency, enchantment.strength, definition.dispelThreshold)
   }
 
-  private fun breaks(chancePercent: Int): Boolean {
-    return random.nextInt(100) < chancePercent
+  private fun breaks(chancePercent: Double): Boolean {
+    return random.nextDouble() * 100 < chancePercent
   }
 
   /** The rows go too, or the item would be enchanted again once it is picked up. */

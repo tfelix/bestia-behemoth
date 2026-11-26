@@ -47,8 +47,8 @@ class PostalSeal(
   }
 
   companion object {
-    /** Only a Sage with Dispel Lv. 5 has a real chance against it. */
-    const val STRENGTH = 70
+    /** A fixed Potency far above any caster's: even Dispel Lv. 5 breaks it about one time in four. */
+    const val STRENGTH = 350
 
     val RETURNS_AFTER: Duration = Duration.ofSeconds(30)
   }

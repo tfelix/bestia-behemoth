@@ -385,7 +385,7 @@ class BudgetedSkillWorld(
   override fun dispelGroundItem(entityId: EntityId, baseChancePercent: Int): Int {
     budget.charge()
 
-    return services.groundItemDispel.dispel(world, entityId, baseChancePercent).size
+    return services.groundItemDispel.dispel(world, entityId, baseChancePercent, castPotency).size
   }
 
   override fun manaFractionOf(entityId: EntityId): Float {

@@ -372,7 +372,10 @@ interface SkillWorld {
    */
   fun dispelAll(entityId: EntityId, baseChancePercent: Int): Int
 
-  /** Tries to break each enchantment on a ground item at `baseChancePercent - strength`; returns how many broke. */
+  /**
+   * Tries to break each enchantment on a ground item, its strength against the cast's Potency. Returns how many
+   * broke.
+   */
   fun dispelGroundItem(entityId: EntityId, baseChancePercent: Int): Int
 
   /** How full [entityId]'s mana pool is, from 0 to 1; 0 for something with no pool. */
