@@ -12,8 +12,6 @@ import net.bestia.zone.identity.ecs.PartyExpShare
 import net.bestia.zone.identity.ecs.PartyMembership
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.session.ConnectionInfoService
-import net.bestia.zone.session.NoActiveSessionException
-import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
@@ -22,18 +20,18 @@ import org.springframework.stereotype.Component
  *
  * - Outside a party, or in one that has each member take their own: the attacker keeps its portion.
  * - In an Even share party: the portion gets [PartyRulesConfig.evenShareBonusPercent] on top and is split
- *   evenly between every member near the kill - the attacker's account always, the rest when their master or
- *   the entity they play stands within [PartyRulesConfig.expShareRangeMetres], flat on the map. Each share goes
- *   to the member's master. With nobody else near the kill the attacker keeps its portion, without a bonus:
+ *   evenly between every member near the kill - the attacker's account always, the rest as
+ *   [PartyMembersNearby] finds them. Each share goes to the member's master. With nobody else near the kill the attacker keeps its portion, without a bonus:
  *   the bonus is for sharing, not for being in a party.
  *
  * Tick thread: reads the world and the session map, nothing else.
  */
 @Component
 class KillExpSplitter(
-  private val sessions: ConnectionInfoService,
+  sessions: ConnectionInfoService,
   private val rules: PartyRulesConfig,
   private val masters: MasterEntityResolver = MasterEntityResolver(sessions),
+  private val nearby: PartyMembersNearby = PartyMembersNearby(sessions, rules, masters),
 ) {
 
   /** [amount] EXP for [entityId]. [masterEntityId] is the master behind it, which a levy taxes, or null. */
@@ -93,35 +91,12 @@ class KillExpSplitter(
     sharers.add(attackerMaster)
 
     for (member in membership.members) {
-      if (member.accountId == attackerAccount || !sessions.isPlaying(member.accountId, member.masterId)) {
+      if (member.accountId == attackerAccount) {
         continue
       }
-
-      val memberMaster = masters.selectedMasterEntityOf(member.accountId) ?: continue
-      val played = activeEntityOf(member.accountId) ?: memberMaster
-
-      if (isNear(world, memberMaster, killedAt) || (played != memberMaster && isNear(world, played, killedAt))) {
-        sharers.add(memberMaster)
-      }
+      nearby.masterNear(world, member, killedAt)?.let { sharers.add(it) }
     }
 
     return sharers
-  }
-
-  private fun isNear(world: World, entityId: EntityId, at: Vec3L): Boolean {
-    val position = world.get(entityId, Position::class) ?: return false
-    val dx = position.x - at.x
-    val dy = position.y - at.y
-    val range = rules.expShareRangeMetres.toLong()
-
-    return dx * dx + dy * dy <= range * range
-  }
-
-  private fun activeEntityOf(accountId: AccountId): EntityId? {
-    return try {
-      sessions.getActiveEntityId(accountId)
-    } catch (_: NoActiveSessionException) {
-      null
-    }
   }
 }
