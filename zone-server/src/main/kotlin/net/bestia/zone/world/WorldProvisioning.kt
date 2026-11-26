@@ -52,19 +52,28 @@ class WorldProvisioning(
     return create()
   }
 
+  /** What players keep from the world before has been sorted out. */
+  @Transactional
+  fun finishCarryOver(world: PersistedWorld): PersistedWorld {
+    world.carryOverPending = false
+    return worldRepository.save(world)
+  }
+
   /**
    * Throws the existing world away and writes a new one from the current settings. **Destructive.**
    *
-   * Reached from [WorldService] both under [WorldGenConfig.OnMismatch.REGENERATE] and while retrying a fresh
-   * world that came out with too few standing settlements. Everything the old world implied - terrain, chunk
-   * caches, the cached [net.bestia.zone.world.persistence.MasterSpawnPoint] candidates, surveyed chart coverage, which props were felled or
+   * Reached from [WorldService] after the doomsday ended the world, under [WorldGenConfig.OnMismatch.REGENERATE], and
+   * while retrying a fresh world that came out with too few standing settlements. A world that ended is followed by
+   * the next incarnation; [freshSeed] draws a seed for it rather than the configured one.
+   *
+   * Everything the old world implied - terrain, chunk caches, the cached [net.bestia.zone.world.persistence.MasterSpawnPoint] candidates, surveyed chart coverage, which props were felled or
    * claimed, any persisted script entities, and the terrain players dug - goes with the row, because all of it
    * is derived from the seed and dimensions being replaced. Nothing is backed up: a world that was worth keeping
    * should not have been booted under this policy (or, for the retry case, was never shown to a player in the
    * first place).
    */
   @Transactional
-  fun recreate(): PersistedWorld {
+  fun recreate(freshSeed: Boolean = false): PersistedWorld {
     val discarded = worldRepository.findFirstByOrderByIdAsc()
 
     /*
@@ -93,12 +102,27 @@ class WorldProvisioning(
 
     LOG.warn { "Discarded world '${discarded?.name}' (seed ${discarded?.seed}) and everything derived from it" }
 
-    return create(previousWinner)
+    val ended = discarded?.endedAt != null
+    val incarnation = (discarded?.incarnation ?: 1) + if (ended) 1 else 0
+    // A world rerolled before its players arrived still owes them the carry-over.
+    val carryOverPending = ended || discarded?.carryOverPending == true
+    return when {
+      // Whatever the configuration pins: that seed names the first world only.
+      freshSeed -> create(previousWinner, Random.nextLong(), incarnation, carryOverPending)
+      // The same world rebuilt.
+      incarnation > 1 -> create(previousWinner, discarded!!.seed, incarnation, carryOverPending)
+      else -> create(previousWinner)
+    }
   }
 
-  private fun create(previousWinner: Faction? = config.previousWinningFaction): PersistedWorld {
-    val seed = config.seed ?: Random.nextLong()
-    if (config.seed == null) {
+  private fun create(
+    previousWinner: Faction? = config.previousWinningFaction,
+    drawnSeed: Long? = null,
+    incarnation: Int = 1,
+    carryOverPending: Boolean = false,
+  ): PersistedWorld {
+    val seed = drawnSeed ?: config.seed ?: Random.nextLong()
+    if (drawnSeed == null && config.seed == null) {
       // Loudly, because from here on it is permanent: every hill in this world is a consequence of it, and
       // regenerating anything ever again needs this exact number.
       LOG.info { "No seed configured, drew $seed at random. This world is now permanently seeded with it." }
@@ -131,12 +155,14 @@ class WorldProvisioning(
         chunkFormatVersion = versions.chunkFormatVersion,
         shapeVersion = worldConfig.shapeVersion,
         previousWinningFaction = previousWinner,
-        createdAt = Instant.now()
+        createdAt = Instant.now(),
+        incarnation = incarnation,
+        carryOverPending = carryOverPending,
       )
     )
 
     LOG.info {
-      "Created world '${world.name}': seed ${world.seed}, " +
+      "Created world '${world.name}' (incarnation ${world.incarnation}): seed ${world.seed}, " +
           "${world.widthCells}x${world.heightCells} cells of ${world.cellSizeMetres.toInt()} m " +
           "(${(world.widthMetres / 1000).toInt()}x${(world.heightMetres / 1000).toInt()} km), $versions, " +
           // Logged because it is invisible otherwise: it changes what the *history* of this world says without

@@ -13,6 +13,7 @@ import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.WorldConfig
 import java.time.Instant
+import org.hibernate.annotations.ColumnDefault
 import net.bestia.zone.world.WorldGenConfig
 
 /**
@@ -147,6 +148,16 @@ class PersistedWorld(
   @Column(nullable = false, updatable = false)
   val createdAt: Instant,
 
+  /** 1 for the server's first world, one more for each world born after another ended. */
+  @Column(nullable = false, updatable = false)
+  @ColumnDefault("1")
+  val incarnation: Int = 1,
+
+  /** Set while what players keep from the world before is still being sorted out. A boot that fails redoes it. */
+  @Column(nullable = false)
+  @ColumnDefault("false")
+  var carryOverPending: Boolean = false,
+
   /** When the doomsday ended this world, or null while it lives. */
   @Column(nullable = true)
   var endedAt: Instant? = null,
@@ -204,7 +215,10 @@ class PersistedWorld(
     // Only when one is set. An unset seed was drawn at random and written down, so comparing it against `null`
     // would report every world as drifted from the moment it was created. Changing an *explicit* seed, on the
     // other hand, is about as clear a request for a different world as there is.
-    settings.seed?.let { compare("seed", seed, it) }
+    // The configured seed names the first world only. A world born after an end drew its own.
+    if (incarnation <= 1) {
+      settings.seed?.let { compare("seed", seed, it) }
+    }
 
     compare("width-cells", widthCells, settings.widthCells)
     compare("height-cells", heightCells, settings.heightCells)
