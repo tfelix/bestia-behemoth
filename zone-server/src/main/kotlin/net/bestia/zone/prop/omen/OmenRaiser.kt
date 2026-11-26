@@ -37,15 +37,26 @@ class OmenRaiser(
       .forEach { raiseIn(world, it.cell) }
   }
 
+  /** Scars the cell around [x], [y] in metres whatever the share: a rift that collapsed there always marks it. */
+  fun raiseAt(world: World, x: Double, y: Double) {
+    raise(world, ManaField.Cell(ManaField.cellOf(x), ManaField.cellOf(y)))
+  }
+
   private fun raiseIn(world: World, cell: ManaField.Cell) {
-    val cellKey = cell.key
-    if (scars.hasScar(cellKey)) return
+    if (Math.floorMod(rollOf(cell), 100L) >= SHARE_PERCENT) return
 
-    val roll = GenRng.hash(worldService.config.seed, cellKey, SALT)
-    if (Math.floorMod(roll, 100L) >= SHARE_PERCENT) return
+    raise(world, cell)
+  }
 
-    val scar = scarAt(cell, cellKey, roll) ?: return
+  private fun raise(world: World, cell: ManaField.Cell) {
+    if (scars.hasScar(cell.key)) return
+
+    val scar = scarAt(cell, cell.key, rollOf(cell)) ?: return
     if (scars.raise(scar)) residency.placeNow(world, source.siteOf(scar))
+  }
+
+  private fun rollOf(cell: ManaField.Cell): Long {
+    return GenRng.hash(worldService.config.seed, cell.key, SALT)
   }
 
   private fun scarAt(cell: ManaField.Cell, cellKey: Long, roll: Long): OmenScars.Scar? {
