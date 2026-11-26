@@ -52,7 +52,7 @@ class MobLootSpawnerTest {
     val dropped = sut.spawnLoot(world, bestiaId = 1L, pos = Vec3L(0, 0, 0), lootOwner = 9L).single()
 
     val protection = world.get(dropped, LootProtection::class)
-    assertEquals(9L, protection?.ownerAccountId)
+    assertEquals(setOf(9L), protection?.holders)
     assertEquals(6f, protection?.remainingSeconds)
   }
 

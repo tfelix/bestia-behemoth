@@ -126,7 +126,7 @@ class FellTreeActionTemplate(
       val account = world.get(context.entityId, Account::class)?.accountId ?: return Status.SUCCESS
       val drop = aoi.queryEntitiesInCube(at, LOOT_REACH * 2, AoiLayer.DYNAMIC_ONLY).firstOrNull { id ->
         id !in tried && world.has(id, GroundItemStack::class) &&
-          world.get(id, LootProtection::class)?.ownerAccountId == account
+          world.get(id, LootProtection::class)?.mayLoot(account) == true
       }
 
       if (drop == null) {

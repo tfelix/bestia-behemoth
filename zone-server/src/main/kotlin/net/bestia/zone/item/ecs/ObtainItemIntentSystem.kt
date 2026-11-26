@@ -107,7 +107,7 @@ class ObtainItemIntentSystem(
         return@modify null
       }
       if (!mayLoot(this, entityId, itemStackEntityId)) {
-        refusal = "it is another account's protected kill loot"
+        refusal = "another account holds the claim on it"
         return@modify null
       }
       val lootPos = get(itemStackEntityId, Position::class)?.toVec3L()
@@ -158,11 +158,11 @@ class ObtainItemIntentSystem(
     world.get(entityId, Animation::class)?.startPickUp()
   }
 
-  /** Protected kill loot is its killer's alone; a master and its bestias share one account. */
+  /** A master and its bestias share one account, so either may pick up what that account holds a claim on. */
   private fun mayLoot(world: World, looterId: EntityId, itemStackEntityId: EntityId): Boolean {
     val protection = world.get(itemStackEntityId, LootProtection::class) ?: return true
 
-    return world.get(looterId, Account::class)?.accountId == protection.ownerAccountId
+    return protection.mayLoot(world.get(looterId, Account::class)?.accountId)
   }
 
   private fun tryCreateItem(world: World, entityId: EntityId, intent: ObtainItemIntent.CreateItemIntent) {
