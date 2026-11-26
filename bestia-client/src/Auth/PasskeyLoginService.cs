@@ -45,6 +45,10 @@ namespace BestiaBehemothClient.Auth
     [Signal]
     public delegate void ResumeUnavailableEventHandler();
 
+    /// <summary>The world ended and the next one is still being born. The stored session is kept for later.</summary>
+    [Signal]
+    public delegate void WorldRebirthEventHandler();
+
     /// <summary>
     /// Matches `game-login.session-ttl-seconds` on the server. Waiting longer than the session can
     /// live only leaves a listener open for a code that can no longer be minted.
@@ -181,6 +185,10 @@ namespace BestiaBehemothClient.Auth
 
         Accept(tokens);
       }
+      catch (WorldRebirthException)
+      {
+        Emit(SignalName.WorldRebirth);
+      }
       catch (OperationCanceledException)
       {
         Fail("Could not reach the login server.");
@@ -258,6 +266,10 @@ namespace BestiaBehemothClient.Auth
         }
 
         Accept(tokens);
+      }
+      catch (WorldRebirthException)
+      {
+        Emit(SignalName.WorldRebirth);
       }
       catch (OperationCanceledException)
       {

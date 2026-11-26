@@ -628,7 +628,13 @@ WORLD_END_NO_TOWN_LOST,Not one town fell.
 WORLD_END_ONE_TOWN_LOST,One town fell.
 WORLD_END_TOWNS_LOST,%s towns fell.
 WORLD_END_NEW_WORLD,A new world is about to be born.
-WORLD_END_RETURN,Return to the title
+WORLD_END_WAIT,Wait for the new world
+REBIRTH_TITLE,A new world is being born
+REBIRTH_TEXT,"The world before has ended, and the next one is being made. This can take a while."
+REBIRTH_WAITING,The game tries again by itself.
+REBIRTH_TRYING,Trying again...
+REBIRTH_SIGN_IN,Sign in on the title screen once the new world is ready.
+REBIRTH_BACK,Back to the title
 WORLD_END_CLOSE,Close
 DOOM_VOLCANIC_ACTIVITY,the fire below
 DOOM_FLOOD,the rising sea

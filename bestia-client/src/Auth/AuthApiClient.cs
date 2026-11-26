@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
@@ -57,6 +58,7 @@ namespace BestiaBehemothClient.Auth
         .PostAsJsonAsync("api/v1/auth/game/start", request, cancellationToken)
         .ConfigureAwait(false);
 
+      await ThrowIfWorldRebirthAsync(response, cancellationToken).ConfigureAwait(false);
       response.EnsureSuccessStatusCode();
 
       return await response.Content
@@ -107,6 +109,8 @@ namespace BestiaBehemothClient.Auth
         .PostAsJsonAsync("api/v1/auth/game/refresh", request, cancellationToken)
         .ConfigureAwait(false);
 
+      await ThrowIfWorldRebirthAsync(response, cancellationToken).ConfigureAwait(false);
+
       if ((int)response.StatusCode >= 400 && (int)response.StatusCode < 500)
       {
         return null;
@@ -153,6 +157,22 @@ namespace BestiaBehemothClient.Auth
         Token = body.Token,
         RefreshToken = body.RefreshToken
       };
+    }
+
+    /// <summary>A 503 alone could be any proxy in the way, so the server's own error decides.</summary>
+    private static async Task ThrowIfWorldRebirthAsync(HttpResponseMessage response, CancellationToken cancellationToken)
+    {
+      if (response.StatusCode != HttpStatusCode.ServiceUnavailable)
+      {
+        return;
+      }
+
+      var body = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+
+      if (body.Contains("WORLD_REBIRTH", StringComparison.Ordinal))
+      {
+        throw new WorldRebirthException();
+      }
     }
 
     public void Dispose()
