@@ -259,6 +259,7 @@ var DeclinePartyInviteCMSG = load("res://Bnet/Message/Party/DeclinePartyInviteCM
 var LeavePartyCMSG = load("res://Bnet/Message/Party/LeavePartyCMSG.cs")
 var RemovePartyMemberCMSG = load("res://Bnet/Message/Party/RemovePartyMemberCMSG.cs")
 var SetPartyExpShareCMSG = load("res://Bnet/Message/Party/SetPartyExpShareCMSG.cs")
+var SetPartyLootShareCMSG = load("res://Bnet/Message/Party/SetPartyLootShareCMSG.cs")
 var RequestGuildInfoCMSG = load("res://Bnet/Message/Guild/RequestGuildInfoCMSG.cs")
 var RequestCompendiumCMSG = load("res://Bnet/Message/Compendium/RequestCompendiumCMSG.cs")
 var OpenBestiaStorageCMSG = load("res://Bnet/Message/BestiaStorage/OpenBestiaStorageCMSG.cs")
@@ -1475,6 +1476,14 @@ func set_party_exp_share(even_share: bool) -> void:
 	assert(is_ready_to_send())
 	var msg = SetPartyExpShareCMSG.new()
 	msg.EvenShare = even_share
+	_socket.SendMessage(msg)
+
+
+## The owner picks Take turns or Party share. Nothing is applied locally: the roster that answers it is.
+func set_party_loot_share(take_turns: bool) -> void:
+	assert(is_ready_to_send())
+	var msg = SetPartyLootShareCMSG.new()
+	msg.TakeTurns = take_turns
 	_socket.SendMessage(msg)
 
 

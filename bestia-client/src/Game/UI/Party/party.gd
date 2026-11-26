@@ -2,10 +2,10 @@ class_name PartyPanel
 extends PanelContainer
 
 ## The party window: every member with their master's health and mana and the bestia they play, and for the
-## owner the EXP mode, inviting and kicking. Outside a party it offers to found one.
+## owner the EXP and loot modes, inviting and kicking. Outside a party it offers to found one.
 ##
 ## Nothing is applied on a click. Every change comes back as a fresh roster, which is also how a refused one
-## puts the window right again - the EXP mode selector snaps back to the mode the party really has.
+## puts the window right again - a mode selector snaps back to the mode the party really has.
 ##
 ## Built in code, like [BestiaParty]: the rows come and go with the members.
 
@@ -16,6 +16,8 @@ signal membership_changed(in_party: bool)
 
 const _EXP_EACH_TAKE := 0
 const _EXP_EVEN_SHARE := 1
+const _LOOT_PARTY_SHARE := 0
+const _LOOT_TAKE_TURNS := 1
 ## The fields and buttons, at the size of the member names rather than the theme's 16.
 const _FIELD_FONT_SIZE := 13
 
@@ -46,6 +48,7 @@ var _create_locked: Label
 var _in_party: Control
 var _party_name: Label
 var _exp_share: OptionButton
+var _loot_share: OptionButton
 var _members: VBoxContainer
 var _invite_row: Control
 var _invite_name: LineEdit
@@ -105,21 +108,29 @@ func _build() -> void:
 	var in_party := UiStyle.vbox(8)
 	in_party.size_flags_vertical = Control.SIZE_EXPAND_FILL
 
-	var header := UiStyle.hbox(6)
 	_party_name = UiStyle.label("", 15)
-	_party_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_party_name.clip_text = true
-	header.add_child(_party_name)
-	header.add_child(UiStyle.label(tr("PARTY_EXP_MODE"), 11, UiStyle.MUTED))
-	_exp_share = OptionButton.new()
-	_exp_share.add_item(tr("PARTY_EXP_EACH_TAKE"), _EXP_EACH_TAKE)
-	_exp_share.add_item(tr("PARTY_EXP_EVEN_SHARE"), _EXP_EVEN_SHARE)
-	_exp_share.set_item_tooltip(_EXP_EACH_TAKE, tr("PARTY_EXP_EACH_TAKE_HINT"))
-	_exp_share.set_item_tooltip(_EXP_EVEN_SHARE, tr("PARTY_EXP_EVEN_SHARE_HINT"))
-	_exp_share.add_theme_font_size_override("font_size", 12)
+	in_party.add_child(_party_name)
+
+	var modes := GridContainer.new()
+	modes.columns = 2
+	modes.add_theme_constant_override("h_separation", 8)
+	modes.add_theme_constant_override("v_separation", 4)
+	modes.add_child(UiStyle.label(tr("PARTY_EXP_MODE"), 11, UiStyle.MUTED))
+	_exp_share = _mode_selector({
+		_EXP_EACH_TAKE: ["PARTY_EXP_EACH_TAKE", "PARTY_EXP_EACH_TAKE_HINT"],
+		_EXP_EVEN_SHARE: ["PARTY_EXP_EVEN_SHARE", "PARTY_EXP_EVEN_SHARE_HINT"],
+	})
 	_exp_share.item_selected.connect(_on_exp_share_selected)
-	header.add_child(_exp_share)
-	in_party.add_child(header)
+	modes.add_child(_exp_share)
+	modes.add_child(UiStyle.label(tr("PARTY_LOOT_MODE"), 11, UiStyle.MUTED))
+	_loot_share = _mode_selector({
+		_LOOT_PARTY_SHARE: ["PARTY_LOOT_PARTY_SHARE", "PARTY_LOOT_PARTY_SHARE_HINT"],
+		_LOOT_TAKE_TURNS: ["PARTY_LOOT_TAKE_TURNS", "PARTY_LOOT_TAKE_TURNS_HINT"],
+	})
+	_loot_share.item_selected.connect(_on_loot_share_selected)
+	modes.add_child(_loot_share)
+	in_party.add_child(modes)
 
 	in_party.add_child(HSeparator.new())
 
@@ -158,6 +169,16 @@ func _build() -> void:
 	_in_party = in_party
 
 
+## Item id -> [name key, tooltip key].
+func _mode_selector(modes: Dictionary) -> OptionButton:
+	var selector := OptionButton.new()
+	for id: int in modes:
+		selector.add_item(tr(modes[id][0]), id)
+		selector.set_item_tooltip(selector.get_item_index(id), tr(modes[id][1]))
+	selector.add_theme_font_size_override("font_size", 12)
+	return selector
+
+
 func _create_party() -> void:
 	var party_name := _create_name.text.strip_edges()
 	if party_name.is_empty() or _create.disabled:
@@ -183,6 +204,10 @@ func _invite() -> void:
 
 func _on_exp_share_selected(index: int) -> void:
 	ConnectionManager.set_party_exp_share(_exp_share.get_item_id(index) == _EXP_EVEN_SHARE)
+
+
+func _on_loot_share_selected(index: int) -> void:
+	ConnectionManager.set_party_loot_share(_loot_share.get_item_id(index) == _LOOT_TAKE_TURNS)
 
 
 func _on_party_message(message: PartySMSG) -> void:
@@ -225,6 +250,8 @@ func _show_roster(roster: PartyInfoSMSG) -> void:
 	_party_name.text = roster.PartyName
 	_exp_share.select(_EXP_EVEN_SHARE if roster.EvenShare else _EXP_EACH_TAKE)
 	_exp_share.disabled = not _is_owner
+	_loot_share.select(_LOOT_TAKE_TURNS if roster.TakeTurns else _LOOT_PARTY_SHARE)
+	_loot_share.disabled = not _is_owner
 	_invite_row.visible = _is_owner
 	_leave.text = tr("PARTY_DISBAND") if _is_owner else tr("PARTY_LEAVE")
 	_leave.tooltip_text = tr("PARTY_DISBAND_HINT") if _is_owner else ""
