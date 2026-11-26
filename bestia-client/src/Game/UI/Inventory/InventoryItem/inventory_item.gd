@@ -65,6 +65,9 @@ const _BESTIA_EGG_ITEM_ID := 129
 var essences: Array = []
 var held_essence: Variant = null
 
+## The spells bound to this copy, as [code]HeldItemEnchantment[/code]s.
+var enchantments: Array = []
+
 ## Assigned by Inventory when this node is instantiated - used for the double-click-to-equip
 ## shortcut, which has to know whether the equipment window is currently open.
 ## Untyped on purpose: statically typing this as Inventory forces inventory_item.gd to resolve
@@ -101,7 +104,7 @@ func _ready() -> void:
 	_wear.show_wear(durability, max_durability)
 	tooltip_text = ItemDetail.as_bbcode(
 		item, upgrade_level, durability, max_durability, slots, item_level, rolled_stats, crafted_by, crafted_in, title,
-		essences, held_essence
+		essences, held_essence, enchantments
 	)
 	if item.item_id == SpellScrollBook.ITEM_ID and unique_id != 0:
 		SpellScrollBook.ask([unique_id], _show_spell)
@@ -196,7 +199,7 @@ func _make_custom_tooltip(for_text: String) -> Object:
 	label.fit_content = true
 	label.scroll_active = false
 	label.custom_minimum_size = Vector2(320, 0)
-	label.text = for_text
+	label.text = ItemEnchantmentText.with_time_left(for_text)
 
 	var panel := PanelContainer.new()
 	panel.add_child(label)

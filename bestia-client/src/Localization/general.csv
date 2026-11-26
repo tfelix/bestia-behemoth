@@ -508,6 +508,10 @@ ITEM_DETAIL_DURABILITY,Durability
 ITEM_DETAIL_BROKEN,Broken
 ITEM_DETAIL_LIGHT_LEFT,Light left
 ITEM_DETAIL_BONUSES,Bonuses
+ITEM_DETAIL_ENCHANTMENTS,Enchantments
+ITEM_ENCHANTMENT_TIME_LEFT,{time} left
+ITEM_ENCHANTMENT_1,Postal Seal
+ITEM_ENCHANTMENT_2,Keepsake Ward
 QUIVER_SLOT_EMPTY,Drop arrows here. The leftmost is shot first; double click to take one out.
 CRAFT_HINT_TOO,too {pole}
 CRAFT_POLE_STATE_NEG,fluid

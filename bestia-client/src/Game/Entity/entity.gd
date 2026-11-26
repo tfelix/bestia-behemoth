@@ -1504,6 +1504,7 @@ func update_equipment(msg: EquipmentComponentSMSG) -> void:
 			"item_level": int(equipped.ItemLevel),
 			"rolled_stats": Array(equipped.RolledStats),
 			"essences": Array(equipped.Essences),
+			"enchantments": Array(equipped.Enchantments),
 			"crafted_by": equipped.CraftedBy,
 			"crafted_in": equipped.CraftedIn,
 		}

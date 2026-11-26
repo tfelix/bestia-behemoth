@@ -5,8 +5,6 @@ extends VBoxContainer
 ## the way WoW does under its buffs: hours ("2 h") or minutes ("13 min") rounded up, then
 ## seconds ("42 s") once under a minute, slowly pulsing to warn the buff is about to expire.
 
-const _MINUTE_THRESHOLD_SECONDS: float = 60.0
-const _HOUR_THRESHOLD_SECONDS: float = 3600.0
 const _FADE_MIN_ALPHA: float = 0.3
 const _FADE_HALF_PERIOD_SECONDS: float = 0.9
 
@@ -44,15 +42,8 @@ func _process(delta: float) -> void:
 
 
 func _refresh() -> void:
-	if _remaining_seconds > _HOUR_THRESHOLD_SECONDS:
-		_duration_label.text = "%d h" % int(ceil(_remaining_seconds / _HOUR_THRESHOLD_SECONDS))
-		_set_fading(false)
-	elif _remaining_seconds > _MINUTE_THRESHOLD_SECONDS:
-		_duration_label.text = "%d min" % int(ceil(_remaining_seconds / _MINUTE_THRESHOLD_SECONDS))
-		_set_fading(false)
-	else:
-		_duration_label.text = "%d s" % int(ceil(_remaining_seconds))
-		_set_fading(true)
+	_duration_label.text = DurationText.short(_remaining_seconds)
+	_set_fading(_remaining_seconds <= DurationText.MINUTE_SECONDS)
 
 
 ## A right-click drops a buff, the way a toggle skill's recast does. A debuff is not the player's to end, so the

@@ -77,7 +77,7 @@ func _make_custom_tooltip(for_text: String) -> Object:
 	label.fit_content = true
 	label.scroll_active = false
 	label.custom_minimum_size = Vector2(320, 0)
-	label.text = for_text
+	label.text = ItemEnchantmentText.with_time_left(for_text)
 
 	var panel := PanelContainer.new()
 	panel.add_child(label)

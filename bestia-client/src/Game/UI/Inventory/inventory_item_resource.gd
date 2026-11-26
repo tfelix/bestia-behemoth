@@ -46,3 +46,6 @@ var map_circle: Variant = null
 ## What fills its sockets and what an essence gem holds, as [code]ItemEssence[/code]s.
 var essences: Array = []
 var held_essence: Variant = null
+
+## The spells bound to this copy, as [code]HeldItemEnchantment[/code]s.
+var enchantments: Array = []

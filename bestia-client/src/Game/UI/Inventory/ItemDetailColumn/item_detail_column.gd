@@ -19,10 +19,16 @@ const _RULE := Color(0.6, 0.6, 0.66, 0.25)
 const _WEAR_GOOD := Color(0.45, 0.78, 0.42)
 const _WEAR_WORN := Color(0.95, 0.72, 0.3)
 const _LIGHT := Color(1.0, 0.7, 0.35)
+## The violet the glow of an enchanted item on the ground has, lightened to read as text.
+const _ENCHANTED := Color(0.75, 0.62, 1.0)
 
 ## What the column shows, or 0 while it is closed. Names the held pile or copy as
 ## [member InventoryItemResource.player_item_id] does, since the rows themselves are rebuilt on every update.
 var shown_player_item_id := 0
+
+## Each shown enchantment that ends, as [code][Label, HeldItemEnchantment][/code], so its time left counts down.
+var _counting_down: Array = []
+var _since_count := 0.0
 
 @onready var _title: RichTextLabel = %Title
 @onready var _subtitle: Label = %Subtitle
@@ -33,6 +39,18 @@ var shown_player_item_id := 0
 
 func _ready() -> void:
 	%Close.pressed.connect(close)
+
+
+func _process(delta: float) -> void:
+	if _counting_down.is_empty():
+		return
+
+	_since_count += delta
+	if _since_count < 1.0:
+		return
+	_since_count = 0.0
+	for shown in _counting_down:
+		shown[0].text = ItemEnchantmentText.line(shown[1])
 
 
 ## [param row] is an inventory row (InventoryItem); untyped for the load cycle that row's own script explains.
@@ -48,9 +66,11 @@ func show_row(row) -> void:
 	for child in _content.get_children():
 		_content.remove_child(child)
 		child.queue_free()
+	_counting_down.clear()
 
 	_add_facts(item, row.slots, row.weight, row.essences.size())
 	_add_essences(row.essences, row.held_essence)
+	_add_enchantments(row.enchantments)
 	_add_wear(item, row.durability, row.max_durability)
 	_add_bonuses(row.rolled_stats)
 	_add_rich(row.extra_detail, UiStyle.TEXT)
@@ -67,6 +87,7 @@ func close() -> void:
 		return
 
 	shown_player_item_id = 0
+	_counting_down.clear()
 	hide()
 	closed.emit()
 
@@ -159,6 +180,20 @@ func _add_essences(essences: Array, held_essence: Variant) -> void:
 		lines.append(tr("ITEM_HOLDS_ESSENCE").format({"essence": ItemDetail.essence_line(held_essence)}))
 	if not lines.is_empty():
 		_add_rich("\n".join(lines), UiStyle.TEXT)
+
+
+func _add_enchantments(enchantments: Array) -> void:
+	if enchantments.is_empty():
+		return
+
+	var block := UiStyle.vbox(2)
+	block.add_child(UiStyle.label(tr("ITEM_DETAIL_ENCHANTMENTS"), 13, UiStyle.MUTED))
+	for enchantment in enchantments:
+		var label := UiStyle.label(ItemEnchantmentText.line(enchantment), 14, _ENCHANTED)
+		block.add_child(label)
+		if enchantment.EndsAtMsec != 0:
+			_counting_down.append([label, enchantment])
+	_content.add_child(block)
 
 
 ## A bar that turns from green through amber to red as the item wears. A light's wear is the time it has
