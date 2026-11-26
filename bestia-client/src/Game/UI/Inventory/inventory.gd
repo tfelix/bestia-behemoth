@@ -200,6 +200,7 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 			inv_item.rolled_stats = Array(itemMsg.RolledStats)
 			inv_item.essences = Array(itemMsg.Essences)
 			inv_item.held_essence = itemMsg.HeldEssence
+			inv_item.enchantments = Array(itemMsg.Enchantments)
 			selected_entity_items.append(inv_item)
 		_render_items()
 		if msg.EntityId == _partner_id:
@@ -288,6 +289,7 @@ func _render_items() -> void:
 		inv_item.rolled_stats = item.rolled_stats
 		inv_item.essences = item.essences
 		inv_item.held_essence = item.held_essence
+		inv_item.enchantments = item.enchantments
 		if equipment != null and item.item.type == ItemResource.ItemType.EQUIP:
 			inv_item.armor_refusal = equipment.armor_refusal(item.item, selected_entity_id)
 		inv_item.inventory = self

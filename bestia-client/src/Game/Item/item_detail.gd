@@ -27,7 +27,8 @@ static func as_bbcode(
 	crafted_in: String = "",
 	own_name: String = "",
 	essences: Array = [],
-	held_essence: Variant = null
+	held_essence: Variant = null,
+	enchantments: Array = []
 ) -> String:
 	var title := "[b]%s[/b]" % (own_name if not own_name.is_empty() else _translate(item.name_key))
 	if upgrade_level > 0:
@@ -70,6 +71,10 @@ static func as_bbcode(
 
 	if held_essence != null:
 		lines.append(_translate("ITEM_HOLDS_ESSENCE").format({"essence": essence_line(held_essence)}))
+
+	# Marked rather than final: a tooltip is read later than it is written, see ItemEnchantmentText.
+	for enchantment in enchantments:
+		lines.append(ItemEnchantmentText.marked_line(enchantment))
 
 	var material_axes := CraftAxes.describe(item.item_id)
 	if not material_axes.is_empty():

@@ -130,6 +130,7 @@ func _to_worn_by_slot(items: Array) -> Dictionary:
 			"item_level": int(equipped.ItemLevel),
 			"rolled_stats": Array(equipped.RolledStats),
 			"essences": Array(equipped.Essences),
+			"enchantments": Array(equipped.Enchantments),
 			"crafted_by": equipped.CraftedBy,
 			"crafted_in": equipped.CraftedIn,
 		}
@@ -255,7 +256,9 @@ func _render() -> void:
 			equipped.get("crafted_by", ""),
 			equipped.get("crafted_in", ""),
 			"",
-			equipped.get("essences", [])
+			equipped.get("essences", []),
+			null,
+			equipped.get("enchantments", [])
 		)
 		slot_node.set_item(
 			item_resource,

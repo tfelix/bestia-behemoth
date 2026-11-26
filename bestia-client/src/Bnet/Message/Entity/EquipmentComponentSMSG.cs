@@ -94,6 +94,9 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// <summary>What fills the sockets, in order.</summary>
     [Export] public Godot.Collections.Array<ItemEssence> Essences { get; set; } = [];
 
+    /// <summary>The spells bound to this copy.</summary>
+    [Export] public Godot.Collections.Array<HeldItemEnchantment> Enchantments { get; set; } = [];
+
     /// <summary>Who crafted this copy and in which world; both empty for an item nobody crafted.</summary>
     [Export] public string CraftedBy { get; set; } = "";
     [Export] public string CraftedIn { get; set; } = "";
@@ -112,6 +115,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         ItemLevel = protoItem.ItemLevel,
         RolledStats = ItemStatValue.FromProto(protoItem.RolledStats),
         Essences = ItemEssence.FromProto(protoItem.Essences),
+        Enchantments = HeldItemEnchantment.FromProto(protoItem.Enchantments),
         CraftedBy = protoItem.CraftedBy,
         CraftedIn = protoItem.CraftedIn
       };

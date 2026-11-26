@@ -88,6 +88,9 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// <summary>What an essence gem holds; null on every other item.</summary>
     [Export] public ItemEssence HeldEssence { get; set; }
 
+    /// <summary>The spells bound to this copy, like a mail sack's seal.</summary>
+    [Export] public Godot.Collections.Array<HeldItemEnchantment> Enchantments { get; set; } = [];
+
     /// <summary>
     /// What every action on this held item names it by. Equals <see cref="UniqueId"/> for an instance; a plain
     /// pile gets a handle that holds while the pile is held this session.
@@ -135,6 +138,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         RolledStats = ItemStatValue.FromProto(protoItem.RolledStats),
         Essences = ItemEssence.FromProto(protoItem.Essences),
         HeldEssence = ItemEssence.FromProto(protoItem.HeldEssence),
+        Enchantments = HeldItemEnchantment.FromProto(protoItem.Enchantments),
         PlayerItemId = protoItem.PlayerItemId,
         CraftedBy = protoItem.CraftedBy,
         CraftedIn = protoItem.CraftedIn,
