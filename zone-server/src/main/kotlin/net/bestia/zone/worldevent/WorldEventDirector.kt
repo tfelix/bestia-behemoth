@@ -64,9 +64,14 @@ class WorldEventDirector(
     val busy = running.map { it.provinceIndex }.toSet()
     holdGround(running)
 
+    var bigRunning = running.count(::isBig)
     snapshot.take()
       .filter { !it.isSanctuary && it.province.index !in busy }
-      .forEach { signals -> maybeStart(signals, rows.getValue(signals.province.index), now) }
+      .forEach { signals ->
+        val mayBeBig = bigRunning < config.maxBigEvents
+        val started = maybeStart(signals, rows.getValue(signals.province.index), now, mayBeBig)
+        if (started != null && isBig(started)) bigRunning++
+      }
 
     journal.save()
     val stillRunning = running()
@@ -109,16 +114,23 @@ class WorldEventDirector(
   /** [quietSeconds] are real seconds. */
   data class ProvinceState(val budget: Double, val quietSeconds: Long)
 
-  private fun maybeStart(signals: ProvinceSignals, row: EventProvince, now: Long) {
-    if (now < row.quietUntilSecond) return
+  /** [mayBeBig] is false while the world already has as many big events as it carries at once. */
+  private fun maybeStart(signals: ProvinceSignals, row: EventProvince, now: Long, mayBeBig: Boolean): WorldEventInstance? {
+    if (now < row.quietUntilSecond) return null
 
-    val candidates = catalogue.all().filter { it.cost <= row.budget && fits(it, signals, now) }
-    if (candidates.isEmpty()) return
+    val candidates = catalogue.all()
+      .filter { it.cost <= row.budget && (mayBeBig || it.cost < config.bigEventCost) && fits(it, signals, now) }
+    if (candidates.isEmpty()) return null
 
     val random = Random(GenRng.hash(worldService.config.seed, signals.province.index.toLong(), now / ROLL_WINDOW_SECONDS))
-    if (random.nextDouble() >= config.startChance) return
+    if (random.nextDouble() >= config.startChance) return null
 
-    start(pickWeighted(candidates, random), signals, row, now)
+    return start(pickWeighted(candidates, random), signals, row, now)
+  }
+
+  private fun isBig(instance: WorldEventInstance): Boolean {
+    val cost = catalogue.of(instance.eventId)?.cost ?: return false
+    return cost >= config.bigEventCost
   }
 
   private fun fits(entry: WorldEventEntry, signals: ProvinceSignals, now: Long): Boolean {
