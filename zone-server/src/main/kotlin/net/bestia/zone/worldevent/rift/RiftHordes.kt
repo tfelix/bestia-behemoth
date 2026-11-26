@@ -27,7 +27,8 @@ import kotlin.random.Random
 /**
  * What comes out of an open rift. Every 20 to 30 minutes a wave of the province's own bestia, stronger with each
  * stage and touched by the mana, makes for the nearest town; fewer come while nobody watches the gate. At stage 3
- * the anchor steps out, and while it stands the rift cannot be sealed. When the rift ends, its creatures go with it.
+ * the anchor steps out, and while it stands the rift cannot be sealed. A wave in a town nobody guards sets it alight,
+ * see [WaveFires]. When the rift ends, its creatures go with it.
  *
  * On the tick, in the rift system's deferred block.
  */
@@ -42,6 +43,7 @@ class RiftHordes(
   private val worldService: WorldService,
   private val deletionQueue: PersistedEntityDeletionQueue,
   private val clock: BestiaClock,
+  private val fires: WaveFires,
 ) {
 
   /** Wave bestia by rift. Not persisted: they do not outlive a restart, the rift sends more. */
@@ -53,6 +55,7 @@ class RiftHordes(
         noteAnchorFall(world, rift)
         if (rift.stage >= rift.nextAnchorStage && rift.anchorEntityId == null && !rift.anchorSlain) callAnchor(world, rift)
         if (now >= rift.nextWaveAtSecond) sendWave(world, rift, now)
+        fires.tend(world, rift.id, waves[rift.id].orEmpty())
       } else {
         clear(world, rift)
       }
@@ -78,6 +81,7 @@ class RiftHordes(
   private fun sendWave(world: World, rift: StoredRift, now: Long) {
     val random = Random(rift.id * 31 + rift.nextWaveAtSecond)
     rift.nextWaveAtSecond = now + waveGap(random)
+    fires.newWave(rift.id)
 
     val kin = kinOf(rift)
     val from = gateGround(rift) ?: return
@@ -99,6 +103,7 @@ class RiftHordes(
   }
 
   private fun clear(world: World, rift: StoredRift) {
+    fires.forget(rift.id)
     waves.remove(rift.id)?.forEach { if (world.isAlive(it)) world.destroy(it) }
     rift.anchorEntityId?.let { anchor ->
       deletionQueue.enqueue(anchor)

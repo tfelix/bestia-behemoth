@@ -51,7 +51,7 @@ class RiftHordesTest {
   }
   private val clock = mockk<BestiaClock> { every { speedFactor } returns 3.0 }
 
-  private val sut = RiftHordes(RiftConfig(), provinces, dens, catalogue, spawner, chunks, worldService, mockk(relaxed = true), clock)
+  private val sut = RiftHordes(RiftConfig(), provinces, dens, catalogue, spawner, chunks, worldService, mockk(relaxed = true), clock, mockk(relaxed = true))
 
   private fun openRift(stage: Int) = StoredRift(x = 5_000.0, y = 5_000.0, phase = Phase.OPEN, stage = stage).also { it.id = 9 }
 
