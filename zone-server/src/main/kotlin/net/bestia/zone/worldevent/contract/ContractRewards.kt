@@ -32,13 +32,18 @@ class ContractRewards(
   private val world: WorldView,
 ) {
 
-  fun grant(key: ContributionLedger.Key, entry: WorldEventEntry, instance: WorldEventInstance) {
+  fun grant(
+    key: ContributionLedger.Key,
+    entry: WorldEventEntry,
+    instance: WorldEventInstance,
+    act: HonorAct = HonorAct.DEFEND_SETTLEMENT,
+  ) {
     val shares = ledger.sharesOf(key).filter { (_, share) -> share >= MIN_SHARE }
     ledger.forget(key)
     if (shares.isEmpty()) return
 
     val town = nearestTown(instance.x.toDouble(), instance.y.toDouble())
-    val local = honor.localAmountOf(HonorAct.DEFEND_SETTLEMENT)
+    val local = honor.localAmountOf(act)
     shares.forEach { (who, _) -> town?.let { honor.changeSettlement(who.masterId, who.masterName, it, local) } }
 
     val byMaster = shares.associate { (who, share) -> who.masterId to share }
@@ -50,7 +55,7 @@ class ContractRewards(
       }
 
       online.forEach { who ->
-        honor.rewardGlobal(this, HonorAct.DEFEND_SETTLEMENT, who.entity)
+        honor.rewardGlobal(this, act, who.entity)
         entry.loot.forEach { pile ->
           val itemId = itemTemplates.idOf(pile.item) ?: return@forEach
           val amount = (pile.amount * who.share).roundToInt().coerceAtLeast(1)
