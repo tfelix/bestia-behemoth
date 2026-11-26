@@ -1,5 +1,6 @@
 package net.bestia.zone.bus
 
+import net.bestia.bus.WorldRebirth
 import net.bestia.bus.AppPresence
 import net.bestia.bus.Directory
 import net.bestia.bus.EventPublisher
@@ -31,6 +32,19 @@ class NoBusConfiguration {
       override fun markOpen(accountIds: Collection<Long>, ttlSeconds: Long) {}
 
       override fun isOpen(accountId: Long): Boolean {
+        return false
+      }
+    }
+  }
+
+  @Bean
+  fun busWorldRebirth(): WorldRebirth {
+    return object : WorldRebirth {
+      override fun begin() {}
+
+      override fun end() {}
+
+      override fun isUnderway(): Boolean {
         return false
       }
     }

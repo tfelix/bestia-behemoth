@@ -12,5 +12,8 @@ enum class GameLoginError {
   INVALID_GRANT,
 
   /** The account exists but may not log in right now. */
-  ACCOUNT_UNAVAILABLE
+  ACCOUNT_UNAVAILABLE,
+
+  /** The world ended, and the next one is still being born. The client waits and tries again. */
+  WORLD_REBIRTH
 }

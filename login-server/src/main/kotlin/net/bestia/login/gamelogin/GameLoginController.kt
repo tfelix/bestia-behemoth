@@ -32,7 +32,8 @@ class GameLoginController(
   private val refreshTokenService: RefreshTokenService,
   private val jwtService: JwtService,
   private val rateLimiter: RateLimiter,
-  private val metrics: LoginMetrics
+  private val metrics: LoginMetrics,
+  private val worldGate: WorldRebirthGate,
 ) {
 
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
@@ -97,6 +98,8 @@ class GameLoginController(
     }
 
     return try {
+      // Before the browser opens: a sign-in finished there could not be used for a while.
+      worldGate.requireWorld()
       val started = loginSessionService.start(
         redirectUri = request.redirectUri,
         codeChallenge = request.codeChallenge,
@@ -161,6 +164,8 @@ class GameLoginController(
     }
 
     return try {
+      // Before the token is spent, so the client keeps the one it has and tries again later.
+      worldGate.requireWorld()
       val (account, refreshToken) = loginGrants.refresh(request.refreshToken, LoginClient.GAME)
       metrics.grantOk(LoginClient.GAME, GrantFlow.REFRESH)
 
@@ -219,6 +224,8 @@ class GameLoginController(
       GameLoginError.INVALID_REQUEST -> HttpStatus.BAD_REQUEST
       GameLoginError.INVALID_GRANT -> HttpStatus.BAD_REQUEST
       GameLoginError.ACCOUNT_UNAVAILABLE -> HttpStatus.FORBIDDEN
+      // Not a 4xx: the client throws a refused refresh token away, and this one is still good.
+      GameLoginError.WORLD_REBIRTH -> HttpStatus.SERVICE_UNAVAILABLE
     }
 
     // The enum is all the client is told. The reason lives in the log, because distinguishing an

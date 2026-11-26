@@ -9,6 +9,9 @@ object BusKeys {
   /** The consumer group that turns events into Web Push notifications. */
   const val WEBPUSH_GROUP = "webpush"
 
+  /** Set while a new world is being born, after the last one ended. */
+  const val WORLD_STATE = "world:state"
+
   /** The stream the login server appends its kick orders to. */
   const val KICKS = "kicks"
 
