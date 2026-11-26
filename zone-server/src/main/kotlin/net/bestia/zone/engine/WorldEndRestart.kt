@@ -1,6 +1,7 @@
 package net.bestia.zone.engine
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bus.WorldRebirth
 import net.bestia.zone.doomsday.WorldEndedEvent
 import net.bestia.zone.message.ConnectionTerminator
 import net.bestia.zone.message.OutMessageHandler
@@ -21,6 +22,7 @@ class WorldEndRestart(
   private val readiness: ZoneReadinessService,
   private val connections: OutMessageHandler,
   private val terminator: ConnectionTerminator,
+  private val rebirth: WorldRebirth,
   context: ConfigurableApplicationContext,
   /** Closing the context saves the world first, see [PersistOnShutdown]. */
   private val exit: (Int) -> Unit = { code -> exitProcess(SpringApplication.exit(context, ExitCodeGenerator { code })) },
@@ -29,6 +31,8 @@ class WorldEndRestart(
   @TransactionalEventListener(fallbackExecution = true)
   fun onWorldEnded(event: WorldEndedEvent) {
     readiness.refuseLogins()
+    // Without it the zone still ends the world. Players then see the connection lost, not the rebirth.
+    runCatching { rebirth.begin() }.onFailure { LOG.warn(it) { "Could not tell the login server a new world is born" } }
     val accounts = connections.connectedAccountIds
     accounts.forEach { terminator.disconnect(it, DISCONNECT_REASON) }
     LOG.warn { "World ended ${event.ending}: sent ${accounts.size} account(s) away, stopping the zone" }

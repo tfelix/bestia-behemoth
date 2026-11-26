@@ -106,6 +106,25 @@ class ValkeyAclTest {
     zone.shutdown()
   }
 
+  @Test
+  fun `the zone marks a rebirth that the login user may read but not write`() {
+    val login = connect("login", "login-dev-password")
+    val zone = connect("zone", "zone-dev-password")
+    val zoneSide = ValkeyWorldRebirth(zone)
+    val loginSide = ValkeyWorldRebirth(login)
+
+    zoneSide.begin()
+    assertTrue(loginSide.isUnderway())
+    assertThrows<RedisCommandExecutionException> { loginSide.end() }
+
+    zoneSide.end()
+    assertFalse(loginSide.isUnderway())
+
+    listOf(zoneSide, loginSide).forEach { it.close() }
+    login.shutdown()
+    zone.shutdown()
+  }
+
   private fun connect(user: String, password: String): RedisClient {
     val uri = RedisURI.Builder.redis(valkey.host, valkey.getMappedPort(6379))
       .withAuthentication(user, password.toCharArray())

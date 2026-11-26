@@ -42,7 +42,10 @@ enum class GameLoginReason(val error: GameLoginError) {
   REFRESH_REFUSED(GameLoginError.INVALID_GRANT),
 
   /** The account may not log in right now. */
-  BANNED(GameLoginError.ACCOUNT_UNAVAILABLE);
+  BANNED(GameLoginError.ACCOUNT_UNAVAILABLE),
+
+  /** No world to log in to: the last one ended and the next is being born. */
+  WORLD_REBIRTH(GameLoginError.WORLD_REBIRTH);
 
   /** The metric tag value. */
   val tag: String = name.lowercase()

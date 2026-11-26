@@ -1,6 +1,8 @@
 package net.bestia.zone.boot
 
 import net.bestia.zone.socket.ZoneReadinessService
+import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bus.WorldRebirth
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.core.Ordered
@@ -16,9 +18,16 @@ import org.springframework.stereotype.Component
 @Component
 @Order(Ordered.LOWEST_PRECEDENCE - 2)
 class ZoneReadyBootRunner(
-  private val zoneReadinessService: ZoneReadinessService
+  private val zoneReadinessService: ZoneReadinessService,
+  private val rebirth: WorldRebirth,
 ) : ApplicationRunner {
   override fun run(args: ApplicationArguments?) {
     zoneReadinessService.markReady()
+    // A failure leaves logins refused, so the zone says so loudly rather than refusing to start.
+    runCatching { rebirth.end() }.onFailure { LOG.error(it) { "Could not tell the login server the world is ready" } }
+  }
+
+  private companion object {
+    private val LOG = KotlinLogging.logger { }
   }
 }

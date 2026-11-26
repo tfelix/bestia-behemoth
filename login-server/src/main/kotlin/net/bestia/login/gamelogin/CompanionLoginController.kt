@@ -164,6 +164,7 @@ class CompanionLoginController(
       GameLoginError.INVALID_REQUEST -> HttpStatus.BAD_REQUEST
       GameLoginError.INVALID_GRANT -> HttpStatus.UNAUTHORIZED
       GameLoginError.ACCOUNT_UNAVAILABLE -> HttpStatus.FORBIDDEN
+      GameLoginError.WORLD_REBIRTH -> HttpStatus.SERVICE_UNAVAILABLE
     }
 
     val response = ResponseEntity.status(status)

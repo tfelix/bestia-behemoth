@@ -1,5 +1,7 @@
 package net.bestia.zone.bus
 
+import net.bestia.bus.WorldRebirth
+import net.bestia.bus.valkey.ValkeyWorldRebirth
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
 import net.bestia.bus.AppPresence
@@ -34,6 +36,11 @@ class BusConfiguration(private val properties: BusProperties) {
   @Bean(destroyMethod = "close")
   fun busAppPresence(busClient: RedisClient): AppPresence {
     return ValkeyAppPresence(busClient)
+  }
+
+  @Bean(destroyMethod = "close")
+  fun busWorldRebirth(busClient: RedisClient): WorldRebirth {
+    return ValkeyWorldRebirth(busClient)
   }
 
   @Bean(destroyMethod = "close")
