@@ -9,6 +9,8 @@ import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.entity.ecs.StaticVisual
 import net.bestia.zone.entity.ecs.WorldObjectIdentity
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.prop.PropDeathDivergenceSystem
 import net.bestia.zone.spawn.BestiaEntitySpawner
@@ -26,13 +28,14 @@ import org.springframework.stereotype.Component as SpringComponent
 class WorldBossSealSystem(
   private val seals: WorldBossSealService,
   private val bestiaEntitySpawner: BestiaEntitySpawner,
+  private val tremors: WorldTremors,
 ) : System {
 
   override val phase = Phase.DEATH
   override val before = setOf(PropDeathDivergenceSystem::class)
 
   override val reads: ComponentClassSet =
-    setOf(Dead::class, WorldObjectIdentity::class, StaticVisual::class, Position::class)
+    setOf(Dead::class, WorldObjectIdentity::class, StaticVisual::class, Position::class, Master::class, Account::class)
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Dead::class, WorldObjectIdentity::class, StaticVisual::class).each { id ->
@@ -43,6 +46,7 @@ class WorldBossSealSystem(
       val at = world.get(id, Position::class)?.toVec3L() ?: return@each
 
       bestiaEntitySpawner.spawnMob(world, boss, at, persistent = true)
+      tremors.feel(world, at)
       LOG.info { "Seal crystal $propId broke at $at; world boss $boss is awake" }
     }
   }

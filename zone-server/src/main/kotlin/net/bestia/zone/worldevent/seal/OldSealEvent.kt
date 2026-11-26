@@ -20,6 +20,7 @@ import net.bestia.zone.world.mana.ManaConcentrationService
 import net.bestia.zone.world.mana.ManaTier
 import net.bestia.zone.world.mana.ManaTiers
 import net.bestia.zone.world.time.BestiaClock
+import net.bestia.zone.worldboss.WorldTremors
 
 import net.bestia.zone.worldevent.ProvinceSignals
 import net.bestia.zone.worldevent.WorldEvent
@@ -47,6 +48,7 @@ class OldSealEvent(
   private val rumours: RumourService,
   private val worldService: WorldService,
   private val world: WorldView,
+  private val tremors: WorldTremors,
 ) : WorldEvent {
 
   override fun fits(signals: ProvinceSignals): Boolean = weakestIn(signals) != null
@@ -126,6 +128,7 @@ class OldSealEvent(
     }
     removal.removedUnseen(crystal.propId, StaticEntityKind.FIXTURE_SEAL_CRYSTAL, PropRemoval.Cause.GONE_FOR_GOOD)
     spawner.spawnMob(world, crystal.bossId, crystal.at, persistent = true)
+    tremors.feel(world, crystal.at)
   }
 
   private fun spill(world: World, stone: OldSeal.Stone) {
