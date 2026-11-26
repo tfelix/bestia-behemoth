@@ -20,6 +20,9 @@ namespace BestiaBehemothClient.Bnet.Message.Master
     [Export]
     public int BestiaSlotCount { get; set; }
 
+    [Export]
+    public ulong AccountId { get; set; }
+
     /// <summary>
     /// Creates a SelfSMSG message from protobuf data
     /// </summary>
@@ -31,7 +34,8 @@ namespace BestiaBehemothClient.Bnet.Message.Master
       {
         MasterId = protoSelf.MasterId,
         MasterEntityId = protoSelf.MasterEntityId,
-        BestiaSlotCount = (int)protoSelf.BestiaSlotCount
+        BestiaSlotCount = (int)protoSelf.BestiaSlotCount,
+        AccountId = protoSelf.AccountId
       };
 
       foreach (var bestia in protoSelf.AvailableBestias)

@@ -78,6 +78,7 @@ var _guild_tag: GuildTagComponentSMSG = null
 ## A player bestia's own name and its owner, for its name tag.
 var _bestia_tag: BestiaTagComponentSMSG = null
 var _item_enchantments: ItemEnchantmentsComponentSMSG = null
+var _loot_claim: LootClaimComponentSMSG = null
 
 # A quest board's open levels, kept for a visual that is built after they arrived.
 var _last_offer_msg: BlackboardOfferComponentSMSG
@@ -769,6 +770,8 @@ func _seed_visual(visual: Node) -> void:
 		visual.set_offer(_last_offer_msg.LevelsLow, _last_offer_msg.LevelsHigh)
 	if _item_enchantments != null and visual.has_method("set_item_enchantments"):
 		visual.set_item_enchantments(_item_enchantments)
+	if _loot_claim != null and visual.has_method("set_loot_claim"):
+		visual.set_loot_claim(_loot_claim)
 	if _level > 0 and visual.has_method("set_level"):
 		visual.set_level(_level)
 	if visual is Visual:
@@ -1528,6 +1531,13 @@ func update_item_enchantments(msg: ItemEnchantmentsComponentSMSG) -> void:
 	var visual = _get_visual_for_method("set_item_enchantments")
 	if visual != null:
 		visual.set_item_enchantments(_item_enchantments)
+
+
+func update_loot_claim(msg: LootClaimComponentSMSG) -> void:
+	_loot_claim = null if msg.Removed else msg
+	var visual = _get_visual_for_method("set_loot_claim")
+	if visual != null:
+		visual.set_loot_claim(_loot_claim)
 
 
 ## Null unless this is an item on the ground that carries an enchantment.

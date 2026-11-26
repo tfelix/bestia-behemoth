@@ -8,12 +8,18 @@ var _item_id: int = 0
 
 ## The glow of an item that carries an enchantment, a seal for now.
 const _ENCHANTED_TINT := Color(0.55, 0.25, 1.0)
+## Gold, so a drop held for this player stands out from the white sparkles every item has.
+const _CLAIM_GLITTER_TINT := Color(1.0, 0.78, 0.25)
+## How see-through a drop is while only other players may pick it up.
+const _CLAIMED_BY_OTHERS_TRANSPARENCY := 0.5
 
 @onready var player = $AnimationPlayer
 @onready var sparkles = $Sparkles
 @onready var _countdown_ring: CountdownRing = $CountdownRing
 
 var _plain_sparkles: Material = null
+var _claim_glitter: GPUParticles3D = null
+var _claimed_by_others := false
 
 
 func setup_visual(msg: VisualComponentSMSG) -> void:
@@ -24,7 +30,7 @@ func setup_visual(msg: VisualComponentSMSG) -> void:
 func _ready() -> void:
 	player.play("appear")
 	await player.animation_finished
-	sparkles.visible = true
+	sparkles.visible = not _claimed_by_others
 
 
 ## Null when the item carries none. The enchantment that ends first draws the ring.
@@ -42,6 +48,49 @@ func set_item_enchantments(msg: ItemEnchantmentsComponentSMSG) -> void:
 		_countdown_ring.stop()
 	else:
 		_countdown_ring.start(msg.RemainingSeconds[soonest], msg.TotalSeconds[soonest])
+
+
+## Null when anybody may pick the item up. A holder sees it glitter; everyone else sees it faded.
+func set_loot_claim(msg: LootClaimComponentSMSG) -> void:
+	var held_for_me := msg != null and msg.HolderAccountIds.has(ConnectionManager.account_id)
+	_show_claim_glitter(held_for_me)
+	_fade(msg != null and not held_for_me)
+
+
+func _show_claim_glitter(shown: bool) -> void:
+	if _claim_glitter == null:
+		if not shown:
+			return
+		_claim_glitter = _make_claim_glitter()
+		add_child(_claim_glitter)
+	_claim_glitter.visible = shown
+	_claim_glitter.emitting = shown
+
+
+## A denser, golden copy of the sparkles, so it rises from the same spot as they do.
+func _make_claim_glitter() -> GPUParticles3D:
+	var glitter := sparkles.duplicate() as GPUParticles3D
+	var gold := (_plain_sparkles if _plain_sparkles != null else sparkles.material_override).duplicate() as StandardMaterial3D
+	gold.albedo_color = _CLAIM_GLITTER_TINT
+	gold.emission = _CLAIM_GLITTER_TINT
+	gold.emission_energy_multiplier = 2.5
+	glitter.material_override = gold
+	# Smaller and more of them than the sparkles, so it reads as glitter rather than as more sparkles.
+	var flake := QuadMesh.new()
+	flake.size = Vector2(0.08, 0.08)
+	glitter.draw_pass_1 = flake
+	glitter.amount = 24
+	glitter.lifetime = 1.0
+	return glitter
+
+
+func _fade(faded: bool) -> void:
+	_claimed_by_others = faded
+	sparkles.visible = not faded
+	for node: GeometryInstance3D in find_children("*", "GeometryInstance3D", true, false):
+		if node is GPUParticles3D or _countdown_ring.is_ancestor_of(node):
+			continue
+		node.transparency = _CLAIMED_BY_OTHERS_TRANSPARENCY if faded else 0.0
 
 
 ## The sparkle material is shared by every item, so an enchanted one gets a copy of its own.

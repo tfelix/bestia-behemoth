@@ -463,6 +463,8 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 		entity.update_bestia_tag(msg)
 	elif msg is ItemEnchantmentsComponentSMSG:
 		entity.update_item_enchantments(msg)
+	elif msg is LootClaimComponentSMSG:
+		entity.update_loot_claim(msg)
 	else:
 		printerr("EntityManager: An EntitySMSG type %s for entity %s was not handled" % [msg.GetMessageName(), msg.EntityId])
 	# Server sends vanish information -> remove the node + potentially buffered stuff
