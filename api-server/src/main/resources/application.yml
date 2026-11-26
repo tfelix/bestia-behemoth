@@ -29,6 +29,11 @@ spring:
       # A bug report: a screenshot and a chunk dump of up to 4 MiB each, and a few text files.
       max-file-size: 5MB
       max-request-size: 12MB
+  http:
+    client:
+      # The only outgoing REST client is the bug report publisher's; a hanging GitHub call must not stall it.
+      connect-timeout: 10s
+      read-timeout: 30s
   flyway:
     enabled: true
     locations: classpath:db/migration
@@ -57,6 +62,11 @@ bug-reports:
   # Reports one account may send per hour and per day. Remove a line for no limit.
   per-hour: 10
   per-day: 30
+  github:
+    # token (BUG_REPORTS_GITHUB_TOKEN), repo (BUG_REPORTS_GITHUB_REPO): the private reports repo. Without both,
+    # reports are kept here and nothing is published. Give the token to one api-server instance only.
+    branch: main
+    publish-interval: PT10S
 
 springdoc:
   paths-to-match: /v1/companion/**
