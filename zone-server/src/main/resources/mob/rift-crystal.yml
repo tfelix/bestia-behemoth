@@ -1,0 +1,33 @@
+id: 121
+identifier: rift_crystal
+# An open rift grows one per stage around its gate, at ten levels per stage, whatever this range says.
+level-min: 10
+level-max: 50
+name: Rift Crystal
+description: >-
+  A violet crystal that grows out of the ground around an open rift and drinks from it. Broken, it keeps the mana it
+  held, and the rift is poorer for it.
+kind: FORMLESS
+element: GHOST
+size: MEDIUM
+default-attack: MELEE
+aspd: 90
+# No AI, so it never strikes; the importer still wants a positive figure.
+attack-power: 0.03
+weight: 400
+health: 3000
+mana: 0
+experience: 300
+attributes: { strength: 1, intelligence: 1, vitality: 60, dexterity: 1, willpower: 40, agility: 1 }
+learnset: []
+# No AI: a crystal does not move or fight back. Grown by a rift only (RiftCrystals).
+event-only: true
+compendium: false
+habitat: []
+spawn-weight: 0
+status-immunities: [STUN, FROZEN, STONING, FEARED, CONFUSED, CONTROLLED]
+equip-slots: []
+armor-types: []
+loot:
+  - { item: mana_crystal, chance: 10000 }
+  - { item: mana_crystal, chance: 5000 }
