@@ -39,7 +39,7 @@ class Dispel(
   }
 
   companion object {
-    /** master.md, Dispel: before the enchantment's strength is taken off. */
+    /** master.md, Dispel: the chance against an enchantment no stronger than the cast. */
     fun groundItemChancePercent(skillLevel: Int): Int {
       return 50 + 10 * skillLevel
     }

@@ -16,4 +16,6 @@ itemEnchantments:
   - id: 2
     identifier: KEEPSAKE_WARD
     dispellable: true
+    # A Dispel of less Potency cannot break it at all.
+    dispelThreshold: 60
     script: KeepsakeWardEnchantment

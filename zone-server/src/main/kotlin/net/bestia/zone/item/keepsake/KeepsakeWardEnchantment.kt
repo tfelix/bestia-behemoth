@@ -29,8 +29,8 @@ class KeepsakeWardEnchantment(
   }
 
   companion object {
-    /** Dispel takes this off its chance, so only Dispel Lv. 4 and 5 can break it: 10 and 20 percent. */
-    const val STRENGTH = 80
+    /** A fixed Potency above the seal's. Its threshold in `item_enchantments.yml` keeps weak casters off it. */
+    const val STRENGTH = 400
 
     val SENDS_HOME_AFTER: Duration = Duration.ofSeconds(60)
 

@@ -7,4 +7,6 @@ data class ItemEnchantmentDefinition(
   val script: String,
   /** False for an enchantment no Dispel may break. */
   val dispellable: Boolean = true,
+  /** A Dispel of less Potency than this cannot break it at all. */
+  val dispelThreshold: Int = 0,
 )
