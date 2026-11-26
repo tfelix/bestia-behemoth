@@ -4,12 +4,14 @@ import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
 import net.bestia.api.ApiScenarioTestBase
 import net.bestia.api.ApiTestContainers
+import net.bestia.api.RecordingGitHub
 import net.bestia.bus.contract.BusReply
 import net.bestia.bus.contract.ZoneAnswer
 import net.bestia.bus.contract.ZoneQuery
 import net.bestia.bus.valkey.ValkeyRequestServer
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.TestRestTemplate
@@ -19,7 +21,9 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.util.LinkedMultiValueMap
+import java.time.LocalDateTime
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -37,6 +41,12 @@ class BugReportScenarioTest : ApiScenarioTestBase() {
 
   @Autowired
   private lateinit var bans: BugReportBanRepository
+
+  @Autowired
+  private lateinit var publisher: BugReportPublisher
+
+  @Autowired
+  private lateinit var github: RecordingGitHub
 
   private lateinit var zoneClient: RedisClient
   private lateinit var zone: ValkeyRequestServer
@@ -62,6 +72,11 @@ class BugReportScenarioTest : ApiScenarioTestBase() {
   fun stopZone() {
     zone.close()
     zoneClient.shutdown()
+  }
+
+  @BeforeEach
+  fun githubUp() {
+    github.down = false
   }
 
   @Test
@@ -139,6 +154,46 @@ class BugReportScenarioTest : ApiScenarioTestBase() {
     assertEquals(BugReport.Status.SHADOWED, report.status)
     assertNull(report.text)
     assertTrue(files.findAllByReportId(report.id).isEmpty())
+  }
+
+  @Test
+  fun `a waiting report becomes an issue, its files committed and then dropped here`() {
+    send(9106, mapOf("text" to "Trees float", "screenshot" to file(JPEG), "context" to file("""{"os":"Linux"}""".toByteArray())))
+    val waiting = reports.findAll().single { it.accountId == 9106L }
+
+    publisher.publishDue()
+
+    val sent = reports.findById(waiting.id).get()
+    assertEquals(BugReport.Status.SENT, sent.status)
+    val issue = github.issues.single { it.number == sent.issueNumber }
+    assertEquals("Trees float", issue.title)
+    assertTrue("| `os` | Linux |" in issue.body)
+    val folder = "reports/%04d/%02d/%d".format(sent.createdAt.year, sent.createdAt.monthValue, sent.id)
+    assertTrue(github.commits.any { it.keys == setOf("$folder/screenshot.jpg", "$folder/context.json") })
+    assertTrue(files.findAllByReportId(sent.id).isEmpty())
+  }
+
+  @Test
+  fun `while GitHub is down a report waits, and is tried again once its backoff is over`() {
+    send(9107, mapOf("text" to "Rain falls upwards"))
+    val waiting = reports.findAll().single { it.accountId == 9107L }
+    github.down = true
+
+    publisher.publishDue()
+
+    val failed = reports.findById(waiting.id).get()
+    assertEquals(BugReport.Status.PENDING, failed.status)
+    assertEquals(1, failed.attempts)
+    assertTrue(assertNotNull(failed.nextAttemptAt).isAfter(LocalDateTime.now()))
+
+    github.down = false
+    publisher.publishDue()
+    assertEquals(BugReport.Status.PENDING, reports.findById(waiting.id).get().status)
+
+    failed.nextAttemptAt = LocalDateTime.now().minusSeconds(1)
+    reports.save(failed)
+    publisher.publishDue()
+    assertEquals(BugReport.Status.SENT, reports.findById(waiting.id).get().status)
   }
 
   private fun send(accountId: Long, parts: Map<String, Any>): ResponseEntity<String> {

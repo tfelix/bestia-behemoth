@@ -91,6 +91,8 @@ services:
       PUSH_VAPID_PRIVATE_KEY: ${PUSH_VAPID_PRIVATE_KEY:?}
       BUS_USERNAME: api
       BUS_PASSWORD: ${BUS_API_PASSWORD:?}
+      BUG_REPORTS_GITHUB_TOKEN: ${BUG_REPORTS_GITHUB_TOKEN:-}
+      BUG_REPORTS_GITHUB_REPO: ${BUG_REPORTS_GITHUB_REPO:-}
     depends_on:
       api-db: { condition: service_healthy }
       valkey: { condition: service_healthy }
