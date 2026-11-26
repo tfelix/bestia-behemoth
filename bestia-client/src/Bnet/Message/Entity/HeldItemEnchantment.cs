@@ -15,13 +15,19 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// <summary><c>Time.GetTicksMsec()</c> at its end; 0 for an enchantment without an end.</summary>
     [Export] public ulong EndsAtMsec { get; set; }
 
+    /// <summary>The element an endow lends the weapon, like <c>"FIRE"</c>; empty for anything else.</summary>
+    [Export] public string Element { get; set; } = "";
+
     public static HeldItemEnchantment FromProto(global::Bnet.HeldItemEnchantment proto)
     {
       var endsAtMsec = proto.RemainingSeconds > 0
         ? Time.GetTicksMsec() + (ulong)(proto.RemainingSeconds * 1000)
         : 0;
 
-      return new HeldItemEnchantment { EnchantmentId = proto.EnchantmentId, EndsAtMsec = endsAtMsec };
+      return new HeldItemEnchantment
+      {
+        EnchantmentId = proto.EnchantmentId, EndsAtMsec = endsAtMsec, Element = proto.Element
+      };
     }
 
     public static Godot.Collections.Array<HeldItemEnchantment> FromProto(

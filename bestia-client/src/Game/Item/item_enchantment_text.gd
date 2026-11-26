@@ -17,19 +17,27 @@ static func line(enchantment) -> String:
 ## Like [method line], with a deadline mark in place of the time left.
 static func marked_line(enchantment) -> String:
 	var enchantment_name := TranslationServer.translate("ITEM_ENCHANTMENT_%d" % enchantment.EnchantmentId)
+	if not enchantment.Element.is_empty():
+		var element_name := TranslationServer.translate("ELEMENT_" + enchantment.Element)
+		enchantment_name = enchantment_name.format({"element": element_name})
 	if enchantment.EndsAtMsec == 0:
 		return enchantment_name
 	return "%s · {ends_at_msec:%d}" % [enchantment_name, enchantment.EndsAtMsec]
 
 
 ## [param text] with every deadline mark turned into the time left now.
+##
+## Past the deadline it says the enchantment wore off: the server takes an ended one off worn gear at once, but a
+## copy lying in the bag keeps it until the bag is sent again.
 static func with_time_left(text: String) -> String:
 	var now := Time.get_ticks_msec()
 	var shown := text
 	for mark in _deadline_mark.search_all(text):
-		var seconds_left := maxf((mark.get_string(1).to_int() - now) / 1000.0, 0.0)
-		var time_left := TranslationServer.translate("ITEM_ENCHANTMENT_TIME_LEFT").format(
-			{"time": DurationText.short(seconds_left)}
-		)
+		var seconds_left := (mark.get_string(1).to_int() - now) / 1000.0
+		var time_left := TranslationServer.translate("ITEM_ENCHANTMENT_ENDED")
+		if seconds_left > 0.0:
+			time_left = TranslationServer.translate("ITEM_ENCHANTMENT_TIME_LEFT").format(
+				{"time": DurationText.short(seconds_left)}
+			)
 		shown = shown.replace(mark.get_string(), time_left)
 	return shown
