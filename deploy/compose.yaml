@@ -93,6 +93,7 @@ services:
       BUS_PASSWORD: ${BUS_API_PASSWORD:?}
       BUG_REPORTS_GITHUB_TOKEN: ${BUG_REPORTS_GITHUB_TOKEN:-}
       BUG_REPORTS_GITHUB_REPO: ${BUG_REPORTS_GITHUB_REPO:-}
+      ADMIN_TOKEN: ${API_ADMIN_TOKEN:-}
     depends_on:
       api-db: { condition: service_healthy }
       valkey: { condition: service_healthy }

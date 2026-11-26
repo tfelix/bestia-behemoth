@@ -1,5 +1,5 @@
 # One origin for everything a player's browser talks to. Caddy gets the TLS certificate for BESTIA_HOST itself.
-# Not routed on purpose: the login server's admin API and both servers' actuator endpoints.
+# Not routed on purpose: the admin APIs of the login server and the api-server, and the actuator endpoints.
 {$BESTIA_HOST} {
 	encode zstd gzip
 

@@ -58,6 +58,9 @@ push:
   # Notifications one account may receive per hour; the rest of that hour's events are dropped.
   per-account-per-hour: 6
 
+admin:
+  # token (API_ADMIN_TOKEN): the bearer token of /v1/admin/, which the proxy does not route. Unset: no admin API.
+
 bug-reports:
   # Reports one account may send per hour and per day. Remove a line for no limit.
   per-hour: 10
