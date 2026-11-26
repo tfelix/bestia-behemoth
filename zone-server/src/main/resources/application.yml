@@ -402,6 +402,30 @@ mana:
     wound-young-share: 0.1
     wound-full-age-days: 180
 
+# The doomsday: one threat per world that sets in after months and ends the world, or the world outlives it. Days
+# are real days of world age. See the doomsday server page.
+doomsday:
+  enabled: true
+  onset-min-days: 180
+  onset-spread-days: 90
+  unfold-min-days: 180
+  unfold-max-days: 365
+  # The Foreshadowing strikes at this share of the time before onset.
+  foreshadow-at-min: 0.4
+  foreshadow-at-max: 0.6
+  # A world still standing at this percentage of its life span is saved.
+  saved-at-t: 150
+  # Ages the world faster for the doomsday only. 30 makes a real day count as a month, for test servers.
+  time-scale: 1
+  min-pace: 0.25
+  max-pace: 3.0
+  stage-hysteresis: 0.02
+  # Alpha tests: force the threat, the Foreshadowing or the origin (metres) of a new world.
+  # force-kind: VOID_TEAR
+  # force-foreshadow: MANA_STORM_SEASON
+  # force-origin-x: 64000
+  # force-origin-y: 64000
+
 # How often the World Event Director may start an event in a province. Events themselves are in world_events.yml.
 world-events:
   enabled: true
