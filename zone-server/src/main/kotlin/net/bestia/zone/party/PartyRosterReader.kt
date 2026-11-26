@@ -2,6 +2,7 @@ package net.bestia.zone.party
 
 import net.bestia.zone.account.persistence.PartyRepository
 import net.bestia.zone.identity.ecs.PartyExpShare
+import net.bestia.zone.identity.ecs.PartyLootShare
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.PlayerBestiaId
 import org.springframework.data.repository.findByIdOrNull
@@ -22,6 +23,7 @@ class PartyRosterReader(
     val name: String,
     val ownerMasterId: Long,
     val expShare: PartyExpShare,
+    val lootShare: PartyLootShare,
     /** The owner first, then by name. */
     val members: List<MemberRow>,
   )
@@ -54,7 +56,7 @@ class PartyRosterReader(
         )
       }
 
-    return Rows(party.id, party.name, party.owner.id, party.expShare, members)
+    return Rows(party.id, party.name, party.owner.id, party.expShare, party.lootShare, members)
   }
 
   @Transactional(readOnly = true)

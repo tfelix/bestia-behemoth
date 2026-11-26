@@ -6,7 +6,7 @@ import net.bestia.zone.identity.ecs.PartyMembership
 
 /** The roster of this party, owner included, as a member's entity carries it. Read inside the loading transaction. */
 fun Party.membership(): PartyMembership {
-  return PartyMembership(id, everyone.map { it.asMember() }.toSet(), expShare)
+  return PartyMembership(id, everyone.map { it.asMember() }.toSet(), expShare, lootShare)
 }
 
 fun Master.asMember(): PartyMembership.Member = PartyMembership.Member(accountId = account.id, masterId = id)

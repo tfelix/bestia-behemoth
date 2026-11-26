@@ -123,6 +123,7 @@ class PartyRosterPublisher(
       partyName = rows.name,
       member = members,
       expShare = rows.expShare,
+      lootShare = rows.lootShare,
       ownerMasterId = rows.ownerMasterId,
     )
   }

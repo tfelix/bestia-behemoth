@@ -25,31 +25,34 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiRtZXNzYWdlcy9wYXJ0eS9wYXJ0eV9pbmZvX3Ntc2cucHJvdG8SBGJuZXQa",
-            "E21lc3NhZ2VzL3ZlYzMucHJvdG8imQEKDVBhcnR5SW5mb1NNU0cSEAoIcGFy",
+            "E21lc3NhZ2VzL3ZlYzMucHJvdG8iwwEKDVBhcnR5SW5mb1NNU0cSEAoIcGFy",
             "dHlfaWQYASABKAQSEgoKcGFydHlfbmFtZRgCIAEoCRIhCgZtZW1iZXIYAyAD",
             "KAsyES5ibmV0LlBhcnR5TWVtYmVyEiYKCWV4cF9zaGFyZRgEIAEoDjITLmJu",
-            "ZXQuUGFydHlFeHBTaGFyZRIXCg9vd25lcl9tYXN0ZXJfaWQYBSABKAQinwEK",
-            "C1BhcnR5TWVtYmVyEhMKC21hc3Rlcl9uYW1lGAEgASgJEjUKC29ubGluZV9k",
-            "YXRhGAIgASgLMhsuYm5ldC5QYXJ0eU1lbWJlck9ubGluZURhdGFIAIgBARIS",
-            "CgphY2NvdW50X2lkGAMgASgEEhEKCW1hc3Rlcl9pZBgEIAEoBBINCgVsZXZl",
-            "bBgFIAEoDUIOCgxfb25saW5lX2RhdGEi7gEKFVBhcnR5TWVtYmVyT25saW5l",
-            "RGF0YRIRCgllbnRpdHlfaWQYASABKAYSEQoJYXJlYV9uYW1lGAIgASgJEhwK",
-            "CHBvc2l0aW9uGAMgASgLMgouYm5ldC5WZWMzEhIKCmhwX2N1cnJlbnQYBCAB",
-            "KA0SDgoGaHBfbWF4GAUgASgNEhQKDG1hbmFfY3VycmVudBgGIAEoDRIQCght",
-            "YW5hX21heBgHIAEoDRIzCg1hY3RpdmVfYmVzdGlhGAggASgLMhcuYm5ldC5Q",
-            "YXJ0eU1lbWJlckJlc3RpYUgAiAEBQhAKDl9hY3RpdmVfYmVzdGlhIqMBChFQ",
-            "YXJ0eU1lbWJlckJlc3RpYRIRCgllbnRpdHlfaWQYASABKAYSEgoKc3BlY2ll",
-            "c19pZBgCIAEoBBIMCgRuYW1lGAMgASgJEg0KBWxldmVsGAQgASgNEhIKCmhw",
-            "X2N1cnJlbnQYBSABKA0SDgoGaHBfbWF4GAYgASgNEhQKDG1hbmFfY3VycmVu",
-            "dBgHIAEoDRIQCghtYW5hX21heBgIIAEoDSpvCg1QYXJ0eUV4cFNoYXJlEh8K",
-            "G1BBUlRZX0VYUF9TSEFSRV9VTlNQRUNJRklFRBAAEh0KGVBBUlRZX0VYUF9T",
-            "SEFSRV9FQUNIX1RBS0UQARIeChpQQVJUWV9FWFBfU0hBUkVfRVZFTl9TSEFS",
-            "RRACQisKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ISUGFydHlJbmZvU21zZ1By",
-            "b3RvYgZwcm90bzM="));
+            "ZXQuUGFydHlFeHBTaGFyZRIXCg9vd25lcl9tYXN0ZXJfaWQYBSABKAQSKAoK",
+            "bG9vdF9zaGFyZRgGIAEoDjIULmJuZXQuUGFydHlMb290U2hhcmUinwEKC1Bh",
+            "cnR5TWVtYmVyEhMKC21hc3Rlcl9uYW1lGAEgASgJEjUKC29ubGluZV9kYXRh",
+            "GAIgASgLMhsuYm5ldC5QYXJ0eU1lbWJlck9ubGluZURhdGFIAIgBARISCgph",
+            "Y2NvdW50X2lkGAMgASgEEhEKCW1hc3Rlcl9pZBgEIAEoBBINCgVsZXZlbBgF",
+            "IAEoDUIOCgxfb25saW5lX2RhdGEi7gEKFVBhcnR5TWVtYmVyT25saW5lRGF0",
+            "YRIRCgllbnRpdHlfaWQYASABKAYSEQoJYXJlYV9uYW1lGAIgASgJEhwKCHBv",
+            "c2l0aW9uGAMgASgLMgouYm5ldC5WZWMzEhIKCmhwX2N1cnJlbnQYBCABKA0S",
+            "DgoGaHBfbWF4GAUgASgNEhQKDG1hbmFfY3VycmVudBgGIAEoDRIQCghtYW5h",
+            "X21heBgHIAEoDRIzCg1hY3RpdmVfYmVzdGlhGAggASgLMhcuYm5ldC5QYXJ0",
+            "eU1lbWJlckJlc3RpYUgAiAEBQhAKDl9hY3RpdmVfYmVzdGlhIqMBChFQYXJ0",
+            "eU1lbWJlckJlc3RpYRIRCgllbnRpdHlfaWQYASABKAYSEgoKc3BlY2llc19p",
+            "ZBgCIAEoBBIMCgRuYW1lGAMgASgJEg0KBWxldmVsGAQgASgNEhIKCmhwX2N1",
+            "cnJlbnQYBSABKA0SDgoGaHBfbWF4GAYgASgNEhQKDG1hbmFfY3VycmVudBgH",
+            "IAEoDRIQCghtYW5hX21heBgIIAEoDSpvCg1QYXJ0eUV4cFNoYXJlEh8KG1BB",
+            "UlRZX0VYUF9TSEFSRV9VTlNQRUNJRklFRBAAEh0KGVBBUlRZX0VYUF9TSEFS",
+            "RV9FQUNIX1RBS0UQARIeChpQQVJUWV9FWFBfU0hBUkVfRVZFTl9TSEFSRRAC",
+            "KnUKDlBhcnR5TG9vdFNoYXJlEiAKHFBBUlRZX0xPT1RfU0hBUkVfVU5TUEVD",
+            "SUZJRUQQABIgChxQQVJUWV9MT09UX1NIQVJFX1BBUlRZX1NIQVJFEAESHwob",
+            "UEFSVFlfTE9PVF9TSEFSRV9UQUtFX1RVUk5TEAJCKwoVbmV0LmJlc3RpYS5i",
+            "bmV0LnByb3RvQhJQYXJ0eUluZm9TbXNnUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, },
-          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.PartyExpShare), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.PartyInfoSMSG), global::Bnet.PartyInfoSMSG.Parser, new[]{ "PartyId", "PartyName", "Member", "ExpShare", "OwnerMasterId" }, null, null, null, null),
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.PartyExpShare), typeof(global::Bnet.PartyLootShare), }, null, new pbr::GeneratedClrTypeInfo[] {
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.PartyInfoSMSG), global::Bnet.PartyInfoSMSG.Parser, new[]{ "PartyId", "PartyName", "Member", "ExpShare", "OwnerMasterId", "LootShare" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.PartyMember), global::Bnet.PartyMember.Parser, new[]{ "MasterName", "OnlineData", "AccountId", "MasterId", "Level" }, new[]{ "OnlineData" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.PartyMemberOnlineData), global::Bnet.PartyMemberOnlineData.Parser, new[]{ "EntityId", "AreaName", "Position", "HpCurrent", "HpMax", "ManaCurrent", "ManaMax", "ActiveBestia" }, new[]{ "ActiveBestia" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.PartyMemberBestia), global::Bnet.PartyMemberBestia.Parser, new[]{ "EntityId", "SpeciesId", "Name", "Level", "HpCurrent", "HpMax", "ManaCurrent", "ManaMax" }, null, null, null, null)
@@ -71,12 +74,24 @@ namespace Bnet {
     [pbr::OriginalName("PARTY_EXP_SHARE_EVEN_SHARE")] EvenShare = 2,
   }
 
+  public enum PartyLootShare {
+    [pbr::OriginalName("PARTY_LOOT_SHARE_UNSPECIFIED")] Unspecified = 0,
+    /// <summary>
+    /// Every member may pick up every drop of a kill the party won.
+    /// </summary>
+    [pbr::OriginalName("PARTY_LOOT_SHARE_PARTY_SHARE")] PartyShare = 1,
+    /// <summary>
+    /// Each drop is held for the next member near the kill, before the whole party may pick it up.
+    /// </summary>
+    [pbr::OriginalName("PARTY_LOOT_SHARE_TAKE_TURNS")] TakeTurns = 2,
+  }
+
   #endregion
 
   #region Messages
   /// <summary>
   /// The full party roster, pushed to every playing member whenever it changes: the party is created, a member
-  /// joins, leaves or is kicked, the EXP mode changes, a member comes online or goes offline, levels up, or
+  /// joins, leaves or is kicked, the EXP or loot mode changes, a member comes online or goes offline, levels up, or
   /// switches the entity they play. Offline members are listed without online_data.
   ///
   /// Also the answer to RequestPartyInfoCMSG, where party_id 0 and no members means "in no party".
@@ -121,6 +136,7 @@ namespace Bnet {
       member_ = other.member_.Clone();
       expShare_ = other.expShare_;
       ownerMasterId_ = other.ownerMasterId_;
+      lootShare_ = other.lootShare_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -189,6 +205,18 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "loot_share" field.</summary>
+    public const int LootShareFieldNumber = 6;
+    private global::Bnet.PartyLootShare lootShare_ = global::Bnet.PartyLootShare.Unspecified;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.PartyLootShare LootShare {
+      get { return lootShare_; }
+      set {
+        lootShare_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -209,6 +237,7 @@ namespace Bnet {
       if(!member_.Equals(other.member_)) return false;
       if (ExpShare != other.ExpShare) return false;
       if (OwnerMasterId != other.OwnerMasterId) return false;
+      if (LootShare != other.LootShare) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -221,6 +250,7 @@ namespace Bnet {
       hash ^= member_.GetHashCode();
       if (ExpShare != global::Bnet.PartyExpShare.Unspecified) hash ^= ExpShare.GetHashCode();
       if (OwnerMasterId != 0UL) hash ^= OwnerMasterId.GetHashCode();
+      if (LootShare != global::Bnet.PartyLootShare.Unspecified) hash ^= LootShare.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -256,6 +286,10 @@ namespace Bnet {
         output.WriteRawTag(40);
         output.WriteUInt64(OwnerMasterId);
       }
+      if (LootShare != global::Bnet.PartyLootShare.Unspecified) {
+        output.WriteRawTag(48);
+        output.WriteEnum((int) LootShare);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -283,6 +317,10 @@ namespace Bnet {
         output.WriteRawTag(40);
         output.WriteUInt64(OwnerMasterId);
       }
+      if (LootShare != global::Bnet.PartyLootShare.Unspecified) {
+        output.WriteRawTag(48);
+        output.WriteEnum((int) LootShare);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -305,6 +343,9 @@ namespace Bnet {
       }
       if (OwnerMasterId != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(OwnerMasterId);
+      }
+      if (LootShare != global::Bnet.PartyLootShare.Unspecified) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) LootShare);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -330,6 +371,9 @@ namespace Bnet {
       }
       if (other.OwnerMasterId != 0UL) {
         OwnerMasterId = other.OwnerMasterId;
+      }
+      if (other.LootShare != global::Bnet.PartyLootShare.Unspecified) {
+        LootShare = other.LootShare;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -370,6 +414,10 @@ namespace Bnet {
             OwnerMasterId = input.ReadUInt64();
             break;
           }
+          case 48: {
+            LootShare = (global::Bnet.PartyLootShare) input.ReadEnum();
+            break;
+          }
         }
       }
     #endif
@@ -407,6 +455,10 @@ namespace Bnet {
           }
           case 40: {
             OwnerMasterId = input.ReadUInt64();
+            break;
+          }
+          case 48: {
+            LootShare = (global::Bnet.PartyLootShare) input.ReadEnum();
             break;
           }
         }

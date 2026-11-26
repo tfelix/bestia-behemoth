@@ -10,6 +10,7 @@ import net.bestia.zone.config.PartyRulesConfig
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.identity.ecs.PartyExpShare
+import net.bestia.zone.identity.ecs.PartyLootShare
 import net.bestia.zone.identity.ecs.PartyMembership
 import net.bestia.zone.persistence.afterCommit
 import net.bestia.zone.session.ConnectionInfoService
@@ -311,15 +312,18 @@ class PartyService(
   /** The owner picks how the party shares kill EXP. @return the party changed */
   @Transactional
   fun setExpShare(accountId: AccountId, expShare: PartyExpShare): Long {
-    val requester = masterResolver.getSelectedMasterByAccountId(accountId)
-    val partyId = requester.party?.id ?: throw NotPartyException()
-    val party = partyRepository.findByIdForUpdateOrThrow(partyId)
-
-    if (party.owner.id != requester.id) {
-      throw NotPartyOwnerException()
-    }
-
+    val party = ownedPartyOf(accountId)
     party.expShare = expShare
+    syncPartyMembershipComponents(party)
+
+    return party.id
+  }
+
+  /** The owner picks how the party holds the drops of its kills. @return the party changed */
+  @Transactional
+  fun setLootShare(accountId: AccountId, lootShare: PartyLootShare): Long {
+    val party = ownedPartyOf(accountId)
+    party.lootShare = lootShare
     syncPartyMembershipComponents(party)
 
     return party.id
@@ -372,6 +376,19 @@ class PartyService(
    * change has committed: a rolled back change must not leave the component ahead of the row. Members not being
    * played get the roster when they next log in.
    */
+  /** The party [accountId]'s master owns, locked for the change. */
+  private fun ownedPartyOf(accountId: AccountId): Party {
+    val requester = masterResolver.getSelectedMasterByAccountId(accountId)
+    val partyId = requester.party?.id ?: throw NotPartyException()
+    val party = partyRepository.findByIdForUpdateOrThrow(partyId)
+
+    if (party.owner.id != requester.id) {
+      throw NotPartyOwnerException()
+    }
+
+    return party
+  }
+
   private fun syncPartyMembershipComponents(party: Party) {
     val membership = party.membership()
 
