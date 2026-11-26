@@ -47,6 +47,7 @@ class RiftSystem(
   private val seals: RiftSeals,
   private val statusEffects: StatusEffectService,
   private val omens: OmenRaiser,
+  private val crystals: RiftCrystals,
 ) : System {
 
   private val lifecycle = RiftLifecycle(config, RiftField(field, ground), realSecondsPerBestiaSecond = 1.0 / clock.speedFactor)
@@ -77,6 +78,7 @@ class RiftSystem(
       keepGates(world, active)
       val sealed = active.filter { rift -> gates[rift.id]?.let { seals.tend(world, rift, it, now) } == true }
       hordes.tend(world, active, now)
+      crystals.tend(world, active, now)
       keepGates(world, active)
       rifts.saveAll(active)
       news.filter { (_, what) -> what == News.COLLAPSED }.forEach { (rift, _) -> omens.raiseAt(world, rift.x, rift.y) }
