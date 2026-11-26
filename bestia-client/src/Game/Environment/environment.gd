@@ -128,13 +128,22 @@ signal lightning_struck(ground: Vector3)
 
 @export_group("Mood")
 
-## An artistic grade over the sky and its light, for example the red of a world that is ending. The mana where
-## the player stands sets it to [member mana_mood]; the doomsday events will set their own.
+## An artistic grade over the sky and its light, for example the red of a world that is ending. The mana and the
+## doomsday where the player stands set it, whichever is felt more strongly.
 @export var mood: SkyMood = null
 
 ## The violet the sky takes on where the mana is thick, blended in by WeatherState.ManaMoodStrength. A mood
 ## somebody else set, like the sky harness's doomsday, is left alone while the mana is calm.
 @export var mana_mood: SkyMood = preload("res://Game/Environment/Sky/moods/mana.tres")
+
+## The doomsday's look, by the server's name of its kind. A kind not listed takes [member doom_mood].
+@export var doom_moods: Dictionary[String, SkyMood] = {
+	"VOID_TEAR": preload("res://Game/Environment/Sky/moods/doom_void.tres"),
+	"WITHERING": preload("res://Game/Environment/Sky/moods/doom_blight.tres"),
+}
+
+## The red of a world that is ending, for every doomsday without a look of its own.
+@export var doom_mood: SkyMood = preload("res://Game/Environment/Sky/moods/doomsday.tres")
 
 ## How much of the mood is applied, 0 none to 1 full.
 @export_range(0, 1, 0.01) var mood_strength: float = 0.0
@@ -277,7 +286,7 @@ func _process(delta: float) -> void:
 
 	var overcast := _overcast()
 	var visibility := _visibility()
-	_follow_mana_mood()
+	_follow_moods()
 
 	_last_updated_since += delta
 
@@ -477,15 +486,25 @@ func _apply_sky(daylight: float, twilight: float, overcast: float, visibility: f
 	_environment.fog_depth_end = lerpf(whiteout_fog_end, _clear_fog_end, visibility)
 
 
-## Takes the mana mood while the mana is anything but calm, and lets go of it once the mana has calmed again.
-func _follow_mana_mood() -> void:
+## Takes the stronger of the mana's and the doomsday's moods here, and lets go of both once neither is felt. A mood
+## somebody else set is left alone while neither is.
+func _follow_moods() -> void:
 	if _weather == null or mana_mood == null:
 		return
 
-	var strength: float = _weather.ManaMoodStrength
-	if strength > 0.001 or mood == mana_mood:
+	var mana: float = _weather.ManaMoodStrength
+	var doom: float = _weather.DoomMoodStrength
+	var kind: String = _weather.DoomKind
+	if doom > mana and kind != "":
+		mood = doom_moods.get(kind, doom_mood)
+		mood_strength = doom
+	elif mana > 0.001 or mood == mana_mood or _is_doom_mood(mood):
 		mood = mana_mood
-		mood_strength = strength
+		mood_strength = mana
+
+
+func _is_doom_mood(candidate: SkyMood) -> bool:
+	return candidate == doom_mood or doom_moods.values().has(candidate)
 
 
 ## A colour with the mood's grade applied, using the mood's tint of that name.

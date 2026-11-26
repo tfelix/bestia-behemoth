@@ -103,6 +103,12 @@ namespace BestiaBehemothClient.Bnet.Message.Map
     /// </summary>
     [Export] public int ManaTier { get; set; }
 
+    /// <summary>The doomsday felt here, such as <c>VOID_TEAR</c>, or empty while none is.</summary>
+    [Export] public string DoomKind { get; set; } = string.Empty;
+
+    /// <summary>How strongly the doomsday is felt here, 0 to 4. See <see cref="Game.World.DoomLook"/>.</summary>
+    [Export] public int DoomLevel { get; set; }
+
     public static WeatherSMSG FromProto(global::Bnet.WeatherSMSG proto)
     {
       return new WeatherSMSG
@@ -133,7 +139,9 @@ namespace BestiaBehemothClient.Bnet.Message.Map
         HasWeakerMana = proto.HasWeakerMana,
         WeakerManaDirection = proto.WeakerManaDirection,
         WeakerManaMetres = proto.WeakerManaMetres,
-        ManaTier = (int)proto.ManaTier
+        ManaTier = (int)proto.ManaTier,
+        DoomKind = proto.DoomKind,
+        DoomLevel = proto.DoomLevel
       };
     }
 

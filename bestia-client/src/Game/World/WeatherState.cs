@@ -213,8 +213,17 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>The mana tier while the Debug knobs are in charge, 0 Calm to 7 Burn.</summary>
     [Export(PropertyHint.Range, "0,7,1")] public int DebugManaTier { get; set; }
 
+    /// <summary>The doomsday while the Debug knobs are in charge, such as <c>VOID_TEAR</c>; empty for none.</summary>
+    [Export] public string DebugDoomKind { get; set; } = string.Empty;
+
+    /// <summary>How strongly the doomsday is felt while the Debug knobs are in charge, 0 to 4.</summary>
+    [Export(PropertyHint.Range, "0,4,1")] public int DebugDoomLevel { get; set; }
+
     private int _manaTier;
     private float _manaMood;
+    private string _doomKind = string.Empty;
+    private int _doomLevel;
+    private float _doomMood;
     private float _moteRate;
     private float _manaHum;
 
@@ -456,6 +465,18 @@ namespace BestiaBehemothClient.Game.World
       get { return _manaMood; }
     }
 
+    /// <summary>The doomsday whose mood the sky may take, or empty. Not smoothed: its strength is.</summary>
+    public string DoomKind
+    {
+      get { return DebugOverrideEnabled ? DebugDoomKind : _doomKind; }
+    }
+
+    /// <summary>How much of the doomsday's mood grades the sky, 0 to 1, smoothed. See <see cref="DoomLook"/>.</summary>
+    public float DoomMoodStrength
+    {
+      get { return _doomMood; }
+    }
+
     /// <summary>
     /// How thick the light motes are, 0 to 1, smoothed: the mana tier's or a mana storm's, whichever is more.
     /// </summary>
@@ -521,6 +542,12 @@ namespace BestiaBehemothClient.Game.World
       _windDirection = weather.WindDirection;
       _temperatureTarget = weather.TemperatureCelsius;
       _manaTier = weather.ManaTier;
+      // A doomsday that fades keeps its kind, so its mood can ease out rather than vanish.
+      if (weather.DoomKind != string.Empty)
+      {
+        _doomKind = weather.DoomKind;
+      }
+      _doomLevel = weather.DoomLevel;
 
       const float voxelSize = (float)WorldLayout.VoxelSizeMetres;
       _groundWetness = weather.GroundWetness;
@@ -574,6 +601,7 @@ namespace BestiaBehemothClient.Game.World
 
       var mana = ManaLook.For(TargetManaTier());
       _manaMood = mana.MoodStrength;
+      _doomMood = DoomLook.MoodStrength(TargetDoomLevel());
       _moteRate = Mathf.Max(mana.MoteRate, look.MoteRate);
       _manaHum = mana.Hum;
 
@@ -607,6 +635,7 @@ namespace BestiaBehemothClient.Game.World
       // Polled by environment.gd, precipitation.gd and weather_audio.gd, so like the sky values they need no publish.
       var mana = ManaLook.For(TargetManaTier());
       _manaMood = Approach(_manaMood, mana.MoodStrength, step, SkySeconds, SkySeconds);
+      _doomMood = Approach(_doomMood, DoomLook.MoodStrength(TargetDoomLevel()), step, SkySeconds, SkySeconds);
       _moteRate = Approach(_moteRate, Mathf.Max(mana.MoteRate, look.MoteRate), step, SkySeconds, SkySeconds);
       _manaHum = Approach(_manaHum, mana.Hum, step, SkySeconds, SkySeconds);
 
@@ -708,6 +737,11 @@ namespace BestiaBehemothClient.Game.World
     private int TargetManaTier()
     {
       return DebugOverrideEnabled ? DebugManaTier : _manaTier;
+    }
+
+    private int TargetDoomLevel()
+    {
+      return DebugOverrideEnabled ? DebugDoomLevel : _doomLevel;
     }
 
     private float TargetTemperature()
