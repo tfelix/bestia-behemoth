@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test
 import net.bestia.zone.item.enchant.ActiveItemEnchantment
 import net.bestia.zone.item.enchant.ItemEnchantmentId
 import java.time.Instant
+import net.bestia.zone.battle.Element
 
 class InventoryTest {
   private lateinit var inventory: Inventory
@@ -437,6 +438,19 @@ class InventoryTest {
     assertEquals(listOf(1L, 2L), enchantments.map { it.enchantmentId })
     assertEquals(0f, enchantments[0].remainingSeconds)
     assertTrue(enchantments[1].remainingSeconds in 55f..60f)
+  }
+
+  @Test
+  fun `the client is told the element an endow lends`() {
+    val endow = ActiveItemEnchantment(
+      ItemEnchantmentId.ENDOWED_WEAPON, strength = 60, value = Element.EARTH.ordinal,
+      endsAt = Instant.now().plusSeconds(60), level = 1
+    )
+    inventory.addItem(sack(enchantments = listOf(endow)))
+
+    val sent = inventory.toEntityMessage(entityId = 5L, removed = false) as InventoryComponentSMSG
+
+    assertEquals(Element.EARTH, sent.items.single().enchantments.single().element)
   }
 
   @Test

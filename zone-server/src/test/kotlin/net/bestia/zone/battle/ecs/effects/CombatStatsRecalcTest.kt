@@ -37,6 +37,7 @@ import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import net.bestia.zone.battle.status.StatusValues as Attributes
+import net.bestia.zone.item.enchant.itemEnchantmentScriptsOf
 
 /**
  * [StatusValueRecalcSystem] resolving [CombatStats] for a mob and for an owner, against a real [EcsWorld].
@@ -50,7 +51,7 @@ class CombatStatsRecalcTest {
       StatusValueRecalcSystem(
         StatusEffectDefinitionRegistry(),
         StatusEffectScriptRegistry(emptyList()),
-        EquipmentStatusContributor(EquipmentScriptRegistry(emptyList()), ItemStatCatalog(), itemTemplatesOf(), essenceStatsOf()),
+        EquipmentStatusContributor(EquipmentScriptRegistry(emptyList()), ItemStatCatalog(), itemTemplatesOf(), essenceStatsOf(), itemEnchantmentScriptsOf()),
         PassiveSkillScriptRegistry(emptyList()),
         ConditionValueCalculator(),
         pool

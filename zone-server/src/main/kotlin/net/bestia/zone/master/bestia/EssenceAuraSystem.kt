@@ -32,6 +32,7 @@ import net.bestia.zone.identity.ecs.PartyMembership
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component as SpringComponent
+import net.bestia.zone.item.enchant.WornEnchantmentExpirySystem
 
 /**
  * The boss essences that reach past their wearer: every second, each [EssenceAura] a master or Bestia wears acts on
@@ -47,7 +48,9 @@ class EssenceAuraSystem(
   override val phase = Phase.STATUS
   override val schedule: Schedule = Schedule.EverySeconds(PULSE_SECONDS)
   override val after = setOf(StatusEffectDurationSystem::class, GuildAuraSystem::class)
-  override val before = setOf(StatusValueRecalcSystem::class, DetectingSystem::class, MarkedPreySystem::class)
+  override val before = setOf(
+    StatusValueRecalcSystem::class, DetectingSystem::class, MarkedPreySystem::class, WornEnchantmentExpirySystem::class
+  )
 
   override val reads: ComponentClassSet = setOf(
     CombatStats::class, Account::class, Position::class, Master::class, OwnedBestia::class, PartyMembership::class,

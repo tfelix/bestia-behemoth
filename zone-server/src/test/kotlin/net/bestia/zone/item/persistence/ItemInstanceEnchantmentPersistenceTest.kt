@@ -44,6 +44,18 @@ class ItemInstanceEnchantmentPersistenceTest {
   }
 
   @Test
+  fun `an endow keeps its element and level through a save`() {
+    val endow = ActiveItemEnchantment(
+      ItemEnchantmentId.ENDOWED_WEAPON, strength = 60, value = 3, endsAt = now.plusSeconds(120), level = 2
+    )
+    val id = enchantedCopy(endow)
+
+    tx.execute {
+      assertEquals(listOf(endow), itemInstanceRepository.findByIdOrNull(id)!!.enchantments(now))
+    }
+  }
+
+  @Test
   fun `an ended enchantment is ignored on read and deleted by the sweep`() {
     val ended = seal.copy(endsAt = now.minusSeconds(1))
     val id = enchantedCopy(ended)

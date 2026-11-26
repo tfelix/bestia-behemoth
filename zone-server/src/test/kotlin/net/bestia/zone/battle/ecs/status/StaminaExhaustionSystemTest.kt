@@ -34,6 +34,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import net.bestia.zone.item.enchant.itemEnchantmentScriptsOf
 
 /** [StaminaExhaustionSystem] against a real [EcsWorld], with the systems that read what it writes. */
 class StaminaExhaustionSystemTest {
@@ -45,7 +46,7 @@ class StaminaExhaustionSystemTest {
   private fun recalc(): StatusValueRecalcSystem = StatusValueRecalcSystem(
     StatusEffectDefinitionRegistry(),
     StatusEffectScriptRegistry(emptyList()),
-    EquipmentStatusContributor(EquipmentScriptRegistry(emptyList()), ItemStatCatalog(), itemTemplatesOf(), essenceStatsOf()),
+    EquipmentStatusContributor(EquipmentScriptRegistry(emptyList()), ItemStatCatalog(), itemTemplatesOf(), essenceStatsOf(), itemEnchantmentScriptsOf()),
     PassiveSkillScriptRegistry(emptyList()),
     ConditionValueCalculator(),
     CombatValuesPool()

@@ -26,6 +26,7 @@ import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.util.EntityId
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import net.bestia.zone.item.enchant.itemEnchantmentScriptsOf
 
 /**
  * Blessing against the shipped catalogue, driven by the real recalc system - which, in a test world, also fails
@@ -43,7 +44,7 @@ class BlessingStatusEffectTest {
       StatusValueRecalcSystem(
         catalogue,
         scripts,
-        EquipmentStatusContributor(EquipmentScriptRegistry(emptyList()), ItemStatCatalog(), itemTemplatesOf(), essenceStatsOf()),
+        EquipmentStatusContributor(EquipmentScriptRegistry(emptyList()), ItemStatCatalog(), itemTemplatesOf(), essenceStatsOf(), itemEnchantmentScriptsOf()),
         PassiveSkillScriptRegistry(emptyList()),
         ConditionValueCalculator(),
         CombatValuesPool()

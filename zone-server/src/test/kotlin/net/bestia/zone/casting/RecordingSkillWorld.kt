@@ -18,6 +18,7 @@ import net.bestia.zone.message.SMSG
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.spoor.TrackReading
+import net.bestia.zone.battle.Element
 
 /**
  * A [SkillWorld] that records what a script did to it instead of doing it.
@@ -58,6 +59,11 @@ class RecordingSkillWorld(
   val removedEffects = mutableListOf<Pair<EntityId, Long>>()
   val dispelled = mutableListOf<EntityId>()
   val dispelledGroundItems = mutableListOf<Pair<EntityId, Int>>()
+
+  /** Who holds a weapon [endowWeapon] can bind to; the rest get the endow on their body. */
+  val wieldingWeapon = mutableSetOf<EntityId>()
+  val endowedWeapons = mutableListOf<Pair<EntityId, Element>>()
+  val liftedWeaponEndows = mutableListOf<EntityId>()
   val stripped = mutableListOf<Pair<EntityId, EquipmentSlot>>()
   val gearWorn = mutableListOf<Pair<EntityId, Int>>()
   val detections = mutableListOf<Float>()
@@ -154,6 +160,17 @@ class RecordingSkillWorld(
   override fun removeEffect(entityId: EntityId, effectId: Long) {
     removedEffects.add(entityId to effectId)
     effectsOn[entityId]?.remove(effectId)
+  }
+
+  override fun endowWeapon(entityId: EntityId, element: Element, level: Int): Boolean {
+    if (entityId !in wieldingWeapon) return false
+
+    endowedWeapons.add(entityId to element)
+    return true
+  }
+
+  override fun liftWeaponEndow(entityId: EntityId) {
+    liftedWeaponEndows.add(entityId)
   }
 
   override fun dispel(entityId: EntityId): Int {

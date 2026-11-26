@@ -6,7 +6,8 @@ package net.bestia.zone.item.enchant
  */
 enum class ItemEnchantmentId(val id: Long) {
   POSTAL_SEAL(1),
-  KEEPSAKE_WARD(2);
+  KEEPSAKE_WARD(2),
+  ENDOWED_WEAPON(3);
 
   companion object {
     private val byId = entries.associateBy { it.id }

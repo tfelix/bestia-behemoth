@@ -23,6 +23,7 @@ import net.bestia.zone.util.PlayerBestiaId
 import org.springframework.stereotype.Component
 import kotlin.random.Random
 import net.bestia.zone.ecs.core.WorldView
+import java.time.Instant
 
 /**
  * Drops an item to the ground. The durable removal comes first and gates everything else, so a ground
@@ -109,7 +110,9 @@ class DropItemHandler(
         amount = msg.amount,
         pos = dropped,
         uniqueId = removed.uniqueId,
-        provenance = held.provenance
+        provenance = held.provenance,
+        // On the ground an endow can be dispelled, and its strength is still the endower's Potency.
+        enchantments = held.enchantments.filterNot { it.hasEnded(Instant.now()) },
       )
     }
   }

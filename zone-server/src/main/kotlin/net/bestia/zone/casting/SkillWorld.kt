@@ -20,6 +20,7 @@ import net.bestia.zone.message.SMSG
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.spoor.TrackReading
+import net.bestia.zone.battle.Element
 
 /**
  * Everything a [SkillStrategy] may do to the world, and nothing else.
@@ -362,6 +363,15 @@ interface SkillWorld {
   fun effectSourceOf(entityId: EntityId, effectId: Long): EntityId?
 
   fun removeEffect(entityId: EntityId, effectId: Long)
+
+  /**
+   * Binds the Sage's endow to the weapon in [entityId]'s hand, with the cast's Potency as its strength. False when it
+   * holds no weapon.
+   */
+  fun endowWeapon(entityId: EntityId, element: Element, level: Int): Boolean
+
+  /** Takes an endow off the weapon in [entityId]'s hand, for a spell that gives the weapon another element. */
+  fun liftWeaponEndow(entityId: EntityId)
 
   /** Strips every buff a dispel may lift from [entityId]; returns how many went. */
   fun dispel(entityId: EntityId): Int

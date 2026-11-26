@@ -25,6 +25,7 @@ import net.bestia.zone.settlement.TownService
 import net.bestia.zone.spoor.SpoorService
 import net.bestia.zone.world.stream.ChunkStreamInbox
 import org.springframework.stereotype.Component
+import net.bestia.zone.item.enchant.WeaponEndowment
 
 /**
  * The services a [SkillWorld] delegates to, collected once so a per-cast [SkillWorld] costs one reference
@@ -75,4 +76,5 @@ class SkillWorldServices(
   val tripleBlow: TripleBlow? = null,
   val omenReading: OmenReading? = null,
   val eventObservation: EventObservation? = null,
+  val weaponEndowment: WeaponEndowment? = null,
 )
