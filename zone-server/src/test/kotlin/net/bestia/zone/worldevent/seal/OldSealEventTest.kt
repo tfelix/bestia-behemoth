@@ -68,6 +68,7 @@ class OldSealEventTest {
 
   private val sut = OldSealEvent(
     seals, cracking, provinces, tiers, clock, residency, removal, spawner, stones, mana, rumours, worldService, view,
+    mockk(relaxed = true),
   )
   private val signals = ProvinceSignals(province, false, null, 0.0, emptyMap(), 0)
 
