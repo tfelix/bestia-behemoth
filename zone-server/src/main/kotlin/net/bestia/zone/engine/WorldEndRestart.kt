@@ -2,7 +2,9 @@ package net.bestia.zone.engine
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bus.WorldRebirth
+import net.bestia.bus.contract.LastWorld
 import net.bestia.zone.doomsday.WorldEndedEvent
+import net.bestia.zone.doomsday.persistence.WorldLegacy
 import net.bestia.zone.message.ConnectionTerminator
 import net.bestia.zone.message.OutMessageHandler
 import net.bestia.zone.socket.ZoneReadinessService
@@ -32,16 +34,28 @@ class WorldEndRestart(
   fun onWorldEnded(event: WorldEndedEvent) {
     readiness.refuseLogins()
     // Without it the zone still ends the world. Players then see the connection lost, not the rebirth.
-    runCatching { rebirth.begin() }.onFailure { LOG.warn(it) { "Could not tell the login server a new world is born" } }
+    runCatching { rebirth.begin(lastWorldOf(event.legacy)) }.onFailure { LOG.warn(it) { "Could not tell the login server a new world is born" } }
     val accounts = connections.connectedAccountIds
     accounts.forEach { terminator.disconnect(it, DISCONNECT_REASON) }
-    LOG.warn { "World ended ${event.ending}: sent ${accounts.size} account(s) away, stopping the zone" }
+    LOG.warn { "World ended ${event.legacy.ending}: sent ${accounts.size} account(s) away, stopping the zone" }
 
     // Off this thread: closing the context waits for the scheduler this event was published from.
     Thread({
       Thread.sleep(NOTICE_GRACE_MS)
       exit(EXIT_CODE)
     }, "world-end-exit").start()
+  }
+
+  private fun lastWorldOf(legacy: WorldLegacy): LastWorld {
+    return LastWorld(
+      name = legacy.worldName,
+      threat = legacy.threat?.name,
+      ending = legacy.ending.name,
+      daysLived = legacy.daysLived,
+      lifeSpanPercent = legacy.tPercent,
+      townsLost = legacy.townsLost,
+      endedAtEpochMs = legacy.endedAt.toEpochMilli(),
+    )
   }
 
   companion object {

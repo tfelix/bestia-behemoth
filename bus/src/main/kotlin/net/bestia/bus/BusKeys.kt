@@ -12,6 +12,9 @@ object BusKeys {
   /** Set while a new world is being born, after the last one ended. */
   const val WORLD_STATE = "world:state"
 
+  /** How the last world ended, see [WorldRebirth.lastWorld]. */
+  const val LAST_WORLD = "world:last"
+
   /** The stream the login server appends its kick orders to. */
   const val KICKS = "kicks"
 

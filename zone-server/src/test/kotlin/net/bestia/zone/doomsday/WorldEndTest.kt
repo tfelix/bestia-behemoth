@@ -186,7 +186,7 @@ class WorldEndTest {
     assertEquals(DoomKind.VOID_TEAR, legacy.captured.threat)
     assertEquals(2, legacy.captured.townsLost)
     verify(exactly = 1) { worlds.save(world) }
-    verify(exactly = 1) { events.publishEvent(WorldEndedEvent(DoomEnding.SAVED)) }
+    verify(exactly = 1) { events.publishEvent(WorldEndedEvent(legacy.captured)) }
   }
 
   @Test
