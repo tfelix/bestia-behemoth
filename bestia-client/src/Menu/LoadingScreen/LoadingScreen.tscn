@@ -4,11 +4,21 @@
 [ext_resource type="Texture2D" uid="uid://c6vp35y8niuin" path="res://Menu/LoadingScreen/loading_screen_01.jpg" id="2_art"]
 [ext_resource type="Texture2D" uid="uid://c6w2prnqf4e8n" path="res://Menu/LoadingScreen/loading_screen_02.jpg" id="3_art"]
 [ext_resource type="Texture2D" uid="uid://bkdi2rqxvjvir" path="res://Menu/LoadingScreen/loading_screen_03.jpg" id="4_oelju"]
+[ext_resource type="Texture2D" uid="uid://4388gdmsoy6r" path="res://Menu/LoadingScreen/loading_screen_04.jpg" id="5_art"]
+[ext_resource type="Texture2D" uid="uid://3ddgxn3aoabn" path="res://Menu/LoadingScreen/loading_screen_05.jpg" id="6_art"]
+[ext_resource type="Texture2D" uid="uid://exk4mmqb1f65" path="res://Menu/LoadingScreen/loading_screen_06.jpg" id="7_art"]
+[ext_resource type="Texture2D" uid="uid://pxwh4k6y5k3n" path="res://Menu/LoadingScreen/loading_screen_07.jpg" id="8_art"]
+[ext_resource type="Texture2D" uid="uid://c08kkk6mjp5jx" path="res://Menu/LoadingScreen/loading_screen_08.jpg" id="9_art"]
+[ext_resource type="Texture2D" uid="uid://df5ib3wfpmhd4" path="res://Menu/LoadingScreen/loading_screen_09.jpg" id="10_art"]
+[ext_resource type="Texture2D" uid="uid://mgo52dyfq3l5" path="res://Menu/LoadingScreen/loading_screen_10.jpg" id="11_art"]
+[ext_resource type="Texture2D" uid="uid://cpmep2pquywdy" path="res://Menu/LoadingScreen/loading_screen_11.jpg" id="12_art"]
+[ext_resource type="Texture2D" uid="uid://dpq2rxlqenh6l" path="res://Menu/LoadingScreen/loading_screen_12.jpg" id="13_art"]
+[ext_resource type="Texture2D" uid="uid://b752wdo1mf47" path="res://Menu/LoadingScreen/loading_screen_13.jpg" id="14_art"]
 
 [node name="LoadingScreen" type="CanvasLayer" unique_id=1288041131]
 layer = 128
 script = ExtResource("1_wlscr")
-artworks = Array[Texture2D]([ExtResource("2_art"), ExtResource("3_art"), ExtResource("4_oelju")])
+artworks = Array[Texture2D]([ExtResource("2_art"), ExtResource("3_art"), ExtResource("4_oelju"), ExtResource("5_art"), ExtResource("6_art"), ExtResource("7_art"), ExtResource("8_art"), ExtResource("9_art"), ExtResource("10_art"), ExtResource("11_art"), ExtResource("12_art"), ExtResource("13_art"), ExtResource("14_art")])
 
 [node name="Fade" type="Control" parent="." unique_id=165452283]
 unique_name_in_owner = true
