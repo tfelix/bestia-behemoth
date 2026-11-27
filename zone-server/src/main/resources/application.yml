@@ -453,6 +453,7 @@ doomsday:
     raze-push: 0.08
     defeat-push: -0.10
     return-days: 3.0
+    reseal-days: 14.0
     containment-days: 14.0
   # Alpha tests: force the threat, the Foreshadowing or the origin (metres) of a new world.
   # force-kind: VOID_TEAR

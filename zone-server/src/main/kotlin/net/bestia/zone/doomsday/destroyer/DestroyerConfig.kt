@@ -22,6 +22,9 @@ data class DestroyerConfig(
   /** A fallen Destroyer rises again at its lair after this, one town stronger. */
   val returnDays: Double = 3.0,
 
+  /** A ritual at the lair of a fallen Destroyer keeps it down this long from then. */
+  val resealDays: Double = 14.0,
+
   /** How long the last defeat holds it back, fading out over this many days. */
   val containmentDays: Double = 14.0,
 )

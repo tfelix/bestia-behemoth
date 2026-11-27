@@ -11,6 +11,7 @@ import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.doomsday.DoomAvatarFall
 import net.bestia.zone.doomsday.DoomFate
 import net.bestia.zone.doomsday.DoomStage
+import net.bestia.zone.doomsday.destroyer.DestroyerTowns.Target
 import net.bestia.zone.doomsday.persistence.StoredDestroyer
 import net.bestia.zone.doomsday.persistence.StoredDestroyerRepository
 import net.bestia.zone.ecs.core.World
@@ -22,7 +23,6 @@ import net.bestia.zone.entity.observe.KillFact
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.prop.PropRemoval
-import net.bestia.zone.prop.SettlementFateService
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.worldboss.WorldBossSealService
 import net.bestia.zone.worldboss.WorldBossSealService.SealCrystal
@@ -65,18 +65,18 @@ class DestroyerThreatTest {
   }
 
   private val statusEffects = mockk<StatusEffectService>(relaxed = true)
-  private val fates = mockk<SettlementFateService>(relaxed = true)
   private val removal = mockk<PropRemoval>(relaxed = true)
   private val fall = DestroyerFall()
+  private val seal = DestroyerSeal()
 
-  private val towns = mockk<DestroyerTowns> {
+  private val towns = mockk<DestroyerTowns>(relaxed = true) {
     every { groundAt(NEAR) } returns Vec3L(500, 0, 0)
     every { groundAt(FAR) } returns Vec3L(3_000, 0, 0)
     every { metresTo(NEAR, any(), any()) } answers { abs(500.0 - secondArg<Double>()) }
     every { metresTo(FAR, any(), any()) } answers { abs(3_000.0 - secondArg<Double>()) }
-    every { nearest(any(), any(), any()) } answers { listOf(NEAR, FAR).firstOrNull { it !in thirdArg<List<Int>>() } }
-    every { isTarget(any(), any()) } answers { firstArg<Int>() !in secondArg<List<Int>>() }
-    every { countLeft(any()) } answers { listOf(NEAR, FAR).count { it !in firstArg<List<Int>>() } }
+    every { nearest(any(), any(), any()) } answers { listOf(NEAR, FAR).firstOrNull { it.index !in thirdArg<List<Int>>() } }
+    every { isTarget(any(), any()) } answers { (firstArg<Target>() as Target.Settlement).index !in secondArg<List<Int>>() }
+    every { countLeft(any()) } answers { listOf(NEAR, FAR).count { it.index !in firstArg<List<Int>>() } }
   }
 
   private var nowMillis = 1_000L * MILLIS_PER_DAY
@@ -86,12 +86,12 @@ class DestroyerThreatTest {
     config = DestroyerConfig(),
     rows = rows,
     fall = fall,
+    seal = seal,
     seals = mockk<WorldBossSealService> { every { all() } returns listOf(SealCrystal(SEAL, BOSS, Vec2d(0.0, 0.0))) },
     world = view,
     spawner = spawner,
     statusEffects = statusEffects,
     towns = towns,
-    fates = fates,
     provinces = mockk(relaxed = true),
     removal = removal,
     residency = mockk(relaxed = true) { every { entitiesIn(any(), any()) } returns LongArray(0) },
@@ -113,7 +113,7 @@ class DestroyerThreatTest {
     verify { removal.removedUnseen(SEAL, StaticEntityKind.FIXTURE_SEAL_CRYSTAL, PropRemoval.Cause.GONE_FOR_GOOD) }
     verify { statusEffects.applyEffect(ecs, destroyer(), StatusEffectId.DESTROYER, level = 1) }
     assertEquals(BASE_HP * 20, health().max)
-    assertEquals(NEAR, stored!!.targetSettlement)
+    assertEquals(NEAR.index, stored!!.targetSettlement)
   }
 
   @Test
@@ -124,11 +124,11 @@ class DestroyerThreatTest {
 
     assertEquals(0.08, threat.step(onset, 300.0), 1e-9)
 
-    verify { fates.raze(ecs, NEAR) }
+    verify { towns.raze(ecs, NEAR) }
     assertEquals(2, stored!!.stack)
     assertEquals(BASE_HP * 25, health().max)
     assertEquals(health().max, health().current)
-    assertEquals(FAR, stored!!.targetSettlement)
+    assertEquals(FAR.index, stored!!.targetSettlement)
     assertEquals(0.5, threat.pressure(), 1e-9)
   }
 
@@ -149,6 +149,34 @@ class DestroyerThreatTest {
     assertEquals(2, spawned.size)
     assertEquals(2, stored!!.stack)
     assertEquals(0L, ecs.get(destroyer(), Position::class)!!.x, "it rises at its lair")
+  }
+
+  @Test
+  fun `a ritual at the lair of the fallen Destroyer keeps it down longer`() {
+    threat.step(onset, 300.0)
+    kill(EventCreature(DestroyerFall.EVENT, 0))
+    threat.step(onset, 300.0)
+
+    seal.onRitualCompleted(ecs, Vec3L(20, 10, 0), emptyList())
+    threat.step(onset, 300.0)
+    nowMillis += 3L * MILLIS_PER_DAY
+    threat.step(onset, 300.0)
+
+    assertTrue(stored!!.isFallen, "renewed, it stays down past its three days")
+    nowMillis += 11L * MILLIS_PER_DAY
+    threat.step(onset, 300.0)
+    assertFalse(stored!!.isFallen)
+  }
+
+  @Test
+  fun `a ritual far from its lair renews nothing`() {
+    threat.step(onset, 300.0)
+    kill(EventCreature(DestroyerFall.EVENT, 0))
+    threat.step(onset, 300.0)
+
+    seal.onRitualCompleted(ecs, Vec3L(500, 0, 0), emptyList())
+
+    assertFalse(seal.take())
   }
 
   @Test
@@ -193,8 +221,8 @@ class DestroyerThreatTest {
   private companion object {
     const val SEAL = 7L
     const val BOSS = 99L
-    const val NEAR = 1
-    const val FAR = 2
+    val NEAR = Target.Settlement(1)
+    val FAR = Target.Settlement(2)
     const val BASE_HP = 1_000
     const val MILLIS_PER_DAY = 86_400_000L
   }
