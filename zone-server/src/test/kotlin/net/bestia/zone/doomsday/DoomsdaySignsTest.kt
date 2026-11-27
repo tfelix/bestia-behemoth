@@ -9,6 +9,7 @@ import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.persistence.PersistedWorld
 import net.bestia.zone.worldevent.RunningEvents
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import java.time.Instant
 
@@ -51,6 +52,7 @@ class DoomsdaySignsTest {
 
     assertEquals(DoomSky.CLEAR, signs.at(1_000, 1_000))
     assertEquals(emptyList<BrewingEvents.Brewing>(), brewing.brewing())
+    assertNull(signs.known())
   }
 
   @Test
@@ -58,6 +60,7 @@ class DoomsdaySignsTest {
     signs.remember(doomsday(DoomStage.ESCALATION, steppedToDay = 150.0))
 
     assertEquals(DoomSky("VOID_TEAR", 3), signs.at(1_000, 1_000))
+    assertEquals(DoomKind.VOID_TEAR to DoomStage.ESCALATION, signs.known())
     assertEquals(DoomSky.CLEAR, signs.at(33_000, 33_000), "far beyond its reach")
     val felt = brewing.brewing().single()
     assertEquals(BrewingEvents.Stage.GATHERING, felt.stage)

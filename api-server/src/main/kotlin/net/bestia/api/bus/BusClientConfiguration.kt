@@ -8,12 +8,14 @@ import net.bestia.bus.AppPresence
 import net.bestia.bus.BusKeys
 import net.bestia.bus.Directory
 import net.bestia.bus.LoginBus
+import net.bestia.bus.WorldRebirth
 import net.bestia.bus.contract.ZoneEvent
 import net.bestia.bus.valkey.ValkeyAppPresence
 import net.bestia.bus.valkey.ValkeyDirectory
 import net.bestia.bus.valkey.ValkeyLoginBus
 import net.bestia.bus.valkey.ValkeyNodeBus
 import net.bestia.bus.valkey.ValkeyStreamReader
+import net.bestia.bus.valkey.ValkeyWorldRebirth
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -37,6 +39,11 @@ class BusClientConfiguration(private val properties: BusClientProperties) {
   @Bean(destroyMethod = "close")
   fun appPresence(busClient: RedisClient): AppPresence {
     return ValkeyAppPresence(busClient)
+  }
+
+  @Bean(destroyMethod = "close")
+  fun worldRebirth(busClient: RedisClient): WorldRebirth {
+    return ValkeyWorldRebirth(busClient)
   }
 
   @Bean(destroyMethod = "close")

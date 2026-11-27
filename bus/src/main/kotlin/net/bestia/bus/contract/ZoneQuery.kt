@@ -26,6 +26,9 @@ sealed interface ZoneQuery {
 
   data object Catalog : ZoneQuery
 
+  /** The world's name and age, and its doomsday as players know it. Answered with [ZoneAnswer.WorldData]. */
+  data object World : ZoneQuery
+
   data object MapMeta : ZoneQuery
 
   data class MapTile(val masterId: Long, val level: Int, val x: Long, val y: Long, val ifNoneMatch: String?) : ZoneQuery

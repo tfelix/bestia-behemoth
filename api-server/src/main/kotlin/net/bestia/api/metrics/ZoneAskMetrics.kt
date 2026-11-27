@@ -19,6 +19,7 @@ enum class ZoneQueryKind {
   COMPENDIUM,
   GUILD_ROSTER,
   CATALOG,
+  WORLD,
   MAP_META,
   MAP_TILE,
   MAP_PLACES,
@@ -72,6 +73,7 @@ enum class ZoneQueryKind {
         is ZoneQuery.Compendium -> COMPENDIUM
         is ZoneQuery.GuildRoster -> GUILD_ROSTER
         is ZoneQuery.Catalog -> CATALOG
+        is ZoneQuery.World -> WORLD
         is ZoneQuery.MapMeta -> MAP_META
         is ZoneQuery.MapTile -> MAP_TILE
         is ZoneQuery.MapPlaces -> MAP_PLACES

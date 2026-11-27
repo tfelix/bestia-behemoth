@@ -419,4 +419,10 @@ sealed interface ZoneAnswer {
       const val CANNOT_AFFORD = "CANNOT_AFFORD"
     }
   }
+
+  /**
+   * [threat] is a `DoomKind` name and [stage] a `DoomStage` name. Both are null until the doomsday's onset: before it,
+   * nothing in the world shows it.
+   */
+  data class WorldData(val name: String, val ageDays: Int, val threat: String?, val stage: String?) : ZoneAnswer
 }

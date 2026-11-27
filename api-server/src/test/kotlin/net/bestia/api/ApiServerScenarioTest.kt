@@ -8,6 +8,7 @@ import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
 import net.bestia.bus.contract.BusReply
 import net.bestia.bus.contract.BusRequest
+import net.bestia.bus.contract.LastWorld
 import net.bestia.bus.contract.ZoneAnswer
 import net.bestia.bus.contract.MapPoint
 import net.bestia.bus.contract.ZoneEvent
@@ -15,6 +16,7 @@ import net.bestia.bus.contract.ZoneQuery
 import net.bestia.bus.valkey.ValkeyAppPresence
 import net.bestia.bus.valkey.ValkeyEventPublisher
 import net.bestia.bus.valkey.ValkeyRequestServer
+import net.bestia.bus.valkey.ValkeyWorldRebirth
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -106,6 +108,30 @@ class ApiServerScenarioTest : ApiScenarioTestBase() {
 
     assertEquals("Ayla", body[0]["name"].asText())
     assertEquals(41L, asked.single().accountId)
+  }
+
+  @Test
+  fun `during a rebirth the world answers from the bus alone, and keeps naming the last world after it`() {
+    val rebirth = ValkeyWorldRebirth(zoneClient)
+    rebirth.begin(LastWorld("Genesis", "VOID_TEAR", "LOST", 300, 100, 2, 1_800_000_000_000))
+    try {
+      val reborn = json(get("/v1/companion/world", accountId = 43))
+
+      assertTrue(reborn["rebirth"].asBoolean())
+      assertTrue(reborn["current"].isNull)
+      assertEquals("VOID_TEAR", reborn["last"]["threat"].asText())
+      assertTrue(asked.isEmpty())
+    } finally {
+      rebirth.end()
+      rebirth.close()
+    }
+
+    answer = { BusReply.ok(it.correlationId, ZoneAnswer.WorldData("Arvel", 12, null, null)) }
+    val living = json(get("/v1/companion/world", accountId = 43))
+
+    assertFalse(living["rebirth"].asBoolean())
+    assertEquals("Arvel", living["current"]["name"].asText())
+    assertEquals("Genesis", living["last"]["name"].asText())
   }
 
   @Test

@@ -404,6 +404,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/companion/world": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["world"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/companion/texts/{textId}/{locale}": {
         parameters: {
             query?: never;
@@ -1066,6 +1082,31 @@ export interface components {
             note: string;
             /** Format: int64 */
             durationHours?: number;
+        };
+        CurrentWorld: {
+            name: string;
+            /** Format: int32 */
+            ageDays: number;
+            threat?: string;
+            stage?: string;
+        };
+        LastWorld: {
+            name: string;
+            threat?: string;
+            ending: string;
+            /** Format: int32 */
+            daysLived: number;
+            /** Format: int32 */
+            lifeSpanPercent: number;
+            /** Format: int32 */
+            townsLost: number;
+            /** Format: int64 */
+            endedAtEpochMs: number;
+        };
+        WorldState: {
+            rebirth: boolean;
+            current?: components["schemas"]["CurrentWorld"];
+            last?: components["schemas"]["LastWorld"];
         };
         PublicKey: {
             publicKey: string;
@@ -2261,6 +2302,26 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    world: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["WorldState"];
+                };
             };
         };
     };

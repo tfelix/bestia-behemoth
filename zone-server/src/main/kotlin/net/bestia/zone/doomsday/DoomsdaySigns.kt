@@ -40,6 +40,12 @@ class DoomsdaySigns(
     brewing.replace(SOURCE, listOfNotNull(now?.let(::brewingOf)))
   }
 
+  /** The doomsday's kind and stage, as far as the world shows them: null before its onset. */
+  fun known(): Pair<DoomKind, DoomStage>? {
+    val doom = seen ?: return null
+    return doom.kind to doom.stage
+  }
+
   override fun at(x: Long, y: Long): DoomSky {
     val doom = seen ?: return DoomSky.CLEAR
     val distance = wrap.distance(x * voxelMetres, y * voxelMetres, doom.x, doom.y)

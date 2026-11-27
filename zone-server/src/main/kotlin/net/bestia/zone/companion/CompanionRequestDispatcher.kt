@@ -28,6 +28,7 @@ import net.bestia.zone.companion.query.ParcelQueries
 import net.bestia.zone.companion.query.SurveyCommands
 import net.bestia.zone.companion.query.TextQueries
 import net.bestia.zone.companion.query.TicketQueries
+import net.bestia.zone.companion.query.WorldQueries
 import org.springframework.stereotype.Component
 
 /** Routes each question from the api-server to the query that answers it. Runs on a bus worker thread. */
@@ -56,6 +57,7 @@ class CompanionRequestDispatcher(
   private val surveys: SurveyCommands,
   private val texts: TextQueries,
   private val bugReports: BugReportSnapshots,
+  private val world: WorldQueries,
 ) : RequestHandler {
 
   override fun handle(request: BusRequest): BusReply {
@@ -71,6 +73,7 @@ class CompanionRequestDispatcher(
       is ZoneQuery.Compendium -> found(id, compendium.compendium(account, query.masterId))
       is ZoneQuery.GuildRoster -> found(id, guilds.guild(account, query.masterId))
       ZoneQuery.Catalog -> BusReply.ok(id, catalog.catalog())
+      ZoneQuery.World -> BusReply.ok(id, world.world())
       ZoneQuery.MapMeta -> map.meta(id)
       is ZoneQuery.MapTile -> map.tile(id, account, query)
       is ZoneQuery.MapPlaces -> map.places(id, account, query)
