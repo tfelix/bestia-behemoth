@@ -28,6 +28,7 @@ class ApiRouteTest {
       "/v1/companion/masters/5/theodolites/3/survey/stops" to ApiRoute.SURVEYS,
       "/v1/companion/catalog" to ApiRoute.CATALOG,
       "/v1/companion/push/subscriptions" to ApiRoute.PUSH,
+      "/v1/companion/gm/accounts/9/ban" to ApiRoute.GM,
       "/v1/companion/ws" to ApiRoute.WS,
       "/v1/companion/something-new" to ApiRoute.OTHER,
       "/elsewhere" to ApiRoute.OTHER,

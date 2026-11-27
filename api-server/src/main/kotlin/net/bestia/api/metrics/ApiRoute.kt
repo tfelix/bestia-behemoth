@@ -22,6 +22,7 @@ enum class ApiRoute {
   PARCELS,
   SURVEYS,
   PUSH,
+  GM,
   WS,
   OTHER,
   ;
@@ -59,6 +60,7 @@ enum class ApiRoute {
         rest.startsWith("texts/") -> TEXT
         rest.startsWith("catalog") -> CATALOG
         rest.startsWith("push/") -> PUSH
+        rest.startsWith("gm/") -> GM
         rest == "ws" -> WS
         rest.startsWith("masters") -> when {
           rest.endsWith("/chat") || rest.endsWith("/chat/whisper") -> CHAT
