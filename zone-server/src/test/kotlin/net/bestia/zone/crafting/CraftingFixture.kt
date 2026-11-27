@@ -48,6 +48,7 @@ import net.bestia.zone.workexp.WorkExpService
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneOffset
+import kotlin.random.Random
 
 /**
  * A crafter, a world, and a [CraftingService] whose only mocks are the things that leave the tick: the durable
@@ -75,6 +76,9 @@ class CraftingFixture(
 
   /** Every recipe unless a test says otherwise, so only the blueprint tests think about knowing one. */
   starterBlueprints: Set<Long> = recipeList.map { it.id }.toSet(),
+
+  /** What the success and destroy rolls draw from; a test that needs one outcome pins it. */
+  random: Random = Random.Default,
 ) {
 
   val starterKit = StarterKit().apply { load(starterBlueprints) }
@@ -158,6 +162,7 @@ class CraftingFixture(
         masters = MasterEntityResolver(sessions),
         clock = Clock.fixed(Instant.ofEpochSecond(NOW_EPOCH_SECONDS), ZoneOffset.UTC),
       ),
+      random = random,
     )
   }
 

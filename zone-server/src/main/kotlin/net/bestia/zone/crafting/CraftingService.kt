@@ -98,6 +98,7 @@ class CraftingService(
   private val workExp: WorkExpService,
   private val metrics: GameMetrics = GameMetrics(),
   private val clock: Clock = Clock.systemUTC(),
+  private val random: Random = Random.Default,
 ) : RecipeOffering {
 
   /** A crafting skill was cast: open the window with that skill picked. */
@@ -236,7 +237,7 @@ class CraftingService(
     val masterId = crafter.master.masterId
     val chance = bonuses.successChance(known, recipe, attributesOf(world, workerId))
 
-    if (Random.nextFloat() <= chance) {
+    if (random.nextFloat() <= chance) {
       val provenance = ItemProvenance(crafterName = crafter.master.name, worldName = worldService.record.name)
       val roll = rollOutput(recipe, known, GloriaGrace.rollChanceBonusOf(world, workerId))
       succeed(
@@ -365,7 +366,7 @@ class CraftingService(
     val taken = takeInputs(inventory, inputs) ?: return refuse(accountId, OpError.CRAFT_MISSING_MATERIALS)
 
     val chance = bonuses.successChance(known, recipe, attributesOf(world, entityId))
-    val succeeded = Random.nextFloat() <= chance
+    val succeeded = random.nextFloat() <= chance
     val roll = if (succeeded) rollOutput(recipe, known, crafting.rollChanceBonus) else null
     val provenance = ItemProvenance(crafterName = crafter.master.name, worldName = worldService.record.name)
 
@@ -473,7 +474,7 @@ class CraftingService(
     known: KnownSkills?
   ) {
     if (recipe.effect == RecipeEffect.ADD_SLOT && target != null &&
-      Random.nextFloat() <= bonuses.destroyChance(known)
+      random.nextFloat() <= bonuses.destroyChance(known)
     ) {
       world.get(entityId, Inventory::class)?.removeByUniqueId(target.uniqueId)
       asyncJobExecutor.submit(masterId) { inventoryService.destroyInstance(masterId, target.uniqueId, playerBestiaId) }
