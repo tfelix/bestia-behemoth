@@ -11,9 +11,8 @@ namespace BestiaBehemothClient.Tests
   /// What meshing a whole view volume costs, measured rather than argued about.
   /// </summary>
   /// <remarks>
-  /// Traited as a benchmark and excluded from the default run, because a wall-clock assertion on shared CI hardware
-  /// is a test that fails for reasons that have nothing to do with the code. Run it deliberately when changing the
-  /// mesher: <c>./gradlew clientBenchmark</c>.
+  /// Traited as a benchmark and excluded from the default run: run it deliberately when changing the mesher,
+  /// <c>./gradlew clientBenchmark</c>.
   ///
   /// <para>
   /// It does still assert, but only against a ceiling loose enough that only a change in the algorithm's shape can
@@ -21,14 +20,24 @@ namespace BestiaBehemothClient.Tests
   /// reads per lattice point rather than a separable pair of adds; that is the class of regression this catches, not
   /// a twenty percent drift.
   /// </para>
+  ///
+  /// <para>
+  /// The ceilings are not in milliseconds but in cell walks: one plain pass over every cell of a chunk, timed right
+  /// after the work on the same thread. A busy machine, a slower one, or an efficiency core slows both alike, so the
+  /// ratio is what the code makes it. A budget in milliseconds failed whenever the box was busy.
+  /// </para>
   /// </remarks>
   [Trait("Category", "Benchmark")]
+  [Collection(nameof(MeshThroughputTest))]
   public class MeshThroughputTest
   {
     /// <summary>The fixture palette, which is where WATER gets a surface of its own.</summary>
     private static readonly BlockAppearance Appearance = TerrainFixtures.Appearance();
 
     private readonly ITestOutputHelper _output;
+
+    /// <summary>Written by every cell walk, so the JIT cannot drop the walk as dead code.</summary>
+    private static long _walkSink;
 
     public MeshThroughputTest(ITestOutputHelper output)
     {
@@ -55,17 +64,19 @@ namespace BestiaBehemothClient.Tests
 
       // Warm the JIT and grow the thread-local scratch buffers before the clock starts.
       SurfaceNets.Build(source, new ChunkKey(0, 0, 0), appearance, 1.0f, ChunkWrap.None);
-
-      var watch = Stopwatch.StartNew();
+      WalkCells(source.Get(new ChunkKey(0, 0, 0)));
 
       long triangles = 0;
       var meshed = 0;
+      var walks = 0.0;
+      var milliseconds = 0.0;
 
       for (var chunkY = -radius; chunkY <= radius; chunkY++)
       {
         for (var chunkX = -radius; chunkX <= radius; chunkX++)
         {
-          var mesh = SurfaceNets.Build(source, new ChunkKey(chunkX, chunkY, 0), appearance, 1.0f, ChunkWrap.None);
+          var key = new ChunkKey(chunkX, chunkY, 0);
+          var mesh = SurfaceNets.Build(source, key, appearance, 1.0f, ChunkWrap.None);
           if (mesh == null)
           {
             continue;
@@ -79,23 +90,28 @@ namespace BestiaBehemothClient.Tests
           {
             triangles += mesh.Surfaces[kind]?.TriangleCount ?? 0;
           }
+
+          var cost = CostInCellWalks(
+            () => SurfaceNets.Build(source, key, appearance, 1.0f, ChunkWrap.None), source.Get(key), pairs: 5
+          );
+          walks += cost.Walks;
+          milliseconds += cost.Milliseconds;
         }
       }
 
-      watch.Stop();
-
       var chunks = (2 * radius + 1) * (2 * radius + 1);
-      var perChunk = watch.Elapsed.TotalMilliseconds / Math.Max(1, meshed);
+      var walksPerChunk = walks / Math.Max(1, meshed);
 
       _output.WriteLine($"view volume: {chunks} chunks, {meshed} with geometry");
       _output.WriteLine(
-        $"single-threaded total {watch.Elapsed.TotalMilliseconds:F1} ms, {perChunk:F2} ms per meshed chunk");
+        $"{walksPerChunk:F1} cell walks per meshed chunk, {milliseconds / Math.Max(1, meshed):F2} ms on this run");
       _output.WriteLine($"{triangles} triangles for the whole view");
 
       Assert.Equal(chunks, meshed);
 
-      // Around 2 ms per chunk on a developer machine in Release. Five is a regression in kind, not in degree.
-      Assert.True(perChunk < 5.0, $"{perChunk:F2} ms per chunk is well past the expected ~2 ms");
+      // Around 16 walks per chunk, 2 ms on a developer machine; a busy one measured up to 22. Forty is a
+      // regression in kind, not in degree: the eight-read corner average was over five times the cost.
+      Assert.True(walksPerChunk < 40.0, $"{walksPerChunk:F1} cell walks per chunk is well past the expected ~16");
     }
 
     [Fact]
@@ -104,33 +120,79 @@ namespace BestiaBehemothClient.Tests
       var chunk = TerrainFixtures.Rolling(0, 0);
 
       ChunkBands.Of(chunk, Appearance);
+      WalkCells(chunk);
 
-      var watch = Stopwatch.StartNew();
-
-      const int runs = 200;
-      for (var i = 0; i < runs; i++)
-      {
-        ChunkBands.Of(chunk, Appearance);
-      }
-
-      watch.Stop();
-
-      var micros = watch.Elapsed.TotalMilliseconds / runs * 1000.0;
+      var cost = CostInCellWalks(() => ChunkBands.Of(chunk, Appearance), chunk, pairs: 51);
 
       _output.WriteLine(
-        $"band scan {micros:F0} us per chunk " +
+        $"band scan {cost.Walks:F2} cell walks, {cost.Milliseconds * 1000.0:F0} us on this run " +
         $"({TerrainFixtures.Size * TerrainFixtures.Size} columns of {TerrainFixtures.Height})");
 
-      // Roughly 330 us, which is still what makes rescanning on every decode and every patch a non-decision: a
-      // whole view volume is about 40 ms of scanning, once, on a worker thread. A per-cell loop over 262 144
-      // cells would be two orders of magnitude worse, and staying off one is what the budget guards.
+      // Roughly 0.85 walks, about 160 us, which is what makes rescanning on every decode and every patch a
+      // non-decision: a whole view volume is a few tens of milliseconds of scanning, once, on a worker thread. A
+      // per-cell loop over 262 144 cells would be two orders of magnitude worse, and staying off one is what the
+      // budget guards.
       //
-      // It was ~30 us before ChunkBands gained its horizontal pass, and the tenfold is that pass: there are
-      // twice as many adjacent column pairs as columns, and each pair has to be compared rather than merely
-      // walked. Worth it - without it a vertical rock face has no run boundary anywhere near it, so cave walls
-      // and cliffs came out with holes through into the void. Both passes are vectorised; if this ever fails,
-      // the question is which one stopped being.
-      Assert.True(micros < 500.0, $"{micros:F0} us per band scan suggests a scan stopped vectorising");
+      // It was ten times cheaper before ChunkBands gained its horizontal pass: there are twice as many adjacent
+      // column pairs as columns, and each pair has to be compared rather than merely walked. Worth it - without it
+      // a vertical rock face has no run boundary anywhere near it, so cave walls and cliffs came out with holes
+      // through into the void. Both passes are vectorised; with SIMD switched off (DOTNET_EnableHWIntrinsic=0)
+      // the scan costs 2.6 walks. If this fails, the question is which pass stopped being vectorised.
+      Assert.True(cost.Walks < 1.75, $"{cost.Walks:F2} cell walks per band scan suggests a scan stopped vectorising");
     }
+
+    /// <summary>
+    /// The median ratio of [work] to a walk over [reference]'s cells, each pair timed back to back. The median, so a
+    /// pair the scheduler cut through does not count. The milliseconds are only printed: they depend on the machine.
+    /// </summary>
+    private static (double Walks, double Milliseconds) CostInCellWalks(Action work, VoxelChunk reference, int pairs)
+    {
+      var ratios = new double[pairs];
+      var workTimes = new double[pairs];
+      for (var i = 0; i < pairs; i++)
+      {
+        var workTime = Time(work);
+        var walkTime = Time(() => WalkCells(reference));
+        ratios[i] = workTime / walkTime;
+        workTimes[i] = workTime;
+      }
+
+      Array.Sort(ratios);
+      Array.Sort(workTimes);
+
+      return (ratios[pairs / 2], workTimes[pairs / 2]);
+    }
+
+    /// <summary>
+    /// The unit the ceilings are written in: one pass over every cell of a chunk, adding its block and occupancy.
+    /// Plain scalar code, so it costs what the machine's memory and core cost, and nothing clever.
+    /// </summary>
+    private static void WalkCells(VoxelChunk chunk)
+    {
+      var blocks = chunk.Blocks;
+      var occupancy = chunk.Occupancy;
+      long sum = 0;
+      for (var i = 0; i < blocks.Length; i++)
+      {
+        sum += blocks[i] + occupancy[i];
+      }
+
+      _walkSink += sum;
+    }
+
+    private static double Time(Action action)
+    {
+      var watch = Stopwatch.StartNew();
+      action();
+      watch.Stop();
+
+      return watch.Elapsed.TotalMilliseconds;
+    }
+  }
+
+  /// <summary>Keeps <see cref="MeshThroughputTest"/> off the cores the rest of the suite runs on.</summary>
+  [CollectionDefinition(nameof(MeshThroughputTest), DisableParallelization = true)]
+  public class MeshThroughputCollection
+  {
   }
 }

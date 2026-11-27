@@ -95,8 +95,9 @@ tasks.register('clientBenchmark', Exec) {
 	group = 'verification'
 	description = 'Runs the client mesh throughput benchmarks and prints their timings.'
 
-	// Excluded from clientTest because a wall-clock assertion on shared CI hardware fails for reasons that have
-	// nothing to do with the code. Detailed logging, because the numbers are the point of running it.
+	// Kept out of clientTest because it takes seconds and its numbers are for reading when the mesher changes. Its
+	// budgets are ratios to a reference on the same thread, so a busy machine does not fail it. Detailed logging,
+	// because the numbers are the point of running it.
 	commandLine dotnetExecutable, 'test', clientTestProject,
 			'-c', 'Release', '--nologo',
 			'--filter', 'Category=Benchmark',
