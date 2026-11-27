@@ -136,6 +136,7 @@ enum class StatusEffectId(val id: Long) {
   TRAP_WARY(260),
   WITHERING(261),
   CORRUPTED(262),
+  DESTROYER(263),
 
   // What a boss essence's aura grants, from id 300.
   ROYAL_SWARM(300),

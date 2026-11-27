@@ -984,6 +984,15 @@ statusEffects:
     dispellable: false
     script: Corrupted
 
+  # The Destroyer of the doomsday: a freed world boss, stronger for every town it razed. The level is that count.
+  - id: 263
+    identifier: DESTROYER
+    polarity: BUFF
+    showIcon: false
+    isSyncedToClient: true
+    dispellable: false
+    script: Destroyer
+
   # Near a master who wears a boss essence with an aura, kept up by EssenceAuraSystem every second.
   - id: 300
     identifier: ROYAL_SWARM

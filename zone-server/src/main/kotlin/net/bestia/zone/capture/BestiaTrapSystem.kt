@@ -199,7 +199,7 @@ class BestiaTrapSystem(
     return entityAOIService.queryEntitiesInCube(at, HEIGHT_TOLERANCE * 2, AoiLayer.DYNAMIC_ONLY)
       .filter { id ->
         val pos = world.get(id, Position::class) ?: return@filter false
-        pos.x == at.x && pos.y == at.y && isWildBestia(world, id) && !isWary(world, id) && !isCorrupted(world, id)
+        pos.x == at.x && pos.y == at.y && isWildBestia(world, id) && !isWary(world, id) && !isUntrappable(world, id)
       }
       .minOrNull()
   }
@@ -212,9 +212,10 @@ class BestiaTrapSystem(
     return world.get(id, StatusEffects::class)?.hasEffect(StatusEffectId.TRAP_WARY.id) == true
   }
 
-  /** The Withering's bestia: no trap holds them. */
-  private fun isCorrupted(world: World, id: EntityId): Boolean {
-    return world.get(id, StatusEffects::class)?.hasEffect(StatusEffectId.CORRUPTED.id) == true
+  /** The doomsday's creatures, the Withering's bestia and the Destroyer: no trap holds them. */
+  private fun isUntrappable(world: World, id: EntityId): Boolean {
+    val effects = world.get(id, StatusEffects::class) ?: return false
+    return effects.hasEffect(StatusEffectId.CORRUPTED.id) || effects.hasEffect(StatusEffectId.DESTROYER.id)
   }
 
   private companion object {
