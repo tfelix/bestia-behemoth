@@ -446,6 +446,14 @@ doomsday:
     corrupt-per-day: 0.25
     heal-per-day: 0.05
     plants-die-from: 0.7
+  # The Destroyer: a freed world boss marching on the towns. Days are real days.
+  destroyer:
+    hp-multiplier: 20
+    hp-multiplier-per-town: 5
+    raze-push: 0.08
+    defeat-push: -0.10
+    return-days: 3.0
+    containment-days: 14.0
   # Alpha tests: force the threat, the Foreshadowing or the origin (metres) of a new world.
   # force-kind: VOID_TEAR
   # force-foreshadow: MANA_STORM_SEASON
