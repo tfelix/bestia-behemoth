@@ -25,6 +25,7 @@ import net.bestia.zone.world.stream.ChunkCoords
 import net.bestia.zone.world.stream.ChunkService
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.identity.ecs.Master
+import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.mana.ManaTier
 import net.bestia.zone.world.mana.ManaTiers
@@ -51,6 +52,7 @@ class EnvironmentalExposureSystem(
   zoneConfig: WorldRulesConfig,
   private val manaTiers: ManaTiers? = null,
   private val statusEffects: StatusEffectService? = null,
+  private val corruption: CorruptionExposure? = null,
 ) : System {
   override val phase = Phase.UPKEEP
 
@@ -91,6 +93,7 @@ class EnvironmentalExposureSystem(
       val stamina = get<Stamina>()
 
       catchManaSickness(world, entityId, position)
+      catchWithering(world, entityId, position)
 
       // The entity's own altitude, not the terrain's under it, and the difference is the whole tick budget.
       // `GroundHeight` already put this entity on the ground, so asking `ChunkService.surfaceElevationAt` for
@@ -169,10 +172,28 @@ class EnvironmentalExposureSystem(
     statusEffects?.applyEffect(world, entityId, StatusEffectId.MANA_SICKNESS, level = 1)
   }
 
+  /**
+   * Masters and their bestia wither on corrupted land, more on the worst of it. Wild bestia live there. No roof or camp
+   * helps, as with the mana sickness.
+   */
+  private fun catchWithering(world: World, entityId: EntityId, position: Position) {
+    val field = corruption ?: return
+    if (!world.has(entityId, Master::class) && !world.has(entityId, OwnedBestia::class)) return
+    val corrupted = field.corruptionAt(position.x.toDouble(), position.y.toDouble())
+    if (corrupted < WITHERING_FROM) return
+
+    val level = if (corrupted >= WITHERING_HARD_FROM) 2 else 1
+    statusEffects?.applyEffect(world, entityId, StatusEffectId.WITHERING, level = level)
+  }
+
   /** For the counters to be visible without a debugger; a stuck zero is the shipped-dead signal. */
   fun counters(): Pair<Long, Long> = drained to hurt
 
   private companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /** How corrupted the land must be to wither, and to wither twice as hard. */
+    const val WITHERING_FROM = 0.5
+    const val WITHERING_HARD_FROM = 0.8
   }
 }

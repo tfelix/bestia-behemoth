@@ -90,6 +90,27 @@ class EnvironmentalExposureSystemTest {
     verify(exactly = 0) { statusEffects.applyEffect(any(), bestia, StatusEffectId.MANA_SICKNESS, any()) }
   }
 
+  @Test
+  fun `a master on rotten land withers, harder on the worst of it, and a wild bestia beside them does not`() {
+    var corruption = 0.6
+    val statusEffects = mockk<StatusEffectService>(relaxed = true)
+    val withering = EnvironmentalExposureSystem(
+      coldAt(15.0), readyChunks(), ExposureConfig(), mockk(relaxed = true), WorldRulesConfig(tickRate = 20),
+      statusEffects = statusEffects, corruption = { _, _ -> corruption },
+    )
+    val rotWorld = testWorld(systems = listOf(withering))
+    val master = rotWorld.exhausted().also { rotWorld.add(it, Master(masterId = 1, name = "Ada")) }
+    val wild = rotWorld.exhausted()
+
+    repeat(withering.periodTicks.toInt()) { rotWorld.tick(DELTA) }
+    corruption = 0.9
+    repeat(withering.periodTicks.toInt()) { rotWorld.tick(DELTA) }
+
+    verify { statusEffects.applyEffect(any(), master, StatusEffectId.WITHERING, 1) }
+    verify { statusEffects.applyEffect(any(), master, StatusEffectId.WITHERING, 2) }
+    verify(exactly = 0) { statusEffects.applyEffect(any(), wild, StatusEffectId.WITHERING, any()) }
+  }
+
   private fun exhausted(): EntityId {
     return world.exhausted()
   }

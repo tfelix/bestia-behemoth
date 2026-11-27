@@ -2,6 +2,7 @@ package net.bestia.zone.doomsday.withering
 
 import net.bestia.zone.world.mana.ManaField
 import net.bestia.zone.world.mana.ManaField.Cell
+import net.bestia.zone.weather.CorruptionExposure
 import net.bestia.zone.worldevent.gm.CorruptionReading
 import org.springframework.stereotype.Component
 
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Component
  * Withering reached, so an untouched world holds none. Guarded by its own monitor, like the mana field.
  */
 @Component
-class CorruptionField : CorruptionReading {
+class CorruptionField : CorruptionReading, CorruptionExposure {
 
   private val tiles = HashMap<Long, DoubleArray>()
   private val changed = HashSet<Long>()
