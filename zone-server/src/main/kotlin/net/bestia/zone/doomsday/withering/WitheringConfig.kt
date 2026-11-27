@@ -1,0 +1,23 @@
+package net.bestia.zone.doomsday.withering
+
+import org.springframework.boot.context.properties.ConfigurationProperties
+
+/** How the Withering spreads. Days are real days. */
+@ConfigurationProperties("doomsday.withering")
+data class WitheringConfig(
+  /** How many corruption crystals stand when its clock runs out, if nobody breaks them. */
+  val maxCrystals: Int = 300,
+  val crystalsPerDay: Double = 6.0,
+
+  /** How far one crystal corrupts the land, and how close two may grow. */
+  val crystalReachMetres: Double = 2_000.0,
+  val crystalSpacingMetres: Double = 1_200.0,
+
+  /** How fast corruption rises under a crystal, and heals where none stands any more, per day. */
+  val corruptPerDay: Double = 0.25,
+  val healPerDay: Double = 0.05,
+
+  /** The level of a crystal at onset and at the end of the clock. */
+  val crystalLevelAtOnset: Int = 20,
+  val crystalLevelAtEnd: Int = 70,
+)

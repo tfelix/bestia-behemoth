@@ -11969,3 +11969,16 @@ items:
       A dark, dense pebble that drinks in heat and gives it back for hours.
 
       It is still warm long after the fire around it has gone out.
+
+  # What a corruption crystal of the Withering leaves when it breaks. A crafting material, little more yet.
+  - id: 647
+    item-db-name: corrupted_shard
+    base-level: 30
+    weight: 20
+    type: ETC
+    material: CRYSTAL
+    craft-axes: { STATE: 1.0, INTEGRITY: -0.2, HEFT: -0.1, ARCANE: 0.6, COMPLEXITY: 0.2 }
+    description: |
+      A grey, oily splinter of crystal that still crawls faintly under the fingers.
+
+      The land around the crystal it came from had already begun to rot.
