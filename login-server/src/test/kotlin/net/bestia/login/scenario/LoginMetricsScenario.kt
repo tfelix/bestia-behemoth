@@ -20,7 +20,6 @@ class LoginMetricsScenario : BasePasskeyScenario() {
     val codeIssued = watch("login.authcode", "event", "issued")
     val codeConsumed = watch("login.authcode", "event", "consumed")
     val zone = watch("login.token.issued", "type", "zone")
-    val api = watch("login.token.issued", "type", "api")
     val refresh = watch("login.token.issued", "type", "refresh")
     val companion = watch("login.token.issued", "type", "companion")
 
@@ -37,7 +36,6 @@ class LoginMetricsScenario : BasePasskeyScenario() {
     assertEquals(2.0, codeIssued.moved())
     assertEquals(2.0, codeConsumed.moved())
     assertEquals(2.0, zone.moved())
-    assertEquals(2.0, api.moved())
     assertEquals(2.0, refresh.moved())
     assertEquals(0.0, companion.moved(), "a game login must not mint a companion token")
   }

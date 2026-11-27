@@ -87,22 +87,4 @@ class JwtServiceTest {
         assertTrue(ids.all { !it.isNullOrBlank() })
         assertNotEquals(ids[0], ids[1])
     }
-
-    @Test
-    fun `an api token names its account`() {
-        assertEquals(789L, jwtService.validateApiToken(jwtService.createApiToken(789L)))
-    }
-
-    /** Each token is meant for one receiver, so none of them may open another's door. */
-    @Test
-    fun `a zone login token is not an api token`() {
-        assertNull(jwtService.validateApiToken(jwtService.createLoginToken(789L, Role.SUPER_GM)))
-    }
-
-    @Test
-    fun `a tampered api token is refused`() {
-        val token = jwtService.createApiToken(789L)
-
-        assertNull(jwtService.validateApiToken(token.dropLast(2) + "xx"))
-    }
 }

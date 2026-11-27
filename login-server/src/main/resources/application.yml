@@ -46,9 +46,6 @@ jwt:
   # the socket judges it once at the handshake and the map endpoint uses its own ticket
   # (zone-server HttpTicketService), so it only has to survive the walk from login to connect.
   login-token-minutes: 2
-  # Validity (minutes) of the token a game client calls this server's REST API with. Renewed on every refresh,
-  # so a stolen one is useful only briefly.
-  api-token-minutes: 15
   # companion-secret (JWT_COMPANION_SECRET): signs the companion app's tokens and is shared with the api-server only.
   # Must differ from secret, so the api-server cannot mint zone tokens; LoginDeploymentGuard checks both.
   # Validity (minutes) of a companion access token. The app renews it from its refresh cookie.

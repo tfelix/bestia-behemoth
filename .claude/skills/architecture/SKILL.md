@@ -371,20 +371,19 @@ startup guard refuses the placeholder. The shared HMAC secret is meant to move t
 production.
 There is no DB call between the two servers; trust is entirely in the JWT signature.
 
-Four tokens, each with an audience matched exactly so none stands in for another; all but the companion token are signed with that one secret:
+Three tokens, each with an audience matched exactly so none stands in for another; all but the companion token are signed with that one secret:
 
 | Token | Audience | Lifetime | Used for |
 |---|---|---|---|
 | zone login token | `zone` | `jwt.login-token-minutes` (2) | the socket handshake, once (`jti`) |
 | refresh token | - (opaque, stored as a digest) | `game-login.refresh-token-days` | `/refresh`, rotated on every use |
-| api token | `login-api` | `jwt.api-token-minutes` (15) | the client's calls to `/api/v1/admin/**` |
 | companion token | `companion` | `jwt.companion-token-minutes` (15) | the companion app's calls to api-server; signed with `jwt.companion-secret`, not the zone secret |
 
 Login sessions and refresh tokens carry a `client` (`GAME`/`COMPANION`); `LoginGrants` refuses a grant for the other
 client, so nothing from a companion login opens a zone. The companion refresh token is an httpOnly cookie on
 `/api/v1/auth/companion` (`CompanionLoginController`), and its redirect must be one of `companion-login.redirect-uris`.
 
-The one message between the servers goes login → zone, over the zone's Valkey. `AccountSessionTerminator` ends
+Kicks go login → zone, over the zone's Valkey. `AccountSessionTerminator` ends
 every way into an account (refresh tokens, signed-in login sessions, open codes, passkey enrolments) on a recovery,
 a ban or a GM kick, and after the commit `ZoneKickListener` appends a `KickOrder` (account, reason, kick time) to the
 `kicks` stream as the `login` Valkey user, which may do nothing else; best effort, 2 s timeout
@@ -393,10 +392,12 @@ so each sees every kick and catches up after a restart: `account/authentication/
 `KickedAccounts.remember` (refuses login tokens issued before the kick time, which is the login server's clock like
 the token's) and, for a kick newer than the node's start, `ConnectionTerminator.disconnect`.
 
-A GM action from the client is `POST /api/v1/admin/accounts/{id}/ban|kick` with the api token. `GmActionService`
-re-reads the actor on every call, needs the action's `Authority`, needs the actor to outrank the target
-(`Role.outranks`), and writes a `gm_action` row. A new GM action is a new `Authority` and a new endpoint there;
-if it acts inside the game, also a contract in `bus/.../contract/` that the zone reads, as `KickOrder` is.
+A GM action comes from the companion app: `POST /v1/companion/gm/accounts/{id}/ban|kick` on the api-server
+(`GmController`), which sends it to the login server as a `LoginCommand` (see "GM actions" below). `GmCommandHandler`
+hands it to `GmActionService`, which re-reads the actor on every call, needs the action's `Authority`, needs the actor
+to outrank the target (`Role.outranks`), and writes a `gm_action` row. A new GM action is a new `Authority`, a new
+`LoginCommand` and a new endpoint in `GmController`; if it acts inside the game, also a contract in
+`bus/.../contract/` that the zone reads, as `KickOrder` is.
 
 Passkeys / WebAuthn are the only login method, and they never touch the game client. The client calls
 `POST /api/v1/auth/game/start` with a loopback `redirect_uri` and a PKCE challenge,

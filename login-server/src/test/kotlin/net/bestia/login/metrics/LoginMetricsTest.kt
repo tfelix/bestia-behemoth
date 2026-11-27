@@ -7,8 +7,6 @@ import net.bestia.login.jwt.JwtService
 import net.bestia.login.metrics.LoginStateMeters.CachedCount
 import net.bestia.login.ratelimit.RateLimiter
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -23,7 +21,6 @@ class LoginMetricsTest {
   @Test
   fun `every series exists at zero before anything happens`() {
     assertEquals(0.0, registry.get("login.refresh.reuse.detected").counter().count())
-    assertEquals(0.0, registry.get("login.token.invalid").counter().count())
     assertEquals(0.0, registry.get("login.grant.refused").tag("reason", "pkce_mismatch").tag("client", "game").tag("flow", "exchange").counter().count())
     assertEquals(0.0, registry.get("login.kick.published").tag("reason", "BANNED").tag("result", "error").counter().count())
     assertEquals(0L, registry.get("login.sweep.duration").tag("job", "refresh_token").timer().count())
@@ -83,26 +80,18 @@ class LoginMetricsTest {
   }
 
   @Test
-  fun `tokens are counted by type and an invalid api token by itself`() {
+  fun `tokens are counted by type`() {
     val jwt = JwtService(
       JwtConfig(secret = SECRET, loginTokenMinutes = 2, companionSecret = SECRET + "-companion"),
       metrics
     )
 
     jwt.createLoginToken(1, net.bestia.account.Role.USER)
-    jwt.createApiToken(1)
-    jwt.createApiToken(1)
+    jwt.createCompanionToken(1)
     jwt.createCompanionToken(1)
 
     assertEquals(1.0, issued(registry, "zone"))
-    assertEquals(2.0, issued(registry, "api"))
-    assertEquals(1.0, issued(registry, "companion"))
-
-    assertNotNull(jwt.validateApiToken(jwt.createApiToken(1)))
-    assertNull(jwt.validateApiToken("not.a.token"))
-    assertNull(jwt.validateApiToken(jwt.createLoginToken(1, net.bestia.account.Role.USER)), "a zone token is not an api token")
-
-    assertEquals(2.0, registry.get("login.token.invalid").counter().count())
+    assertEquals(2.0, issued(registry, "companion"))
   }
 
   @Test
