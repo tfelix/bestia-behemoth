@@ -127,6 +127,35 @@ class GmCommandScenario : BasePasskeyScenario() {
     assertEquals(Outcome.INVALID, send(gm, LoginCommand.Ban(player.accountId, "x", durationHours = Long.MAX_VALUE)))
   }
 
+  @Test
+  fun `a GM ban and kick are counted with the kick orders they publish`() {
+    val banned = watch("login.gm.action", "action", "ban", "result", "ok")
+    val kicked = watch("login.gm.action", "action", "kick", "result", "ok")
+    val banKick = watch("login.kick.published", "reason", "BANNED", "result", "ok")
+    val gmKick = watch("login.kick.published", "reason", "GM_KICK", "result", "ok")
+    val gm = signedIn(Role.GM)
+    val player = signedIn(Role.USER)
+
+    send(gm, LoginCommand.Kick(player.accountId, "stuck"))
+    send(gm, LoginCommand.Ban(player.accountId, "botting", durationHours = 24))
+
+    assertEquals(1.0, kicked.moved())
+    assertEquals(1.0, banned.moved())
+    assertEquals(1.0, gmKick.moved())
+    assertEquals(1.0, banKick.moved())
+  }
+
+  @Test
+  fun `a refused GM action is counted as refused`() {
+    val refused = watch("login.gm.action", "action", "ban", "result", "refused")
+    val player = signedIn(Role.USER)
+    val other = signedIn(Role.USER)
+
+    send(player, LoginCommand.Ban(other.accountId, "x", durationHours = null))
+
+    assertEquals(1.0, refused.moved())
+  }
+
   private fun send(actor: SignedIn, command: LoginCommand): Outcome {
     return bus.send(actor.accountId, command).get(10, TimeUnit.SECONDS)
   }

@@ -44,7 +44,7 @@ class LoginMetrics(private val registry: MeterRegistry = SimpleMeterRegistry()) 
 
   enum class GrantFlow { START, EXCHANGE, REFRESH }
 
-  enum class TokenType { ZONE, API, COMPANION, REFRESH }
+  enum class TokenType { ZONE, COMPANION, REFRESH }
 
   enum class RefreshRefusal { UNKNOWN, WRONG_CLIENT, REVOKED_OR_EXPIRED }
 
@@ -113,7 +113,6 @@ class LoginMetrics(private val registry: MeterRegistry = SimpleMeterRegistry()) 
   }
 
   private val tokensIssued = enumCounters<TokenType>("login.token.issued") { "type" to it.tag() }
-  private val tokensInvalid = counter("login.token.invalid")
 
   private val refreshRotations = mapOf(
     true to counter("login.refresh.rotations", "result" to "rotated"),
@@ -184,10 +183,6 @@ class LoginMetrics(private val registry: MeterRegistry = SimpleMeterRegistry()) 
 
   fun tokenIssued(type: TokenType) {
     tokensIssued.getValue(type).increment()
-  }
-
-  fun tokenInvalid() {
-    tokensInvalid.increment()
   }
 
   fun refreshRotated() {

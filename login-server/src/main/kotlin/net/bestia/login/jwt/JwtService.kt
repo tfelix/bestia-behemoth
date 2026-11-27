@@ -1,6 +1,5 @@
 package net.bestia.login.jwt
 
-import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import net.bestia.account.Role
@@ -47,25 +46,6 @@ class JwtService(
     return jwt
   }
 
-  /**
-   * Lets a game client call this server's REST API as [accountId]. It names the account only: what the account
-   * may do is read from the database on every call, so a ban or a demotion applies at once.
-   */
-  fun createApiToken(accountId: Long): String {
-    val now = Date()
-    metrics.tokenIssued(LoginMetrics.TokenType.API)
-
-    return Jwts.builder()
-      .id(UUID.randomUUID().toString())
-      .subject(accountId.toString())
-      .issuer(ISSUER)
-      .audience().add(API_AUDIENCE).and()
-      .issuedAt(now)
-      .expiration(Date(now.time + jwtConfig.apiTokenMinutes * SECONDS_PER_MINUTE * MILLIS_PER_SECOND))
-      .signWith(secretKey)
-      .compact()
-  }
-
   /** Lets the companion app call the api-server as [accountId]. Signed with the companion key, not [secretKey]. */
   fun createCompanionToken(accountId: Long): String {
     val now = Date()
@@ -87,38 +67,6 @@ class JwtService(
       return jwtConfig.companionTokenMinutes * SECONDS_PER_MINUTE * MILLIS_PER_SECOND
     }
 
-  /** The account an api token names, or null for anything else - a zone token included. */
-  fun validateApiToken(token: String): Long? {
-    val accountId = parseApiToken(token)
-
-    if (accountId == null) {
-      metrics.tokenInvalid()
-    }
-
-    return accountId
-  }
-
-  private fun parseApiToken(token: String): Long? {
-    val claims = try {
-      Jwts.parser()
-        .verifyWith(secretKey)
-        .requireIssuer(ISSUER)
-        .build()
-        .parseSignedClaims(token)
-        .payload
-    } catch (_: JwtException) {
-      return null
-    } catch (_: IllegalArgumentException) {
-      return null
-    }
-
-    if (claims.audience != setOf(API_AUDIENCE) || claims.expiration == null) {
-      return null
-    }
-
-    return claims.subject?.toLongOrNull()
-  }
-
   private val secretKey: SecretKey by lazy {
     Keys.hmacShaKeyFor(jwtConfig.secret.toByteArray(StandardCharsets.UTF_8))
   }
@@ -129,7 +77,6 @@ class JwtService(
 
   private companion object {
     const val ISSUER = "login"
-    const val API_AUDIENCE = "login-api"
     const val SECONDS_PER_MINUTE = 60L
     const val MILLIS_PER_SECOND = 1000L
   }
