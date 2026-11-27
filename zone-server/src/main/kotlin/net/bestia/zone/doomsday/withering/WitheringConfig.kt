@@ -17,6 +17,10 @@ data class WitheringConfig(
   val corruptPerDay: Double = 0.25,
   val healPerDay: Double = 0.05,
 
+  /** How rotten the land must be for its plants to die, and how many cells lose theirs per run. */
+  val plantsDieFrom: Double = 0.7,
+  val blightCellsPerRun: Int = 20,
+
   /** The level of a crystal at onset and at the end of the clock. */
   val crystalLevelAtOnset: Int = 20,
   val crystalLevelAtEnd: Int = 70,

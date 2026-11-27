@@ -445,6 +445,7 @@ doomsday:
     crystal-reach-metres: 2000
     corrupt-per-day: 0.25
     heal-per-day: 0.05
+    plants-die-from: 0.7
   # Alpha tests: force the threat, the Foreshadowing or the origin (metres) of a new world.
   # force-kind: VOID_TEAR
   # force-foreshadow: MANA_STORM_SEASON
