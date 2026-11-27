@@ -199,7 +199,7 @@ class BestiaTrapSystem(
     return entityAOIService.queryEntitiesInCube(at, HEIGHT_TOLERANCE * 2, AoiLayer.DYNAMIC_ONLY)
       .filter { id ->
         val pos = world.get(id, Position::class) ?: return@filter false
-        pos.x == at.x && pos.y == at.y && isWildBestia(world, id) && !isWary(world, id)
+        pos.x == at.x && pos.y == at.y && isWildBestia(world, id) && !isWary(world, id) && !isCorrupted(world, id)
       }
       .minOrNull()
   }
@@ -210,6 +210,11 @@ class BestiaTrapSystem(
 
   private fun isWary(world: World, id: EntityId): Boolean {
     return world.get(id, StatusEffects::class)?.hasEffect(StatusEffectId.TRAP_WARY.id) == true
+  }
+
+  /** The Withering's bestia: no trap holds them. */
+  private fun isCorrupted(world: World, id: EntityId): Boolean {
+    return world.get(id, StatusEffects::class)?.hasEffect(StatusEffectId.CORRUPTED.id) == true
   }
 
   private companion object {

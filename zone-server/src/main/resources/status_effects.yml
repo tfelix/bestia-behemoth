@@ -975,6 +975,15 @@ statusEffects:
     dispellable: false
     script: Withering
 
+  # On a wild bestia born on land the Withering rotted: fiercer, and no trap holds it. For the client's look too.
+  - id: 262
+    identifier: CORRUPTED
+    polarity: NEUTRAL
+    showIcon: false
+    isSyncedToClient: true
+    dispellable: false
+    script: Corrupted
+
   # Near a master who wears a boss essence with an aura, kept up by EssenceAuraSystem every second.
   - id: 300
     identifier: ROYAL_SWARM

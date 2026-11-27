@@ -3,6 +3,8 @@ package net.bestia.zone.spawn.ecs.ambient
 import net.bestia.zone.entity.GameMetrics
 import net.bestia.zone.ai.ecs.AiThrottleable
 import net.bestia.zone.spawn.BestiaEntitySpawner
+import net.bestia.zone.spawn.SpawnCorruption
+import net.bestia.zone.spawn.isCorrupted
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
@@ -49,6 +51,7 @@ class AmbientSpawnerSystem(
   private val resolver: AmbientSiteResolver,
   private val config: AmbientSpawnConfig,
   private val metrics: GameMetrics = GameMetrics(),
+  private val corruption: SpawnCorruption? = null,
 ) : System {
   override val phase = Phase.SPAWN
 
@@ -180,7 +183,8 @@ class AmbientSpawnerSystem(
       world,
       site.bestiaId,
       site.position,
-      persistent = false
+      persistent = false,
+      corrupted = isCorrupted(corruption, site.position.x, site.position.y),
     )
 
     // Applied at the end of the tick, like every structural change from inside a system - `World.tick` holds
