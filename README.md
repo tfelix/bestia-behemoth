@@ -22,6 +22,10 @@
   <a href="THIRD-PARTY.md">Credits</a>
 </p>
 
+<p align="center">
+  <img alt="Concept art: adventurers before a wandering behemoth, a Rift warden in a violet storm, and a map of the world" src=".github/artwork/banner.jpg" width="100%">
+</p>
+
 > [!NOTE]
 > **Pre-alpha.** The server and client are under heavy development, there is no public server and no stable
 > build yet. This repository is for people who want to read, run or help build it.
@@ -44,6 +48,12 @@ Bestia embraces emergent gameplay where player actions shape the world's destiny
 - **Faction leaders** deciding whether to hasten the world's transformation or preserve what remains
 
 The world evolves with the collective decisions of its players.
+
+<p align="center">
+  <img alt="Concept art: a market street at dusk" src=".github/artwork/town-market.jpg" width="32%">
+  <img alt="Concept art: a bestia compendium on parchment" src=".github/artwork/compendium.jpg" width="32%">
+  <img alt="Concept art: a silver stag in moonlight" src=".github/artwork/silver-stag.jpg" width="32%">
+</p>
 
 ## 🧱 What is in this repository
 
