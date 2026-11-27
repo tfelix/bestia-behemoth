@@ -259,6 +259,9 @@ const _GM_TIER_COLOURS: Array[Color] = [
 ]
 const _GM_BORDER := Color(0.2, 0.9, 0.95, 0.8)
 
+## The Withering's corruption over a GM layer cell, at full strength; fainter where the cell is less corrupted.
+const _GM_CORRUPTION := Color(0.42, 0.46, 0.3, 0.75)
+
 ## Below this many pixels a cell is too small to carry its density as a number.
 const _GM_NUMBER_MIN_PIXELS := 36.0
 
@@ -778,6 +781,8 @@ func _draw_gm_mana_layer() -> void:
 		var south_west := layer.SouthWest + Vector2(column, row) * cell
 		var corner := _to_screen(south_west + Vector2(0.0, cell))
 		draw_rect(Rect2(corner, Vector2(cell_pixels, cell_pixels)), _GM_TIER_COLOURS[layer.Tier[i]])
+		if i < layer.Corruption.size() and layer.Corruption[i] > 0.0:
+			draw_rect(Rect2(corner, Vector2(cell_pixels, cell_pixels)), _GM_CORRUPTION * Color(1, 1, 1, layer.Corruption[i]))
 
 		var province := layer.Province[i]
 		if column + 1 < layer.Width and layer.Province[i + 1] != province:

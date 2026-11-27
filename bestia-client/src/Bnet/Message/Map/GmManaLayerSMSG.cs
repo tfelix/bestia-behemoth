@@ -25,6 +25,9 @@ namespace BestiaBehemothClient.Bnet.Message.Map
     /// <summary>The province of each cell, -1 for none.</summary>
     [Export] public int[] Province { get; set; } = [];
 
+    /// <summary>How corrupted each cell is by the Withering, 0 to 1.</summary>
+    [Export] public float[] Corruption { get; set; } = [];
+
     /// <summary>Each with <c>index</c>, <c>name</c>, <c>budget</c>, <c>quiet_seconds</c> and <c>sanctuary</c>.</summary>
     [Export] public Godot.Collections.Array<Godot.Collections.Dictionary> Provinces { get; set; } = [];
 
@@ -40,6 +43,7 @@ namespace BestiaBehemothClient.Bnet.Message.Map
         Width = (int)proto.Width,
         Density = [.. proto.Density],
         Province = [.. proto.Province],
+        Corruption = [.. proto.Corruption],
       };
       layer.Tier = new int[proto.Tier.Count];
       for (var i = 0; i < proto.Tier.Count; i++)

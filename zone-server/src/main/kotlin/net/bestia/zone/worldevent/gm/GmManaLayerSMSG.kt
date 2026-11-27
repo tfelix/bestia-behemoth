@@ -17,7 +17,7 @@ data class GmManaLayerSMSG(
   val events: List<Event>,
 ) : SMSG {
 
-  data class Cell(val density: Double, val tier: ManaTier, val province: Int)
+  data class Cell(val density: Double, val tier: ManaTier, val province: Int, val corruption: Double = 0.0)
 
   data class Province(val index: Int, val name: String, val budget: Double, val quietSeconds: Long, val sanctuary: Boolean)
 
@@ -34,6 +34,7 @@ data class GmManaLayerSMSG(
       proto.addDensity(it.density.toFloat())
       proto.addTier(WeatherSMSGProto.ManaTier.forNumber(it.tier.ordinal))
       proto.addProvince(it.province)
+      proto.addCorruption(it.corruption.toFloat())
     }
     provinces.forEach {
       proto.addProvinces(
