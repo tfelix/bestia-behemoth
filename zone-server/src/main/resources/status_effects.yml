@@ -966,6 +966,15 @@ statusEffects:
     dispellable: false
     script: TrapWary
 
+  # On a master or their bestia on land the Withering corrupted: drained and weakened. Renewed while they stay.
+  - id: 261
+    identifier: WITHERING
+    polarity: DEBUFF
+    showIcon: true
+    isSyncedToClient: true
+    dispellable: false
+    script: Withering
+
   # Near a master who wears a boss essence with an aura, kept up by EssenceAuraSystem every second.
   - id: 300
     identifier: ROYAL_SWARM

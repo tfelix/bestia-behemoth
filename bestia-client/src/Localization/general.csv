@@ -1250,6 +1250,7 @@ STATUS_EFFECT_239,Playing Wanderer's Tune: the weather drains less stamina from 
 STATUS_EFFECT_240,Wanderer's Tune: a Bard's song. The weather drains less of your stamina.
 STATUS_EFFECT_256,"Mana-touched: born where the mana runs thick, a few levels stronger than its kin."
 STATUS_EFFECT_257,"Mana Sickness: the mana here is too thick for you. Less health and attack, and you do not heal on your own."
+STATUS_EFFECT_261,"Withering: the corrupted ground drains you. Less attack, no healing on your own, and your health wastes away."
 ERROR_PORTAL_NO_SPOT,That saved spot is not there any more.
 ERROR_SCRY_UNCHARTED,Your sight finds nothing to hold on to there: that land is not charted.
 ERROR_SCRY_NO_SIGHT,That party member is not there to be seen.
