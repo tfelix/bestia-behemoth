@@ -7,9 +7,11 @@ import net.bestia.api.metrics.BusClientMeters
 import net.bestia.bus.AppPresence
 import net.bestia.bus.BusKeys
 import net.bestia.bus.Directory
+import net.bestia.bus.LoginBus
 import net.bestia.bus.contract.ZoneEvent
 import net.bestia.bus.valkey.ValkeyAppPresence
 import net.bestia.bus.valkey.ValkeyDirectory
+import net.bestia.bus.valkey.ValkeyLoginBus
 import net.bestia.bus.valkey.ValkeyNodeBus
 import net.bestia.bus.valkey.ValkeyStreamReader
 import org.springframework.context.annotation.Bean
@@ -40,6 +42,11 @@ class BusClientConfiguration(private val properties: BusClientProperties) {
   @Bean(destroyMethod = "close")
   fun nodeBus(busClient: RedisClient, busDirectory: Directory): ValkeyNodeBus {
     return ValkeyNodeBus(busClient, busDirectory, properties.defaultNode, properties.instanceId)
+  }
+
+  @Bean(destroyMethod = "close")
+  fun loginBus(busClient: RedisClient): LoginBus {
+    return ValkeyLoginBus(busClient, properties.instanceId)
   }
 
   @Bean(destroyMethod = "close")
