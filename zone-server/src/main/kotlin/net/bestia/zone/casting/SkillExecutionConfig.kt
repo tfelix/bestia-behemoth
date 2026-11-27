@@ -15,7 +15,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  *   itself. Beyond this the query is refused rather than truncated, because a silently short answer is worse
  *   than a fizzled cast. Must stay below [worldOpsPerCast] or the op budget always trips first and this
  *   never reports anything - which is why the two are checked against each other here.
- * @property maxMillisPerCast wall clock one cast may take, checked when an operation is charged. It catches a
+ * @property maxMillisPerCast CPU time one cast may take, checked when an operation is charged. It catches a
  *   script looping *between* operations; it cannot interrupt one already running, so it is a runaway guard
  *   rather than the bound. [worldOpsPerCast] is what pins behaviour, and what a test should assert against.
  */

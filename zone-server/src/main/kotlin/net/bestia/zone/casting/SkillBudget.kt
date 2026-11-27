@@ -1,12 +1,15 @@
 package net.bestia.zone.casting
 
+import java.lang.management.ManagementFactory
+
 /**
  * One cast's allowance of world work. Created per cast by [SkillContextFactory] and spent by
  * [SkillWorld]; never shared between casts.
  *
  * The op count is the behavioural bound - it is deterministic, so a test can assert exactly what a
  * script is allowed to do. The clock is a runaway guard for a script that loops without spending ops
- * fast enough to be caught by the count.
+ * fast enough to be caught by the count. It counts only the time the resolving thread runs: a GC pause or a
+ * busy machine is no work of the script, and must not stop a cast halfway.
  *
  * Not thread-safe, and does not need to be: a cast is resolved by one worker from start to finish.
  */
@@ -14,7 +17,7 @@ class SkillBudget(
   private val maxOps: Int,
   private val maxQueryResults: Int,
   private val maxMillis: Long,
-  private val clock: () -> Long = System::nanoTime,
+  private val clock: () -> Long = ::threadCpuNanos,
 ) {
 
   private val deadlineNanos = clock() + maxMillis * NANOS_PER_MILLI
@@ -58,5 +61,8 @@ class SkillBudget(
 
   companion object {
     private const val NANOS_PER_MILLI = 1_000_000L
+    private val threads = ManagementFactory.getThreadMXBean()
+
+    private fun threadCpuNanos(): Long = threads.currentThreadCpuTime
   }
 }
