@@ -48,6 +48,7 @@ enum GroundLayerId {
   GROUND_LAYER_WORN = 2;
   GROUND_LAYER_BLOODIED = 3;
   GROUND_LAYER_DISTURBED = 4;
+  GROUND_LAYER_CORRUPTED = 5;
 }
 
 /**
@@ -91,7 +92,8 @@ message GroundLayerCells {
  *
  * `WORN` and `BLOODIED` are laid by the client itself from what it sees walk and die (see
  * `GroundMarkRulesSMSG`), so they are sent on arrival and then only as a rare resync that corrects drift.
- * `SCORCHED` follows the fire, which a client cannot simulate, so it is sent whenever it changes.
+ * `SCORCHED` follows the fire, which a client cannot simulate, so it is sent whenever it changes. `CORRUPTED`
+ * follows the Withering the same way.
  *
  * ### Not in the manifest, not requested, and not a delta
  *

@@ -309,6 +309,20 @@ namespace BestiaBehemothClient.Tests
     }
 
     [Fact]
+    public void CorruptionIsKeptAsSentOnTheSecondTexture()
+    {
+      var (marks, _, _) = Marked();
+      var rot = new byte[GroundLayerCells.ByteLength(Size)];
+      rot[1] = 0xA0;
+
+      marks.ApplyLayers(Origin, new[] { GroundLayerEntry.FromNibbles(GroundLayers.Id.Corrupted, rot) });
+
+      var cells = marks.CellsOf(Origin);
+      Assert.Equal(GroundLayers.Channels, cells.Length);
+      Assert.Equal(10, GroundLayerCells.LevelAt(cells[GroundLayers.ChannelOf(GroundLayers.Id.Corrupted)], Size, 3, 0));
+    }
+
+    [Fact]
     public void RetiringTheLastLayerForgetsTheColumn()
     {
       var (marks, _, _) = Marked();

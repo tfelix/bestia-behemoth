@@ -69,6 +69,7 @@ namespace BestiaBehemothClient.Tests
       Assert.Equal(1, GroundLayers.ChannelOf(GroundLayers.Id.Worn));
       Assert.Equal(2, GroundLayers.ChannelOf(GroundLayers.Id.Bloodied));
       Assert.Equal(3, GroundLayers.ChannelOf(GroundLayers.Id.Disturbed));
+      Assert.Equal(4, GroundLayers.ChannelOf(GroundLayers.Id.Corrupted));
     }
 
     [Fact]
@@ -78,6 +79,7 @@ namespace BestiaBehemothClient.Tests
       Assert.Equal(2, (int)GroundLayers.Id.Worn);
       Assert.Equal(3, (int)GroundLayers.Id.Bloodied);
       Assert.Equal(4, (int)GroundLayers.Id.Disturbed);
+      Assert.Equal(5, (int)GroundLayers.Id.Corrupted);
     }
 
     [Fact]

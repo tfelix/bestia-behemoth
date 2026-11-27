@@ -786,16 +786,17 @@ namespace BestiaBehemothClient.Game.World
 
     private static readonly StringName BurnsWithGroundParameter = "burns_with_ground";
     private static readonly StringName GroundMarksParameter = "ground_marks";
+    private static readonly StringName GroundMarks2Parameter = "ground_marks_2";
     private static readonly StringName GroundFireParameter = "ground_fire";
     private static readonly StringName GroundMarksExtentParameter = "ground_marks_extent";
 
-    /// <summary>What the field burns down from. Kept here because the material loads lazily, on the first build.</summary>
-    private Texture2D _groundMarks;
+    /// <summary>What the field burns and withers from. Kept here because the material loads lazily, on the first build.</summary>
+    private GroundMarkTexture _groundMarks;
 
     private Texture2D _groundFire;
 
-    /// <summary>Lets the field burn down where the ground is burning or burnt.</summary>
-    public void SetGroundTextures(Texture2D marks, Texture2D fire)
+    /// <summary>Lets the field burn down where the ground is burning or burnt, and wither where it is corrupted.</summary>
+    public void SetGroundTextures(GroundMarkTexture marks, Texture2D fire)
     {
       _groundMarks = marks;
       _groundFire = fire;
@@ -814,7 +815,8 @@ namespace BestiaBehemothClient.Game.World
     private void BindGround(ShaderMaterial material)
     {
       material.SetShaderParameter(BurnsWithGroundParameter, _groundMarks != null && _groundFire != null);
-      material.SetShaderParameter(GroundMarksParameter, _groundMarks);
+      material.SetShaderParameter(GroundMarksParameter, _groundMarks?.Texture);
+      material.SetShaderParameter(GroundMarks2Parameter, _groundMarks?.SecondTexture);
       material.SetShaderParameter(GroundFireParameter, _groundFire);
       material.SetShaderParameter(GroundMarksExtentParameter, GroundMarkTexture.ExtentMetres);
     }

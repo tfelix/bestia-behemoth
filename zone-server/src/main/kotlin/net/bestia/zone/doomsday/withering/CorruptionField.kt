@@ -17,6 +17,7 @@ class CorruptionField : CorruptionReading, CorruptionExposure, SpawnCorruption {
   private val tiles = HashMap<Long, DoubleArray>()
   private val changed = HashSet<Long>()
   private val dropped = HashSet<Long>()
+  private val changedCells = HashSet<Cell>()
 
   val tileCount: Int
     @Synchronized get() = tiles.size
@@ -44,6 +45,15 @@ class CorruptionField : CorruptionReading, CorruptionExposure, SpawnCorruption {
     val index = ManaField.indexOf(cell.x, cell.y)
     tile[index] = (tile[index] + delta).coerceIn(0.0, 1.0)
     changed += key
+    changedCells += cell
+  }
+
+  /** Hands the cells changed since the last call, and forgets them. Separate from [takeChanges], which feeds the journal. */
+  @Synchronized
+  fun takeChangedCells(): Set<Cell> {
+    val taken = changedCells.toSet()
+    changedCells.clear()
+    return taken
   }
 
   /** Every cell that holds any corruption, with its intensity. */
@@ -95,6 +105,7 @@ class CorruptionField : CorruptionReading, CorruptionExposure, SpawnCorruption {
     tiles.clear()
     changed.clear()
     dropped.clear()
+    changedCells.clear()
   }
 
   private companion object {

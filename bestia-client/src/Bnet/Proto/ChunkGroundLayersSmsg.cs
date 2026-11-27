@@ -35,11 +35,12 @@ namespace Bnet {
             "J0NIVU5LX0dST1VORF9MQVlFUl9FTkNPRElOR19VTlNQRUNJRklFRBAAEikK",
             "JUNIVU5LX0dST1VORF9MQVlFUl9FTkNPRElOR19OSUJCTEVfVjEQARIwCixD",
             "SFVOS19HUk9VTkRfTEFZRVJfRU5DT0RJTkdfTEVWRUxTX1NQQVJTRV9WMRAC",
-            "KpYBCg1Hcm91bmRMYXllcklkEhwKGEdST1VORF9MQVlFUl9VTlNQRUNJRklF",
+            "KrIBCg1Hcm91bmRMYXllcklkEhwKGEdST1VORF9MQVlFUl9VTlNQRUNJRklF",
             "RBAAEhkKFUdST1VORF9MQVlFUl9TQ09SQ0hFRBABEhUKEUdST1VORF9MQVlF",
             "Ul9XT1JOEAISGQoVR1JPVU5EX0xBWUVSX0JMT09ESUVEEAMSGgoWR1JPVU5E",
-            "X0xBWUVSX0RJU1RVUkJFRBAEQjMKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0Ia",
-            "Q2h1bmtHcm91bmRMYXllcnNTTVNHUHJvdG9iBnByb3RvMw=="));
+            "X0xBWUVSX0RJU1RVUkJFRBAEEhoKFkdST1VORF9MQVlFUl9DT1JSVVBURUQQ",
+            "BUIzChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CGkNodW5rR3JvdW5kTGF5ZXJz",
+            "U01TR1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.ChunkReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.ChunkGroundLayerEncoding), typeof(global::Bnet.GroundLayerId), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -97,6 +98,7 @@ namespace Bnet {
     [pbr::OriginalName("GROUND_LAYER_WORN")] GroundLayerWorn = 2,
     [pbr::OriginalName("GROUND_LAYER_BLOODIED")] GroundLayerBloodied = 3,
     [pbr::OriginalName("GROUND_LAYER_DISTURBED")] GroundLayerDisturbed = 4,
+    [pbr::OriginalName("GROUND_LAYER_CORRUPTED")] GroundLayerCorrupted = 5,
   }
 
   #endregion
@@ -447,7 +449,8 @@ namespace Bnet {
   ///
   /// `WORN` and `BLOODIED` are laid by the client itself from what it sees walk and die (see
   /// `GroundMarkRulesSMSG`), so they are sent on arrival and then only as a rare resync that corrects drift.
-  /// `SCORCHED` follows the fire, which a client cannot simulate, so it is sent whenever it changes.
+  /// `SCORCHED` follows the fire, which a client cannot simulate, so it is sent whenever it changes. `CORRUPTED`
+  /// follows the Withering the same way.
   ///
   /// ### Not in the manifest, not requested, and not a delta
   ///

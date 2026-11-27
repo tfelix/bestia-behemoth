@@ -41,12 +41,18 @@ enum class GroundLayer(val wireId: Int, val channel: Int) {
    * weather snow the shader already derives. So it is only visible where there is something to disturb,
    * which is why a dusting of snow makes tracks legible that the same ground shows nothing of in summer.
    */
-  DISTURBED(wireId = 4, channel = 3);
+  DISTURBED(wireId = 4, channel = 3),
+
+  /**
+   * Land the Withering rotted. The first layer of the client's second mark texture, so it composites after the
+   * four above.
+   */
+  CORRUPTED(wireId = 5, channel = 4);
 
   companion object {
 
-    /** How many channels one mark texture carries, which is what caps the layers that may stack on a cell. */
-    const val CHANNELS = 4
+    /** Two mark textures of four channels each, which is what caps the layers that may stack on a cell. */
+    const val CHANNELS = 8
 
     fun ofWireId(wireId: Int): GroundLayer? {
       return entries.firstOrNull { it.wireId == wireId }
