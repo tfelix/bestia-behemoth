@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap
 @Component
 class LiveSessions(private val metrics: LiveMetrics, registry: MeterRegistry) {
 
-  private class Live(val socket: WebSocketSession, val expiresAt: Instant)
+  private class Live(val socket: WebSocketSession, val issuedAt: Instant, val expiresAt: Instant)
 
   private val byAccount = ConcurrentHashMap<Long, MutableMap<String, Live>>()
   private val mapper = jacksonObjectMapper()
@@ -37,10 +37,23 @@ class LiveSessions(private val metrics: LiveMetrics, registry: MeterRegistry) {
       .register(registry)
   }
 
-  fun add(accountId: Long, socket: WebSocketSession, expiresAt: Instant): WebSocketSession {
+  /** [issuedAt] and [expiresAt] are the token's the socket opened with. */
+  fun add(accountId: Long, socket: WebSocketSession, issuedAt: Instant, expiresAt: Instant): WebSocketSession {
     val safe = ConcurrentWebSocketSessionDecorator(socket, SEND_TIME_LIMIT_MILLIS, SEND_BUFFER_BYTES)
-    byAccount.computeIfAbsent(accountId) { ConcurrentHashMap() }[socket.id] = Live(safe, expiresAt)
+    byAccount.computeIfAbsent(accountId) { ConcurrentHashMap() }[socket.id] = Live(safe, issuedAt, expiresAt)
     return safe
+  }
+
+  /** Closes the sockets of a kicked account whose token predates the kick, as one from that second does. */
+  fun closeOpenedBefore(accountId: Long, kickedAt: Instant) {
+    val sockets = byAccount[accountId] ?: return
+    for (live in sockets.values.filter { !it.issuedAt.isAfter(kickedAt) }) {
+      try {
+        live.socket.close(KICKED)
+      } catch (e: Exception) {
+        LOG.debug { "Closing socket ${live.socket.id} of kicked account $accountId failed: ${e.message}" }
+      }
+    }
   }
 
   fun remove(accountId: Long, socket: WebSocketSession) {
@@ -106,6 +119,9 @@ class LiveSessions(private val metrics: LiveMetrics, registry: MeterRegistry) {
   companion object {
     /** A close code from the private range: the app reads it as "refresh the token and reconnect". */
     val TOKEN_EXPIRED = CloseStatus(4001, "token expired")
+
+    /** The app's "unauthorized" code: it tries a refresh, which fails, because the kick ended the account's sessions. */
+    val KICKED = CloseStatus(4000, "kicked")
 
     private const val KEEP_ALIVE_MILLIS = 25_000L
     private const val SEND_TIME_LIMIT_MILLIS = 5_000

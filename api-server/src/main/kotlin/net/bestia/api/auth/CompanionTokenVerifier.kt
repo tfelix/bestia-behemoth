@@ -10,13 +10,20 @@ import org.springframework.stereotype.Component
 import java.nio.charset.StandardCharsets
 import java.time.Instant
 
-/** Checks a companion access token: the companion key, the login issuer, exactly the companion audience. */
+/**
+ * Checks a companion access token: the companion key, the login issuer, exactly the companion audience, and that the
+ * account was not kicked after the token was issued.
+ */
 @Component
-class CompanionTokenVerifier(properties: CompanionProperties, private val metrics: AuthMetrics) {
+class CompanionTokenVerifier(
+  properties: CompanionProperties,
+  private val kickedAccounts: KickedAccounts,
+  private val metrics: AuthMetrics,
+) {
 
   private val key = Keys.hmacShaKeyFor(properties.jwtSecret.toByteArray(StandardCharsets.UTF_8))
 
-  data class Verified(val accountId: Long, val expiresAt: Instant)
+  data class Verified(val accountId: Long, val issuedAt: Instant, val expiresAt: Instant)
 
   /** The token's account and expiry, or null for anything else - a zone token included. */
   fun verify(token: String): Verified? {
@@ -35,8 +42,12 @@ class CompanionTokenVerifier(properties: CompanionProperties, private val metric
     }
     val accountId = claims.subject?.toLongOrNull() ?: return failed(AuthMetrics.TokenFailure.MISSING_SUBJECT)
     val expiresAt = claims.expiration?.toInstant() ?: return failed(AuthMetrics.TokenFailure.MISSING_EXPIRY)
+    val issuedAt = claims.issuedAt?.toInstant() ?: return failed(AuthMetrics.TokenFailure.MISSING_ISSUED_AT)
+    if (kickedAccounts.refuses(accountId, issuedAt)) {
+      return failed(AuthMetrics.TokenFailure.KICKED)
+    }
 
-    return Verified(accountId, expiresAt)
+    return Verified(accountId, issuedAt, expiresAt)
   }
 
   private fun failed(reason: AuthMetrics.TokenFailure): Verified? {

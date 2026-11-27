@@ -56,7 +56,7 @@ class CompanionSocketHandler(
 
     metrics.socketAuth(LiveMetrics.SocketAuth.OK)
     socket.attributes[ACCOUNT] = verified.accountId
-    val safe = sessions.add(verified.accountId, socket, verified.expiresAt)
+    val safe = sessions.add(verified.accountId, socket, verified.issuedAt, verified.expiresAt)
     appPresence.opened(verified.accountId)
 
     hello.lastEventId?.let { last ->

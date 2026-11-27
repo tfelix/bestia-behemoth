@@ -42,6 +42,8 @@ companion:
   # jwt-secret (COMPANION_JWT_SECRET): login-server's `jwt.companion-secret`. No value here on purpose.
   # How many REST calls one account may make per minute.
   requests-per-minute: 600
+  # How long a kick from the login server refuses the account's older tokens; longer than a companion token lives.
+  kick-memory-minutes: 20
 
 bus:
   # host, port, username, password: the `api` user of zone-server/valkey/users.acl; the dev profile has them.

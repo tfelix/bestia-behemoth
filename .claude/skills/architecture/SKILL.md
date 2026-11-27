@@ -391,6 +391,9 @@ a ban or a GM kick, and after the commit `ZoneKickListener` appends a `KickOrder
 so each sees every kick and catches up after a restart: `account/authentication/KickOrderListener` calls
 `KickedAccounts.remember` (refuses login tokens issued before the kick time, which is the login server's clock like
 the token's) and, for a kick newer than the node's start, `ConnectionTerminator.disconnect`.
+The api-server follows the same stream (`auth/KickOrderListener`, a tail that replays
+`companion.kick-memory-minutes` on start): `KickedAccounts` makes `CompanionTokenVerifier` refuse companion tokens
+issued before the kick, and `LiveSessions.closeOpenedBefore` closes the account's open sockets.
 
 A GM action comes from the companion app: `POST /v1/companion/gm/accounts/{id}/ban|kick` on the api-server
 (`GmController`), which sends it to the login server as a `LoginCommand` (see "GM actions" below). `GmCommandHandler`
