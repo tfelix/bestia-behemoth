@@ -148,7 +148,7 @@ class GearRecipesTest {
 
     assertEquals(
       committed.replace("\r\n", "\n"),
-      GearRecipeGenerator.render(GearRecipeGenerator.plan()).replace("\r\n", "\n"),
+      GearRecipeGenerator.generate(committed).replace("\r\n", "\n"),
       "run ./gradlew genGearRecipes and commit the result"
     )
   }

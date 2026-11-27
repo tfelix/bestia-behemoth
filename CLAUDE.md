@@ -12,6 +12,14 @@ loopback metrics port only.
 For message flow, protobuf/envelope routing, the ECS game loop, or the login↔zone
 handoff, read `.claude/skills/architecture/SKILL.md` first instead of re-deriving it.
 
+## Content ids
+
+New items, recipes and similar content take the next increasing id, appended at the end of their file. Never
+reserve an id block for a feature or a generator. If a block or gap exists, close it and renumber whatever
+depends on it, client artwork included (`bestia-client/src/Game/*/DB/<id>_*.tres`, icons named by id). Recipe ids
+are stored in the database (known recipes, station queues, etching jobs), so a renumber needs a dev DB prune, not
+compat code.
+
 ## Running tests
 
 `./gradlew :zone-server:test` is the default for day-to-day work. It compiles `worldgen` but does
