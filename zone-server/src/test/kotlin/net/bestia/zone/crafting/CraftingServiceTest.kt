@@ -34,12 +34,14 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import net.bestia.zone.item.ItemProvenance
+import kotlin.random.Random
 
 /**
  * The rules a craft is made of: who may start one, what it costs, and what happens when it lands.
  *
- * Recipes here are built at `baseSuccessChance = 1` or `0` rather than mocking the roll, so a test says "this
- * always succeeds" in the same language the catalogue does.
+ * Recipes here are built at `baseSuccessChance = 1` rather than mocking the roll, so a test says "this always
+ * succeeds" in the same language the catalogue does. Failing is different: every craft keeps a 1% floor
+ * ([CraftBonusService.MIN_SUCCESS]), so a test that needs a failure pins the roll too.
  */
 class CraftingServiceTest {
 
@@ -212,7 +214,7 @@ class CraftingServiceTest {
   @Test
   fun `a failed craft still spends the inputs and produces nothing`() {
     val doomed = recipe(id = 3, identifier = "DOOMED", baseSuccessChance = 0f)
-    val fixture = CraftingFixture(listOf(doomed))
+    val fixture = CraftingFixture(listOf(doomed), random = rollingAbove(CraftBonusService.MIN_SUCCESS))
     val crafter = fixture.givenCrafter(items = listOf(stack(INPUT_ITEM, 5)), knownSkills = mapOf(SKILL_ID to 1))
 
     fixture.service.resolve(fixture.world, crafter, crafting(doomed.id))
@@ -635,6 +637,14 @@ class CraftingServiceTest {
 
   private fun crafting(recipeId: Long, targetUniqueId: Long = 0L) =
     Crafting(recipeId = recipeId, targetUniqueId = targetUniqueId, totalSeconds = 1f)
+
+  /** A roll that always lands just above [chance], so a craft at that chance fails every time. */
+  private fun rollingAbove(chance: Float): Random {
+    return object : Random() {
+      override fun nextBits(bitCount: Int): Int = Random.Default.nextBits(bitCount)
+      override fun nextFloat(): Float = Math.nextUp(chance)
+    }
+  }
 
   private companion object {
     const val CUSTOMIZATION_ID = 11L
