@@ -131,6 +131,7 @@ class GmScenarioTest : ApiScenarioTestBase() {
       .subject(accountId.toString())
       .issuer("login")
       .audience().add("companion").and()
+      .issuedAt(Date())
       .expiration(Date(System.currentTimeMillis() + 600_000))
       .signWith(key)
       .compact()

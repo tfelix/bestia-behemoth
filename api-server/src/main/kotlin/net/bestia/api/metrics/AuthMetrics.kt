@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component
 class AuthMetrics(registry: MeterRegistry) {
 
   /** Why a companion token did not verify. */
-  enum class TokenFailure { BAD_JWT, EXPIRED, WRONG_AUDIENCE, MISSING_SUBJECT, MISSING_EXPIRY }
+  enum class TokenFailure { BAD_JWT, EXPIRED, WRONG_AUDIENCE, MISSING_SUBJECT, MISSING_EXPIRY, MISSING_ISSUED_AT, KICKED }
 
   /** What the `Authorization` header offered. */
   enum class Scheme {

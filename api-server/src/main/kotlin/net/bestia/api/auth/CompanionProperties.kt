@@ -10,4 +10,6 @@ data class CompanionProperties(
   val mapRequestsPerMinute: Int = 3000,
   /** Pages allowed to open the WebSocket: the app's own origin, which behind the proxy is not this server's. */
   val allowedOrigins: List<String> = emptyList(),
+  /** How long a kick refuses older tokens. Longer than login-server's `jwt.companion-token-minutes`. */
+  val kickMemoryMinutes: Long = 20,
 )

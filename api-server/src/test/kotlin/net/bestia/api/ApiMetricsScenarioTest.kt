@@ -420,6 +420,7 @@ class ApiMetricsScenarioTest : ApiScenarioTestBase() {
       .subject(accountId.toString())
       .issuer("login")
       .audience().add(audience).and()
+      .issuedAt(Date())
       .expiration(Date(System.currentTimeMillis() + ttlMillis))
       .signWith(key)
       .compact()

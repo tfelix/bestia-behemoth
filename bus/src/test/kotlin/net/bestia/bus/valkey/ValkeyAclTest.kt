@@ -103,6 +103,14 @@ class ValkeyAclTest {
       assertThrows<RedisCommandExecutionException> { connection.sync().xadd(BusKeys.EVENTS, mapOf("a" to "b")) }
     }
 
+    // The api-server follows the kicks too, to refuse a kicked account's companion tokens, but may not forge one.
+    val api = connect("api", "api-dev-password")
+    api.connect().use { connection ->
+      assertEquals(1, connection.sync().xrange(BusKeys.KICKS, Range.unbounded()).size)
+      assertThrows<RedisCommandExecutionException> { connection.sync().xadd(BusKeys.KICKS, mapOf("a" to "b")) }
+    }
+    api.shutdown()
+
     listOf(kicks, appender).forEach { it.close() }
     login.shutdown()
     zone.shutdown()

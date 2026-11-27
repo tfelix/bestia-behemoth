@@ -52,11 +52,19 @@ class ValkeyStreamReader<T : Any>(
 
   /** Calls [listener] for every entry appended from now on. */
   fun tail(name: String, listener: (StreamEntry<T>) -> Unit) {
+    tail(name, newestId(), listener)
+  }
+
+  /**
+   * Calls [listener] for every entry after [afterId], and then for every entry appended. A stream id is a time in
+   * milliseconds, so `"<epoch ms>-0"` replays everything since that time.
+   */
+  fun tail(name: String, afterId: String, listener: (StreamEntry<T>) -> Unit) {
     start(name) {
       val connection = client.connect()
-      // From the newest id rather than `$`: `$` is re-read on every call, so entries appended between two reads
-      // that returned nothing would be skipped.
-      var offset = XReadArgs.StreamOffset.from(stream, newestId())
+      // From an id rather than `$`: `$` is re-read on every call, so entries appended between two reads that
+      // returned nothing would be skipped.
+      var offset = XReadArgs.StreamOffset.from(stream, afterId)
 
       connection.use {
         while (running) {
