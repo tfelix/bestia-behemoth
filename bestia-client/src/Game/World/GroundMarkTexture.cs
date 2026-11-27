@@ -8,7 +8,7 @@ namespace BestiaBehemothClient.Game.World
   /// </summary>
   /// <remarks>
   /// <b>One texel per square metre, one mark per channel</b>, in the order <see cref="GroundLayers"/>
-  /// declares. That matches the server's own lattice exactly, so a column's cells copy in without resampling.
+  /// declares. Channels 0 to 3 are <see cref="Texture"/>, 4 to 7 are <see cref="SecondTexture"/>. That matches the server's own lattice exactly, so a column's cells copy in without resampling.
   ///
   /// <para>
   /// <b>Why a texture and not vertex attributes.</b> All four <c>CUSTOM</c> channels are already spent on the
@@ -49,19 +49,31 @@ namespace BestiaBehemothClient.Game.World
 
     public const float ExtentMetres = Size * MetresPerTexel;
 
-    /// <summary>One <c>RGBA8</c> texel per square metre, a channel per layer. See the class note.</summary>
-    private readonly byte[] _pixels = new byte[Size * Size * 4];
+    private const int ChannelsPerTexture = 4;
 
-    private readonly ImageTexture _texture;
-    private bool _dirty;
+    private const int Pages = GroundLayers.Channels / ChannelsPerTexture;
+
+    /// <summary>Per page, one <c>RGBA8</c> texel per square metre, a channel per layer. See the class note.</summary>
+    private readonly byte[][] _pixels = new byte[Pages][];
+
+    private readonly ImageTexture[] _textures = new ImageTexture[Pages];
+    private readonly bool[] _dirty = new bool[Pages];
 
     public GroundMarkTexture()
     {
-      _texture = ImageTexture.CreateFromImage(
-        Image.CreateFromData(Size, Size, false, Image.Format.Rgba8, _pixels));
+      for (var page = 0; page < Pages; page++)
+      {
+        _pixels[page] = new byte[Size * Size * ChannelsPerTexture];
+        _textures[page] = ImageTexture.CreateFromImage(
+          Image.CreateFromData(Size, Size, false, Image.Format.Rgba8, _pixels[page]));
+      }
     }
 
-    public Texture2D Texture => _texture;
+    /// <summary>Channels 0 to 3: scorched, worn, bloodied, disturbed.</summary>
+    public Texture2D Texture => _textures[0];
+
+    /// <summary>Channels 4 to 7: corrupted, and three free.</summary>
+    public Texture2D SecondTexture => _textures[1];
 
     /// <summary>
     /// Whether a view this wide fits inside the span before the addressing repeats.
@@ -88,12 +100,13 @@ namespace BestiaBehemothClient.Game.World
 
           for (var channel = 0; channel < GroundLayers.Channels; channel++)
           {
-            _pixels[at + channel] = LevelOf(cells, channel, chunkSize, localX, localY);
+            _pixels[channel / ChannelsPerTexture][at + channel % ChannelsPerTexture] =
+              LevelOf(cells, channel, chunkSize, localX, localY);
           }
         }
       }
 
-      _dirty = true;
+      MarkAllDirty();
     }
 
     /// <summary>
@@ -113,14 +126,14 @@ namespace BestiaBehemothClient.Game.World
             (long)chunkX * chunkSize + localX,
             (long)chunkY * chunkSize + localY);
 
-          for (var channel = 0; channel < GroundLayers.Channels; channel++)
+          foreach (var page in _pixels)
           {
-            _pixels[at + channel] = 0;
+            System.Array.Clear(page, at, ChannelsPerTexture);
           }
         }
       }
 
-      _dirty = true;
+      MarkAllDirty();
     }
 
     /// <summary>
@@ -129,33 +142,50 @@ namespace BestiaBehemothClient.Game.World
     /// <param name="level">The drawn level, 0 to <see cref="GroundLayerCells.MaxLevel"/>.</param>
     public void SetLevel(long worldX, long worldY, int channel, int level)
     {
-      _pixels[TexelAt(worldX, worldY) + channel] = Texel(level);
-      _dirty = true;
+      var page = channel / ChannelsPerTexture;
+
+      _pixels[page][TexelAt(worldX, worldY) + channel % ChannelsPerTexture] = Texel(level);
+      _dirty[page] = true;
     }
 
     /// <summary>Uploads if anything changed. Cheap and idempotent when nothing did.</summary>
     /// <returns>whether an upload actually happened, which is what a caller logs rather than guesses at</returns>
     public bool Flush()
     {
-      if (!_dirty)
+      var uploaded = false;
+
+      for (var page = 0; page < Pages; page++)
       {
-        return false;
+        if (!_dirty[page])
+        {
+          continue;
+        }
+
+        _textures[page].Update(Image.CreateFromData(Size, Size, false, Image.Format.Rgba8, _pixels[page]));
+        _dirty[page] = false;
+        uploaded = true;
       }
 
-      _texture.Update(Image.CreateFromData(Size, Size, false, Image.Format.Rgba8, _pixels));
-      _dirty = false;
-
-      return true;
+      return uploaded;
     }
 
     public void Clear()
     {
-      System.Array.Clear(_pixels);
-      _dirty = true;
+      foreach (var page in _pixels)
+      {
+        System.Array.Clear(page);
+      }
+
+      MarkAllDirty();
     }
 
+    /// <summary>
+    /// Both pages, even when a column wrote nothing to one: it may have cleared what that page held before.
+    /// </summary>
+    private void MarkAllDirty() => System.Array.Fill(_dirty, true);
+
     /// <summary>Where one square metre of the world lives in <see cref="_pixels"/>.</summary>
-    private static int TexelAt(long worldX, long worldY) => TexelIndexAt(worldX, worldY) * 4;
+    private static int TexelAt(long worldX, long worldY) => TexelIndexAt(worldX, worldY) * ChannelsPerTexture;
 
     /// <summary>Which texel holds one square metre of the world, in any texture laid out like this one.</summary>
     /// <remarks>

@@ -125,13 +125,17 @@ namespace BestiaBehemothClient.Game.World
     /// The debug material gets it too, or pressing the debug key shows ground that has never been walked on.
     /// </para>
     /// </remarks>
-    public void SetGroundMarks(Texture2D marks)
+    public void SetGroundMarks(GroundMarkTexture marks)
     {
-      Shipping?.SetShaderParameter(GroundMarks, marks);
-      Shipping?.SetShaderParameter(GroundMarksExtent, GroundMarkTexture.ExtentMetres);
+      Apply(Shipping, marks);
+      Apply(Debug, marks);
 
-      Debug?.SetShaderParameter(GroundMarks, marks);
-      Debug?.SetShaderParameter(GroundMarksExtent, GroundMarkTexture.ExtentMetres);
+      static void Apply(ShaderMaterial material, GroundMarkTexture marks)
+      {
+        material?.SetShaderParameter(GroundMarks, marks.Texture);
+        material?.SetShaderParameter(GroundMarks2, marks.SecondTexture);
+        material?.SetShaderParameter(GroundMarksExtent, GroundMarkTexture.ExtentMetres);
+      }
     }
 
     /// <summary>Hands the shader what is burning, laid out like the marks. Set once, like them.</summary>
@@ -181,6 +185,7 @@ namespace BestiaBehemothClient.Game.World
     }
 
     private static readonly StringName GroundMarks = "ground_marks";
+    private static readonly StringName GroundMarks2 = "ground_marks_2";
     private static readonly StringName GroundMarksExtent = "ground_marks_extent";
     private static readonly StringName GroundFire = "ground_fire";
     private static readonly StringName GroundDisturb = "ground_disturb";

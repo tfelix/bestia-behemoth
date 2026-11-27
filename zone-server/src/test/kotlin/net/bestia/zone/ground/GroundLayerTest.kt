@@ -19,6 +19,7 @@ class GroundLayerTest {
     assertEquals(2, GroundLayer.WORN.wireId)
     assertEquals(3, GroundLayer.BLOODIED.wireId)
     assertEquals(4, GroundLayer.DISTURBED.wireId)
+    assertEquals(5, GroundLayer.CORRUPTED.wireId)
   }
 
   @Test
@@ -27,6 +28,7 @@ class GroundLayerTest {
     assertEquals(1, GroundLayer.WORN.channel)
     assertEquals(2, GroundLayer.BLOODIED.channel)
     assertEquals(3, GroundLayer.DISTURBED.channel)
+    assertEquals(4, GroundLayer.CORRUPTED.channel)
   }
 
   @Test
@@ -36,7 +38,7 @@ class GroundLayerTest {
   }
 
   @Test
-  fun `layers fit the channels one mark texture has`() {
+  fun `layers fit the channels the mark textures have`() {
     assertTrue(GroundLayer.entries.size <= GroundLayer.CHANNELS)
     assertTrue(GroundLayer.entries.all { it.channel in 0 until GroundLayer.CHANNELS })
   }

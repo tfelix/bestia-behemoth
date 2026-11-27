@@ -328,7 +328,7 @@ namespace BestiaBehemothClient.Game.World
       if (_groundMarks == null)
       {
         _groundMarks = new GroundMarkTexture();
-        _materials?.SetGroundMarks(_groundMarks.Texture);
+        _materials?.SetGroundMarks(_groundMarks);
       }
 
       if (_groundDisturbance == null)
@@ -343,7 +343,7 @@ namespace BestiaBehemothClient.Game.World
         _materials?.SetGroundFire(_groundFire.Texture);
       }
 
-      Grass?.SetGroundTextures(_groundMarks.Texture, _groundFire.Texture);
+      Grass?.SetGroundTextures(_groundMarks, _groundFire.Texture);
 
       // Null when the shader would not compile, which deliberately leaves the flat vertex-colour material in
       // place rather than an unassigned one - see TerrainMaterials.

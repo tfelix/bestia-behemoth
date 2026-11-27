@@ -16,14 +16,13 @@ namespace BestiaBehemothClient.Game.World
   public static class GroundLayers
   {
     /// <summary>
-    /// How many marks may stack on one square metre, which is the channels one mark texture carries.
+    /// How many marks may stack on one square metre: two <c>RGBA8</c> mark textures, four channels each.
     /// </summary>
     /// <remarks>
-    /// Four, because the mark texture is a single <c>RGBA8</c>. Unlike
-    /// <see cref="Mesh.BlockAppearance.Slots"/> this is not near an engine limit - a second texture buys four
-    /// more for one more fetch - so it is a budget rather than a wall.
+    /// Unlike <see cref="Mesh.BlockAppearance.Slots"/> this is not near an engine limit - another texture buys
+    /// four more for one more fetch - so it is a budget rather than a wall.
     /// </remarks>
-    public const int Channels = 4;
+    public const int Channels = 8;
 
     /// <summary>Wire ids, as the proto's <c>GroundLayerId</c> numbers them. Never reused.</summary>
     public enum Id
@@ -32,7 +31,8 @@ namespace BestiaBehemothClient.Game.World
       Scorched = 1,
       Worn = 2,
       Bloodied = 3,
-      Disturbed = 4
+      Disturbed = 4,
+      Corrupted = 5
     }
 
     /// <summary>
@@ -45,6 +45,7 @@ namespace BestiaBehemothClient.Game.World
       Id.Worn => 1,
       Id.Bloodied => 2,
       Id.Disturbed => 3,
+      Id.Corrupted => 4,
       _ => -1
     };
   }
