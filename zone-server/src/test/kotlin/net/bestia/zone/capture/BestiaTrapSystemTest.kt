@@ -137,6 +137,18 @@ class BestiaTrapSystemTest {
   }
 
   @Test
+  fun `no trap holds a corrupted bestia`() {
+    val trap = trapAt(TRAP_TILE)
+    val mob = mobAt(TRAP_TILE)
+    world.add(mob, StatusEffects(mutableListOf(ActiveStatusEffect(StatusEffectId.CORRUPTED.id, 1, Float.POSITIVE_INFINITY))))
+
+    world.tick(TICK)
+
+    assertTrue(world.isAlive(trap))
+    assertTrue(world.isAlive(mob))
+  }
+
+  @Test
   fun `a boss breaks free from a roll that catches anything else`() {
     trapAt(TRAP_TILE)
     val boss = mobAt(TRAP_TILE, speciesId = BOSS_ID)

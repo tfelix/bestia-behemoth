@@ -91,6 +91,7 @@ class BestiaEntitySpawner(
     visual: Component? = null,
     level: Int? = null,
     manaTier: ManaTier = ManaTier.CALM,
+    corrupted: Boolean = false,
   ): EntityId {
     LOG.debug { "Spawning mob bestia $bestiaId on $pos" }
 
@@ -142,6 +143,7 @@ class BestiaEntitySpawner(
       if (persistent) add(id, Persistent)
       if (bestia.nonCombatant) statusEffectService.applyEffect(this, id, StatusEffectId.INVULNERABLE, level = 1)
       if (manaTier.breedsManaTouched) statusEffectService.applyEffect(this, id, StatusEffectId.MANA_TOUCHED, level = 1)
+      if (corrupted) statusEffectService.applyEffect(this, id, StatusEffectId.CORRUPTED, level = 1)
       // Only when a den made it. Absence is what marks a creature nothing owns; see DenMember.
       den?.let { add(id, it) }
 

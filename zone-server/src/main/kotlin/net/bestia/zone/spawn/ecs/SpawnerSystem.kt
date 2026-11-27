@@ -3,6 +3,8 @@ package net.bestia.zone.spawn.ecs
 import net.bestia.zone.entity.GameMetrics
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.spawn.BestiaEntitySpawner
+import net.bestia.zone.spawn.SpawnCorruption
+import net.bestia.zone.spawn.isCorrupted
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
@@ -92,6 +94,7 @@ class SpawnerSystem(
   private val clock: BestiaClock,
   private val metrics: GameMetrics = GameMetrics(),
   private val manaTiers: ManaTiers? = null,
+  private val corruption: SpawnCorruption? = null,
 ) : System {
   override val phase = Phase.SPAWN
 
@@ -233,6 +236,7 @@ class SpawnerSystem(
       persistent = false,
       // Read at each restock, so a den breeds stronger bestia while its ground is thick with mana.
       manaTier = manaTiers?.tierAt(spawner.position) ?: ManaTier.CALM,
+      corrupted = isCorrupted(corruption, x, y),
     )
 
     spawner.spawnedEntities.add(spawnedEntityId)
