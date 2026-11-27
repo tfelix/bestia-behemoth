@@ -1,13 +1,17 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 	import { getJson } from '#lib/api/client.ts';
-	import type { MasterSummary } from '#lib/api/model.ts';
+	import type { CurrentWorld, MasterSummary } from '#lib/api/model.ts';
 	import Icon from '#lib/components/Icon.svelte';
 	import TabBar from '#lib/components/TabBar.svelte';
 	import { guarded } from '#lib/guard.ts';
 	import { live } from '#lib/live.svelte.ts';
+	import { doomOf, worldState } from '#lib/world.ts';
 
 	let masters = $state<MasterSummary[] | null>(null);
+	let world = $state<CurrentWorld | null>(null);
+	const doom = $derived(world ? doomOf(world) : null);
 	let failure = $state<string | null>(null);
 
 	// Masters are only created in the game, so a new account starts there.
@@ -21,8 +25,20 @@
 		}
 	}
 
+	// The list works without it, so a failure only hides the card.
+	async function loadWorld() {
+		try {
+			const state = await worldState();
+			if (state.rebirth) await goto('/interregnum');
+			world = state.current ?? null;
+		} catch {
+			world = null;
+		}
+	}
+
 	onMount(() => {
 		live.start();
+		void loadWorld();
 		void load();
 		return live.on((event) => event.type === 'Presence' && void load());
 	});
@@ -33,6 +49,19 @@
 		<h1>Your Masters</h1>
 		<a class="settings" href="/settings" aria-label="Settings"><Icon name="settings" size={22} /></a>
 	</header>
+
+	{#if world}
+		<section class="panel rise world">
+			<span class="label">The world</span>
+			<h2>{world.name} <span class="muted day">Day {world.ageDays + 1}</span></h2>
+			{#if doom}
+				<p><span class="chip doom">{doom.stage}</span> {doom.threat}</p>
+				<p class="muted">{doom.line}</p>
+			{:else}
+				<p class="muted">No shadow lies on the world yet.</p>
+			{/if}
+		</section>
+	{/if}
 
 	{#if failure}
 		<p class="alert">{failure}</p>
@@ -78,6 +107,28 @@
 
 	.settings {
 		color: var(--muted);
+	}
+
+	.world {
+		display: grid;
+		gap: 0.3rem;
+		margin-bottom: 0.85rem;
+	}
+
+	.world h2,
+	.world p {
+		margin: 0;
+	}
+
+	.day {
+		font-family: var(--label);
+		font-size: 0.8rem;
+		font-weight: 600;
+	}
+
+	.chip.doom {
+		border-color: color-mix(in srgb, var(--bad) 60%, transparent);
+		color: var(--bad);
 	}
 
 	.master {

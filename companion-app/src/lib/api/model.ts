@@ -49,6 +49,9 @@ export type SurveyOrder = Schemas['SurveyOrder'];
 export type SurveyGame = Schemas['SurveyGame'];
 export type SurveyStops = Schemas['SurveyStops'];
 export type SurveyResult = Schemas['SurveyResult'];
+export type WorldState = Schemas['WorldState'];
+export type CurrentWorld = Schemas['CurrentWorld'];
+export type LastWorld = Schemas['LastWorld'];
 
 export const JOBS = ['GUARD', 'GATHER', 'CRAFT', 'MINE', 'REST'] as const;
 export type Job = (typeof JOBS)[number];

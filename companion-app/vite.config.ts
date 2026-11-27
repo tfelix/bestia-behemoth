@@ -24,12 +24,17 @@ function bestiaNames(): Plugin {
 			if (id !== '\0' + NAMES_MODULE) return null;
 
 			const names: Record<string, string> = {};
-			// general.csv is the client's UI text; only its biome names are wanted here.
-			for (const [table, wanted] of [['items.csv', ''], ['bestias.csv', ''], ['general.csv', 'BIOME_']]) {
+			// general.csv is the client's UI text; only biome names and the world's end are wanted from it.
+			const tables: [string, string[]][] = [
+				['items.csv', ['']],
+				['bestias.csv', ['']],
+				['general.csv', ['BIOME_', 'DOOM_', 'WORLD_END_', 'REBIRTH_']]
+			];
+			for (const [table, wanted] of tables) {
 				const path = LOCALIZATION + table;
 				this.addWatchFile(path);
 				for (const [key, english] of parseCsv(readFileSync(path, 'utf8')).slice(1)) {
-					if (key?.startsWith(wanted) && english) names[key] = english;
+					if (key && wanted.some((prefix) => key.startsWith(prefix)) && english) names[key] = english;
 				}
 			}
 			return `export default ${JSON.stringify(names)};`;
