@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.core.io.ClassPathResource
 import org.springframework.test.context.ActiveProfiles
 
 /** Every recipe outside the starter kit has to be findable, or nobody can ever make it. */
@@ -25,8 +26,9 @@ class DiscoverableContentTest {
     val discoverable = recipes.all().flatMap { blueprints.discoverable(it.requiredSkillId) }
       .map { it.recipe.identifier }.toSet()
 
-    // The equipment catalogue is generated into `gear_recipes.yml` from id 200 up, and every piece of it is discovered.
-    val gear = recipes.all().filter { it.id >= GearRecipeGenerator.FIRST_ID }.map { it.identifier }.toSet()
+    // The equipment catalogue is generated into `gear_recipes.yml`, and every piece of it is discovered.
+    val gear = ClassPathResource(GearRecipeGenerator.OUTPUT_FILE).inputStream
+      .use { GearRecipeGenerator.idsIn(String(it.readAllBytes())) }.keys
     val others = setOf(
       "WEAPON_BLUEPRINT", "ARMOR_BLUEPRINT", "WAR_BANNER", "BAMBOO_ROD", "ASH_ROD", "STEEL_ROD",
       "SMALL_HEALTH_POTION", "SMALL_MANA_POTION", "HEALTH_POTION", "MANA_POTION",

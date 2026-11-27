@@ -39,7 +39,7 @@ recipes:
   # Stick and stone: the first two tools, from what lies on the ground (`LootScatter`'s loose stones, sticks,
   # and the flint a broken boulder drops). No station - there is nothing to build one with yet - and only the
   # basic skill, because these are what a player does before they have any other.
-  - id: 28
+  - id: 2
     identifier: STONE_KNIFE
     effect: PRODUCE
     output: { item: stone_knife, amount: 1 }
@@ -50,7 +50,7 @@ recipes:
     craftSeconds: 4.0
     baseSuccessChance: 0.8
 
-  - id: 29
+  - id: 3
     identifier: STONE_HATCHET
     effect: PRODUCE
     output: { item: stone_hatchet, amount: 1 }
@@ -61,7 +61,7 @@ recipes:
     craftSeconds: 5.0
     baseSuccessChance: 0.8
 
-  - id: 64
+  - id: 4
     identifier: SHOVEL
     effect: PRODUCE
     output: { item: shovel, amount: 1 }
@@ -73,7 +73,7 @@ recipes:
     baseSuccessChance: 0.8
 
   # The torch every master starts with five of, so the first ones a player makes are no harder than the knife.
-  - id: 37
+  - id: 5
     identifier: TORCH
     effect: PRODUCE
     output: { item: torch, amount: 1 }
@@ -86,7 +86,7 @@ recipes:
 
   # Kits: every station is put down from one. Made by hand, so a skill whose station is not standing yet still
   # has its first craft - casting it away from a station opens Handiwork, where these are.
-  - id: 38
+  - id: 6
     identifier: WORKBENCH_KIT
     effect: PRODUCE
     output: { item: workbench_kit, amount: 1 }
@@ -98,7 +98,7 @@ recipes:
     baseSuccessChance: 1.0
 
   # The Scholar's lookout for Observation, made with Carpentry like every timber kit.
-  - id: 161
+  - id: 7
     identifier: OBSERVATION_OUTPOST_KIT
     effect: PRODUCE
     output: { item: observation_outpost_kit, amount: 1 }
@@ -111,7 +111,7 @@ recipes:
     baseSuccessChance: 1.0
 
   # A player town's buildings, from the design docs' player settlements page.
-  - id: 50
+  - id: 8
     identifier: POST_OFFICE_KIT
     effect: PRODUCE
     output: { item: post_office_kit, amount: 1 }
@@ -124,7 +124,7 @@ recipes:
     craftSeconds: 60.0
     baseSuccessChance: 1.0
 
-  - id: 141
+  - id: 9
     identifier: BESTIA_CENTER_KIT
     effect: PRODUCE
     output: { item: bestia_center_kit, amount: 1 }
@@ -137,7 +137,7 @@ recipes:
     craftSeconds: 60.0
     baseSuccessChance: 1.0
 
-  - id: 160
+  - id: 10
     identifier: INN_KIT
     effect: PRODUCE
     output: { item: inn_kit, amount: 1 }
@@ -150,7 +150,7 @@ recipes:
     craftSeconds: 60.0
     baseSuccessChance: 1.0
 
-  - id: 51
+  - id: 11
     identifier: AUCTION_HOUSE_KIT
     effect: PRODUCE
     output: { item: auction_house_kit, amount: 1 }
@@ -163,7 +163,7 @@ recipes:
     craftSeconds: 90.0
     baseSuccessChance: 1.0
 
-  - id: 65
+  - id: 12
     identifier: BREEDING_FARM_KIT
     effect: PRODUCE
     output: { item: breeding_farm_kit, amount: 1 }
@@ -176,7 +176,7 @@ recipes:
     craftSeconds: 12.0
     baseSuccessChance: 1.0
 
-  - id: 43
+  - id: 13
     identifier: NESTING_BUNDLE
     effect: PRODUCE
     output: { item: nesting_bundle, amount: 1 }
@@ -189,7 +189,7 @@ recipes:
     craftSeconds: 4.0
     baseSuccessChance: 0.9
 
-  - id: 44
+  - id: 14
     identifier: INCUBATOR_KIT
     effect: PRODUCE
     output: { item: incubator_kit, amount: 1 }
@@ -202,7 +202,7 @@ recipes:
     craftSeconds: 15.0
     baseSuccessChance: 1.0
 
-  - id: 39
+  - id: 15
     identifier: FURNACE_KIT
     effect: PRODUCE
     output: { item: furnace_kit, amount: 1 }
@@ -213,7 +213,7 @@ recipes:
     craftSeconds: 10.0
     baseSuccessChance: 1.0
 
-  - id: 40
+  - id: 16
     identifier: FORGE_KIT
     effect: PRODUCE
     output: { item: forge_kit, amount: 1 }
@@ -225,7 +225,7 @@ recipes:
     craftSeconds: 10.0
     baseSuccessChance: 1.0
 
-  - id: 41
+  - id: 17
     identifier: CAMPFIRE_KIT
     effect: PRODUCE
     output: { item: campfire_kit, amount: 1 }
@@ -237,7 +237,7 @@ recipes:
     craftSeconds: 5.0
     baseSuccessChance: 1.0
 
-  - id: 42
+  - id: 18
     identifier: CHEST_KIT
     effect: PRODUCE
     output: { item: chest_kit, amount: 1 }
@@ -248,7 +248,7 @@ recipes:
     craftSeconds: 10.0
     baseSuccessChance: 1.0
 
-  - id: 66
+  - id: 19
     identifier: MINING_SHAFT_KIT
     effect: PRODUCE
     output: { item: mining_shaft_kit, amount: 1 }
@@ -261,7 +261,7 @@ recipes:
 
   # --- Craftsman tree, at a workbench --------------------------------------------------------------
 
-  - id: 10
+  - id: 20
     identifier: ENGRAVING_SET
     effect: PRODUCE
     output: { item: engraving_set, amount: 1 }
@@ -275,7 +275,7 @@ recipes:
 
   # Both blueprints are drawings pressed into a mana-fixed clay tablet, which is why clay and mana dust
   # make a document.
-  - id: 11
+  - id: 21
     identifier: WEAPON_BLUEPRINT
     effect: PRODUCE
     output: { item: weapon_blueprint, amount: 1 }
@@ -287,7 +287,7 @@ recipes:
     craftSeconds: 10.0
     baseSuccessChance: 0.55
 
-  - id: 12
+  - id: 22
     identifier: ARMOR_BLUEPRINT
     effect: PRODUCE
     output: { item: armor_blueprint, amount: 1 }
@@ -300,7 +300,7 @@ recipes:
     baseSuccessChance: 0.55
 
   # Cutting a slot costs the engraving set outright, so the tool is a real gate on how often it happens.
-  - id: 13
+  - id: 23
     identifier: CUT_RUNE_SLOT
     effect: ADD_SLOT
     inputs:
@@ -315,7 +315,7 @@ recipes:
 
   # The one refining recipe, and the reason a furnace is worth placing: two ore plus coal weigh 700 and
   # come out as an ingot weighing 250.
-  - id: 20
+  - id: 24
     identifier: IRON_INGOT
     effect: PRODUCE
     output: { item: iron_ingot, amount: 1 }
@@ -360,7 +360,7 @@ recipes:
     craftSeconds: 20.0
     baseSuccessChance: 1.0
 
-  - id: 21
+  - id: 27
     identifier: IRON_SWORD
     effect: PRODUCE
     output: { item: iron_sword, amount: 1 }
@@ -373,7 +373,7 @@ recipes:
     craftSeconds: 20.0
     baseSuccessChance: 0.35
 
-  - id: 22
+  - id: 28
     identifier: IRON_CUIRASS
     effect: PRODUCE
     output: { item: iron_cuirass, amount: 1 }
@@ -386,7 +386,7 @@ recipes:
     craftSeconds: 20.0
     baseSuccessChance: 0.35
 
-  - id: 23
+  - id: 29
     identifier: REPAIR_EQUIPMENT
     effect: REPAIR
     inputs:
@@ -399,7 +399,7 @@ recipes:
 
   # What a forge repair uses, packed to be used anywhere, plus the tools to apply it. The leather is the roll it
   # travels in, and the weapon kit's cut stone the whetstone. Kept dearer than a forge repair on purpose.
-  - id: 158
+  - id: 30
     identifier: WEAPON_REPAIR_KIT
     effect: PRODUCE
     output: { item: weapon_repair_kit, amount: 1 }
@@ -413,7 +413,7 @@ recipes:
     craftSeconds: 12.0
     baseSuccessChance: 0.7
 
-  - id: 159
+  - id: 31
     identifier: ARMOR_REPAIR_KIT
     effect: PRODUCE
     output: { item: armor_repair_kit, amount: 1 }
@@ -428,7 +428,7 @@ recipes:
 
   # Upgrading is the one craft with no station in the Blacksmith block: the docs give Upgrade Equipment
   # neither a range nor a target, and it sits in the Craftsman tree rather than under the forge.
-  - id: 24
+  - id: 32
     identifier: UPGRADE_EQUIPMENT
     effect: UPGRADE
     inputs:
@@ -439,7 +439,7 @@ recipes:
     baseSuccessChance: 0.3
 
   # A guild's War Banner: forged for the iron fittings and the weighted hem, so it sits with the weapons.
-  - id: 27
+  - id: 33
     identifier: WAR_BANNER
     effect: PRODUCE
     output: { item: war_banner, amount: 1 }
@@ -457,7 +457,7 @@ recipes:
 
   # Mining is passive, so no cast opens this recipe yet: passive skills still need a way into the
   # crafting window. Mining has no success table, so the pick cannot fail.
-  - id: 30
+  - id: 34
     identifier: PICKAXE
     effect: PRODUCE
     output: { item: pickaxe, amount: 1 }
@@ -470,7 +470,7 @@ recipes:
 
   # --- Hunter sub-tree -----------------------------------------------------------------------------
 
-  - id: 31
+  - id: 35
     identifier: ARROW
     effect: PRODUCE
     output: { item: arrow, amount: 20 }
@@ -484,7 +484,7 @@ recipes:
   # --- Gem cutting ---------------------------------------------------------------------------------
 
   # A failed cut shatters the gem: the inputs are spent either way.
-  - id: 32
+  - id: 36
     identifier: CUT_AMETHYST
     effect: PRODUCE
     output: { item: cut_amethyst, amount: 1 }
@@ -495,7 +495,7 @@ recipes:
     craftSeconds: 10.0
     baseSuccessChance: 0.9
 
-  - id: 33
+  - id: 37
     identifier: CUT_EMERALD
     effect: PRODUCE
     output: { item: cut_emerald, amount: 1 }
@@ -506,7 +506,7 @@ recipes:
     craftSeconds: 20.0
     baseSuccessChance: 0.75
 
-  - id: 34
+  - id: 38
     identifier: CUT_RUBY
     effect: PRODUCE
     output: { item: cut_ruby, amount: 1 }
@@ -517,7 +517,7 @@ recipes:
     craftSeconds: 30.0
     baseSuccessChance: 0.6
 
-  - id: 35
+  - id: 39
     identifier: CUT_PYRELITH
     effect: PRODUCE
     output: { item: cut_pyrelith, amount: 1 }
@@ -528,7 +528,7 @@ recipes:
     craftSeconds: 40.0
     baseSuccessChance: 0.5
 
-  - id: 36
+  - id: 40
     identifier: CUT_DIAMOND
     effect: PRODUCE
     output: { item: cut_diamond, amount: 1 }
@@ -543,7 +543,7 @@ recipes:
   # A rod's max catch level is in `fishing.yml`. The willow rod is made from what lies on the ground, like the
   # stone tools, so a master's first rod never waits on a shop. The better rods are discovered.
 
-  - id: 60
+  - id: 41
     identifier: WILLOW_ROD
     effect: PRODUCE
     output: { item: willow_rod, amount: 1 }
@@ -554,7 +554,7 @@ recipes:
     craftSeconds: 4.0
     baseSuccessChance: 0.8
 
-  - id: 61
+  - id: 42
     identifier: BAMBOO_ROD
     effect: PRODUCE
     output: { item: bamboo_rod, amount: 1 }
@@ -566,7 +566,7 @@ recipes:
     craftSeconds: 10.0
     baseSuccessChance: 0.6
 
-  - id: 62
+  - id: 43
     identifier: ASH_ROD
     effect: PRODUCE
     output: { item: ash_rod, amount: 1 }
@@ -579,7 +579,7 @@ recipes:
     craftSeconds: 14.0
     baseSuccessChance: 0.5
 
-  - id: 63
+  - id: 44
     identifier: STEEL_ROD
     effect: PRODUCE
     output: { item: steel_rod, amount: 1 }
@@ -601,7 +601,7 @@ recipes:
   # `0.30 - max(0, oreLevel - 10) * 0.01` (an alloy by its own level), which goes below zero for the high ores:
   # only Ore Refinement, STR and WIL lift those into reach, and `CraftBonusService` floors the total at 1%.
 
-  - id: 70
+  - id: 45
     identifier: TIN_INGOT
     effect: PRODUCE
     output: { item: tin_ingot, amount: 1 }
@@ -613,7 +613,7 @@ recipes:
     craftSeconds: 10.0
     baseSuccessChance: 0.3
 
-  - id: 71
+  - id: 46
     identifier: COPPER_INGOT
     effect: PRODUCE
     output: { item: copper_ingot, amount: 1 }
@@ -625,7 +625,7 @@ recipes:
     craftSeconds: 10.0
     baseSuccessChance: 0.3
 
-  - id: 72
+  - id: 47
     identifier: BRONZE_INGOT
     effect: PRODUCE
     output: { item: bronze_ingot, amount: 1 }
@@ -637,7 +637,7 @@ recipes:
     craftSeconds: 12.0
     baseSuccessChance: 0.25
 
-  - id: 73
+  - id: 48
     identifier: STEEL_INGOT
     effect: PRODUCE
     output: { item: steel_ingot, amount: 1 }
@@ -649,7 +649,7 @@ recipes:
     craftSeconds: 14.0
     baseSuccessChance: 0.08
 
-  - id: 74
+  - id: 49
     identifier: SILVER_INGOT
     effect: PRODUCE
     output: { item: silver_ingot, amount: 1 }
@@ -661,7 +661,7 @@ recipes:
     craftSeconds: 14.0
     baseSuccessChance: 0.05
 
-  - id: 75
+  - id: 50
     identifier: QUICKSILVER
     effect: PRODUCE
     output: { item: quicksilver, amount: 1 }
@@ -672,7 +672,7 @@ recipes:
     craftSeconds: 16.0
     baseSuccessChance: -0.2
 
-  - id: 76
+  - id: 51
     identifier: BLACKIRON_INGOT
     effect: PRODUCE
     output: { item: blackiron_ingot, amount: 1 }
@@ -684,7 +684,7 @@ recipes:
     craftSeconds: 18.0
     baseSuccessChance: -0.25
 
-  - id: 77
+  - id: 52
     identifier: PALLADIUM_INGOT
     effect: PRODUCE
     output: { item: palladium_ingot, amount: 1 }
@@ -696,7 +696,7 @@ recipes:
     craftSeconds: 18.0
     baseSuccessChance: -0.3
 
-  - id: 78
+  - id: 53
     identifier: MITHRIL_INGOT
     effect: PRODUCE
     output: { item: mithril_ingot, amount: 1 }
@@ -708,7 +708,7 @@ recipes:
     craftSeconds: 20.0
     baseSuccessChance: -0.45
 
-  - id: 79
+  - id: 54
     identifier: ADAMANTIUM_INGOT
     effect: PRODUCE
     output: { item: adamantium_ingot, amount: 1 }
@@ -720,7 +720,7 @@ recipes:
     craftSeconds: 24.0
     baseSuccessChance: -0.6
 
-  - id: 80
+  - id: 55
     identifier: BRICK
     effect: PRODUCE
     output: { item: brick, amount: 2 }
@@ -735,7 +735,7 @@ recipes:
 
   # Workbench: what a bench turns out by hand. Nobody needs a skill for it.
 
-  - id: 81
+  - id: 56
     identifier: PLANK
     effect: PRODUCE
     output: { item: plank, amount: 2 }
@@ -746,7 +746,7 @@ recipes:
     craftSeconds: 4.0
     baseSuccessChance: 1
 
-  - id: 82
+  - id: 57
     identifier: CUT_STONE
     effect: PRODUCE
     output: { item: cut_stone, amount: 1 }
@@ -757,7 +757,7 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 1
 
-  - id: 83
+  - id: 58
     identifier: PARCHMENT
     effect: PRODUCE
     output: { item: parchment, amount: 1 }
@@ -768,7 +768,7 @@ recipes:
     craftSeconds: 4.0
     baseSuccessChance: 1
 
-  - id: 84
+  - id: 59
     identifier: LAMP_OIL
     effect: PRODUCE
     output: { item: lamp_oil, amount: 1 }
@@ -779,7 +779,7 @@ recipes:
     craftSeconds: 5.0
     baseSuccessChance: 1
 
-  - id: 85
+  - id: 60
     identifier: MANA_INK
     effect: PRODUCE
     output: { item: mana_ink, amount: 1 }
@@ -794,7 +794,7 @@ recipes:
 
   # Tanning rack.
 
-  - id: 86
+  - id: 61
     identifier: LEATHER
     effect: PRODUCE
     output: { item: leather, amount: 1 }
@@ -805,7 +805,7 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 1
 
-  - id: 87
+  - id: 62
     identifier: HARDENED_LEATHER
     effect: PRODUCE
     output: { item: hardened_leather, amount: 1 }
@@ -817,7 +817,7 @@ recipes:
     craftSeconds: 8.0
     baseSuccessChance: 0.9
 
-  - id: 88
+  - id: 63
     identifier: FINE_LEATHER
     effect: PRODUCE
     output: { item: fine_leather, amount: 1 }
@@ -832,7 +832,7 @@ recipes:
 
   # Loom. Silk is the dear cloth, and the two rare weaves need a rare reagent rather than a skill.
 
-  - id: 89
+  - id: 64
     identifier: CLOTH_FROM_WOOL
     effect: PRODUCE
     output: { item: cloth, amount: 1 }
@@ -843,7 +843,7 @@ recipes:
     craftSeconds: 5.0
     baseSuccessChance: 1
 
-  - id: 90
+  - id: 65
     identifier: CLOTH_FROM_FLAX
     effect: PRODUCE
     output: { item: cloth, amount: 1 }
@@ -854,7 +854,7 @@ recipes:
     craftSeconds: 5.0
     baseSuccessChance: 1
 
-  - id: 91
+  - id: 66
     identifier: ROPE
     effect: PRODUCE
     output: { item: rope, amount: 1 }
@@ -865,7 +865,7 @@ recipes:
     craftSeconds: 4.0
     baseSuccessChance: 1
 
-  - id: 92
+  - id: 67
     identifier: SILK_CLOTH
     effect: PRODUCE
     output: { item: silk_cloth, amount: 1 }
@@ -876,7 +876,7 @@ recipes:
     craftSeconds: 8.0
     baseSuccessChance: 0.9
 
-  - id: 93
+  - id: 68
     identifier: SHADOWSILK
     effect: PRODUCE
     output: { item: shadowsilk, amount: 1 }
@@ -888,7 +888,7 @@ recipes:
     craftSeconds: 12.0
     baseSuccessChance: 0.8
 
-  - id: 94
+  - id: 69
     identifier: SHADOWSILK_FROM_ECTOPLASM
     effect: PRODUCE
     output: { item: shadowsilk, amount: 1 }
@@ -900,7 +900,7 @@ recipes:
     craftSeconds: 12.0
     baseSuccessChance: 0.8
 
-  - id: 95
+  - id: 70
     identifier: STARWEAVE
     effect: PRODUCE
     output: { item: starweave, amount: 1 }
@@ -915,7 +915,7 @@ recipes:
 
   # Glass furnace and glassblowing bench.
 
-  - id: 96
+  - id: 71
     identifier: GLASS
     effect: PRODUCE
     output: { item: glass, amount: 1 }
@@ -927,7 +927,7 @@ recipes:
     craftSeconds: 8.0
     baseSuccessChance: 1
 
-  - id: 97
+  - id: 72
     identifier: EMPTY_BOTTLE
     effect: PRODUCE
     output: { item: empty_bottle, amount: 2 }
@@ -938,7 +938,7 @@ recipes:
     craftSeconds: 5.0
     baseSuccessChance: 1
 
-  - id: 98
+  - id: 73
     identifier: LENS
     effect: PRODUCE
     output: { item: lens, amount: 1 }
@@ -953,7 +953,7 @@ recipes:
 
   # Forge parts. Cogs and the clockwork core are the intricate end of the metal chain.
 
-  - id: 99
+  - id: 74
     identifier: NAILS
     effect: PRODUCE
     output: { item: nails, amount: 20 }
@@ -964,7 +964,7 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 1
 
-  - id: 100
+  - id: 75
     identifier: COG_BRONZE
     effect: PRODUCE
     output: { item: cog, amount: 2 }
@@ -975,7 +975,7 @@ recipes:
     craftSeconds: 8.0
     baseSuccessChance: 0.8
 
-  - id: 101
+  - id: 76
     identifier: COG_STEEL
     effect: PRODUCE
     output: { item: cog, amount: 2 }
@@ -986,7 +986,7 @@ recipes:
     craftSeconds: 8.0
     baseSuccessChance: 0.8
 
-  - id: 102
+  - id: 77
     identifier: CLOCKWORK_CORE
     effect: PRODUCE
     output: { item: clockwork_core, amount: 1 }
@@ -1002,7 +1002,7 @@ recipes:
 
   # Gem cutting, like the five above. A failed cut shatters the stone.
 
-  - id: 103
+  - id: 78
     identifier: CUT_GARNET
     effect: PRODUCE
     output: { item: cut_garnet, amount: 1 }
@@ -1013,7 +1013,7 @@ recipes:
     craftSeconds: 15.0
     baseSuccessChance: 0.9
 
-  - id: 104
+  - id: 79
     identifier: CUT_SAPPHIRE
     effect: PRODUCE
     output: { item: cut_sapphire, amount: 1 }
@@ -1024,7 +1024,7 @@ recipes:
     craftSeconds: 25.0
     baseSuccessChance: 0.75
 
-  - id: 105
+  - id: 80
     identifier: CUT_ONYX
     effect: PRODUCE
     output: { item: cut_onyx, amount: 1 }
@@ -1038,7 +1038,7 @@ recipes:
 
   # Station kits. Built by hand with Carpentry, from what the chains above make.
 
-  - id: 106
+  - id: 81
     identifier: TANNING_RACK_KIT
     effect: PRODUCE
     output: { item: tanning_rack_kit, amount: 1 }
@@ -1050,7 +1050,7 @@ recipes:
     craftSeconds: 12.0
     baseSuccessChance: 1
 
-  - id: 107
+  - id: 82
     identifier: LOOM_KIT
     effect: PRODUCE
     output: { item: loom_kit, amount: 1 }
@@ -1062,7 +1062,7 @@ recipes:
     craftSeconds: 15.0
     baseSuccessChance: 1
 
-  - id: 108
+  - id: 83
     identifier: GLASS_FURNACE_KIT
     effect: PRODUCE
     output: { item: glass_furnace_kit, amount: 1 }
@@ -1074,7 +1074,7 @@ recipes:
     craftSeconds: 20.0
     baseSuccessChance: 1
 
-  - id: 109
+  - id: 84
     identifier: GLASSBLOWING_BENCH_KIT
     effect: PRODUCE
     output: { item: glassblowing_bench_kit, amount: 1 }
@@ -1088,7 +1088,7 @@ recipes:
 
   # The three stones the named jewellery is cut from. Cut like the rest.
 
-  - id: 110
+  - id: 85
     identifier: CUT_JADE
     effect: PRODUCE
     output: { item: cut_jade, amount: 1 }
@@ -1099,7 +1099,7 @@ recipes:
     craftSeconds: 20.0
     baseSuccessChance: 0.75
 
-  - id: 111
+  - id: 86
     identifier: CUT_TIGERS_EYE
     effect: PRODUCE
     output: { item: cut_tigers_eye, amount: 1 }
@@ -1110,7 +1110,7 @@ recipes:
     craftSeconds: 22.0
     baseSuccessChance: 0.7
 
-  - id: 112
+  - id: 87
     identifier: CUT_OPAL
     effect: PRODUCE
     output: { item: cut_opal, amount: 1 }
@@ -1122,7 +1122,7 @@ recipes:
     baseSuccessChance: 0.6
 
   # The high tier of paper: a sheet of parchment soaked in mana concentrate, which a legendary tome is bound from.
-  - id: 113
+  - id: 88
     identifier: MANA_PAPER
     effect: PRODUCE
     output: { item: mana_paper, amount: 1 }
@@ -1136,7 +1136,7 @@ recipes:
 
   # The bench liquids: made from a bottle and what goes in it, so ink, dye, poison and holy water are not shop
   # stock nobody sells. All of them are starter recipes, like the rest of the refining.
-  - id: 114
+  - id: 89
     identifier: INK
     effect: PRODUCE
     output: { item: ink, amount: 1 }
@@ -1148,7 +1148,7 @@ recipes:
     craftSeconds: 5.0
     baseSuccessChance: 1.0
 
-  - id: 115
+  - id: 90
     identifier: DYE
     effect: PRODUCE
     output: { item: dye, amount: 1 }
@@ -1160,7 +1160,7 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 1.0
 
-  - id: 116
+  - id: 91
     identifier: BASIC_POISON
     effect: PRODUCE
     output: { item: basic_poison, amount: 1 }
@@ -1172,7 +1172,7 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 0.9
 
-  - id: 117
+  - id: 92
     identifier: HOLY_WATER
     effect: PRODUCE
     output: { item: holy_water, amount: 1 }
@@ -1184,7 +1184,7 @@ recipes:
     craftSeconds: 8.0
     baseSuccessChance: 0.9
 
-  - id: 118
+  - id: 93
     identifier: BLACKBOARD_KIT
     effect: PRODUCE
     output: { item: blackboard_kit, amount: 1 }
@@ -1201,7 +1201,7 @@ recipes:
 
   # Charring a log in the furnace: the smith's own fuel when there is no coal seam nearby. A log weighs 900
   # and gives charcoal for three smelts.
-  - id: 119
+  - id: 94
     identifier: CHARCOAL
     effect: PRODUCE
     output: { item: charcoal, amount: 3 }
@@ -1216,7 +1216,7 @@ recipes:
   # Alchemy and Transmutation share the Craftsman tree with Carpentry, so their kits are Carpentry like the rest.
   # Gem Cutting is a Miner's skill: a Miner rarely has Carpentry, so the kit is made with Gem Cutting itself.
 
-  - id: 120
+  - id: 95
     identifier: ALCHEMY_LABORATORY_KIT
     effect: PRODUCE
     output: { item: alchemy_laboratory_kit, amount: 1 }
@@ -1229,7 +1229,7 @@ recipes:
     craftSeconds: 20.0
     baseSuccessChance: 1
 
-  - id: 121
+  - id: 96
     identifier: GEM_CUT_STATION_KIT
     effect: PRODUCE
     output: { item: gem_cut_station_kit, amount: 1 }
@@ -1241,7 +1241,7 @@ recipes:
     craftSeconds: 20.0
     baseSuccessChance: 1
 
-  - id: 122
+  - id: 97
     identifier: TRANSMUTATION_WORKBENCH_KIT
     effect: PRODUCE
     output: { item: transmutation_workbench_kit, amount: 1 }
@@ -1256,7 +1256,7 @@ recipes:
   # --- Alchemy ---------------------------------------------------------------------------------------
   # Potions from herbs and a bottle. Discovered rather than given: every input has craft-axes.
 
-  - id: 123
+  - id: 98
     identifier: SMALL_HEALTH_POTION
     effect: PRODUCE
     output: { item: small_health_potion, amount: 1 }
@@ -1268,7 +1268,7 @@ recipes:
     craftSeconds: 8.0
     baseSuccessChance: 0.9
 
-  - id: 124
+  - id: 99
     identifier: SMALL_MANA_POTION
     effect: PRODUCE
     output: { item: small_mana_potion, amount: 1 }
@@ -1280,7 +1280,7 @@ recipes:
     craftSeconds: 8.0
     baseSuccessChance: 0.9
 
-  - id: 125
+  - id: 100
     identifier: HEALTH_POTION
     effect: PRODUCE
     output: { item: health_potion, amount: 1 }
@@ -1293,7 +1293,7 @@ recipes:
     craftSeconds: 15.0
     baseSuccessChance: 0.7
 
-  - id: 126
+  - id: 101
     identifier: MANA_POTION
     effect: PRODUCE
     output: { item: mana_potion, amount: 1 }
@@ -1310,7 +1310,7 @@ recipes:
   # Mundane mana matter, reshaped up the ladder: essence to pure essence to concentrate, and the common blue
   # crystal into the rarer yellow and red ones.
 
-  - id: 127
+  - id: 102
     identifier: PURE_MANA_ESSENCE
     effect: PRODUCE
     output: { item: pure_mana_essence, amount: 1 }
@@ -1321,7 +1321,7 @@ recipes:
     craftSeconds: 15.0
     baseSuccessChance: 0.8
 
-  - id: 128
+  - id: 103
     identifier: MANA_CONCENTRATE
     effect: PRODUCE
     output: { item: mana_concentrate, amount: 1 }
@@ -1333,7 +1333,7 @@ recipes:
     craftSeconds: 20.0
     baseSuccessChance: 0.7
 
-  - id: 129
+  - id: 104
     identifier: YELLOW_MANA_CRYSTAL
     effect: PRODUCE
     output: { item: yellow_mana_crystal, amount: 1 }
@@ -1345,7 +1345,7 @@ recipes:
     craftSeconds: 25.0
     baseSuccessChance: 0.6
 
-  - id: 130
+  - id: 105
     identifier: RED_MANA_CRYSTAL
     effect: PRODUCE
     output: { item: red_mana_crystal, amount: 1 }
@@ -1361,7 +1361,7 @@ recipes:
   # Every coal-fired furnace recipe again with charcoal, the fuel a smith can make from a log. It never gets the
   # furnace as hot, so each attempt is 10 points less likely to succeed (crafting.md, Ore Refinement Success Chance).
 
-  - id: 131
+  - id: 106
     identifier: IRON_INGOT_CHARCOAL
     effect: PRODUCE
     output: { item: iron_ingot, amount: 1 }
@@ -1373,7 +1373,7 @@ recipes:
     craftSeconds: 10.0
     baseSuccessChance: 0.1
 
-  - id: 132
+  - id: 107
     identifier: GOLD_BAR_CHARCOAL
     effect: PRODUCE
     output: { item: gold_bar, amount: 1 }
@@ -1385,7 +1385,7 @@ recipes:
     craftSeconds: 14.0
     baseSuccessChance: -0.2
 
-  - id: 133
+  - id: 108
     identifier: TIN_INGOT_CHARCOAL
     effect: PRODUCE
     output: { item: tin_ingot, amount: 1 }
@@ -1397,7 +1397,7 @@ recipes:
     craftSeconds: 10.0
     baseSuccessChance: 0.2
 
-  - id: 134
+  - id: 109
     identifier: COPPER_INGOT_CHARCOAL
     effect: PRODUCE
     output: { item: copper_ingot, amount: 1 }
@@ -1409,7 +1409,7 @@ recipes:
     craftSeconds: 10.0
     baseSuccessChance: 0.2
 
-  - id: 135
+  - id: 110
     identifier: STEEL_INGOT_CHARCOAL
     effect: PRODUCE
     output: { item: steel_ingot, amount: 1 }
@@ -1421,7 +1421,7 @@ recipes:
     craftSeconds: 14.0
     baseSuccessChance: -0.02
 
-  - id: 136
+  - id: 111
     identifier: SILVER_INGOT_CHARCOAL
     effect: PRODUCE
     output: { item: silver_ingot, amount: 1 }
@@ -1433,7 +1433,7 @@ recipes:
     craftSeconds: 14.0
     baseSuccessChance: -0.05
 
-  - id: 137
+  - id: 112
     identifier: PALLADIUM_INGOT_CHARCOAL
     effect: PRODUCE
     output: { item: palladium_ingot, amount: 1 }
@@ -1445,7 +1445,7 @@ recipes:
     craftSeconds: 18.0
     baseSuccessChance: -0.4
 
-  - id: 138
+  - id: 113
     identifier: MITHRIL_INGOT_CHARCOAL
     effect: PRODUCE
     output: { item: mithril_ingot, amount: 1 }
@@ -1457,7 +1457,7 @@ recipes:
     craftSeconds: 20.0
     baseSuccessChance: -0.55
 
-  - id: 139
+  - id: 114
     identifier: ADAMANTIUM_INGOT_CHARCOAL
     effect: PRODUCE
     output: { item: adamantium_ingot, amount: 1 }
@@ -1469,7 +1469,7 @@ recipes:
     craftSeconds: 24.0
     baseSuccessChance: -0.7
 
-  - id: 140
+  - id: 115
     identifier: BRICK_CHARCOAL
     effect: PRODUCE
     output: { item: brick, amount: 2 }
@@ -1485,7 +1485,7 @@ recipes:
 
   # Twenty plain arrows and one material make twenty special ones. Arrow Crafting's level decides which: 2 the
   # steel and sharp heads, 3 the four elements, 4 silver, shadow and poison, 5 the stun arrow.
-  - id: 142
+  - id: 116
     identifier: STEEL_ARROW
     effect: PRODUCE
     output: { item: steel_arrow, amount: 20 }
@@ -1496,7 +1496,7 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 1.0
 
-  - id: 143
+  - id: 117
     identifier: SHARP_ARROW
     effect: PRODUCE
     output: { item: sharp_arrow, amount: 20 }
@@ -1507,7 +1507,7 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 1.0
 
-  - id: 144
+  - id: 118
     identifier: FIRE_ARROW
     effect: PRODUCE
     output: { item: fire_arrow, amount: 20 }
@@ -1518,7 +1518,7 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 1.0
 
-  - id: 145
+  - id: 119
     identifier: CRYSTAL_ARROW
     effect: PRODUCE
     output: { item: crystal_arrow, amount: 20 }
@@ -1529,7 +1529,7 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 1.0
 
-  - id: 146
+  - id: 120
     identifier: WIND_ARROW
     effect: PRODUCE
     output: { item: wind_arrow, amount: 20 }
@@ -1540,7 +1540,7 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 1.0
 
-  - id: 147
+  - id: 121
     identifier: STONE_ARROW
     effect: PRODUCE
     output: { item: stone_arrow, amount: 20 }
@@ -1551,7 +1551,7 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 1.0
 
-  - id: 148
+  - id: 122
     identifier: SILVER_ARROW
     effect: PRODUCE
     output: { item: silver_arrow, amount: 20 }
@@ -1562,7 +1562,7 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 1.0
 
-  - id: 149
+  - id: 123
     identifier: SHADOW_ARROW
     effect: PRODUCE
     output: { item: shadow_arrow, amount: 20 }
@@ -1573,7 +1573,7 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 1.0
 
-  - id: 150
+  - id: 124
     identifier: POISON_ARROW
     effect: PRODUCE
     output: { item: poison_arrow, amount: 20 }
@@ -1584,7 +1584,7 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 1.0
 
-  - id: 151
+  - id: 125
     identifier: STUN_ARROW
     effect: PRODUCE
     output: { item: stun_arrow, amount: 20 }
@@ -1594,7 +1594,7 @@ recipes:
     skill: { skill: M_ARROW_CRAFTING, level: 5 }
     craftSeconds: 6.0
     baseSuccessChance: 1.0
-  - id: 152
+  - id: 126
     identifier: CARVING_TABLE_KIT
     effect: PRODUCE
     output: { item: carving_table_kit, amount: 1 }
@@ -1608,7 +1608,7 @@ recipes:
 
   # Minting is a Trader's skill, so like the Gem Cut Station the kit comes with the skill rather than with Carpentry.
   # Everything in it is in reach around level 15 to 20: bronze and iron from the first ores, stone from a boulder.
-  - id: 162
+  - id: 127
     identifier: MINT_KIT
     effect: PRODUCE
     output: { item: mint_kit, amount: 1 }
@@ -1622,7 +1622,7 @@ recipes:
     baseSuccessChance: 1
 
   # An etching takes 1.2 · L² seconds for a Bestia of level L: craftSeconds is the factor, see Recipe.craftSeconds.
-  - id: 153
+  - id: 128
     identifier: ETCH_AMETHYST
     effect: ETCH_ESSENCE
     inputs:
@@ -1632,7 +1632,7 @@ recipes:
     craftSeconds: 1.2
     baseSuccessChance: 0.5
 
-  - id: 154
+  - id: 129
     identifier: ETCH_EMERALD
     effect: ETCH_ESSENCE
     inputs:
@@ -1642,7 +1642,7 @@ recipes:
     craftSeconds: 1.2
     baseSuccessChance: 0.5
 
-  - id: 155
+  - id: 130
     identifier: ETCH_RUBY
     effect: ETCH_ESSENCE
     inputs:
@@ -1652,7 +1652,7 @@ recipes:
     craftSeconds: 1.2
     baseSuccessChance: 0.5
 
-  - id: 156
+  - id: 131
     identifier: ETCH_PYRELITH
     effect: ETCH_ESSENCE
     inputs:
@@ -1662,7 +1662,7 @@ recipes:
     craftSeconds: 1.2
     baseSuccessChance: 0.5
 
-  - id: 157
+  - id: 132
     identifier: ETCH_DIAMOND
     effect: ETCH_ESSENCE
     inputs:

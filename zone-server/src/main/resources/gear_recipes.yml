@@ -7,7 +7,7 @@
 # skill, stats and bonuses lift it; the time is 1.2 * level^2 seconds.
 recipes:
 
-  - id: 200
+  - id: 133
     identifier: KNIFE
     effect: PRODUCE
     output: { item: knife, amount: 1 }
@@ -20,7 +20,7 @@ recipes:
     craftSeconds: 19.2
     baseSuccessChance: 0.900
 
-  - id: 201
+  - id: 134
     identifier: HAND_WRAPS
     effect: PRODUCE
     output: { item: hand_wraps, amount: 1 }
@@ -33,7 +33,7 @@ recipes:
     craftSeconds: 19.2
     baseSuccessChance: 0.900
 
-  - id: 202
+  - id: 135
     identifier: WOODEN_SPEAR
     effect: PRODUCE
     output: { item: wooden_spear, amount: 1 }
@@ -48,7 +48,7 @@ recipes:
     craftSeconds: 19.2
     baseSuccessChance: 0.900
 
-  - id: 203
+  - id: 136
     identifier: WALKING_STICK
     effect: PRODUCE
     output: { item: walking_stick, amount: 1 }
@@ -62,7 +62,7 @@ recipes:
     craftSeconds: 19.2
     baseSuccessChance: 0.900
 
-  - id: 204
+  - id: 137
     identifier: TWIG_WAND
     effect: PRODUCE
     output: { item: twig_wand, amount: 1 }
@@ -76,7 +76,7 @@ recipes:
     craftSeconds: 19.2
     baseSuccessChance: 0.900
 
-  - id: 205
+  - id: 138
     identifier: TIN_WHISTLE
     effect: PRODUCE
     output: { item: tin_whistle, amount: 1 }
@@ -90,7 +90,7 @@ recipes:
     craftSeconds: 19.2
     baseSuccessChance: 0.900
 
-  - id: 206
+  - id: 139
     identifier: ROPE_LASH
     effect: PRODUCE
     output: { item: rope_lash, amount: 1 }
@@ -102,7 +102,7 @@ recipes:
     craftSeconds: 30.0
     baseSuccessChance: 0.900
 
-  - id: 207
+  - id: 140
     identifier: HAND_AXE
     effect: PRODUCE
     output: { item: hand_axe, amount: 1 }
@@ -117,7 +117,7 @@ recipes:
     craftSeconds: 30.0
     baseSuccessChance: 0.900
 
-  - id: 208
+  - id: 141
     identifier: CUDGEL
     effect: PRODUCE
     output: { item: cudgel, amount: 1 }
@@ -129,7 +129,7 @@ recipes:
     craftSeconds: 30.0
     baseSuccessChance: 0.900
 
-  - id: 209
+  - id: 142
     identifier: SHORT_SWORD
     effect: PRODUCE
     output: { item: short_sword, amount: 1 }
@@ -142,7 +142,7 @@ recipes:
     craftSeconds: 43.2
     baseSuccessChance: 0.900
 
-  - id: 210
+  - id: 143
     identifier: MALLET
     effect: PRODUCE
     output: { item: mallet, amount: 1 }
@@ -155,7 +155,7 @@ recipes:
     craftSeconds: 43.2
     baseSuccessChance: 0.900
 
-  - id: 211
+  - id: 144
     identifier: PRIMER
     effect: PRODUCE
     output: { item: primer, amount: 1 }
@@ -167,7 +167,7 @@ recipes:
     craftSeconds: 43.2
     baseSuccessChance: 0.900
 
-  - id: 212
+  - id: 145
     identifier: SHORT_BOW
     effect: PRODUCE
     output: { item: short_bow, amount: 1 }
@@ -182,7 +182,7 @@ recipes:
     craftSeconds: 43.2
     baseSuccessChance: 0.900
 
-  - id: 213
+  - id: 146
     identifier: SHEPHERDS_SLING
     effect: PRODUCE
     output: { item: shepherds_sling, amount: 1 }
@@ -196,7 +196,7 @@ recipes:
     craftSeconds: 43.2
     baseSuccessChance: 0.900
 
-  - id: 214
+  - id: 147
     identifier: PLAIN_ROBE
     effect: PRODUCE
     output: { item: plain_robe, amount: 1 }
@@ -208,7 +208,7 @@ recipes:
     craftSeconds: 43.2
     baseSuccessChance: 0.900
 
-  - id: 215
+  - id: 148
     identifier: FELT_HOOD
     effect: PRODUCE
     output: { item: felt_hood, amount: 1 }
@@ -221,7 +221,7 @@ recipes:
     craftSeconds: 43.2
     baseSuccessChance: 0.900
 
-  - id: 216
+  - id: 149
     identifier: ROPE_SANDALS
     effect: PRODUCE
     output: { item: rope_sandals, amount: 1 }
@@ -233,7 +233,7 @@ recipes:
     craftSeconds: 43.2
     baseSuccessChance: 0.900
 
-  - id: 217
+  - id: 150
     identifier: WOODEN_CROSSBOW
     effect: PRODUCE
     output: { item: wooden_crossbow, amount: 1 }
@@ -247,7 +247,7 @@ recipes:
     craftSeconds: 76.8
     baseSuccessChance: 0.900
 
-  - id: 218
+  - id: 151
     identifier: THROWING_KNIFE
     effect: PRODUCE
     output: { item: throwing_knife, amount: 1 }
@@ -261,7 +261,7 @@ recipes:
     craftSeconds: 76.8
     baseSuccessChance: 0.900
 
-  - id: 219
+  - id: 152
     identifier: PADDED_GAMBESON
     effect: PRODUCE
     output: { item: padded_gambeson, amount: 1 }
@@ -273,7 +273,7 @@ recipes:
     craftSeconds: 76.8
     baseSuccessChance: 0.900
 
-  - id: 220
+  - id: 153
     identifier: WICKER_BUCKLER
     effect: PRODUCE
     output: { item: wicker_buckler, amount: 1 }
@@ -286,7 +286,7 @@ recipes:
     craftSeconds: 76.8
     baseSuccessChance: 0.900
 
-  - id: 221
+  - id: 154
     identifier: COPPER_BAND
     effect: PRODUCE
     output: { item: copper_band, amount: 1 }
@@ -298,7 +298,7 @@ recipes:
     craftSeconds: 76.8
     baseSuccessChance: 0.900
 
-  - id: 222
+  - id: 155
     identifier: DAGGER
     effect: PRODUCE
     output: { item: dagger, amount: 1 }
@@ -312,7 +312,7 @@ recipes:
     craftSeconds: 120.0
     baseSuccessChance: 0.900
 
-  - id: 223
+  - id: 156
     identifier: CESTUS
     effect: PRODUCE
     output: { item: cestus, amount: 1 }
@@ -325,7 +325,7 @@ recipes:
     craftSeconds: 120.0
     baseSuccessChance: 0.900
 
-  - id: 224
+  - id: 157
     identifier: FIRE_HARDENED_SPEAR
     effect: PRODUCE
     output: { item: fire_hardened_spear, amount: 1 }
@@ -340,7 +340,7 @@ recipes:
     craftSeconds: 120.0
     baseSuccessChance: 0.900
 
-  - id: 225
+  - id: 158
     identifier: QUARTERSTAFF
     effect: PRODUCE
     output: { item: quarterstaff, amount: 1 }
@@ -352,7 +352,7 @@ recipes:
     craftSeconds: 120.0
     baseSuccessChance: 0.900
 
-  - id: 226
+  - id: 159
     identifier: BIRCH_WAND
     effect: PRODUCE
     output: { item: birch_wand, amount: 1 }
@@ -366,7 +366,7 @@ recipes:
     craftSeconds: 120.0
     baseSuccessChance: 0.900
 
-  - id: 227
+  - id: 160
     identifier: REED_FLUTE
     effect: PRODUCE
     output: { item: reed_flute, amount: 1 }
@@ -379,7 +379,7 @@ recipes:
     craftSeconds: 120.0
     baseSuccessChance: 0.900
 
-  - id: 228
+  - id: 161
     identifier: STRAW_HAT
     effect: PRODUCE
     output: { item: straw_hat, amount: 1 }
@@ -391,7 +391,7 @@ recipes:
     craftSeconds: 120.0
     baseSuccessChance: 0.900
 
-  - id: 229
+  - id: 162
     identifier: LEATHER_CAP
     effect: PRODUCE
     output: { item: leather_cap, amount: 1 }
@@ -403,7 +403,7 @@ recipes:
     craftSeconds: 120.0
     baseSuccessChance: 0.900
 
-  - id: 230
+  - id: 163
     identifier: TRAVELLERS_CLOAK
     effect: PRODUCE
     output: { item: travellers_cloak, amount: 1 }
@@ -415,7 +415,7 @@ recipes:
     craftSeconds: 120.0
     baseSuccessChance: 0.900
 
-  - id: 231
+  - id: 164
     identifier: CRACKED_MONOCLE
     effect: PRODUCE
     output: { item: cracked_monocle, amount: 1 }
@@ -426,7 +426,7 @@ recipes:
     craftSeconds: 120.0
     baseSuccessChance: 0.900
 
-  - id: 232
+  - id: 165
     identifier: TIN_LANTERN
     effect: PRODUCE
     output: { item: tin_lantern, amount: 1 }
@@ -439,7 +439,7 @@ recipes:
     craftSeconds: 120.0
     baseSuccessChance: 0.900
 
-  - id: 233
+  - id: 166
     identifier: BRAIDED_WHIP
     effect: PRODUCE
     output: { item: braided_whip, amount: 1 }
@@ -453,7 +453,7 @@ recipes:
     craftSeconds: 172.8
     baseSuccessChance: 0.870
 
-  - id: 234
+  - id: 167
     identifier: GLADIUS
     effect: PRODUCE
     output: { item: gladius, amount: 1 }
@@ -466,7 +466,7 @@ recipes:
     craftSeconds: 172.8
     baseSuccessChance: 0.870
 
-  - id: 235
+  - id: 168
     identifier: BEARDED_AXE
     effect: PRODUCE
     output: { item: bearded_axe, amount: 1 }
@@ -481,7 +481,7 @@ recipes:
     craftSeconds: 172.8
     baseSuccessChance: 0.870
 
-  - id: 236
+  - id: 169
     identifier: FLANGED_MACE
     effect: PRODUCE
     output: { item: flanged_mace, amount: 1 }
@@ -493,7 +493,7 @@ recipes:
     craftSeconds: 172.8
     baseSuccessChance: 0.870
 
-  - id: 237
+  - id: 170
     identifier: WOODSPLITTER
     effect: PRODUCE
     output: { item: woodsplitter, amount: 1 }
@@ -507,7 +507,7 @@ recipes:
     craftSeconds: 172.8
     baseSuccessChance: 0.870
 
-  - id: 238
+  - id: 171
     identifier: YEW_SHORTBOW
     effect: PRODUCE
     output: { item: yew_shortbow, amount: 1 }
@@ -521,7 +521,7 @@ recipes:
     craftSeconds: 172.8
     baseSuccessChance: 0.870
 
-  - id: 239
+  - id: 172
     identifier: TWO_HANDED_SWORD
     effect: PRODUCE
     output: { item: two_handed_sword, amount: 1 }
@@ -535,7 +535,7 @@ recipes:
     craftSeconds: 235.2
     baseSuccessChance: 0.840
 
-  - id: 240
+  - id: 173
     identifier: STONE_MAUL
     effect: PRODUCE
     output: { item: stone_maul, amount: 1 }
@@ -547,7 +547,7 @@ recipes:
     craftSeconds: 235.2
     baseSuccessChance: 0.840
 
-  - id: 241
+  - id: 174
     identifier: BILLHOOK
     effect: PRODUCE
     output: { item: billhook, amount: 1 }
@@ -562,7 +562,7 @@ recipes:
     craftSeconds: 235.2
     baseSuccessChance: 0.840
 
-  - id: 242
+  - id: 175
     identifier: PRIMER_OF_SPARKS
     effect: PRODUCE
     output: { item: primer_of_sparks, amount: 1 }
@@ -574,7 +574,7 @@ recipes:
     craftSeconds: 235.2
     baseSuccessChance: 0.840
 
-  - id: 243
+  - id: 176
     identifier: DARTS
     effect: PRODUCE
     output: { item: darts, amount: 1 }
@@ -587,7 +587,7 @@ recipes:
     craftSeconds: 235.2
     baseSuccessChance: 0.840
 
-  - id: 244
+  - id: 177
     identifier: BRAIDED_SLING
     effect: PRODUCE
     output: { item: braided_sling, amount: 1 }
@@ -600,7 +600,7 @@ recipes:
     craftSeconds: 235.2
     baseSuccessChance: 0.840
 
-  - id: 245
+  - id: 178
     identifier: WOVEN_ROBE
     effect: PRODUCE
     output: { item: woven_robe, amount: 1 }
@@ -613,7 +613,7 @@ recipes:
     craftSeconds: 235.2
     baseSuccessChance: 0.840
 
-  - id: 246
+  - id: 179
     identifier: RING_MAIL
     effect: PRODUCE
     output: { item: ring_mail, amount: 1 }
@@ -626,7 +626,7 @@ recipes:
     craftSeconds: 235.2
     baseSuccessChance: 0.840
 
-  - id: 247
+  - id: 180
     identifier: SOFT_LEATHER_BOOTS
     effect: PRODUCE
     output: { item: soft_leather_boots, amount: 1 }
@@ -639,7 +639,7 @@ recipes:
     craftSeconds: 235.2
     baseSuccessChance: 0.840
 
-  - id: 248
+  - id: 181
     identifier: LEATHER_EYEPATCH
     effect: PRODUCE
     output: { item: leather_eyepatch, amount: 1 }
@@ -651,7 +651,7 @@ recipes:
     craftSeconds: 235.2
     baseSuccessChance: 0.840
 
-  - id: 249
+  - id: 182
     identifier: BONE_CHARM
     effect: PRODUCE
     output: { item: bone_charm, amount: 1 }
@@ -663,7 +663,7 @@ recipes:
     craftSeconds: 235.2
     baseSuccessChance: 0.840
 
-  - id: 250
+  - id: 183
     identifier: WILLOW_STAFF
     effect: PRODUCE
     output: { item: willow_staff, amount: 1 }
@@ -676,7 +676,7 @@ recipes:
     craftSeconds: 307.2
     baseSuccessChance: 0.810
 
-  - id: 251
+  - id: 184
     identifier: HUNTING_CROSSBOW
     effect: PRODUCE
     output: { item: hunting_crossbow, amount: 1 }
@@ -691,7 +691,7 @@ recipes:
     craftSeconds: 307.2
     baseSuccessChance: 0.810
 
-  - id: 252
+  - id: 185
     identifier: HIDE_VEST
     effect: PRODUCE
     output: { item: hide_vest, amount: 1 }
@@ -705,7 +705,7 @@ recipes:
     craftSeconds: 307.2
     baseSuccessChance: 0.810
 
-  - id: 253
+  - id: 186
     identifier: WOOL_MANTLE
     effect: PRODUCE
     output: { item: wool_mantle, amount: 1 }
@@ -719,7 +719,7 @@ recipes:
     craftSeconds: 307.2
     baseSuccessChance: 0.810
 
-  - id: 254
+  - id: 187
     identifier: FELT_SLIPPERS
     effect: PRODUCE
     output: { item: felt_slippers, amount: 1 }
@@ -731,7 +731,7 @@ recipes:
     craftSeconds: 307.2
     baseSuccessChance: 0.810
 
-  - id: 255
+  - id: 188
     identifier: IRON_RING
     effect: PRODUCE
     output: { item: iron_ring, amount: 1 }
@@ -743,7 +743,7 @@ recipes:
     craftSeconds: 307.2
     baseSuccessChance: 0.810
 
-  - id: 256
+  - id: 189
     identifier: COMBAT_KNIFE
     effect: PRODUCE
     output: { item: combat_knife, amount: 1 }
@@ -756,7 +756,7 @@ recipes:
     craftSeconds: 388.8
     baseSuccessChance: 0.780
 
-  - id: 257
+  - id: 190
     identifier: KNUCKLEDUSTER
     effect: PRODUCE
     output: { item: knuckleduster, amount: 1 }
@@ -770,7 +770,7 @@ recipes:
     craftSeconds: 388.8
     baseSuccessChance: 0.780
 
-  - id: 258
+  - id: 191
     identifier: SPIKED_CLUB
     effect: PRODUCE
     output: { item: spiked_club, amount: 1 }
@@ -782,7 +782,7 @@ recipes:
     craftSeconds: 388.8
     baseSuccessChance: 0.780
 
-  - id: 259
+  - id: 192
     identifier: SHORT_SPEAR
     effect: PRODUCE
     output: { item: short_spear, amount: 1 }
@@ -797,7 +797,7 @@ recipes:
     craftSeconds: 388.8
     baseSuccessChance: 0.780
 
-  - id: 260
+  - id: 193
     identifier: APPRENTICES_WAND
     effect: PRODUCE
     output: { item: apprentices_wand, amount: 1 }
@@ -810,7 +810,7 @@ recipes:
     craftSeconds: 388.8
     baseSuccessChance: 0.780
 
-  - id: 261
+  - id: 194
     identifier: HAND_DRUM
     effect: PRODUCE
     output: { item: hand_drum, amount: 1 }
@@ -825,7 +825,7 @@ recipes:
     craftSeconds: 388.8
     baseSuccessChance: 0.780
 
-  - id: 262
+  - id: 195
     identifier: BANDANA
     effect: PRODUCE
     output: { item: bandana, amount: 1 }
@@ -839,7 +839,7 @@ recipes:
     craftSeconds: 388.8
     baseSuccessChance: 0.780
 
-  - id: 263
+  - id: 196
     identifier: ROUND_SHIELD
     effect: PRODUCE
     output: { item: round_shield, amount: 1 }
@@ -852,7 +852,7 @@ recipes:
     craftSeconds: 388.8
     baseSuccessChance: 0.780
 
-  - id: 264
+  - id: 197
     identifier: CLOTH_FACE_MASK
     effect: PRODUCE
     output: { item: cloth_face_mask, amount: 1 }
@@ -864,7 +864,7 @@ recipes:
     craftSeconds: 388.8
     baseSuccessChance: 0.780
 
-  - id: 265
+  - id: 198
     identifier: RABBITS_FOOT_CHARM
     effect: PRODUCE
     output: { item: rabbits_foot_charm, amount: 1 }
@@ -876,7 +876,7 @@ recipes:
     craftSeconds: 388.8
     baseSuccessChance: 0.780
 
-  - id: 266
+  - id: 199
     identifier: THORNVINE_WHIP
     effect: PRODUCE
     output: { item: thornvine_whip, amount: 1 }
@@ -889,7 +889,7 @@ recipes:
     craftSeconds: 480.0
     baseSuccessChance: 0.750
 
-  - id: 267
+  - id: 200
     identifier: ARMING_SWORD
     effect: PRODUCE
     output: { item: arming_sword, amount: 1 }
@@ -901,7 +901,7 @@ recipes:
     craftSeconds: 480.0
     baseSuccessChance: 0.750
 
-  - id: 268
+  - id: 201
     identifier: BROAD_AXE
     effect: PRODUCE
     output: { item: broad_axe, amount: 1 }
@@ -914,7 +914,7 @@ recipes:
     craftSeconds: 480.0
     baseSuccessChance: 0.750
 
-  - id: 269
+  - id: 202
     identifier: GREATAXE
     effect: PRODUCE
     output: { item: greataxe, amount: 1 }
@@ -929,7 +929,7 @@ recipes:
     craftSeconds: 480.0
     baseSuccessChance: 0.750
 
-  - id: 270
+  - id: 203
     identifier: HYMNAL
     effect: PRODUCE
     output: { item: hymnal, amount: 1 }
@@ -942,7 +942,7 @@ recipes:
     craftSeconds: 480.0
     baseSuccessChance: 0.750
 
-  - id: 271
+  - id: 204
     identifier: IRON_PLATE_COAT
     effect: PRODUCE
     output: { item: iron_plate_coat, amount: 1 }
@@ -956,7 +956,7 @@ recipes:
     craftSeconds: 480.0
     baseSuccessChance: 0.750
 
-  - id: 272
+  - id: 205
     identifier: BRONZE_SALLET
     effect: PRODUCE
     output: { item: bronze_sallet, amount: 1 }
@@ -971,7 +971,7 @@ recipes:
     craftSeconds: 480.0
     baseSuccessChance: 0.750
 
-  - id: 273
+  - id: 206
     identifier: HIDE_TARGE
     effect: PRODUCE
     output: { item: hide_targe, amount: 1 }
@@ -984,7 +984,7 @@ recipes:
     craftSeconds: 480.0
     baseSuccessChance: 0.750
 
-  - id: 274
+  - id: 207
     identifier: ZWEIHANDER
     effect: PRODUCE
     output: { item: zweihander, amount: 1 }
@@ -998,7 +998,7 @@ recipes:
     craftSeconds: 580.8
     baseSuccessChance: 0.720
 
-  - id: 275
+  - id: 208
     identifier: SLEDGEHAMMER
     effect: PRODUCE
     output: { item: sledgehammer, amount: 1 }
@@ -1011,7 +1011,7 @@ recipes:
     craftSeconds: 580.8
     baseSuccessChance: 0.720
 
-  - id: 276
+  - id: 209
     identifier: BARDICHE
     effect: PRODUCE
     output: { item: bardiche, amount: 1 }
@@ -1026,7 +1026,7 @@ recipes:
     craftSeconds: 580.8
     baseSuccessChance: 0.720
 
-  - id: 277
+  - id: 210
     identifier: THROWING_AXE
     effect: PRODUCE
     output: { item: throwing_axe, amount: 1 }
@@ -1039,7 +1039,7 @@ recipes:
     craftSeconds: 580.8
     baseSuccessChance: 0.720
 
-  - id: 278
+  - id: 211
     identifier: HIDE_SLING
     effect: PRODUCE
     output: { item: hide_sling, amount: 1 }
@@ -1053,7 +1053,7 @@ recipes:
     craftSeconds: 580.8
     baseSuccessChance: 0.720
 
-  - id: 279
+  - id: 212
     identifier: ACOLYTES_CASSOCK
     effect: PRODUCE
     output: { item: acolytes_cassock, amount: 1 }
@@ -1066,7 +1066,7 @@ recipes:
     craftSeconds: 580.8
     baseSuccessChance: 0.720
 
-  - id: 280
+  - id: 213
     identifier: STUDDED_BRIGANDINE
     effect: PRODUCE
     output: { item: studded_brigandine, amount: 1 }
@@ -1081,7 +1081,7 @@ recipes:
     craftSeconds: 580.8
     baseSuccessChance: 0.720
 
-  - id: 281
+  - id: 214
     identifier: PILGRIMS_SHAWL
     effect: PRODUCE
     output: { item: pilgrims_shawl, amount: 1 }
@@ -1093,7 +1093,7 @@ recipes:
     craftSeconds: 580.8
     baseSuccessChance: 0.720
 
-  - id: 282
+  - id: 215
     identifier: HOBNAILED_BOOTS
     effect: PRODUCE
     output: { item: hobnailed_boots, amount: 1 }
@@ -1107,7 +1107,7 @@ recipes:
     craftSeconds: 580.8
     baseSuccessChance: 0.720
 
-  - id: 283
+  - id: 216
     identifier: IRON_SHOD_QUARTERSTAFF
     effect: PRODUCE
     output: { item: iron_shod_quarterstaff, amount: 1 }
@@ -1119,7 +1119,7 @@ recipes:
     craftSeconds: 691.2
     baseSuccessChance: 0.690
 
-  - id: 284
+  - id: 217
     identifier: STIRRUP_CROSSBOW
     effect: PRODUCE
     output: { item: stirrup_crossbow, amount: 1 }
@@ -1134,7 +1134,7 @@ recipes:
     craftSeconds: 691.2
     baseSuccessChance: 0.690
 
-  - id: 285
+  - id: 218
     identifier: HUNTERS_LEATHERS
     effect: PRODUCE
     output: { item: hunters_leathers, amount: 1 }
@@ -1147,7 +1147,7 @@ recipes:
     craftSeconds: 691.2
     baseSuccessChance: 0.690
 
-  - id: 286
+  - id: 219
     identifier: NASAL_HELM
     effect: PRODUCE
     output: { item: nasal_helm, amount: 1 }
@@ -1161,7 +1161,7 @@ recipes:
     craftSeconds: 691.2
     baseSuccessChance: 0.690
 
-  - id: 287
+  - id: 220
     identifier: RANGERS_MOCCASINS
     effect: PRODUCE
     output: { item: rangers_moccasins, amount: 1 }
@@ -1174,7 +1174,7 @@ recipes:
     craftSeconds: 691.2
     baseSuccessChance: 0.690
 
-  - id: 288
+  - id: 221
     identifier: SMOKED_GOGGLES
     effect: PRODUCE
     output: { item: smoked_goggles, amount: 1 }
@@ -1185,7 +1185,7 @@ recipes:
     craftSeconds: 691.2
     baseSuccessChance: 0.690
 
-  - id: 289
+  - id: 222
     identifier: BRAWLERS_BRACER
     effect: PRODUCE
     output: { item: brawlers_bracer, amount: 1 }
@@ -1196,7 +1196,7 @@ recipes:
     craftSeconds: 691.2
     baseSuccessChance: 0.690
 
-  - id: 290
+  - id: 223
     identifier: GREAT_KNIFE
     effect: PRODUCE
     output: { item: great_knife, amount: 1 }
@@ -1209,7 +1209,7 @@ recipes:
     craftSeconds: 811.2
     baseSuccessChance: 0.660
 
-  - id: 291
+  - id: 224
     identifier: SPIKED_KNUCKLES
     effect: PRODUCE
     output: { item: spiked_knuckles, amount: 1 }
@@ -1221,7 +1221,7 @@ recipes:
     craftSeconds: 811.2
     baseSuccessChance: 0.660
 
-  - id: 292
+  - id: 225
     identifier: BOAR_SPEAR
     effect: PRODUCE
     output: { item: boar_spear, amount: 1 }
@@ -1236,7 +1236,7 @@ recipes:
     craftSeconds: 811.2
     baseSuccessChance: 0.660
 
-  - id: 293
+  - id: 226
     identifier: BONE_WAND
     effect: PRODUCE
     output: { item: bone_wand, amount: 1 }
@@ -1250,7 +1250,7 @@ recipes:
     craftSeconds: 811.2
     baseSuccessChance: 0.660
 
-  - id: 294
+  - id: 227
     identifier: TRAVELLERS_MANDOLIN
     effect: PRODUCE
     output: { item: travellers_mandolin, amount: 1 }
@@ -1264,7 +1264,7 @@ recipes:
     craftSeconds: 811.2
     baseSuccessChance: 0.660
 
-  - id: 295
+  - id: 228
     identifier: OILSKIN_CAPE
     effect: PRODUCE
     output: { item: oilskin_cape, amount: 1 }
@@ -1276,7 +1276,7 @@ recipes:
     craftSeconds: 811.2
     baseSuccessChance: 0.660
 
-  - id: 296
+  - id: 229
     identifier: BRONZE_HEATER
     effect: PRODUCE
     output: { item: bronze_heater, amount: 1 }
@@ -1291,7 +1291,7 @@ recipes:
     craftSeconds: 811.2
     baseSuccessChance: 0.660
 
-  - id: 297
+  - id: 230
     identifier: RANGERS_THUMB_RING
     effect: PRODUCE
     output: { item: rangers_thumb_ring, amount: 1 }
@@ -1303,7 +1303,7 @@ recipes:
     craftSeconds: 811.2
     baseSuccessChance: 0.660
 
-  - id: 298
+  - id: 231
     identifier: BULLWHIP
     effect: PRODUCE
     output: { item: bullwhip, amount: 1 }
@@ -1316,7 +1316,7 @@ recipes:
     craftSeconds: 940.8
     baseSuccessChance: 0.630
 
-  - id: 299
+  - id: 232
     identifier: BROADSWORD
     effect: PRODUCE
     output: { item: broadsword, amount: 1 }
@@ -1330,7 +1330,7 @@ recipes:
     craftSeconds: 940.8
     baseSuccessChance: 0.630
 
-  - id: 300
+  - id: 233
     identifier: WOODWARDS_AXE
     effect: PRODUCE
     output: { item: woodwards_axe, amount: 1 }
@@ -1344,7 +1344,7 @@ recipes:
     craftSeconds: 940.8
     baseSuccessChance: 0.630
 
-  - id: 301
+  - id: 234
     identifier: MORNING_STAR
     effect: PRODUCE
     output: { item: morning_star, amount: 1 }
@@ -1357,7 +1357,7 @@ recipes:
     craftSeconds: 940.8
     baseSuccessChance: 0.630
 
-  - id: 302
+  - id: 235
     identifier: WOODCUTTERS_GREATAXE
     effect: PRODUCE
     output: { item: woodcutters_greataxe, amount: 1 }
@@ -1371,7 +1371,7 @@ recipes:
     craftSeconds: 940.8
     baseSuccessChance: 0.630
 
-  - id: 303
+  - id: 236
     identifier: FIELD_HERBARIUM
     effect: PRODUCE
     output: { item: field_herbarium, amount: 1 }
@@ -1385,7 +1385,7 @@ recipes:
     craftSeconds: 940.8
     baseSuccessChance: 0.630
 
-  - id: 304
+  - id: 237
     identifier: LONGBOW
     effect: PRODUCE
     output: { item: longbow, amount: 1 }
@@ -1400,7 +1400,7 @@ recipes:
     craftSeconds: 940.8
     baseSuccessChance: 0.630
 
-  - id: 305
+  - id: 238
     identifier: BOLAS
     effect: PRODUCE
     output: { item: bolas, amount: 1 }
@@ -1413,7 +1413,7 @@ recipes:
     craftSeconds: 940.8
     baseSuccessChance: 0.630
 
-  - id: 306
+  - id: 239
     identifier: WIZARDS_CONE_HAT
     effect: PRODUCE
     output: { item: wizards_cone_hat, amount: 1 }
@@ -1425,7 +1425,7 @@ recipes:
     craftSeconds: 940.8
     baseSuccessChance: 0.630
 
-  - id: 307
+  - id: 240
     identifier: MINERS_LAMP_HELM
     effect: PRODUCE
     output: { item: miners_lamp_helm, amount: 1 }
@@ -1439,7 +1439,7 @@ recipes:
     craftSeconds: 940.8
     baseSuccessChance: 0.630
 
-  - id: 308
+  - id: 241
     identifier: BRONZE_STILETTO
     effect: PRODUCE
     output: { item: bronze_stiletto, amount: 1 }
@@ -1453,7 +1453,7 @@ recipes:
     craftSeconds: 1080.0
     baseSuccessChance: 0.600
 
-  - id: 309
+  - id: 242
     identifier: FLAMBERGE
     effect: PRODUCE
     output: { item: flamberge, amount: 1 }
@@ -1467,7 +1467,7 @@ recipes:
     craftSeconds: 1080.0
     baseSuccessChance: 0.600
 
-  - id: 310
+  - id: 243
     identifier: WAR_MAUL
     effect: PRODUCE
     output: { item: war_maul, amount: 1 }
@@ -1479,7 +1479,7 @@ recipes:
     craftSeconds: 1080.0
     baseSuccessChance: 0.600
 
-  - id: 311
+  - id: 244
     identifier: GUISARME
     effect: PRODUCE
     output: { item: guisarme, amount: 1 }
@@ -1494,7 +1494,7 @@ recipes:
     craftSeconds: 1080.0
     baseSuccessChance: 0.600
 
-  - id: 312
+  - id: 245
     identifier: LEADED_SLING
     effect: PRODUCE
     output: { item: leaded_sling, amount: 1 }
@@ -1507,7 +1507,7 @@ recipes:
     craftSeconds: 1080.0
     baseSuccessChance: 0.600
 
-  - id: 313
+  - id: 246
     identifier: SCHOLARS_HABIT
     effect: PRODUCE
     output: { item: scholars_habit, amount: 1 }
@@ -1519,7 +1519,7 @@ recipes:
     craftSeconds: 1080.0
     baseSuccessChance: 0.600
 
-  - id: 314
+  - id: 247
     identifier: SCALE_VEST
     effect: PRODUCE
     output: { item: scale_vest, amount: 1 }
@@ -1532,7 +1532,7 @@ recipes:
     craftSeconds: 1080.0
     baseSuccessChance: 0.600
 
-  - id: 315
+  - id: 248
     identifier: SPLINT_MAIL
     effect: PRODUCE
     output: { item: splint_mail, amount: 1 }
@@ -1546,7 +1546,7 @@ recipes:
     craftSeconds: 1080.0
     baseSuccessChance: 0.600
 
-  - id: 316
+  - id: 249
     identifier: FUR_LINED_MANTLE
     effect: PRODUCE
     output: { item: fur_lined_mantle, amount: 1 }
@@ -1560,7 +1560,7 @@ recipes:
     craftSeconds: 1080.0
     baseSuccessChance: 0.600
 
-  - id: 317
+  - id: 250
     identifier: IRONSHOD_GREAVES
     effect: PRODUCE
     output: { item: ironshod_greaves, amount: 1 }
@@ -1575,7 +1575,7 @@ recipes:
     craftSeconds: 1080.0
     baseSuccessChance: 0.600
 
-  - id: 318
+  - id: 251
     identifier: IRON_PAVISE
     effect: PRODUCE
     output: { item: iron_pavise, amount: 1 }
@@ -1590,7 +1590,7 @@ recipes:
     craftSeconds: 1080.0
     baseSuccessChance: 0.600
 
-  - id: 319
+  - id: 252
     identifier: MERCHANTS_SIGNET
     effect: PRODUCE
     output: { item: merchants_signet, amount: 1 }
@@ -1602,7 +1602,7 @@ recipes:
     craftSeconds: 1080.0
     baseSuccessChance: 0.600
 
-  - id: 320
+  - id: 253
     identifier: HOODED_LANTERN
     effect: PRODUCE
     output: { item: hooded_lantern, amount: 1 }
@@ -1616,7 +1616,7 @@ recipes:
     craftSeconds: 1080.0
     baseSuccessChance: 0.600
 
-  - id: 321
+  - id: 254
     identifier: MERCHANTS_SABRE
     effect: PRODUCE
     output: { item: merchants_sabre, amount: 1 }
@@ -1629,7 +1629,7 @@ recipes:
     craftSeconds: 1228.8
     baseSuccessChance: 0.570
 
-  - id: 322
+  - id: 255
     identifier: PILGRIMS_STAFF
     effect: PRODUCE
     output: { item: pilgrims_staff, amount: 1 }
@@ -1642,7 +1642,7 @@ recipes:
     craftSeconds: 1228.8
     baseSuccessChance: 0.570
 
-  - id: 323
+  - id: 256
     identifier: ARBALEST
     effect: PRODUCE
     output: { item: arbalest, amount: 1 }
@@ -1656,7 +1656,7 @@ recipes:
     craftSeconds: 1228.8
     baseSuccessChance: 0.570
 
-  - id: 324
+  - id: 257
     identifier: BOILED_LEATHER_CUIRASS
     effect: PRODUCE
     output: { item: boiled_leather_cuirass, amount: 1 }
@@ -1670,7 +1670,7 @@ recipes:
     craftSeconds: 1228.8
     baseSuccessChance: 0.570
 
-  - id: 325
+  - id: 258
     identifier: FEATHERED_TRICORN
     effect: PRODUCE
     output: { item: feathered_tricorn, amount: 1 }
@@ -1684,7 +1684,7 @@ recipes:
     craftSeconds: 1228.8
     baseSuccessChance: 0.570
 
-  - id: 326
+  - id: 259
     identifier: JEWELLERS_LOUPE
     effect: PRODUCE
     output: { item: jewellers_loupe, amount: 1 }
@@ -1696,7 +1696,7 @@ recipes:
     craftSeconds: 1228.8
     baseSuccessChance: 0.570
 
-  - id: 327
+  - id: 260
     identifier: ALCHEMISTS_PHYLACTERY
     effect: PRODUCE
     output: { item: alchemists_phylactery, amount: 1 }
@@ -1708,7 +1708,7 @@ recipes:
     craftSeconds: 1228.8
     baseSuccessChance: 0.570
 
-  - id: 328
+  - id: 261
     identifier: IRON_CLAW
     effect: PRODUCE
     output: { item: iron_claw, amount: 1 }
@@ -1722,7 +1722,7 @@ recipes:
     craftSeconds: 1387.2
     baseSuccessChance: 0.540
 
-  - id: 329
+  - id: 262
     identifier: PICKHEAD_MACE
     effect: PRODUCE
     output: { item: pickhead_mace, amount: 1 }
@@ -1735,7 +1735,7 @@ recipes:
     craftSeconds: 1387.2
     baseSuccessChance: 0.540
 
-  - id: 330
+  - id: 263
     identifier: CAVALRY_LANCE
     effect: PRODUCE
     output: { item: cavalry_lance, amount: 1 }
@@ -1750,7 +1750,7 @@ recipes:
     craftSeconds: 1387.2
     baseSuccessChance: 0.540
 
-  - id: 331
+  - id: 264
     identifier: CRYSTAL_TIPPED_WAND
     effect: PRODUCE
     output: { item: crystal_tipped_wand, amount: 1 }
@@ -1763,7 +1763,7 @@ recipes:
     craftSeconds: 1387.2
     baseSuccessChance: 0.540
 
-  - id: 332
+  - id: 265
     identifier: BAGPIPES
     effect: PRODUCE
     output: { item: bagpipes, amount: 1 }
@@ -1778,7 +1778,7 @@ recipes:
     craftSeconds: 1387.2
     baseSuccessChance: 0.540
 
-  - id: 333
+  - id: 266
     identifier: WEIGHTED_JAVELIN
     effect: PRODUCE
     output: { item: weighted_javelin, amount: 1 }
@@ -1792,7 +1792,7 @@ recipes:
     craftSeconds: 1387.2
     baseSuccessChance: 0.540
 
-  - id: 334
+  - id: 267
     identifier: SCHOLARS_MANTLET
     effect: PRODUCE
     output: { item: scholars_mantlet, amount: 1 }
@@ -1805,7 +1805,7 @@ recipes:
     craftSeconds: 1387.2
     baseSuccessChance: 0.540
 
-  - id: 335
+  - id: 268
     identifier: RIVETED_BOOTS
     effect: PRODUCE
     output: { item: riveted_boots, amount: 1 }
@@ -1820,7 +1820,7 @@ recipes:
     craftSeconds: 1387.2
     baseSuccessChance: 0.540
 
-  - id: 336
+  - id: 269
     identifier: STUDDED_BUCKLER
     effect: PRODUCE
     output: { item: studded_buckler, amount: 1 }
@@ -1834,7 +1834,7 @@ recipes:
     craftSeconds: 1387.2
     baseSuccessChance: 0.540
 
-  - id: 337
+  - id: 270
     identifier: PLAGUE_BEAK_MASK
     effect: PRODUCE
     output: { item: plague_beak_mask, amount: 1 }
@@ -1846,7 +1846,7 @@ recipes:
     craftSeconds: 1387.2
     baseSuccessChance: 0.540
 
-  - id: 338
+  - id: 271
     identifier: JADE_EARRING
     effect: PRODUCE
     output: { item: jade_earring, amount: 1 }
@@ -1858,7 +1858,7 @@ recipes:
     craftSeconds: 1387.2
     baseSuccessChance: 0.540
 
-  - id: 339
+  - id: 272
     identifier: ALCHEMISTS_LANCET
     effect: PRODUCE
     output: { item: alchemists_lancet, amount: 1 }
@@ -1871,7 +1871,7 @@ recipes:
     craftSeconds: 1555.2
     baseSuccessChance: 0.510
 
-  - id: 340
+  - id: 273
     identifier: CHAIN_WHIP
     effect: PRODUCE
     output: { item: chain_whip, amount: 1 }
@@ -1884,7 +1884,7 @@ recipes:
     craftSeconds: 1555.2
     baseSuccessChance: 0.510
 
-  - id: 341
+  - id: 274
     identifier: SMITHS_HEWING_AXE
     effect: PRODUCE
     output: { item: smiths_hewing_axe, amount: 1 }
@@ -1899,7 +1899,7 @@ recipes:
     craftSeconds: 1555.2
     baseSuccessChance: 0.510
 
-  - id: 342
+  - id: 275
     identifier: DOUBLE_BITTED_AXE
     effect: PRODUCE
     output: { item: double_bitted_axe, amount: 1 }
@@ -1912,7 +1912,7 @@ recipes:
     craftSeconds: 1555.2
     baseSuccessChance: 0.510
 
-  - id: 343
+  - id: 276
     identifier: BOOK_OF_PSALMS
     effect: PRODUCE
     output: { item: book_of_psalms, amount: 1 }
@@ -1925,7 +1925,7 @@ recipes:
     craftSeconds: 1555.2
     baseSuccessChance: 0.510
 
-  - id: 344
+  - id: 277
     identifier: RECURVE_BOW
     effect: PRODUCE
     output: { item: recurve_bow, amount: 1 }
@@ -1939,7 +1939,7 @@ recipes:
     craftSeconds: 1555.2
     baseSuccessChance: 0.510
 
-  - id: 345
+  - id: 278
     identifier: SCHOLARS_CAP
     effect: PRODUCE
     output: { item: scholars_cap, amount: 1 }
@@ -1952,7 +1952,7 @@ recipes:
     craftSeconds: 1555.2
     baseSuccessChance: 0.510
 
-  - id: 346
+  - id: 279
     identifier: KETTLE_HAT
     effect: PRODUCE
     output: { item: kettle_hat, amount: 1 }
@@ -1967,7 +1967,7 @@ recipes:
     craftSeconds: 1555.2
     baseSuccessChance: 0.510
 
-  - id: 347
+  - id: 280
     identifier: PILGRIMS_SLIPPERS
     effect: PRODUCE
     output: { item: pilgrims_slippers, amount: 1 }
@@ -1979,7 +1979,7 @@ recipes:
     craftSeconds: 1555.2
     baseSuccessChance: 0.510
 
-  - id: 348
+  - id: 281
     identifier: CLAYMORE
     effect: PRODUCE
     output: { item: claymore, amount: 1 }
@@ -1993,7 +1993,7 @@ recipes:
     craftSeconds: 1732.8
     baseSuccessChance: 0.480
 
-  - id: 349
+  - id: 282
     identifier: FORGE_HAMMER
     effect: PRODUCE
     output: { item: forge_hammer, amount: 1 }
@@ -2006,7 +2006,7 @@ recipes:
     craftSeconds: 1732.8
     baseSuccessChance: 0.480
 
-  - id: 350
+  - id: 283
     identifier: GLAIVE
     effect: PRODUCE
     output: { item: glaive, amount: 1 }
@@ -2021,7 +2021,7 @@ recipes:
     craftSeconds: 1732.8
     baseSuccessChance: 0.480
 
-  - id: 351
+  - id: 284
     identifier: FORKED_SLINGSHOT
     effect: PRODUCE
     output: { item: forked_slingshot, amount: 1 }
@@ -2035,7 +2035,7 @@ recipes:
     craftSeconds: 1732.8
     baseSuccessChance: 0.480
 
-  - id: 352
+  - id: 285
     identifier: HERBALISTS_SMOCK
     effect: PRODUCE
     output: { item: herbalists_smock, amount: 1 }
@@ -2047,7 +2047,7 @@ recipes:
     craftSeconds: 1732.8
     baseSuccessChance: 0.480
 
-  - id: 353
+  - id: 286
     identifier: SMITHS_HAUBERK
     effect: PRODUCE
     output: { item: smiths_hauberk, amount: 1 }
@@ -2062,7 +2062,7 @@ recipes:
     craftSeconds: 1732.8
     baseSuccessChance: 0.480
 
-  - id: 354
+  - id: 287
     identifier: HUNTERS_GHILLIE
     effect: PRODUCE
     output: { item: hunters_ghillie, amount: 1 }
@@ -2075,7 +2075,7 @@ recipes:
     craftSeconds: 1732.8
     baseSuccessChance: 0.480
 
-  - id: 355
+  - id: 288
     identifier: SILVER_HOLY_SYMBOL
     effect: PRODUCE
     output: { item: silver_holy_symbol, amount: 1 }
@@ -2087,7 +2087,7 @@ recipes:
     craftSeconds: 1732.8
     baseSuccessChance: 0.480
 
-  - id: 356
+  - id: 289
     identifier: STEEL_LONGSWORD
     effect: PRODUCE
     output: { item: steel_longsword, amount: 1 }
@@ -2101,7 +2101,7 @@ recipes:
     craftSeconds: 1920.0
     baseSuccessChance: 0.450
 
-  - id: 357
+  - id: 290
     identifier: STEEL_ARBALEST
     effect: PRODUCE
     output: { item: steel_arbalest, amount: 1 }
@@ -2116,7 +2116,7 @@ recipes:
     craftSeconds: 1920.0
     baseSuccessChance: 0.450
 
-  - id: 358
+  - id: 291
     identifier: MINSTRELS_DOUBLET
     effect: PRODUCE
     output: { item: minstrels_doublet, amount: 1 }
@@ -2129,7 +2129,7 @@ recipes:
     craftSeconds: 1920.0
     baseSuccessChance: 0.450
 
-  - id: 359
+  - id: 292
     identifier: BANDED_PLATE
     effect: PRODUCE
     output: { item: banded_plate, amount: 1 }
@@ -2144,7 +2144,7 @@ recipes:
     craftSeconds: 1920.0
     baseSuccessChance: 0.450
 
-  - id: 360
+  - id: 293
     identifier: GREAT_HELM
     effect: PRODUCE
     output: { item: great_helm, amount: 1 }
@@ -2159,7 +2159,7 @@ recipes:
     craftSeconds: 1920.0
     baseSuccessChance: 0.450
 
-  - id: 361
+  - id: 294
     identifier: SILENT_STEP_BOOTS
     effect: PRODUCE
     output: { item: silent_step_boots, amount: 1 }
@@ -2172,7 +2172,7 @@ recipes:
     craftSeconds: 1920.0
     baseSuccessChance: 0.450
 
-  - id: 362
+  - id: 295
     identifier: MASQUERADE_HALF_MASK
     effect: PRODUCE
     output: { item: masquerade_half_mask, amount: 1 }
@@ -2184,7 +2184,7 @@ recipes:
     craftSeconds: 1920.0
     baseSuccessChance: 0.450
 
-  - id: 363
+  - id: 296
     identifier: TIGERS_EYE_RING
     effect: PRODUCE
     output: { item: tigers_eye_ring, amount: 1 }
@@ -2196,7 +2196,7 @@ recipes:
     craftSeconds: 1920.0
     baseSuccessChance: 0.450
 
-  - id: 364
+  - id: 297
     identifier: MINERS_CARBIDE_LAMP
     effect: PRODUCE
     output: { item: miners_carbide_lamp, amount: 1 }
@@ -2210,7 +2210,7 @@ recipes:
     craftSeconds: 1920.0
     baseSuccessChance: 0.450
 
-  - id: 365
+  - id: 298
     identifier: CENSER_FLAIL
     effect: PRODUCE
     output: { item: censer_flail, amount: 1 }
@@ -2223,7 +2223,7 @@ recipes:
     craftSeconds: 2116.8
     baseSuccessChance: 0.420
 
-  - id: 366
+  - id: 299
     identifier: TRIDENT
     effect: PRODUCE
     output: { item: trident, amount: 1 }
@@ -2238,7 +2238,7 @@ recipes:
     craftSeconds: 2116.8
     baseSuccessChance: 0.420
 
-  - id: 367
+  - id: 300
     identifier: BRASS_CONDUIT_STAFF
     effect: PRODUCE
     output: { item: brass_conduit_staff, amount: 1 }
@@ -2251,7 +2251,7 @@ recipes:
     craftSeconds: 2116.8
     baseSuccessChance: 0.420
 
-  - id: 368
+  - id: 301
     identifier: TINKERS_SPARK_ROD
     effect: PRODUCE
     output: { item: tinkers_spark_rod, amount: 1 }
@@ -2265,7 +2265,7 @@ recipes:
     craftSeconds: 2116.8
     baseSuccessChance: 0.420
 
-  - id: 369
+  - id: 302
     identifier: FIDDLE
     effect: PRODUCE
     output: { item: fiddle, amount: 1 }
@@ -2279,7 +2279,7 @@ recipes:
     craftSeconds: 2116.8
     baseSuccessChance: 0.420
 
-  - id: 370
+  - id: 303
     identifier: STAR_DARTS
     effect: PRODUCE
     output: { item: star_darts, amount: 1 }
@@ -2292,7 +2292,7 @@ recipes:
     craftSeconds: 2116.8
     baseSuccessChance: 0.420
 
-  - id: 371
+  - id: 304
     identifier: RANGERS_HOOD
     effect: PRODUCE
     output: { item: rangers_hood, amount: 1 }
@@ -2306,7 +2306,7 @@ recipes:
     craftSeconds: 2116.8
     baseSuccessChance: 0.420
 
-  - id: 372
+  - id: 305
     identifier: HERALDS_TABARD
     effect: PRODUCE
     output: { item: heralds_tabard, amount: 1 }
@@ -2320,7 +2320,7 @@ recipes:
     craftSeconds: 2116.8
     baseSuccessChance: 0.420
 
-  - id: 373
+  - id: 306
     identifier: TIGERCLAW_KATAR
     effect: PRODUCE
     output: { item: tigerclaw_katar, amount: 1 }
@@ -2334,7 +2334,7 @@ recipes:
     craftSeconds: 2323.2
     baseSuccessChance: 0.390
 
-  - id: 374
+  - id: 307
     identifier: SILKEN_SCOURGE
     effect: PRODUCE
     output: { item: silken_scourge, amount: 1 }
@@ -2347,7 +2347,7 @@ recipes:
     craftSeconds: 2323.2
     baseSuccessChance: 0.390
 
-  - id: 375
+  - id: 308
     identifier: BEARDED_GREATAXE
     effect: PRODUCE
     output: { item: bearded_greataxe, amount: 1 }
@@ -2362,7 +2362,7 @@ recipes:
     craftSeconds: 2323.2
     baseSuccessChance: 0.390
 
-  - id: 376
+  - id: 309
     identifier: GRIMOIRE_OF_ASH
     effect: PRODUCE
     output: { item: grimoire_of_ash, amount: 1 }
@@ -2375,7 +2375,7 @@ recipes:
     craftSeconds: 2323.2
     baseSuccessChance: 0.390
 
-  - id: 377
+  - id: 310
     identifier: HORN_BOW
     effect: PRODUCE
     output: { item: horn_bow, amount: 1 }
@@ -2389,7 +2389,7 @@ recipes:
     craftSeconds: 2323.2
     baseSuccessChance: 0.390
 
-  - id: 378
+  - id: 311
     identifier: PLATED_GREAVES
     effect: PRODUCE
     output: { item: plated_greaves, amount: 1 }
@@ -2404,7 +2404,7 @@ recipes:
     craftSeconds: 2323.2
     baseSuccessChance: 0.390
 
-  - id: 379
+  - id: 312
     identifier: GARNET_RING
     effect: PRODUCE
     output: { item: garnet_ring, amount: 1 }
@@ -2416,7 +2416,7 @@ recipes:
     craftSeconds: 2323.2
     baseSuccessChance: 0.390
 
-  - id: 380
+  - id: 313
     identifier: ASSASSINS_DAGGER
     effect: PRODUCE
     output: { item: assassins_dagger, amount: 1 }
@@ -2429,7 +2429,7 @@ recipes:
     craftSeconds: 2539.2
     baseSuccessChance: 0.360
 
-  - id: 381
+  - id: 314
     identifier: STEEL_WAR_AXE
     effect: PRODUCE
     output: { item: steel_war_axe, amount: 1 }
@@ -2444,7 +2444,7 @@ recipes:
     craftSeconds: 2539.2
     baseSuccessChance: 0.360
 
-  - id: 382
+  - id: 315
     identifier: EXECUTIONERS_SWORD
     effect: PRODUCE
     output: { item: executioners_sword, amount: 1 }
@@ -2459,7 +2459,7 @@ recipes:
     craftSeconds: 2539.2
     baseSuccessChance: 0.360
 
-  - id: 383
+  - id: 316
     identifier: BRONZE_HEADED_MAUL
     effect: PRODUCE
     output: { item: bronze_headed_maul, amount: 1 }
@@ -2472,7 +2472,7 @@ recipes:
     craftSeconds: 2539.2
     baseSuccessChance: 0.360
 
-  - id: 384
+  - id: 317
     identifier: LUCERNE_HAMMER
     effect: PRODUCE
     output: { item: lucerne_hammer, amount: 1 }
@@ -2487,7 +2487,7 @@ recipes:
     craftSeconds: 2539.2
     baseSuccessChance: 0.360
 
-  - id: 385
+  - id: 318
     identifier: BALEARIC_SLING
     effect: PRODUCE
     output: { item: balearic_sling, amount: 1 }
@@ -2499,7 +2499,7 @@ recipes:
     craftSeconds: 2539.2
     baseSuccessChance: 0.360
 
-  - id: 386
+  - id: 319
     identifier: LAMELLAR_COAT
     effect: PRODUCE
     output: { item: lamellar_coat, amount: 1 }
@@ -2513,7 +2513,7 @@ recipes:
     craftSeconds: 2539.2
     baseSuccessChance: 0.360
 
-  - id: 387
+  - id: 320
     identifier: ASSASSINS_VEIL
     effect: PRODUCE
     output: { item: assassins_veil, amount: 1 }
@@ -2525,7 +2525,7 @@ recipes:
     craftSeconds: 2539.2
     baseSuccessChance: 0.360
 
-  - id: 388
+  - id: 321
     identifier: SURVEYORS_BACKSWORD
     effect: PRODUCE
     output: { item: surveyors_backsword, amount: 1 }
@@ -2539,7 +2539,7 @@ recipes:
     craftSeconds: 2764.8
     baseSuccessChance: 0.330
 
-  - id: 389
+  - id: 322
     identifier: CARAVAN_GUARD_CROSSBOW
     effect: PRODUCE
     output: { item: caravan_guard_crossbow, amount: 1 }
@@ -2554,7 +2554,7 @@ recipes:
     craftSeconds: 2764.8
     baseSuccessChance: 0.330
 
-  - id: 390
+  - id: 323
     identifier: CAUSTIC_FLASK
     effect: PRODUCE
     output: { item: caustic_flask, amount: 1 }
@@ -2567,7 +2567,7 @@ recipes:
     craftSeconds: 2764.8
     baseSuccessChance: 0.330
 
-  - id: 391
+  - id: 324
     identifier: SHADOWWEAVE_JERKIN
     effect: PRODUCE
     output: { item: shadowweave_jerkin, amount: 1 }
@@ -2580,7 +2580,7 @@ recipes:
     craftSeconds: 2764.8
     baseSuccessChance: 0.330
 
-  - id: 392
+  - id: 325
     identifier: PRIESTS_MITRE
     effect: PRODUCE
     output: { item: priests_mitre, amount: 1 }
@@ -2594,7 +2594,7 @@ recipes:
     craftSeconds: 2764.8
     baseSuccessChance: 0.330
 
-  - id: 393
+  - id: 326
     identifier: PERFORMERS_HALF_CAPE
     effect: PRODUCE
     output: { item: performers_half_cape, amount: 1 }
@@ -2606,7 +2606,7 @@ recipes:
     craftSeconds: 2764.8
     baseSuccessChance: 0.330
 
-  - id: 394
+  - id: 327
     identifier: STEEL_KITE_SHIELD
     effect: PRODUCE
     output: { item: steel_kite_shield, amount: 1 }
@@ -2621,7 +2621,7 @@ recipes:
     craftSeconds: 2764.8
     baseSuccessChance: 0.330
 
-  - id: 395
+  - id: 328
     identifier: SAPPHIRE_PENDANT
     effect: PRODUCE
     output: { item: sapphire_pendant, amount: 1 }
@@ -2634,7 +2634,7 @@ recipes:
     craftSeconds: 2764.8
     baseSuccessChance: 0.330
 
-  - id: 396
+  - id: 329
     identifier: ALEMBIC_MACE
     effect: PRODUCE
     output: { item: alembic_mace, amount: 1 }
@@ -2647,7 +2647,7 @@ recipes:
     craftSeconds: 3000.0
     baseSuccessChance: 0.300
 
-  - id: 397
+  - id: 330
     identifier: WINGED_SPEAR
     effect: PRODUCE
     output: { item: winged_spear, amount: 1 }
@@ -2662,7 +2662,7 @@ recipes:
     craftSeconds: 3000.0
     baseSuccessChance: 0.300
 
-  - id: 398
+  - id: 331
     identifier: IRONWOOD_BO
     effect: PRODUCE
     output: { item: ironwood_bo, amount: 1 }
@@ -2675,7 +2675,7 @@ recipes:
     craftSeconds: 3000.0
     baseSuccessChance: 0.300
 
-  - id: 399
+  - id: 332
     identifier: CORAL_WAND
     effect: PRODUCE
     output: { item: coral_wand, amount: 1 }
@@ -2689,7 +2689,7 @@ recipes:
     craftSeconds: 3000.0
     baseSuccessChance: 0.300
 
-  - id: 400
+  - id: 333
     identifier: WARBAND_DRUM
     effect: PRODUCE
     output: { item: warband_drum, amount: 1 }
@@ -2702,7 +2702,7 @@ recipes:
     craftSeconds: 3000.0
     baseSuccessChance: 0.300
 
-  - id: 401
+  - id: 334
     identifier: EMBROIDERED_MAGISTER_ROBE
     effect: PRODUCE
     output: { item: embroidered_magister_robe, amount: 1 }
@@ -2714,7 +2714,7 @@ recipes:
     craftSeconds: 3000.0
     baseSuccessChance: 0.300
 
-  - id: 402
+  - id: 335
     identifier: STEEL_BREASTPLATE
     effect: PRODUCE
     output: { item: steel_breastplate, amount: 1 }
@@ -2729,7 +2729,7 @@ recipes:
     craftSeconds: 3000.0
     baseSuccessChance: 0.300
 
-  - id: 403
+  - id: 336
     identifier: MAIL_CAPE
     effect: PRODUCE
     output: { item: mail_cape, amount: 1 }
@@ -2744,7 +2744,7 @@ recipes:
     craftSeconds: 3000.0
     baseSuccessChance: 0.300
 
-  - id: 404
+  - id: 337
     identifier: TROUBADOURS_BUCKLED_SHOES
     effect: PRODUCE
     output: { item: troubadours_buckled_shoes, amount: 1 }
@@ -2756,7 +2756,7 @@ recipes:
     craftSeconds: 3000.0
     baseSuccessChance: 0.300
 
-  - id: 405
+  - id: 338
     identifier: DUELISTS_PARRYING_BUCKLER
     effect: PRODUCE
     output: { item: duelists_parrying_buckler, amount: 1 }
@@ -2769,7 +2769,7 @@ recipes:
     craftSeconds: 3000.0
     baseSuccessChance: 0.300
 
-  - id: 406
+  - id: 339
     identifier: BARDS_CHARM_BRACELET
     effect: PRODUCE
     output: { item: bards_charm_bracelet, amount: 1 }
@@ -2781,7 +2781,7 @@ recipes:
     craftSeconds: 3000.0
     baseSuccessChance: 0.300
 
-  - id: 407
+  - id: 340
     identifier: GLOWCAP_LANTERN
     effect: PRODUCE
     output: { item: glowcap_lantern, amount: 1 }
@@ -2794,7 +2794,7 @@ recipes:
     craftSeconds: 3000.0
     baseSuccessChance: 0.300
 
-  - id: 408
+  - id: 341
     identifier: BRASS_GAUNTLET
     effect: PRODUCE
     output: { item: brass_gauntlet, amount: 1 }
@@ -2807,7 +2807,7 @@ recipes:
     craftSeconds: 3244.8
     baseSuccessChance: 0.270
 
-  - id: 409
+  - id: 342
     identifier: QUARRY_BREAKER
     effect: PRODUCE
     output: { item: quarry_breaker, amount: 1 }
@@ -2822,7 +2822,7 @@ recipes:
     craftSeconds: 3244.8
     baseSuccessChance: 0.270
 
-  - id: 410
+  - id: 343
     identifier: ANNOTATED_BESTIARY
     effect: PRODUCE
     output: { item: annotated_bestiary, amount: 1 }
@@ -2835,7 +2835,7 @@ recipes:
     craftSeconds: 3244.8
     baseSuccessChance: 0.270
 
-  - id: 411
+  - id: 344
     identifier: COMPOSITE_LONGBOW
     effect: PRODUCE
     output: { item: composite_longbow, amount: 1 }
@@ -2849,7 +2849,7 @@ recipes:
     craftSeconds: 3244.8
     baseSuccessChance: 0.270
 
-  - id: 412
+  - id: 345
     identifier: ASSASSINS_COWL
     effect: PRODUCE
     output: { item: assassins_cowl, amount: 1 }
@@ -2862,7 +2862,7 @@ recipes:
     craftSeconds: 3244.8
     baseSuccessChance: 0.270
 
-  - id: 413
+  - id: 346
     identifier: BASCINET
     effect: PRODUCE
     output: { item: bascinet, amount: 1 }
@@ -2877,7 +2877,7 @@ recipes:
     craftSeconds: 3244.8
     baseSuccessChance: 0.270
 
-  - id: 414
+  - id: 347
     identifier: STRIDERS_BOOTS
     effect: PRODUCE
     output: { item: striders_boots, amount: 1 }
@@ -2891,7 +2891,7 @@ recipes:
     craftSeconds: 3244.8
     baseSuccessChance: 0.270
 
-  - id: 415
+  - id: 348
     identifier: SPYGLASS_MONOCLE
     effect: PRODUCE
     output: { item: spyglass_monocle, amount: 1 }
@@ -2903,7 +2903,7 @@ recipes:
     craftSeconds: 3244.8
     baseSuccessChance: 0.270
 
-  - id: 416
+  - id: 349
     identifier: MINERS_LODESTONE
     effect: PRODUCE
     output: { item: miners_lodestone, amount: 1 }
@@ -2915,7 +2915,7 @@ recipes:
     craftSeconds: 3244.8
     baseSuccessChance: 0.270
 
-  - id: 417
+  - id: 350
     identifier: BARBED_LASH
     effect: PRODUCE
     output: { item: barbed_lash, amount: 1 }
@@ -2928,7 +2928,7 @@ recipes:
     craftSeconds: 3499.2
     baseSuccessChance: 0.240
 
-  - id: 418
+  - id: 351
     identifier: CRESCENT_AXE
     effect: PRODUCE
     output: { item: crescent_axe, amount: 1 }
@@ -2942,7 +2942,7 @@ recipes:
     craftSeconds: 3499.2
     baseSuccessChance: 0.240
 
-  - id: 419
+  - id: 352
     identifier: STEEL_GREATBLADE
     effect: PRODUCE
     output: { item: steel_greatblade, amount: 1 }
@@ -2957,7 +2957,7 @@ recipes:
     craftSeconds: 3499.2
     baseSuccessChance: 0.240
 
-  - id: 420
+  - id: 353
     identifier: PICK_HAMMER
     effect: PRODUCE
     output: { item: pick_hammer, amount: 1 }
@@ -2970,7 +2970,7 @@ recipes:
     craftSeconds: 3499.2
     baseSuccessChance: 0.240
 
-  - id: 421
+  - id: 354
     identifier: VOULGE
     effect: PRODUCE
     output: { item: voulge, amount: 1 }
@@ -2984,7 +2984,7 @@ recipes:
     craftSeconds: 3499.2
     baseSuccessChance: 0.240
 
-  - id: 422
+  - id: 355
     identifier: SILK_SLING
     effect: PRODUCE
     output: { item: silk_sling, amount: 1 }
@@ -2998,7 +2998,7 @@ recipes:
     craftSeconds: 3499.2
     baseSuccessChance: 0.240
 
-  - id: 423
+  - id: 356
     identifier: CIRCLET_OF_CLARITY
     effect: PRODUCE
     output: { item: circlet_of_clarity, amount: 1 }
@@ -3010,7 +3010,7 @@ recipes:
     craftSeconds: 3499.2
     baseSuccessChance: 0.240
 
-  - id: 424
+  - id: 357
     identifier: WOLF_TOOTH_NECKLACE
     effect: PRODUCE
     output: { item: wolf_tooth_necklace, amount: 1 }
@@ -3022,7 +3022,7 @@ recipes:
     craftSeconds: 3499.2
     baseSuccessChance: 0.240
 
-  - id: 425
+  - id: 358
     identifier: GEARWORK_DIRK
     effect: PRODUCE
     output: { item: gearwork_dirk, amount: 1 }
@@ -3035,7 +3035,7 @@ recipes:
     craftSeconds: 3763.2
     baseSuccessChance: 0.210
 
-  - id: 426
+  - id: 359
     identifier: RAPIER
     effect: PRODUCE
     output: { item: rapier, amount: 1 }
@@ -3047,7 +3047,7 @@ recipes:
     craftSeconds: 3763.2
     baseSuccessChance: 0.210
 
-  - id: 427
+  - id: 360
     identifier: REPEATING_CROSSBOW
     effect: PRODUCE
     output: { item: repeating_crossbow, amount: 1 }
@@ -3061,7 +3061,7 @@ recipes:
     craftSeconds: 3763.2
     baseSuccessChance: 0.210
 
-  - id: 428
+  - id: 361
     identifier: PUGILISTS_WRAP_VEST
     effect: PRODUCE
     output: { item: pugilists_wrap_vest, amount: 1 }
@@ -3074,7 +3074,7 @@ recipes:
     craftSeconds: 3763.2
     baseSuccessChance: 0.210
 
-  - id: 429
+  - id: 362
     identifier: WARDENS_SCALE_VEST
     effect: PRODUCE
     output: { item: wardens_scale_vest, amount: 1 }
@@ -3088,7 +3088,7 @@ recipes:
     craftSeconds: 3763.2
     baseSuccessChance: 0.210
 
-  - id: 430
+  - id: 363
     identifier: MANTLE_OF_EMBERS
     effect: PRODUCE
     output: { item: mantle_of_embers, amount: 1 }
@@ -3100,7 +3100,7 @@ recipes:
     craftSeconds: 3763.2
     baseSuccessChance: 0.210
 
-  - id: 431
+  - id: 364
     identifier: PROSPECTORS_PIKE
     effect: PRODUCE
     output: { item: prospectors_pike, amount: 1 }
@@ -3115,7 +3115,7 @@ recipes:
     craftSeconds: 4036.8
     baseSuccessChance: 0.180
 
-  - id: 432
+  - id: 365
     identifier: SAGES_ROOTSTAFF
     effect: PRODUCE
     output: { item: sages_rootstaff, amount: 1 }
@@ -3129,7 +3129,7 @@ recipes:
     craftSeconds: 4036.8
     baseSuccessChance: 0.180
 
-  - id: 433
+  - id: 366
     identifier: STEEL_CHAKRAM
     effect: PRODUCE
     output: { item: steel_chakram, amount: 1 }
@@ -3143,7 +3143,7 @@ recipes:
     craftSeconds: 4036.8
     baseSuccessChance: 0.180
 
-  - id: 434
+  - id: 367
     identifier: HORNED_HELM
     effect: PRODUCE
     output: { item: horned_helm, amount: 1 }
@@ -3156,7 +3156,7 @@ recipes:
     craftSeconds: 4036.8
     baseSuccessChance: 0.180
 
-  - id: 435
+  - id: 368
     identifier: FIGHTERS_FOOT_WRAPS
     effect: PRODUCE
     output: { item: fighters_foot_wraps, amount: 1 }
@@ -3169,7 +3169,7 @@ recipes:
     craftSeconds: 4036.8
     baseSuccessChance: 0.180
 
-  - id: 436
+  - id: 369
     identifier: IRON_FACE_GUARD
     effect: PRODUCE
     output: { item: iron_face_guard, amount: 1 }
@@ -3181,7 +3181,7 @@ recipes:
     craftSeconds: 4036.8
     baseSuccessChance: 0.180
 
-  - id: 437
+  - id: 370
     identifier: EARRING_OF_THE_DANCING_BLADE
     effect: PRODUCE
     output: { item: earring_of_the_dancing_blade, amount: 1 }
@@ -3192,7 +3192,7 @@ recipes:
     craftSeconds: 4036.8
     baseSuccessChance: 0.180
 
-  - id: 438
+  - id: 371
     identifier: MONKS_IRON_BANDS
     effect: PRODUCE
     output: { item: monks_iron_bands, amount: 1 }
@@ -3206,7 +3206,7 @@ recipes:
     craftSeconds: 4320.0
     baseSuccessChance: 0.150
 
-  - id: 439
+  - id: 372
     identifier: OREBREAKER_MACE
     effect: PRODUCE
     output: { item: orebreaker_mace, amount: 1 }
@@ -3219,7 +3219,7 @@ recipes:
     craftSeconds: 4320.0
     baseSuccessChance: 0.150
 
-  - id: 440
+  - id: 373
     identifier: MOON_AXE
     effect: PRODUCE
     output: { item: moon_axe, amount: 1 }
@@ -3234,7 +3234,7 @@ recipes:
     craftSeconds: 4320.0
     baseSuccessChance: 0.150
 
-  - id: 441
+  - id: 374
     identifier: OBSIDIAN_WAND
     effect: PRODUCE
     output: { item: obsidian_wand, amount: 1 }
@@ -3248,7 +3248,7 @@ recipes:
     craftSeconds: 4320.0
     baseSuccessChance: 0.150
 
-  - id: 442
+  - id: 375
     identifier: SILVER_HARP
     effect: PRODUCE
     output: { item: silver_harp, amount: 1 }
@@ -3262,7 +3262,7 @@ recipes:
     craftSeconds: 4320.0
     baseSuccessChance: 0.150
 
-  - id: 443
+  - id: 376
     identifier: TEMPLARS_PLATE
     effect: PRODUCE
     output: { item: templars_plate, amount: 1 }
@@ -3276,7 +3276,7 @@ recipes:
     craftSeconds: 4320.0
     baseSuccessChance: 0.150
 
-  - id: 444
+  - id: 377
     identifier: FORESTERS_WEATHERCLOAK
     effect: PRODUCE
     output: { item: foresters_weathercloak, amount: 1 }
@@ -3290,7 +3290,7 @@ recipes:
     craftSeconds: 4320.0
     baseSuccessChance: 0.150
 
-  - id: 445
+  - id: 378
     identifier: RUNED_WARD
     effect: PRODUCE
     output: { item: runed_ward, amount: 1 }
@@ -3304,7 +3304,7 @@ recipes:
     craftSeconds: 4320.0
     baseSuccessChance: 0.150
 
-  - id: 446
+  - id: 379
     identifier: BULWARK_PAVISE
     effect: PRODUCE
     output: { item: bulwark_pavise, amount: 1 }
@@ -3319,7 +3319,7 @@ recipes:
     craftSeconds: 4320.0
     baseSuccessChance: 0.150
 
-  - id: 447
+  - id: 380
     identifier: RING_OF_WARDING
     effect: PRODUCE
     output: { item: ring_of_warding, amount: 1 }
@@ -3331,7 +3331,7 @@ recipes:
     craftSeconds: 4320.0
     baseSuccessChance: 0.150
 
-  - id: 448
+  - id: 381
     identifier: EVERFLAME_LANTERN
     effect: PRODUCE
     output: { item: everflame_lantern, amount: 1 }
@@ -3345,7 +3345,7 @@ recipes:
     craftSeconds: 4320.0
     baseSuccessChance: 0.150
 
-  - id: 449
+  - id: 382
     identifier: RUNEBLADE
     effect: PRODUCE
     output: { item: runeblade, amount: 1 }
@@ -3359,7 +3359,7 @@ recipes:
     craftSeconds: 4612.8
     baseSuccessChance: 0.120
 
-  - id: 450
+  - id: 383
     identifier: BEC_DE_CORBIN
     effect: PRODUCE
     output: { item: bec_de_corbin, amount: 1 }
@@ -3373,7 +3373,7 @@ recipes:
     craftSeconds: 4612.8
     baseSuccessChance: 0.120
 
-  - id: 451
+  - id: 384
     identifier: ATLAS_OF_LEY_LINES
     effect: PRODUCE
     output: { item: atlas_of_ley_lines, amount: 1 }
@@ -3386,7 +3386,7 @@ recipes:
     craftSeconds: 4612.8
     baseSuccessChance: 0.120
 
-  - id: 452
+  - id: 385
     identifier: ELMWOOD_WARBOW
     effect: PRODUCE
     output: { item: elmwood_warbow, amount: 1 }
@@ -3400,7 +3400,7 @@ recipes:
     craftSeconds: 4612.8
     baseSuccessChance: 0.120
 
-  - id: 453
+  - id: 386
     identifier: SILKWEAVE_VESTMENT
     effect: PRODUCE
     output: { item: silkweave_vestment, amount: 1 }
@@ -3412,7 +3412,7 @@ recipes:
     craftSeconds: 4612.8
     baseSuccessChance: 0.120
 
-  - id: 454
+  - id: 387
     identifier: VESTMENTS_OF_THE_DAWN
     effect: PRODUCE
     output: { item: vestments_of_the_dawn, amount: 1 }
@@ -3427,7 +3427,7 @@ recipes:
     craftSeconds: 4612.8
     baseSuccessChance: 0.120
 
-  - id: 455
+  - id: 388
     identifier: PLUMED_BARDS_CAP
     effect: PRODUCE
     output: { item: plumed_bards_cap, amount: 1 }
@@ -3440,7 +3440,7 @@ recipes:
     craftSeconds: 4612.8
     baseSuccessChance: 0.120
 
-  - id: 456
+  - id: 389
     identifier: FORGE_SOLED_BOOTS
     effect: PRODUCE
     output: { item: forge_soled_boots, amount: 1 }
@@ -3454,7 +3454,7 @@ recipes:
     craftSeconds: 4612.8
     baseSuccessChance: 0.120
 
-  - id: 457
+  - id: 390
     identifier: RUNED_TOMAHAWK
     effect: PRODUCE
     output: { item: runed_tomahawk, amount: 1 }
@@ -3468,7 +3468,7 @@ recipes:
     craftSeconds: 4915.2
     baseSuccessChance: 0.090
 
-  - id: 458
+  - id: 391
     identifier: EARTHSHAKER_MAUL
     effect: PRODUCE
     output: { item: earthshaker_maul, amount: 1 }
@@ -3481,7 +3481,7 @@ recipes:
     craftSeconds: 4915.2
     baseSuccessChance: 0.090
 
-  - id: 459
+  - id: 392
     identifier: WINDLASS_ARBALEST
     effect: PRODUCE
     output: { item: windlass_arbalest, amount: 1 }
@@ -3495,7 +3495,7 @@ recipes:
     craftSeconds: 4915.2
     baseSuccessChance: 0.090
 
-  - id: 460
+  - id: 393
     identifier: GIANT_HUNTERS_SLING
     effect: PRODUCE
     output: { item: giant_hunters_sling, amount: 1 }
@@ -3508,7 +3508,7 @@ recipes:
     craftSeconds: 4915.2
     baseSuccessChance: 0.090
 
-  - id: 461
+  - id: 394
     identifier: OWL_EYE_LENSES
     effect: PRODUCE
     output: { item: owl_eye_lenses, amount: 1 }
@@ -3520,7 +3520,7 @@ recipes:
     craftSeconds: 4915.2
     baseSuccessChance: 0.090
 
-  - id: 462
+  - id: 395
     identifier: RUNESTONE_AMULET
     effect: PRODUCE
     output: { item: runestone_amulet, amount: 1 }
@@ -3531,7 +3531,7 @@ recipes:
     craftSeconds: 4915.2
     baseSuccessChance: 0.090
 
-  - id: 463
+  - id: 396
     identifier: SERPENT_CHAIN_WHIP
     effect: PRODUCE
     output: { item: serpent_chain_whip, amount: 1 }
@@ -3544,7 +3544,7 @@ recipes:
     craftSeconds: 5227.2
     baseSuccessChance: 0.060
 
-  - id: 464
+  - id: 397
     identifier: FIRE_FLASK
     effect: PRODUCE
     output: { item: fire_flask, amount: 1 }
@@ -3557,7 +3557,7 @@ recipes:
     craftSeconds: 5227.2
     baseSuccessChance: 0.060
 
-  - id: 465
+  - id: 398
     identifier: TRAILWARDEN_LEATHERS
     effect: PRODUCE
     output: { item: trailwarden_leathers, amount: 1 }
@@ -3570,7 +3570,7 @@ recipes:
     craftSeconds: 5227.2
     baseSuccessChance: 0.060
 
-  - id: 466
+  - id: 399
     identifier: VISORED_BARBUTE
     effect: PRODUCE
     output: { item: visored_barbute, amount: 1 }
@@ -3584,7 +3584,7 @@ recipes:
     craftSeconds: 5227.2
     baseSuccessChance: 0.060
 
-  - id: 467
+  - id: 400
     identifier: SHADOWSILK_CAPE
     effect: PRODUCE
     output: { item: shadowsilk_cape, amount: 1 }
@@ -3597,7 +3597,7 @@ recipes:
     craftSeconds: 5227.2
     baseSuccessChance: 0.060
 
-  - id: 468
+  - id: 401
     identifier: SABATONS_OF_THE_BULWARK
     effect: PRODUCE
     output: { item: sabatons_of_the_bulwark, amount: 1 }
@@ -3612,7 +3612,7 @@ recipes:
     craftSeconds: 5227.2
     baseSuccessChance: 0.060
 
-  - id: 469
+  - id: 402
     identifier: EMERALD_RING_OF_GROWTH
     effect: PRODUCE
     output: { item: emerald_ring_of_growth, amount: 1 }
@@ -3624,7 +3624,7 @@ recipes:
     craftSeconds: 5227.2
     baseSuccessChance: 0.060
 
-  - id: 470
+  - id: 403
     identifier: NIGHTGLASS_KRIS
     effect: PRODUCE
     output: { item: nightglass_kris, amount: 1 }
@@ -3637,7 +3637,7 @@ recipes:
     craftSeconds: 5548.8
     baseSuccessChance: 0.030
 
-  - id: 471
+  - id: 404
     identifier: IRONBARK_REAVER
     effect: PRODUCE
     output: { item: ironbark_reaver, amount: 1 }
@@ -3652,7 +3652,7 @@ recipes:
     craftSeconds: 5548.8
     baseSuccessChance: 0.030
 
-  - id: 472
+  - id: 405
     identifier: SILVER_DIADEM
     effect: PRODUCE
     output: { item: silver_diadem, amount: 1 }
@@ -3664,7 +3664,7 @@ recipes:
     craftSeconds: 5548.8
     baseSuccessChance: 0.030
 
-  - id: 473
+  - id: 406
     identifier: STARWALKER_SLIPPERS
     effect: PRODUCE
     output: { item: starwalker_slippers, amount: 1 }
@@ -3676,7 +3676,7 @@ recipes:
     craftSeconds: 5548.8
     baseSuccessChance: 0.030
 
-  - id: 474
+  - id: 407
     identifier: MIRRORED_BUCKLER
     effect: PRODUCE
     output: { item: mirrored_buckler, amount: 1 }
@@ -3689,7 +3689,7 @@ recipes:
     craftSeconds: 5548.8
     baseSuccessChance: 0.030
 
-  - id: 475
+  - id: 408
     identifier: OPAL_OF_THE_TIDES
     effect: PRODUCE
     output: { item: opal_of_the_tides, amount: 1 }
@@ -3701,7 +3701,7 @@ recipes:
     craftSeconds: 5548.8
     baseSuccessChance: 0.030
 
-  - id: 476
+  - id: 409
     identifier: DUSKFORGED_FALCHION
     effect: PRODUCE
     output: { item: duskforged_falchion, amount: 1 }
@@ -3714,7 +3714,7 @@ recipes:
     craftSeconds: 5880.0
     baseSuccessChance: 0.000
 
-  - id: 477
+  - id: 410
     identifier: HUNTING_PARTISAN
     effect: PRODUCE
     output: { item: hunting_partisan, amount: 1 }
@@ -3728,7 +3728,7 @@ recipes:
     craftSeconds: 5880.0
     baseSuccessChance: 0.000
 
-  - id: 478
+  - id: 411
     identifier: WYRMBONE_GREATSWORD
     effect: PRODUCE
     output: { item: wyrmbone_greatsword, amount: 1 }
@@ -3741,7 +3741,7 @@ recipes:
     craftSeconds: 5880.0
     baseSuccessChance: 0.000
 
-  - id: 479
+  - id: 412
     identifier: STEEL_HALBERD
     effect: PRODUCE
     output: { item: steel_halberd, amount: 1 }
@@ -3756,7 +3756,7 @@ recipes:
     craftSeconds: 5880.0
     baseSuccessChance: 0.000
 
-  - id: 480
+  - id: 413
     identifier: STAFF_OF_MENDING_LIGHT
     effect: PRODUCE
     output: { item: staff_of_mending_light, amount: 1 }
@@ -3769,7 +3769,7 @@ recipes:
     craftSeconds: 5880.0
     baseSuccessChance: 0.000
 
-  - id: 481
+  - id: 414
     identifier: GEARWRIGHTS_HELM
     effect: PRODUCE
     output: { item: gearwrights_helm, amount: 1 }
@@ -3783,7 +3783,7 @@ recipes:
     craftSeconds: 5880.0
     baseSuccessChance: 0.000
 
-  - id: 482
+  - id: 415
     identifier: COURIERS_BOOTS
     effect: PRODUCE
     output: { item: couriers_boots, amount: 1 }
@@ -3796,7 +3796,7 @@ recipes:
     craftSeconds: 5880.0
     baseSuccessChance: 0.000
 
-  - id: 483
+  - id: 416
     identifier: STONEFIST_GAUNTLET
     effect: PRODUCE
     output: { item: stonefist_gauntlet, amount: 1 }
@@ -3808,7 +3808,7 @@ recipes:
     craftSeconds: 6220.8
     baseSuccessChance: -0.030
 
-  - id: 484
+  - id: 417
     identifier: WARDENS_HOLY_MACE
     effect: PRODUCE
     output: { item: wardens_holy_mace, amount: 1 }
@@ -3821,7 +3821,7 @@ recipes:
     craftSeconds: 6220.8
     baseSuccessChance: -0.030
 
-  - id: 485
+  - id: 418
     identifier: LEY_IRON_SCEPTER
     effect: PRODUCE
     output: { item: ley_iron_scepter, amount: 1 }
@@ -3834,7 +3834,7 @@ recipes:
     craftSeconds: 6220.8
     baseSuccessChance: -0.030
 
-  - id: 486
+  - id: 419
     identifier: SONGSTRING_BOW
     effect: PRODUCE
     output: { item: songstring_bow, amount: 1 }
@@ -3848,7 +3848,7 @@ recipes:
     craftSeconds: 6220.8
     baseSuccessChance: -0.030
 
-  - id: 487
+  - id: 420
     identifier: HURDY_GURDY_OF_HOURS
     effect: PRODUCE
     output: { item: hurdy_gurdy_of_hours, amount: 1 }
@@ -3862,7 +3862,7 @@ recipes:
     craftSeconds: 6220.8
     baseSuccessChance: -0.030
 
-  - id: 488
+  - id: 421
     identifier: ARTIFICERS_BRASS_HARNESS
     effect: PRODUCE
     output: { item: artificers_brass_harness, amount: 1 }
@@ -3877,7 +3877,7 @@ recipes:
     craftSeconds: 6220.8
     baseSuccessChance: -0.030
 
-  - id: 489
+  - id: 422
     identifier: BASTION_PLATE
     effect: PRODUCE
     output: { item: bastion_plate, amount: 1 }
@@ -3892,7 +3892,7 @@ recipes:
     craftSeconds: 6220.8
     baseSuccessChance: -0.030
 
-  - id: 490
+  - id: 423
     identifier: SHROUD_OF_THE_QUIET_GRAVE
     effect: PRODUCE
     output: { item: shroud_of_the_quiet_grave, amount: 1 }
@@ -3904,7 +3904,7 @@ recipes:
     craftSeconds: 6220.8
     baseSuccessChance: -0.030
 
-  - id: 491
+  - id: 424
     identifier: GEARLOCK_SHIELD
     effect: PRODUCE
     output: { item: gearlock_shield, amount: 1 }
@@ -3919,7 +3919,7 @@ recipes:
     craftSeconds: 6220.8
     baseSuccessChance: -0.030
 
-  - id: 492
+  - id: 425
     identifier: RUBY_SIGNET
     effect: PRODUCE
     output: { item: ruby_signet, amount: 1 }
@@ -3931,7 +3931,7 @@ recipes:
     craftSeconds: 6220.8
     baseSuccessChance: -0.030
 
-  - id: 493
+  - id: 426
     identifier: SIGIL_OF_REDEMPTION
     effect: PRODUCE
     output: { item: sigil_of_redemption, amount: 1 }
@@ -3942,7 +3942,7 @@ recipes:
     craftSeconds: 6394.8
     baseSuccessChance: -0.045
 
-  - id: 494
+  - id: 427
     identifier: RIBBON_OF_THE_MASQUE
     effect: PRODUCE
     output: { item: ribbon_of_the_masque, amount: 1 }
@@ -3954,7 +3954,7 @@ recipes:
     craftSeconds: 6571.2
     baseSuccessChance: -0.060
 
-  - id: 495
+  - id: 428
     identifier: BLACKIRON_CLEAVER
     effect: PRODUCE
     output: { item: blackiron_cleaver, amount: 1 }
@@ -3968,7 +3968,7 @@ recipes:
     craftSeconds: 6571.2
     baseSuccessChance: -0.060
 
-  - id: 496
+  - id: 429
     identifier: TEMPLARS_WARHAMMER
     effect: PRODUCE
     output: { item: templars_warhammer, amount: 1 }
@@ -3981,7 +3981,7 @@ recipes:
     craftSeconds: 6571.2
     baseSuccessChance: -0.060
 
-  - id: 497
+  - id: 430
     identifier: LITURGY_OF_THE_LANTERN
     effect: PRODUCE
     output: { item: liturgy_of_the_lantern, amount: 1 }
@@ -3995,7 +3995,7 @@ recipes:
     craftSeconds: 6571.2
     baseSuccessChance: -0.060
 
-  - id: 498
+  - id: 431
     identifier: GEARWORK_SIEGE_CROSSBOW
     effect: PRODUCE
     output: { item: gearwork_siege_crossbow, amount: 1 }
@@ -4009,7 +4009,7 @@ recipes:
     craftSeconds: 6571.2
     baseSuccessChance: -0.060
 
-  - id: 499
+  - id: 432
     identifier: ROBE_OF_THE_ASHEN_CIRCLE
     effect: PRODUCE
     output: { item: robe_of_the_ashen_circle, amount: 1 }
@@ -4021,7 +4021,7 @@ recipes:
     craftSeconds: 6571.2
     baseSuccessChance: -0.060
 
-  - id: 500
+  - id: 433
     identifier: HOOD_OF_THE_SILENT_HUNT
     effect: PRODUCE
     output: { item: hood_of_the_silent_hunt, amount: 1 }
@@ -4034,7 +4034,7 @@ recipes:
     craftSeconds: 6571.2
     baseSuccessChance: -0.060
 
-  - id: 501
+  - id: 434
     identifier: KNIGHTS_WARCLOAK
     effect: PRODUCE
     output: { item: knights_warcloak, amount: 1 }
@@ -4048,7 +4048,7 @@ recipes:
     craftSeconds: 6571.2
     baseSuccessChance: -0.060
 
-  - id: 502
+  - id: 435
     identifier: ONYX_RING
     effect: PRODUCE
     output: { item: onyx_ring, amount: 1 }
@@ -4060,7 +4060,7 @@ recipes:
     craftSeconds: 6571.2
     baseSuccessChance: -0.060
 
-  - id: 503
+  - id: 436
     identifier: FORGEMASTERS_LABRYS
     effect: PRODUCE
     output: { item: forgemasters_labrys, amount: 1 }
@@ -4074,7 +4074,7 @@ recipes:
     craftSeconds: 6931.2
     baseSuccessChance: -0.090
 
-  - id: 504
+  - id: 437
     identifier: STORMCORD_SLING
     effect: PRODUCE
     output: { item: stormcord_sling, amount: 1 }
@@ -4087,7 +4087,7 @@ recipes:
     craftSeconds: 6931.2
     baseSuccessChance: -0.090
 
-  - id: 505
+  - id: 438
     identifier: DEEPDELVERS_BOOTS
     effect: PRODUCE
     output: { item: deepdelvers_boots, amount: 1 }
@@ -4101,7 +4101,7 @@ recipes:
     craftSeconds: 6931.2
     baseSuccessChance: -0.090
 
-  - id: 506
+  - id: 439
     identifier: SUNDERER
     effect: PRODUCE
     output: { item: sunderer, amount: 1 }
@@ -4116,7 +4116,7 @@ recipes:
     craftSeconds: 7300.8
     baseSuccessChance: -0.120
 
-  - id: 507
+  - id: 440
     identifier: WARDENS_PARTISAN
     effect: PRODUCE
     output: { item: wardens_partisan, amount: 1 }
@@ -4130,7 +4130,7 @@ recipes:
     craftSeconds: 7300.8
     baseSuccessChance: -0.120
 
-  - id: 508
+  - id: 441
     identifier: CRESTED_WARHELM
     effect: PRODUCE
     output: { item: crested_warhelm, amount: 1 }
@@ -4145,7 +4145,7 @@ recipes:
     craftSeconds: 7300.8
     baseSuccessChance: -0.120
 
-  - id: 509
+  - id: 442
     identifier: CATHEDRAL_TOWER_SHIELD
     effect: PRODUCE
     output: { item: cathedral_tower_shield, amount: 1 }
@@ -4159,7 +4159,7 @@ recipes:
     craftSeconds: 7300.8
     baseSuccessChance: -0.120
 
-  - id: 510
+  - id: 443
     identifier: PILGRIMS_AMULET
     effect: PRODUCE
     output: { item: pilgrims_amulet, amount: 1 }
@@ -4171,7 +4171,7 @@ recipes:
     craftSeconds: 7300.8
     baseSuccessChance: -0.120
 
-  - id: 511
+  - id: 444
     identifier: BLACKIRON_FULLPLATE
     effect: PRODUCE
     output: { item: blackiron_fullplate, amount: 1 }
@@ -4186,7 +4186,7 @@ recipes:
     craftSeconds: 7680.0
     baseSuccessChance: -0.150
 
-  - id: 512
+  - id: 445
     identifier: SHEPHERD_KINGS_SLING
     effect: PRODUCE
     output: { item: shepherd_kings_sling, amount: 1 }
@@ -4199,7 +4199,7 @@ recipes:
     craftSeconds: 9720.0
     baseSuccessChance: -0.300
 
-  - id: 513
+  - id: 446
     identifier: BOOTS_OF_THE_SEVEN_LEAGUES
     effect: PRODUCE
     output: { item: boots_of_the_seven_leagues, amount: 1 }
@@ -4212,7 +4212,7 @@ recipes:
     craftSeconds: 9720.0
     baseSuccessChance: -0.300
 
-  - id: 514
+  - id: 447
     identifier: BAND_OF_A_THOUSAND_BARGAINS
     effect: PRODUCE
     output: { item: band_of_a_thousand_bargains, amount: 1 }
@@ -4224,7 +4224,7 @@ recipes:
     craftSeconds: 9720.0
     baseSuccessChance: -0.300
 
-  - id: 515
+  - id: 448
     identifier: LANTERN_OF_THE_LOST_SAINT
     effect: PRODUCE
     output: { item: lantern_of_the_lost_saint, amount: 1 }
@@ -4238,7 +4238,7 @@ recipes:
     craftSeconds: 9720.0
     baseSuccessChance: -0.300
 
-  - id: 516
+  - id: 449
     identifier: GILDED_TONGUE
     effect: PRODUCE
     output: { item: gilded_tongue, amount: 1 }
@@ -4250,7 +4250,7 @@ recipes:
     craftSeconds: 9937.2
     baseSuccessChance: -0.315
 
-  - id: 517
+  - id: 450
     identifier: CROWN_OF_THE_ECLIPSE
     effect: PRODUCE
     output: { item: crown_of_the_eclipse, amount: 1 }
@@ -4262,7 +4262,7 @@ recipes:
     craftSeconds: 9937.2
     baseSuccessChance: -0.315
 
-  - id: 518
+  - id: 451
     identifier: TREADS_OF_THE_LAST_STAND
     effect: PRODUCE
     output: { item: treads_of_the_last_stand, amount: 1 }
@@ -4277,7 +4277,7 @@ recipes:
     craftSeconds: 9937.2
     baseSuccessChance: -0.315
 
-  - id: 519
+  - id: 452
     identifier: FISTS_OF_THE_MOUNTAIN_KING
     effect: PRODUCE
     output: { item: fists_of_the_mountain_king, amount: 1 }
@@ -4290,7 +4290,7 @@ recipes:
     craftSeconds: 10156.8
     baseSuccessChance: -0.330
 
-  - id: 520
+  - id: 453
     identifier: TONGUE_OF_THE_TEMPEST
     effect: PRODUCE
     output: { item: tongue_of_the_tempest, amount: 1 }
@@ -4303,7 +4303,7 @@ recipes:
     craftSeconds: 10156.8
     baseSuccessChance: -0.330
 
-  - id: 521
+  - id: 454
     identifier: LODESTAR_PIKE
     effect: PRODUCE
     output: { item: lodestar_pike, amount: 1 }
@@ -4317,7 +4317,7 @@ recipes:
     craftSeconds: 10156.8
     baseSuccessChance: -0.330
 
-  - id: 522
+  - id: 455
     identifier: PHILOSOPHERS_ORB
     effect: PRODUCE
     output: { item: philosophers_orb, amount: 1 }
@@ -4329,7 +4329,7 @@ recipes:
     craftSeconds: 10156.8
     baseSuccessChance: -0.330
 
-  - id: 523
+  - id: 456
     identifier: DEEPFORGED_HAUBERK
     effect: PRODUCE
     output: { item: deepforged_hauberk, amount: 1 }
@@ -4343,7 +4343,7 @@ recipes:
     craftSeconds: 10156.8
     baseSuccessChance: -0.330
 
-  - id: 524
+  - id: 457
     identifier: WINGS_OF_THE_WANDERING_WIND
     effect: PRODUCE
     output: { item: wings_of_the_wandering_wind, amount: 1 }
@@ -4356,7 +4356,7 @@ recipes:
     craftSeconds: 10156.8
     baseSuccessChance: -0.330
 
-  - id: 525
+  - id: 458
     identifier: MASK_OF_THE_HOLLOW_CHOIR
     effect: PRODUCE
     output: { item: mask_of_the_hollow_choir, amount: 1 }
@@ -4368,7 +4368,7 @@ recipes:
     craftSeconds: 10156.8
     baseSuccessChance: -0.330
 
-  - id: 526
+  - id: 459
     identifier: EYE_OF_THE_ORACLE
     effect: PRODUCE
     output: { item: eye_of_the_oracle, amount: 1 }
@@ -4379,7 +4379,7 @@ recipes:
     craftSeconds: 10156.8
     baseSuccessChance: -0.330
 
-  - id: 527
+  - id: 460
     identifier: HEARTWOOD_CLEAVER
     effect: PRODUCE
     output: { item: heartwood_cleaver, amount: 1 }
@@ -4393,7 +4393,7 @@ recipes:
     craftSeconds: 10378.8
     baseSuccessChance: -0.345
 
-  - id: 528
+  - id: 461
     identifier: VEINSPLITTER
     effect: PRODUCE
     output: { item: veinsplitter, amount: 1 }
@@ -4407,7 +4407,7 @@ recipes:
     craftSeconds: 10378.8
     baseSuccessChance: -0.345
 
-  - id: 529
+  - id: 462
     identifier: LYRE_OF_THE_LAST_VERSE
     effect: PRODUCE
     output: { item: lyre_of_the_last_verse, amount: 1 }
@@ -4421,7 +4421,7 @@ recipes:
     craftSeconds: 10378.8
     baseSuccessChance: -0.345
 
-  - id: 530
+  - id: 463
     identifier: HIDE_OF_THE_NIGHTSTALKER
     effect: PRODUCE
     output: { item: hide_of_the_nightstalker, amount: 1 }
@@ -4434,7 +4434,7 @@ recipes:
     craftSeconds: 10378.8
     baseSuccessChance: -0.345
 
-  - id: 531
+  - id: 464
     identifier: WHISPER_OF_THE_VEIL
     effect: PRODUCE
     output: { item: whisper_of_the_veil, amount: 1 }
@@ -4447,7 +4447,7 @@ recipes:
     craftSeconds: 10603.2
     baseSuccessChance: -0.360
 
-  - id: 532
+  - id: 465
     identifier: CODEX_OF_UNWRITTEN_PAGES
     effect: PRODUCE
     output: { item: codex_of_unwritten_pages, amount: 1 }
@@ -4461,7 +4461,7 @@ recipes:
     craftSeconds: 10603.2
     baseSuccessChance: -0.360
 
-  - id: 533
+  - id: 466
     identifier: WINDRUNNERS_LONGBOW
     effect: PRODUCE
     output: { item: windrunners_longbow, amount: 1 }
@@ -4475,7 +4475,7 @@ recipes:
     craftSeconds: 10603.2
     baseSuccessChance: -0.360
 
-  - id: 534
+  - id: 467
     identifier: WARHELM_OF_THE_IRON_TIDE
     effect: PRODUCE
     output: { item: warhelm_of_the_iron_tide, amount: 1 }
@@ -4489,7 +4489,7 @@ recipes:
     craftSeconds: 10603.2
     baseSuccessChance: -0.360
 
-  - id: 535
+  - id: 468
     identifier: HEART_OF_THE_BEHEMOTH
     effect: PRODUCE
     output: { item: heart_of_the_behemoth, amount: 1 }
@@ -4501,7 +4501,7 @@ recipes:
     craftSeconds: 10603.2
     baseSuccessChance: -0.360
 
-  - id: 536
+  - id: 469
     identifier: DAWNBRINGER
     effect: PRODUCE
     output: { item: dawnbringer, amount: 1 }
@@ -4514,7 +4514,7 @@ recipes:
     craftSeconds: 10830.0
     baseSuccessChance: -0.375
 
-  - id: 537
+  - id: 470
     identifier: STAFF_OF_THE_SEVENTH_EMBER
     effect: PRODUCE
     output: { item: staff_of_the_seventh_ember, amount: 1 }
@@ -4527,7 +4527,7 @@ recipes:
     craftSeconds: 10830.0
     baseSuccessChance: -0.375
 
-  - id: 538
+  - id: 471
     identifier: CLOCKWORK_ARBALEST
     effect: PRODUCE
     output: { item: clockwork_arbalest, amount: 1 }
@@ -4542,7 +4542,7 @@ recipes:
     craftSeconds: 10830.0
     baseSuccessChance: -0.375
 
-  - id: 539
+  - id: 472
     identifier: MANTLE_OF_THE_STARLIT_CHOIR
     effect: PRODUCE
     output: { item: mantle_of_the_starlit_choir, amount: 1 }
@@ -4554,7 +4554,7 @@ recipes:
     craftSeconds: 10830.0
     baseSuccessChance: -0.375
 
-  - id: 540
+  - id: 473
     identifier: BASTION_OF_THE_FIRST_WALL
     effect: PRODUCE
     output: { item: bastion_of_the_first_wall, amount: 1 }
@@ -4568,7 +4568,7 @@ recipes:
     craftSeconds: 10830.0
     baseSuccessChance: -0.375
 
-  - id: 541
+  - id: 474
     identifier: OATHKEEPER
     effect: PRODUCE
     output: { item: oathkeeper, amount: 1 }
@@ -4582,7 +4582,7 @@ recipes:
     craftSeconds: 11059.2
     baseSuccessChance: -0.390
 
-  - id: 542
+  - id: 475
     identifier: ANVILHEART
     effect: PRODUCE
     output: { item: anvilheart, amount: 1 }
@@ -4595,7 +4595,7 @@ recipes:
     craftSeconds: 11059.2
     baseSuccessChance: -0.390
 
-  - id: 543
+  - id: 476
     identifier: RING_OF_THE_HOLLOW_KING
     effect: PRODUCE
     output: { item: ring_of_the_hollow_king, amount: 1 }
@@ -4607,7 +4607,7 @@ recipes:
     craftSeconds: 11059.2
     baseSuccessChance: -0.390
 
-  - id: 544
+  - id: 477
     identifier: AEGIS_OF_THE_UNBROKEN
     effect: PRODUCE
     output: { item: aegis_of_the_unbroken, amount: 1 }
@@ -4620,7 +4620,7 @@ recipes:
     craftSeconds: 11290.8
     baseSuccessChance: -0.405
 
-  - id: 545
+  - id: 478
     identifier: STARFALL_WAND
     effect: PRODUCE
     output: { item: starfall_wand, amount: 1 }
@@ -4633,7 +4633,7 @@ recipes:
     craftSeconds: 12484.8
     baseSuccessChance: -0.480
 
-  - id: 546
+  - id: 479
     identifier: SKYRENDER_HALBERD
     effect: PRODUCE
     output: { item: skyrender_halberd, amount: 1 }
