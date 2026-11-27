@@ -52,6 +52,7 @@ const int TERRAIN_SLOT_SNOW = 6;
 const int TERRAIN_SLOT_SCORCHED = 8;
 const int TERRAIN_SLOT_TRODDEN = 9;
 const int TERRAIN_SLOT_BLOODIED = 10;
+const int TERRAIN_SLOT_CORRUPTED = 12;
 
 // Below this a slot contributes less than half a byte of weight and is not worth a texture fetch.
 const float TERRAIN_WEIGHT_EPSILON = 0.002;
@@ -248,6 +249,14 @@ uniform float ground_marks_disturb_snow : hint_range(0.0, 1.0) = 0.85;
 uniform vec3 mark_scorched_colour : source_color = vec3(0.07, 0.06, 0.06);
 uniform vec3 mark_trodden_colour : source_color = vec3(0.34, 0.26, 0.18);
 uniform vec3 mark_bloodied_colour : source_color = vec3(0.29, 0.05, 0.05);
+uniform vec3 mark_corrupted_colour : source_color = vec3(0.27, 0.28, 0.24);
+
+// The second mark texture, laid out like `ground_marks`. Red is the Withering's rot; the rest is free.
+uniform sampler2D ground_marks_2 : filter_linear, repeat_enable, hint_default_transparent;
+
+// The rot is alive: it flows slowly across the ground and swells in waves, so a player sees it is not mud.
+uniform float corruption_flow_metres_per_second = 0.15;
+uniform float corruption_pulse_seconds = 5.0;
 
 // How much a hard-worn path thins the snow lying on it. Lower than a fresh track cuts, because this is snow
 // settling less on packed ground rather than snow being pushed aside - but it is what makes a used route
@@ -636,6 +645,34 @@ SlotSample terrain_sample_slot(int slot, vec3 geometric, vec3 ddx, vec3 ddy, vec
 	return result;
 }
 
+// How strongly the Withering covers this metre, 0 to 1. The server's levels come one per metre; fine noise breaks
+// that grid, and the steep ramp gives the creep a hard edge rather than a fog.
+float terrain_corruption(vec2 world_xz) {
+	float level = texture(ground_marks_2, world_xz / max(ground_marks_extent, 0.001)).r * ground_marks_strength;
+	if (level <= TERRAIN_WEIGHT_EPSILON) {
+		return 0.0;
+	}
+
+	float wobble = texture(grass_canopy_noise, world_xz / 1.7).r - 0.5;
+	return smoothstep(0.2, 0.5, level + wobble * 0.3);
+}
+
+// Moves the creep: two layers of noise sliding against each other darken it in drifting streaks, and a wave of
+// swelling runs through it, wetter and brighter at its crest.
+void terrain_creep_alive(vec2 world_xz, inout vec3 albedo, inout float roughness) {
+	float drift = TIME * corruption_flow_metres_per_second;
+	float streak_a = texture(grass_canopy_noise, (world_xz + vec2(drift, drift * 0.4)) / 9.0).r;
+	float streak_b = texture(grass_canopy_noise, (world_xz - vec2(drift * 0.6, drift)) / 6.5).r;
+	float streaks = smoothstep(0.15, 0.85, streak_a * streak_b * 2.0);
+
+	float phase = texture(grass_canopy_noise, world_xz / 23.0).r * TAU;
+	float swell = 0.5 + 0.5 * sin(TIME * TAU / max(corruption_pulse_seconds, 0.1) + phase * 3.0);
+
+	albedo *= mix(0.85, 1.1, streaks) * mix(0.92, 1.15, swell * swell);
+	roughness = mix(roughness, 0.15, 0.6 * swell);
+}
+
+
 // The tint is passed in rather than read from COLOR here, because Godot exposes a stage's built-ins only
 // inside that stage's own function - a helper called from fragment() cannot see COLOR at all, the same
 // restriction that keeps the vertex assignments out of this file. Alpha carries the slot the tint's material is
@@ -856,18 +893,20 @@ TerrainSurface terrain_surface(vec4 vertex_colour) {
 	vec2 fire = terrain_fire(v_world_pos.xz);
 	marks.r = max(marks.r, fire.x * ground_marks_strength);
 
-	float mark_levels[3] = { marks.r, marks.g, marks.b };
-	int mark_slots[3] = { TERRAIN_SLOT_SCORCHED, TERRAIN_SLOT_TRODDEN, TERRAIN_SLOT_BLOODIED };
-	vec3 mark_colours[3] = { mark_scorched_colour, mark_trodden_colour, mark_bloodied_colour };
+	float corrupted = terrain_corruption(v_world_pos.xz);
 
-	if (max(mark_levels[0], max(mark_levels[1], mark_levels[2])) > TERRAIN_WEIGHT_EPSILON) {
+	float mark_levels[4] = { marks.r, marks.g, marks.b, corrupted };
+	int mark_slots[4] = { TERRAIN_SLOT_SCORCHED, TERRAIN_SLOT_TRODDEN, TERRAIN_SLOT_BLOODIED, TERRAIN_SLOT_CORRUPTED };
+	vec3 mark_colours[4] = { mark_scorched_colour, mark_trodden_colour, mark_bloodied_colour, mark_corrupted_colour };
+
+	if (max(max(mark_levels[0], mark_levels[1]), max(mark_levels[2], mark_levels[3])) > TERRAIN_WEIGHT_EPSILON) {
 		float remaining = 1.0;
 
 		for (int drawn = 0; drawn < 2; drawn++) {
 			int strongest = -1;
 			float strength = TERRAIN_WEIGHT_EPSILON;
 
-			for (int i = 0; i < 3; i++) {
+			for (int i = 0; i < 4; i++) {
 				if (mark_levels[i] > strength) {
 					strongest = i;
 					strength = mark_levels[i];
@@ -890,6 +929,10 @@ TerrainSurface terrain_surface(vec4 vertex_colour) {
 			// colour named above and not that colour multiplied by whatever grey the slot happens to be.
 			vec3 mark_albedo = mark.albedo
 				* (mark_colours[strongest] / max(slot_reference_tint[mark_slots[strongest]], vec3(0.0001)));
+
+			if (mark_slots[strongest] == TERRAIN_SLOT_CORRUPTED) {
+				terrain_creep_alive(v_world_pos.xz, mark_albedo, mark.roughness);
+			}
 
 			albedo = mix(albedo, mark_albedo, share);
 			world_normal = normalize(mix(world_normal, mark.normal, share));

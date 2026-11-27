@@ -170,7 +170,10 @@ namespace BestiaBehemothClient.Game.World.Mesh
       /// surface is mostly geometry - stones, the joints between them - and the joints are what the height blend
       /// lets the grass settle into at a road's edge, which no grain borrowed from a rock face has.
       /// </remarks>
-      Cobblestone = 11
+      Cobblestone = 11,
+
+      /// <summary>Grey slime the Withering spreads over the land. A ground layer, like <see cref="Trodden"/>.</summary>
+      Corrupted = 12
     }
 
     /// <summary>

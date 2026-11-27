@@ -25,7 +25,7 @@ namespace BestiaBehemothClient.Dev
   /// Run it with a window, because the headless renderer draws nothing and measures nothing:
   /// <c>DISPLAY=:0 godot --path bestia-client/src --resolution 1600x900 res://Dev/GrassBench/GrassBench.tscn --
   /// --out=DIR [--label=name] [--budget=2000000] [--fade=150] [--reach=176] [--margin=20] [--chunks=11]
-  /// [--patches | --patch-mask=png] [--pitch=-20] [--zoom=10] [--nolod] [--stats] [--gi-off] [--hide-grass] [--shot-only] [--walk=seconds]
+  /// [--patches | --patch-mask=png] [--creep=metres] [--pitch=-20] [--zoom=10] [--nolod] [--stats] [--gi-off] [--hide-grass] [--shot-only] [--walk=seconds]
   /// [--set=Property=value,...]</c>.
   /// </para>
   ///
@@ -327,6 +327,40 @@ namespace BestiaBehemothClient.Dev
       foreach (var key in keys)
       {
         _terrain.Invalidate(key);
+      }
+
+      if (_args.ContainsKey("creep"))
+      {
+        LayCreep(keys, Float("creep", 40.0f));
+      }
+    }
+
+    /// <summary>
+    /// The Withering's rot as the server sends it: a corrupted layer, here a ragged disc of this radius around
+    /// the meadow's centre that fades out over a dozen metres.
+    /// </summary>
+    private void LayCreep(List<ChunkKey> keys, float radius)
+    {
+      var edge = new FastNoiseLite { Seed = 12, Frequency = 0.12f, FractalOctaves = 2 };
+      var corrupted = GroundLayers.ChannelOf(GroundLayers.Id.Corrupted);
+
+      foreach (var key in keys)
+      {
+        var cells = new byte[GroundLayers.Channels][];
+        var nibbles = new byte[GroundLayerCells.ByteLength(ChunkSize)];
+
+        for (var index = 0; index < ChunkSize * ChunkSize; index++)
+        {
+          var x = key.X * ChunkSize + index % ChunkSize + 0.5f;
+          var y = key.Y * ChunkSize + index / ChunkSize + 0.5f;
+          var shown = (radius - Mathf.Sqrt(x * x + y * y)) / 12.0f + edge.GetNoise2D(x, y) * 0.8f;
+          var level = (int)(Mathf.Clamp(shown, 0.0f, 1.0f) * GroundLayerCells.MaxLevel);
+
+          nibbles[index >> 1] |= (byte)((index & 1) == 0 ? level : level << 4);
+        }
+
+        cells[corrupted] = nibbles;
+        _terrain.WriteGroundMarks(key.X, key.Y, cells);
       }
     }
 

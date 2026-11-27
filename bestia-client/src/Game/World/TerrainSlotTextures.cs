@@ -99,7 +99,7 @@ namespace BestiaBehemothClient.Game.World
     /// harmlessly in place because nobody had drawn the texture yet.
     ///
     /// <para>
-    /// Slots 12 to 15 are unnamed on purpose. They exist because the enum went to sixteen for
+    /// Slots 13 to 15 are unnamed on purpose. They exist because the enum went to sixteen for
     /// <c>Scorched</c>, and naming them now would invite art for materials nobody has decided on; an unnamed
     /// slot loads as generated grey and no block maps to it, so it costs a texture layer and nothing else.
     /// </para>
@@ -108,7 +108,7 @@ namespace BestiaBehemothClient.Game.World
     {
       "neutral", "grass", "dry_grass", "sand", "soil", "rock", "snow", "wetland", "scorched",
       "trodden", "bloodied",
-      "cobblestone", "slot12", "slot13", "slot14", "slot15"
+      "cobblestone", "corrupted", "slot13", "slot14", "slot15"
     };
 
     /// <summary>The two arrays, and the mean colour of each albedo layer.</summary>

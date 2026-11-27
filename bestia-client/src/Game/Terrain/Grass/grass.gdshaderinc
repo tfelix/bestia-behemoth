@@ -181,6 +181,10 @@ uniform vec3 burnt_colour : source_color = vec3(0.035, 0.03, 0.025);
 uniform vec3 ember_colour : source_color = vec3(1.0, 0.36, 0.06);
 uniform float ember_energy : hint_range(0.0, 16.0) = 4.0;
 
+// The second mark texture: red is the Withering's rot. Blades on it wilt, grey, and are gone where it is deep.
+uniform sampler2D ground_marks_2 : filter_nearest, repeat_enable, hint_default_transparent;
+uniform vec3 withered_colour : source_color = vec3(0.36, 0.33, 0.27);
+
 group_uniforms;
 
 // Seconds on the clock fire records are stamped in. See `GroundFireClock`.
@@ -198,6 +202,9 @@ varying flat float burn;
 // 1 while the plant's square metre is alight, which is when the edge of the char glows.
 varying flat float alight;
 
+// 0 for a healthy plant, 1 for one on ground the Withering rotted through.
+varying flat float wither;
+
 // A random number per plant, so each one's embers flicker on their own and no wave rolls across the field.
 varying flat float plant_seed;
 
@@ -212,6 +219,7 @@ void vertex() {
 
 	burn = 0.0;
 	alight = 0.0;
+	wither = 0.0;
 	plant_seed = 0.0;
 	if (burns_with_ground) {
 		vec3 p3 = fract(vec3(mod(MODEL_MATRIX[3].xz, 256.0).xyx) * 0.1031);
@@ -227,6 +235,8 @@ void vertex() {
 		} else if (texture(ground_marks, cell).r > 0.5) {
 			burn = 1.0;
 		}
+
+		wither = texture(ground_marks_2, cell).r;
 	}
 
 	// How grown this blade is: nothing at the reveal front, full size a span behind it. The half-instance
@@ -258,6 +268,7 @@ void vertex() {
 	// a clump into a disc lying on the ground, which from this camera is worse than the pop it would fix.
 	float extra = 1.0 + grass_extra_scale;
 	VERTEX *= grow * (1.0 - smoothstep(0.25, 1.0, burn));
+	VERTEX *= (1.0 - 0.4 * wither) * (1.0 - smoothstep(0.85, 1.0, wither));
 	VERTEX *= grass_widen_only ? vec3(extra, 1.0, extra) : vec3(extra);
 
 	// Where this vertex would stand in dead calm. Kept, because the offset has to be turned back into model
@@ -330,6 +341,10 @@ void vertex() {
 	// root instead of tipping like a plank, and a vertex on the ground does not move at all.
 	vec2 offset = above * blade_v * lean * (dir * gust + across * flutter * flutter_amount);
 
+	// A wilting plant flops over to a side of its own, whatever the wind does.
+	float flop = plant_seed * TAU;
+	offset += above * blade_v * blade_v * wither * 0.8 * vec2(cos(flop), sin(flop));
+
 	vec3 world = rest;
 	world.xz += offset;
 
@@ -376,6 +391,10 @@ void fragment() {
 	float charred = 1.0 - smoothstep(char_front - 0.2, char_front, blade_v);
 	float edge = charred * (1.0 - charred) * 4.0;
 	float flicker = 0.6 + 0.4 * sin(TIME * (9.0 + 6.0 * plant_seed) + plant_seed * 40.0);
+
+	// Rot greys the tips first and creeps down to the root.
+	float withered = smoothstep(0.0, 0.6, wither) * mix(0.5, 1.0, blade_v);
+	ALBEDO = mix(ALBEDO, withered_colour * mix(0.8, 1.15, noiseLevel.r), withered);
 
 	ALBEDO = mix(ALBEDO, burnt_colour, charred);
 
