@@ -38,7 +38,8 @@ class WitheringThreatTest {
 
   private fun threat(config: WitheringConfig) = WitheringThreat(
     config = config,
-    field = field,
+    spread = CorruptionSpread(config, field),
+    wards = mockk<WitheringWards> { every { wardedNow() } returns emptySet() },
     journal = mockk(relaxed = true),
     rows = rows,
     crystals = crystals,

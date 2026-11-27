@@ -16,6 +16,10 @@ class StoredCorruptionCrystal(
 
   @Column(nullable = false)
   val y: Double,
+
+  /** Grown by a Blight Bloom rather than the Withering's front. */
+  @Column(nullable = false)
+  val bloom: Boolean = false,
 ) {
 
   @Id
