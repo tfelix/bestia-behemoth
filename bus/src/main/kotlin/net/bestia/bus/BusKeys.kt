@@ -20,6 +20,18 @@ object BusKeys {
     return "kicks-$nodeId"
   }
 
+  /** The channel the api-server sends GM actions to, for the login server to carry out. */
+  const val LOGIN_COMMANDS = "login:commands"
+
+  fun loginReplies(instanceId: String): String {
+    return "login:replies:$instanceId"
+  }
+
+  /** Taken by the one login server that acts on a command, when several are subscribed. */
+  fun loginClaim(correlationId: String): String {
+    return "login:claim:$correlationId"
+  }
+
   fun requests(nodeId: String): String {
     return "zone:$nodeId:requests"
   }

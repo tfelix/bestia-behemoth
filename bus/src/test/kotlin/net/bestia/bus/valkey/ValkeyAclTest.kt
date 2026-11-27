@@ -8,6 +8,8 @@ import net.bestia.bus.BusKeys
 import net.bestia.bus.StreamEntry
 import net.bestia.bus.contract.BusReply
 import net.bestia.bus.contract.KickOrder
+import net.bestia.bus.contract.LoginCommand
+import net.bestia.bus.contract.LoginReply
 import net.bestia.bus.contract.ZoneAnswer
 import net.bestia.bus.contract.ZoneEvent
 import net.bestia.bus.contract.ZoneQuery
@@ -104,6 +106,31 @@ class ValkeyAclTest {
     listOf(kicks, appender).forEach { it.close() }
     login.shutdown()
     zone.shutdown()
+  }
+
+  @Test
+  fun `the api-server sends GM commands that only the login user may serve`() {
+    val login = connect("login", "login-dev-password")
+    val api = connect("api", "api-dev-password")
+    val zone = connect("zone", "zone-dev-password")
+
+    val server = ValkeyLoginCommandServer(login, { _, _ -> LoginReply.Outcome.DONE })
+    await().atMost(Duration.ofSeconds(10)).until { server.isListening }
+    val bus = ValkeyLoginBus(api, instanceId = "acl-api")
+
+    val ban = LoginCommand.Ban(targetAccountId = 9, note = "acl", durationHours = null)
+    assertEquals(LoginReply.Outcome.DONE, bus.send(7, ban).get(5, TimeUnit.SECONDS))
+
+    zone.connect().use { connection ->
+      assertThrows<RedisCommandExecutionException> { connection.sync().publish(BusKeys.LOGIN_COMMANDS, "{}") }
+    }
+    login.connect().use { connection ->
+      assertThrows<RedisCommandExecutionException> { connection.sync().publish(BusKeys.replies("acl-api"), "{}") }
+      assertThrows<RedisCommandExecutionException> { connection.sync().set(BusKeys.KICKS, "gone") }
+    }
+
+    listOf(bus, server).forEach { it.close() }
+    listOf(login, api, zone).forEach { it.shutdown() }
   }
 
   @Test
