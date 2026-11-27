@@ -32,9 +32,13 @@ class StoredDestroyer(
   @Column(name = "stack", nullable = false)
   var stack: Int = 1,
 
-  /** The settlement it marches on, or null while it has none. */
+  /** The world's settlement it marches on, or null. */
   @Column(name = "target_settlement")
   var targetSettlement: Int? = null,
+
+  /** The player town it marches on, or null. */
+  @Column(name = "target_town")
+  var targetTown: Long? = null,
 
   @Column(name = "razed", nullable = false)
   var razed: Int = 0,

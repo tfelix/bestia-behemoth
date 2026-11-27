@@ -15,6 +15,7 @@ import net.bestia.zone.doomsday.DoomKind
 import net.bestia.zone.doomsday.DoomShape
 import net.bestia.zone.doomsday.DoomStage
 import net.bestia.zone.doomsday.DoomThreat
+import net.bestia.zone.doomsday.destroyer.DestroyerTowns.Target
 import net.bestia.zone.doomsday.persistence.StoredDestroyer
 import net.bestia.zone.doomsday.persistence.StoredDestroyerRepository
 import net.bestia.zone.ecs.core.World
@@ -25,7 +26,6 @@ import net.bestia.zone.entity.ecs.WorldObjectIdentity
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.place.ecs.ProvinceService
 import net.bestia.zone.prop.PropRemoval
-import net.bestia.zone.prop.SettlementFateService
 import net.bestia.zone.prop.WorldObjectDivergenceRegistry
 import net.bestia.zone.prop.WorldObjectResidencyService
 import net.bestia.zone.spawn.BestiaEntitySpawner
@@ -46,19 +46,20 @@ import kotlin.random.Random
  * heals fully and grows stronger, which brings the end closer. Start towns are spared, and no trap holds it.
  *
  * Players hold it back by bringing it down: that holds the end off, and it rises again at its lair a few days later,
- * one town stronger. In the Last Stand it is the Avatar itself.
+ * one town stronger, unless a ritual at the lair renews the seal for longer. In the Last Stand it is the Avatar
+ * itself. It marches on the players' towns as on the world's.
  */
 @Component
 class DestroyerThreat(
   private val config: DestroyerConfig,
   private val rows: StoredDestroyerRepository,
   private val fall: DestroyerFall,
+  private val seal: DestroyerSeal,
   private val seals: WorldBossSealService,
   private val world: WorldView,
   private val spawner: BestiaEntitySpawner,
   private val statusEffects: StatusEffectService,
   private val towns: DestroyerTowns,
-  private val fates: SettlementFateService,
   private val provinces: ProvinceService,
   private val removal: PropRemoval,
   private val residency: WorldObjectResidencyService,
@@ -114,9 +115,14 @@ class DestroyerThreat(
       fell(row)
       push += config.defeatPush
     }
+    if (seal.take() && row.isFallen) {
+      row.returnsAtDay = maxOf(row.returnsAtDay!!, today() + config.resealDays)
+      LOG.info { "A ritual renewed the Destroyer's seal: it stays down ${config.resealDays} days" }
+    }
     if (row.isFallen && today() >= row.returnsAtDay!!) {
       rise(row)
     }
+    seal.watch(if (row.isFallen) eventGround.grounded(row.lairX, row.lairY) else null)
     if (!row.isFallen) {
       push += march(row)
     }
@@ -175,7 +181,7 @@ class DestroyerThreat(
     live = null
     row.lastDefeatDay = today()
     row.returnsAtDay = today() + config.returnDays
-    row.targetSettlement = null
+    setTarget(row, null)
     if (lastStand) {
       lastStand = false
     }
@@ -208,8 +214,9 @@ class DestroyerThreat(
         push = config.razePush
       }
 
-      row.targetSettlement = targetOf(row)
-      row.targetSettlement?.let { town -> headFor(this, it, town) }
+      val next = targetOf(row)
+      setTarget(row, next)
+      next?.let { town -> headFor(this, it, town) }
       push
     } ?: 0.0
   }
@@ -226,15 +233,17 @@ class DestroyerThreat(
     }
   }
 
-  private fun raze(world: World, id: EntityId, row: StoredDestroyer, town: Int) {
-    fates.raze(world, town)
-    row.razedTowns = (row.razedTownList() + town).joinToString(",")
+  private fun raze(world: World, id: EntityId, row: StoredDestroyer, town: Target) {
+    towns.raze(world, town)
+    if (town is Target.Settlement) {
+      row.razedTowns = (row.razedTownList() + town.index).joinToString(",")
+    }
     row.razed++
 
     val baseHp = (world.get(id, Health::class)?.max ?: 1) / hpMultiplierOf(row.stack)
     row.stack++
     empower(world, id, row.stack, baseHp)
-    LOG.warn { "The Destroyer razed settlement $town and grew to stack ${row.stack}" }
+    LOG.warn { "The Destroyer razed $town and grew to stack ${row.stack}" }
   }
 
   /** Its `DESTROYER` status at [stack], and its health grown to match, full. */
@@ -250,7 +259,7 @@ class DestroyerThreat(
     return config.hpMultiplier + config.hpMultiplierPerTown * (stack - 1)
   }
 
-  private fun headFor(world: World, id: EntityId, town: Int) {
+  private fun headFor(world: World, id: EntityId, town: Target) {
     val home = towns.groundAt(town) ?: return
     val memory = world.get(id, AiAgent::class)?.memory ?: return
     memory.set(BestiaDomain.HOME_POSITION, home, Blackboard.PERMANENT)
@@ -258,9 +267,15 @@ class DestroyerThreat(
   }
 
   /** The town it marches on, or the nearest one left once that one is gone. */
-  private fun targetOf(row: StoredDestroyer): Int? {
+  private fun targetOf(row: StoredDestroyer): Target? {
     val razed = row.razedTownList()
-    return row.targetSettlement?.takeIf { towns.isTarget(it, razed) } ?: towns.nearest(row.x, row.y, razed)
+    val current = row.targetSettlement?.let { Target.Settlement(it) } ?: row.targetTown?.let { Target.PlayerTown(it) }
+    return current?.takeIf { towns.isTarget(it, razed) } ?: towns.nearest(row.x, row.y, razed)
+  }
+
+  private fun setTarget(row: StoredDestroyer, target: Target?) {
+    row.targetSettlement = (target as? Target.Settlement)?.index
+    row.targetTown = (target as? Target.PlayerTown)?.id
   }
 
   /** Full while it lies fallen, then fading out over the days after its last defeat. */
