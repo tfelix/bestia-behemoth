@@ -12,7 +12,6 @@ import net.bestia.login.admin.GmActionRefusedException.Refusal
 import net.bestia.login.metrics.LoginMetrics
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.Duration
 import java.time.LocalDateTime
 
 /**
@@ -30,7 +29,8 @@ class GmActionService(
 
   /** Ends every session of the target, so it has to sign in with its passkey again. A ban keeps it out. */
   @Transactional
-  fun kick(actorId: Long, targetId: Long, note: String) {
+  fun kick(actorId: Long, targetId: Long, rawNote: String) {
+    val note = validNote(rawNote)
     val (actor, target) = authorize(actorId, targetId, Authority.KICK, LoginMetrics.GmAction.KICK)
 
     gmActions.save(GmAction(actor.id, target.id, GmActionType.KICK, note))
@@ -40,11 +40,15 @@ class GmActionService(
     LOG.info { "GM ${actor.id} kicked account ${target.id}: $note" }
   }
 
-  /** A [duration] of null bans for good. */
+  /** A [durationHours] of null bans for good. */
   @Transactional
-  fun ban(actorId: Long, targetId: Long, note: String, duration: Duration?) {
+  fun ban(actorId: Long, targetId: Long, rawNote: String, durationHours: Long?) {
+    val note = validNote(rawNote)
+    if (durationHours != null && durationHours !in 1..MAX_BAN_HOURS) {
+      throw GmActionRefusedException(Refusal.INVALID, "a ban of $durationHours hours")
+    }
     val (actor, target) = authorize(actorId, targetId, Authority.BAN, LoginMetrics.GmAction.BAN)
-    val until = duration?.let { LocalDateTime.now().plus(it) }
+    val until = durationHours?.let { LocalDateTime.now().plusHours(it) }
 
     // The status first: the sessions ended below must not be replaced by a login the ban has not reached yet.
     target.status = if (until == null) AccountStatus.PERMA_BANNED else AccountStatus.BANNED_UNTIL
@@ -56,6 +60,15 @@ class GmActionService(
     metrics.gmAction(LoginMetrics.GmAction.BAN, allowed = true)
 
     LOG.warn { "GM ${actor.id} banned account ${target.id} until ${until ?: "forever"}: $note" }
+  }
+
+  private fun validNote(rawNote: String): String {
+    val note = rawNote.trim()
+    if (note.isEmpty() || note.length > GmAction.MAX_NOTE_LENGTH) {
+      throw GmActionRefusedException(Refusal.INVALID, "a note of ${note.length} characters")
+    }
+
+    return note
   }
 
   /** The actor is checked before the target is looked up, so nobody without the authority can probe for ids. */
@@ -104,6 +117,9 @@ class GmActionService(
   )
 
   companion object {
+    /** Ten years. Anything longer is a permanent ban and should say so. */
+    const val MAX_BAN_HOURS = 24L * 365 * 10
+
     private val LOG = KotlinLogging.logger { }
   }
 }
