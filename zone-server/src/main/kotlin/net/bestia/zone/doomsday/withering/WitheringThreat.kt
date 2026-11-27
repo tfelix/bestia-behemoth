@@ -26,7 +26,8 @@ import kotlin.random.Random
 /**
  * The Withering: a front of corruption that spreads from the land most blighted in the world's history. It grows only
  * from its corruption crystals: each one corrupts the land around it, and new ones sprout at the edge of the old ones
- * until the front covers what its clock asks. Breaking a crystal stops its growth, and the land under it heals.
+ * until the front covers what its clock asks. Breaking a crystal stops its growth, and the land under it heals. The
+ * plants on rotten land die for good ([WitheringBlight]).
  *
  * The players hold it where they keep the crystals below what the clock asks for.
  */
@@ -37,6 +38,7 @@ class WitheringThreat(
   private val journal: CorruptionJournal,
   private val rows: StoredCorruptionCrystalRepository,
   private val crystals: CorruptionCrystals,
+  private val blight: WitheringBlight,
   private val provinces: ProvinceService,
   private val ground: EventGround,
   private val worldService: WorldService,
@@ -78,6 +80,7 @@ class WitheringThreat(
     containment = (1.0 - standing.size.toDouble() / target).coerceIn(0.0, 1.0)
 
     spread(standing, realSeconds / SECONDS_PER_DAY)
+    blight.killPlants()
     crystals.keep(standing, levelAt(fate.progress))
     journal.flush()
     return 0.0

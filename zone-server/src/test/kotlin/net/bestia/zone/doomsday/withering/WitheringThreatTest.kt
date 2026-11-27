@@ -42,6 +42,7 @@ class WitheringThreatTest {
     journal = mockk(relaxed = true),
     rows = rows,
     crystals = crystals,
+    blight = mockk(relaxed = true),
     provinces = mockk<ProvinceService> { every { isSanctuaryAt(any(), any()) } returns false },
     ground = mockk<EventGround> { every { grounded(any(), any()) } returns Vec3L(0, 0, 0) },
     worldService = mockk(),
