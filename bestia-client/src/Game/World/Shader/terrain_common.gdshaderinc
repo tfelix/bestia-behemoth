@@ -249,7 +249,7 @@ uniform float ground_marks_disturb_snow : hint_range(0.0, 1.0) = 0.85;
 uniform vec3 mark_scorched_colour : source_color = vec3(0.07, 0.06, 0.06);
 uniform vec3 mark_trodden_colour : source_color = vec3(0.34, 0.26, 0.18);
 uniform vec3 mark_bloodied_colour : source_color = vec3(0.29, 0.05, 0.05);
-uniform vec3 mark_corrupted_colour : source_color = vec3(0.27, 0.28, 0.24);
+uniform vec3 mark_corrupted_colour : source_color = vec3(0.27, 0.25, 0.29);
 
 // The second mark texture, laid out like `ground_marks`. Red is the Withering's rot; the rest is free.
 uniform sampler2D ground_marks_2 : filter_linear, repeat_enable, hint_default_transparent;
@@ -577,10 +577,11 @@ float terrain_embers(vec2 world_xz) {
 	return smoothstep(0.5 - edge, 0.5 + edge, specks) * flicker;
 }
 
-SlotSample terrain_sample_slot(int slot, vec3 geometric, vec3 ddx, vec3 ddy, vec3 blend) {
+// One slot sampled at a position measured from its own `slot_uv_origin`, for a caller that moves the pattern.
+SlotSample terrain_sample_slot_at(int slot, vec3 from_origin, vec3 geometric, vec3 ddx, vec3 ddy, vec3 blend) {
 	float inv_scale = 1.0 / max(slot_uv_scale[slot], 0.0001);
 
-	vec3 p = (v_world_pos - slot_uv_origin[slot]) * inv_scale;
+	vec3 p = from_origin * inv_scale;
 	vec3 px = ddx * inv_scale;
 	vec3 py = ddy * inv_scale;
 
@@ -645,6 +646,33 @@ SlotSample terrain_sample_slot(int slot, vec3 geometric, vec3 ddx, vec3 ddy, vec
 	return result;
 }
 
+SlotSample terrain_sample_slot(int slot, vec3 geometric, vec3 ddx, vec3 ddy, vec3 blend) {
+	return terrain_sample_slot_at(slot, v_world_pos - slot_uv_origin[slot], geometric, ddx, ddy, blend);
+}
+
+// The creep sampled twice, the second turned a quarter and shifted, and blended by a broad noise, so its pattern
+// does not repeat in a grid. A quarter turn keeps whole tiles whole, so the pattern does not jump when
+// `slot_uv_origin` moves.
+SlotSample terrain_sample_creep(vec3 geometric, vec3 ddx, vec3 ddy, vec3 blend) {
+	int slot = TERRAIN_SLOT_CORRUPTED;
+	vec3 from_origin = v_world_pos - slot_uv_origin[slot];
+	SlotSample first = terrain_sample_slot_at(slot, from_origin, geometric, ddx, ddy, blend);
+
+	vec3 turned = vec3(from_origin.z, from_origin.y, -from_origin.x) + vec3(3.1, 0.0, 5.3);
+	SlotSample second = terrain_sample_slot_at(
+		slot, turned, geometric, vec3(ddx.z, ddx.y, -ddx.x), vec3(ddy.z, ddy.y, -ddy.x), blend);
+
+	float share = smoothstep(0.3, 0.7, texture(grass_canopy_noise, v_world_pos.xz / 13.0).r);
+
+	SlotSample mixed;
+	mixed.albedo = mix(first.albedo, second.albedo, share);
+	mixed.height = mix(first.height, second.height, share);
+	mixed.normal = normalize(mix(first.normal, second.normal, share));
+	mixed.roughness = mix(first.roughness, second.roughness, share);
+	mixed.ao = mix(first.ao, second.ao, share);
+	return mixed;
+}
+
 // How strongly the Withering covers this metre, 0 to 1. The server's levels come one per metre; fine noise breaks
 // that grid, and the steep ramp gives the creep a hard edge rather than a fog.
 float terrain_corruption(vec2 world_xz) {
@@ -668,7 +696,10 @@ void terrain_creep_alive(vec2 world_xz, inout vec3 albedo, inout float roughness
 	float phase = texture(grass_canopy_noise, world_xz / 23.0).r * TAU;
 	float swell = 0.5 + 0.5 * sin(TIME * TAU / max(corruption_pulse_seconds, 0.1) + phase * 3.0);
 
-	albedo *= mix(0.85, 1.1, streaks) * mix(0.92, 1.15, swell * swell);
+	// Broad light and dark patches tens of metres across, the scale at which a repeat is easiest to see.
+	float patches = texture(grass_canopy_noise, world_xz / 41.0).r;
+
+	albedo *= mix(0.85, 1.1, streaks) * mix(0.92, 1.15, swell * swell) * mix(0.82, 1.12, patches);
 	roughness = mix(roughness, 0.15, 0.6 * swell);
 }
 
@@ -923,7 +954,9 @@ TerrainSurface terrain_surface(vec4 vertex_colour) {
 			remaining -= share;
 			mark_levels[strongest] = 0.0;
 
-			SlotSample mark = terrain_sample_slot(mark_slots[strongest], normal, ddx, ddy, blend);
+			SlotSample mark = mark_slots[strongest] == TERRAIN_SLOT_CORRUPTED
+				? terrain_sample_creep(normal, ddx, ddy, blend)
+				: terrain_sample_slot(mark_slots[strongest], normal, ddx, ddy, blend);
 
 			// Corrected the way weather snow is: the texture's own colour divided out, so what lands is the
 			// colour named above and not that colour multiplied by whatever grey the slot happens to be.
