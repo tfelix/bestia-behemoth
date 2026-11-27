@@ -2,6 +2,7 @@ package net.bestia.login.scenario
 
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
+import net.bestia.bus.contract.LastWorld
 import net.bestia.bus.valkey.ValkeyWorldRebirth
 import net.bestia.login.webauthn.VirtualAuthenticator
 import org.junit.jupiter.api.Test
@@ -48,7 +49,7 @@ class WorldRebirthScenario : BasePasskeyScenario() {
         .build()
     )
     val rebirth = ValkeyWorldRebirth(client)
-    rebirth.begin()
+    rebirth.begin(LastWorld("Genesis", "VOID_TEAR", "LOST", 300, 100, 2, 1_800_000_000_000))
     try {
       block()
     } finally {

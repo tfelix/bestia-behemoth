@@ -183,7 +183,7 @@ class WorldEnd(
     val world = worldService.record
     val now = clock.instant()
 
-    legacies.save(
+    val legacy = legacies.save(
       WorldLegacy(
         worldName = summary.worldName,
         seed = world.seed,
@@ -200,7 +200,7 @@ class WorldEnd(
     worlds.save(world)
     LOG.warn { "The world ${summary.worldName} has ended: $summary" }
 
-    events.publishEvent(WorldEndedEvent(open.ending))
+    events.publishEvent(WorldEndedEvent(legacy))
   }
 
   private fun summaryOf(ending: DoomEnding, secondsLeft: Int): WorldEndSMSG {

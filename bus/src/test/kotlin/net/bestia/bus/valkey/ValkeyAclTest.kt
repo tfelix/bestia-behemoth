@@ -8,6 +8,7 @@ import net.bestia.bus.BusKeys
 import net.bestia.bus.StreamEntry
 import net.bestia.bus.contract.BusReply
 import net.bestia.bus.contract.KickOrder
+import net.bestia.bus.contract.LastWorld
 import net.bestia.bus.contract.LoginCommand
 import net.bestia.bus.contract.LoginReply
 import net.bestia.bus.contract.ZoneAnswer
@@ -148,7 +149,7 @@ class ValkeyAclTest {
     val zoneSide = ValkeyWorldRebirth(zone)
     val loginSide = ValkeyWorldRebirth(login)
 
-    zoneSide.begin()
+    zoneSide.begin(LAST_WORLD)
     assertTrue(loginSide.isUnderway())
     assertThrows<RedisCommandExecutionException> { loginSide.end() }
 
@@ -160,6 +161,27 @@ class ValkeyAclTest {
     zone.shutdown()
   }
 
+  @Test
+  fun `the api-server reads how the last world ended, during the rebirth and after it`() {
+    val api = connect("api", "api-dev-password")
+    val zone = connect("zone", "zone-dev-password")
+    val zoneSide = ValkeyWorldRebirth(zone)
+    val apiSide = ValkeyWorldRebirth(api)
+
+    zoneSide.begin(LAST_WORLD)
+    assertTrue(apiSide.isUnderway())
+    assertEquals(LAST_WORLD, apiSide.lastWorld())
+    assertThrows<RedisCommandExecutionException> { apiSide.end() }
+
+    zoneSide.end()
+    assertFalse(apiSide.isUnderway())
+    assertEquals(LAST_WORLD, apiSide.lastWorld())
+
+    listOf(zoneSide, apiSide).forEach { it.close() }
+    api.shutdown()
+    zone.shutdown()
+  }
+
   private fun connect(user: String, password: String): RedisClient {
     val uri = RedisURI.Builder.redis(valkey.host, valkey.getMappedPort(6379))
       .withAuthentication(user, password.toCharArray())
@@ -168,6 +190,8 @@ class ValkeyAclTest {
   }
 
   companion object {
+    private val LAST_WORLD = LastWorld("Genesis", "VOID_TEAR", "LOST", 300, 100, 2, 1_800_000_000_000)
+
     private val aclFile = Path.of("../zone-server/valkey/users.acl").toAbsolutePath()
 
     @Container

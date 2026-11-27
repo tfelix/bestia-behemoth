@@ -1,6 +1,7 @@
 package net.bestia.zone.bus
 
 import net.bestia.bus.WorldRebirth
+import net.bestia.bus.contract.LastWorld
 import net.bestia.bus.AppPresence
 import net.bestia.bus.Directory
 import net.bestia.bus.EventPublisher
@@ -40,12 +41,16 @@ class NoBusConfiguration {
   @Bean
   fun busWorldRebirth(): WorldRebirth {
     return object : WorldRebirth {
-      override fun begin() {}
+      override fun begin(lastWorld: LastWorld) {}
 
       override fun end() {}
 
       override fun isUnderway(): Boolean {
         return false
+      }
+
+      override fun lastWorld(): LastWorld? {
+        return null
       }
     }
   }

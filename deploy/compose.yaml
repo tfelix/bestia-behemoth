@@ -129,8 +129,8 @@ services:
       - |
         cat > /tmp/users.acl <<ACL
         user default off
-        user zone on >$$BUS_ZONE_PASSWORD ~dir:* ~app:* ~events ~kicks ~bus:idem:* ~world:state &zone:*:requests &api:*:replies +@all -@admin -@dangerous
-        user api on >$$BUS_API_PASSWORD ~dir:* ~events %R~kicks &zone:*:requests &api:*:replies &login:* +@connection +@pubsub +@stream +@read (~app:* +set)
+        user zone on >$$BUS_ZONE_PASSWORD ~dir:* ~app:* ~events ~kicks ~bus:idem:* ~world:state ~world:last &zone:*:requests &api:*:replies +@all -@admin -@dangerous
+        user api on >$$BUS_API_PASSWORD ~dir:* ~events %R~kicks %R~world:state %R~world:last &zone:*:requests &api:*:replies &login:* +@connection +@pubsub +@stream +@read (~app:* +set)
         user login on >$$BUS_LOGIN_PASSWORD ~kicks %R~world:state &login:* +@connection +@pubsub +xadd +get (~login:claim:* +set)
         ACL
         exec docker-entrypoint.sh valkey-server --aclfile /tmp/users.acl
