@@ -446,6 +446,9 @@ Design and reasons: bestia-docs `server/api-server.md`. Where things are:
   `ValkeyRequestServer` (virtual threads, 64 in flight, idempotency keys) → `CompanionRequestDispatcher` →
   `companion/query/*`. Every query checks ownership through `OwnedMasters`. Bus answers map to HTTP in
   `api-server/.../rest/ZoneReplies.kt`.
+- **GM actions.** api-server `ValkeyLoginBus.send` → `login:commands` → login `ValkeyLoginCommandServer` (subscribes
+  in the background, one login server claims each command) → reply on `login:replies:{instance}`. The login server
+  owns accounts, so it checks the GM and carries out kicks and bans.
 - **Events.** Slices publish Spring events (`OwnedBestiaDiedEvent` from `PlayerDeathSystem` on the tick,
   `StructureCompletedEvent`, `HomeFellEvent`, `BestiaAiConfigChangedEvent`, `ChartsChangedEvent`);
   `companion/ZoneEventRelay` turns them into `ZoneEvent`s on the `ValkeyEventPublisher` outbox (never blocks; DB
