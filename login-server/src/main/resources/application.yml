@@ -57,8 +57,9 @@ jwt:
 bus:
   # The zones' Valkey, where a ban, a GM kick or a recovery is appended to the `kicks` stream that every zone node
   # reads; the login server cannot see which one the player is on.
+  # The api-server sends GM kicks and bans here too, for the login server to carry out.
   # host, port, username, password (BUS_PASSWORD): the `login` user of zone-server/valkey/users.acl, which may
-  # append kicks and nothing else. The dev profile has them; LoginDeploymentGuard refuses the dev password.
+  # append kicks and answer GM commands. The dev profile has them; LoginDeploymentGuard refuses the dev password.
   # How long a kick may wait for Valkey, inside the request that caused it.
   command-timeout-millis: 2000
 

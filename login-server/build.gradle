@@ -40,6 +40,7 @@ dependencies {
     testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.testcontainers:mariadb'
     testImplementation 'io.mockk:mockk:1.14.5'
+    testImplementation 'org.awaitility:awaitility:4.2.2'
 
     // The virtual authenticator has to encode CBOR itself. Yubico pulls this in at runtime but does
     // not expose it for compilation, and building the attestation object by hand would be worse.

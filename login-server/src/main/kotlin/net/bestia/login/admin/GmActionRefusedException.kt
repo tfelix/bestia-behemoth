@@ -6,6 +6,7 @@ class GmActionRefusedException(
 ) : RuntimeException(message) {
 
   enum class Refusal {
+    INVALID,
     NOT_ALLOWED,
     NO_SUCH_ACCOUNT
   }

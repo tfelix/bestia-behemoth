@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.time.Duration
 
 /**
  * The GM actions on accounts, called from the game client with its api token. Another GM action is another
@@ -52,29 +51,19 @@ class AdminAccountController(
     @RequestBody request: BanRequest,
     servletRequest: HttpServletRequest
   ): ResponseEntity<Void> {
-    val hours = request.durationHours
-    if (hours != null && hours !in 1..MAX_BAN_HOURS) {
-      return ResponseEntity.badRequest().build()
-    }
-
     return act(servletRequest, request.note) { actorId, note ->
-      gmActionService.ban(actorId, accountId, note, hours?.let { Duration.ofHours(it) })
+      gmActionService.ban(actorId, accountId, note, request.durationHours)
     }
   }
 
   private fun act(
     servletRequest: HttpServletRequest,
-    rawNote: String,
+    note: String,
     action: (actorId: Long, note: String) -> Unit
   ): ResponseEntity<Void> {
     // Checked here as well as in the filter, so a path the filter does not match still fails closed.
     val actorId = servletRequest.getAttribute(ApiTokenFilter.ACCOUNT_ID) as? Long
       ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
-
-    val note = rawNote.trim()
-    if (note.isEmpty() || note.length > GmAction.MAX_NOTE_LENGTH) {
-      return ResponseEntity.badRequest().build()
-    }
 
     return try {
       action(actorId, note)
@@ -83,6 +72,7 @@ class AdminAccountController(
       LOG.warn { "Refused a GM action by account $actorId: ${e.message}" }
 
       val status = when (e.refusal) {
+        GmActionRefusedException.Refusal.INVALID -> HttpStatus.BAD_REQUEST
         GmActionRefusedException.Refusal.NOT_ALLOWED -> HttpStatus.FORBIDDEN
         GmActionRefusedException.Refusal.NO_SUCH_ACCOUNT -> HttpStatus.NOT_FOUND
       }
@@ -92,8 +82,5 @@ class AdminAccountController(
 
   private companion object {
     private val LOG = KotlinLogging.logger { }
-
-    /** Ten years. Anything longer is a permanent ban and should say so. */
-    const val MAX_BAN_HOURS = 24L * 365 * 10
   }
 }
