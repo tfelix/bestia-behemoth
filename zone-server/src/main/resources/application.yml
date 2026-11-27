@@ -438,6 +438,13 @@ doomsday:
     knots-per-day-at-onset: 0.5
     knots-per-day-at-end: 4.0
     reform-days: 3.0
+  # The Withering's front of corruption crystals. Days are real days.
+  withering:
+    max-crystals: 300
+    crystals-per-day: 6.0
+    crystal-reach-metres: 2000
+    corrupt-per-day: 0.25
+    heal-per-day: 0.05
   # Alpha tests: force the threat, the Foreshadowing or the origin (metres) of a new world.
   # force-kind: VOID_TEAR
   # force-foreshadow: MANA_STORM_SEASON

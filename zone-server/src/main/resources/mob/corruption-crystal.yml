@@ -1,0 +1,33 @@
+id: 123
+identifier: corruption_crystal
+# The Withering grows these to spread its corruption, at a level set by its clock, whatever this range says.
+level-min: 20
+level-max: 70
+name: Corruption Crystal
+description: >-
+  A grey crystal that pushes up through dying ground, slick with something that moves. The land around it rots, and
+  more of them sprout at the edge of the rot.
+kind: FORMLESS
+element: POISON_2
+size: MEDIUM
+default-attack: MELEE
+aspd: 90
+# No AI, so it never strikes; the importer still wants a positive figure.
+attack-power: 0.03
+weight: 600
+health: 6000
+mana: 0
+experience: 900
+attributes: { strength: 1, intelligence: 1, vitality: 80, dexterity: 1, willpower: 40, agility: 1 }
+learnset: []
+# No AI: a crystal does not move or fight back. Grown by the Withering only (CorruptionCrystals).
+event-only: true
+compendium: false
+habitat: []
+spawn-weight: 0
+status-immunities: [STUN, FROZEN, STONING, FEARED, CONFUSED, CONTROLLED]
+equip-slots: []
+armor-types: []
+loot:
+  - { item: corrupted_shard, chance: 10000 }
+  - { item: corrupted_shard, chance: 5000 }
