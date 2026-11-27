@@ -33,6 +33,7 @@ class GmManaLayer(
   private val provinces: ProvinceService,
   private val director: WorldEventDirector,
   private val out: OutMessageProcessor,
+  private val corruption: CorruptionReading? = null,
 ) {
 
   private val watching = ConcurrentHashMap.newKeySet<AccountId>()
@@ -73,7 +74,8 @@ class GmManaLayer(
     val cells = (0 until width * width).map { i ->
       val cell = Cell(west + i % width, south + i / width)
       val province = provinces.provinceAt(cell.centreX, cell.centreY)?.index ?: NO_PROVINCE
-      GmManaLayerSMSG.Cell(mana.densityOf(cell), tiers.tierOf(cell), province)
+      val corrupted = corruption?.corruptionAt(cell.centreX, cell.centreY) ?: 0.0
+      GmManaLayerSMSG.Cell(mana.densityOf(cell), tiers.tierOf(cell), province, corrupted)
     }
 
     return GmManaLayerSMSG(

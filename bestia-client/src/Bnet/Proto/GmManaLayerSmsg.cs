@@ -25,23 +25,23 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiVtZXNzYWdlcy9tYXAvZ21fbWFuYV9sYXllcl9zbXNnLnByb3RvEgRibmV0",
-            "Gh9tZXNzYWdlcy9tYXAvd2VhdGhlcl9zbXNnLnByb3RvIuoBCg9HbU1hbmFM",
+            "Gh9tZXNzYWdlcy9tYXAvd2VhdGhlcl9zbXNnLnByb3RvIv4BCg9HbU1hbmFM",
             "YXllclNNU0cSEwoLd2VzdF9tZXRyZXMYASABKAESFAoMc291dGhfbWV0cmVz",
             "GAIgASgBEhMKC2NlbGxfbWV0cmVzGAMgASgCEg0KBXdpZHRoGAQgASgNEg8K",
             "B2RlbnNpdHkYBSADKAISHAoEdGllchgGIAMoDjIOLmJuZXQuTWFuYVRpZXIS",
             "EAoIcHJvdmluY2UYByADKBESIwoJcHJvdmluY2VzGAggAygLMhAuYm5ldC5H",
             "bVByb3ZpbmNlEiIKBmV2ZW50cxgJIAMoCzISLmJuZXQuR21Xb3JsZEV2ZW50",
-            "ImMKCkdtUHJvdmluY2USDQoFaW5kZXgYASABKAUSDAoEbmFtZRgCIAEoCRIO",
-            "CgZidWRnZXQYAyABKAISFQoNcXVpZXRfc2Vjb25kcxgEIAEoDRIRCglzYW5j",
-            "dHVhcnkYBSABKAgicgoMR21Xb3JsZEV2ZW50EhMKC2luc3RhbmNlX2lkGAEg",
-            "ASgDEhAKCGV2ZW50X2lkGAIgASgJEhMKC2Vhc3RfbWV0cmVzGAMgASgBEhQK",
-            "DG5vcnRoX21ldHJlcxgEIAEoARIQCghwcm92aW5jZRgFIAEoBUItChVuZXQu",
-            "YmVzdGlhLmJuZXQucHJvdG9CFEdtTWFuYUxheWVyU21zZ1Byb3RvYgZwcm90",
-            "bzM="));
+            "EhIKCmNvcnJ1cHRpb24YCiADKAIiYwoKR21Qcm92aW5jZRINCgVpbmRleBgB",
+            "IAEoBRIMCgRuYW1lGAIgASgJEg4KBmJ1ZGdldBgDIAEoAhIVCg1xdWlldF9z",
+            "ZWNvbmRzGAQgASgNEhEKCXNhbmN0dWFyeRgFIAEoCCJyCgxHbVdvcmxkRXZl",
+            "bnQSEwoLaW5zdGFuY2VfaWQYASABKAMSEAoIZXZlbnRfaWQYAiABKAkSEwoL",
+            "ZWFzdF9tZXRyZXMYAyABKAESFAoMbm9ydGhfbWV0cmVzGAQgASgBEhAKCHBy",
+            "b3ZpbmNlGAUgASgFQi0KFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IUR21NYW5h",
+            "TGF5ZXJTbXNnUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.WeatherSmsgReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GmManaLayerSMSG), global::Bnet.GmManaLayerSMSG.Parser, new[]{ "WestMetres", "SouthMetres", "CellMetres", "Width", "Density", "Tier", "Province", "Provinces", "Events" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GmManaLayerSMSG), global::Bnet.GmManaLayerSMSG.Parser, new[]{ "WestMetres", "SouthMetres", "CellMetres", "Width", "Density", "Tier", "Province", "Provinces", "Events", "Corruption" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GmProvince), global::Bnet.GmProvince.Parser, new[]{ "Index", "Name", "Budget", "QuietSeconds", "Sanctuary" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GmWorldEvent), global::Bnet.GmWorldEvent.Parser, new[]{ "InstanceId", "EventId", "EastMetres", "NorthMetres", "Province" }, null, null, null, null)
           }));
@@ -99,6 +99,7 @@ namespace Bnet {
       province_ = other.province_.Clone();
       provinces_ = other.provinces_.Clone();
       events_ = other.events_.Clone();
+      corruption_ = other.corruption_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -220,6 +221,20 @@ namespace Bnet {
       get { return events_; }
     }
 
+    /// <summary>Field number for the "corruption" field.</summary>
+    public const int CorruptionFieldNumber = 10;
+    private static readonly pb::FieldCodec<float> _repeated_corruption_codec
+        = pb::FieldCodec.ForFloat(82);
+    private readonly pbc::RepeatedField<float> corruption_ = new pbc::RepeatedField<float>();
+    /// <summary>
+    /// How corrupted each cell is by the Withering, 0 to 1.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<float> Corruption {
+      get { return corruption_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -244,6 +259,7 @@ namespace Bnet {
       if(!province_.Equals(other.province_)) return false;
       if(!provinces_.Equals(other.provinces_)) return false;
       if(!events_.Equals(other.events_)) return false;
+      if(!corruption_.Equals(other.corruption_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -260,6 +276,7 @@ namespace Bnet {
       hash ^= province_.GetHashCode();
       hash ^= provinces_.GetHashCode();
       hash ^= events_.GetHashCode();
+      hash ^= corruption_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -299,6 +316,7 @@ namespace Bnet {
       province_.WriteTo(output, _repeated_province_codec);
       provinces_.WriteTo(output, _repeated_provinces_codec);
       events_.WriteTo(output, _repeated_events_codec);
+      corruption_.WriteTo(output, _repeated_corruption_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -330,6 +348,7 @@ namespace Bnet {
       province_.WriteTo(ref output, _repeated_province_codec);
       provinces_.WriteTo(ref output, _repeated_provinces_codec);
       events_.WriteTo(ref output, _repeated_events_codec);
+      corruption_.WriteTo(ref output, _repeated_corruption_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -357,6 +376,7 @@ namespace Bnet {
       size += province_.CalculateSize(_repeated_province_codec);
       size += provinces_.CalculateSize(_repeated_provinces_codec);
       size += events_.CalculateSize(_repeated_events_codec);
+      size += corruption_.CalculateSize(_repeated_corruption_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -386,6 +406,7 @@ namespace Bnet {
       province_.Add(other.province_);
       provinces_.Add(other.provinces_);
       events_.Add(other.events_);
+      corruption_.Add(other.corruption_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -444,6 +465,11 @@ namespace Bnet {
             events_.AddEntriesFrom(input, _repeated_events_codec);
             break;
           }
+          case 82:
+          case 85: {
+            corruption_.AddEntriesFrom(input, _repeated_corruption_codec);
+            break;
+          }
         }
       }
     #endif
@@ -500,6 +526,11 @@ namespace Bnet {
           }
           case 74: {
             events_.AddEntriesFrom(ref input, _repeated_events_codec);
+            break;
+          }
+          case 82:
+          case 85: {
+            corruption_.AddEntriesFrom(ref input, _repeated_corruption_codec);
             break;
           }
         }

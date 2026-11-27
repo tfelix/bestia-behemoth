@@ -25,6 +25,8 @@ message GmManaLayerSMSG {
 
   repeated GmProvince provinces = 8;
   repeated GmWorldEvent events = 9;
+  // How corrupted each cell is by the Withering, 0 to 1.
+  repeated float corruption = 10;
 }
 
 // What the director holds for one province on the grid.
