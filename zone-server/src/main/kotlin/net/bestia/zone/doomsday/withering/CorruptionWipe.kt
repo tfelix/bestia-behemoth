@@ -2,6 +2,7 @@ package net.bestia.zone.doomsday.withering
 
 import net.bestia.zone.doomsday.persistence.StoredCorruptionCrystalRepository
 import net.bestia.zone.doomsday.persistence.StoredCorruptionTileRepository
+import net.bestia.zone.doomsday.persistence.StoredWardedCellRepository
 import net.bestia.zone.doomsday.persistence.StoredWitheredCellRepository
 import net.bestia.zone.world.WorldScopedData
 import org.springframework.stereotype.Component
@@ -13,11 +14,13 @@ class CorruptionWipe(
   private val tiles: StoredCorruptionTileRepository,
   private val crystals: StoredCorruptionCrystalRepository,
   private val withered: StoredWitheredCellRepository,
+  private val wards: StoredWardedCellRepository,
 ) : WorldScopedData {
 
   override fun wipe() {
     field.clear()
     withered.deleteAll()
+    wards.deleteAll()
     tiles.deleteAll()
     crystals.deleteAll()
   }

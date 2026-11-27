@@ -12,7 +12,6 @@ import net.bestia.zone.doomsday.persistence.StoredCorruptionCrystal
 import net.bestia.zone.doomsday.persistence.StoredCorruptionCrystalRepository
 import net.bestia.zone.place.ecs.ProvinceService
 import net.bestia.zone.world.WorldService
-import net.bestia.zone.world.mana.ManaField
 import net.bestia.zone.worldevent.EventGround
 import org.springframework.stereotype.Component
 import kotlin.math.cos
@@ -34,7 +33,8 @@ import kotlin.random.Random
 @Component
 class WitheringThreat(
   private val config: WitheringConfig,
-  private val field: CorruptionField,
+  private val spread: CorruptionSpread,
+  private val wards: WitheringWards,
   private val journal: CorruptionJournal,
   private val rows: StoredCorruptionCrystalRepository,
   private val crystals: CorruptionCrystals,
@@ -74,14 +74,14 @@ class WitheringThreat(
       return 0.0
     }
 
-    val standing = rows.findAll().toMutableList()
+    val standing = rows.findAll().filterNot { it.bloom }.toMutableList()
     val target = targetCrystals(fate.progress)
     sprout(fate, standing, target, realSeconds)
     containment = (1.0 - standing.size.toDouble() / target).coerceIn(0.0, 1.0)
 
-    spread(standing, realSeconds / SECONDS_PER_DAY)
+    spread.corrupt(standing.map { Vec2d(it.x, it.y) }, realSeconds / SECONDS_PER_DAY, wards.wardedNow(), heal = true)
     blight.killPlants()
-    crystals.keep(standing, levelAt(fate.progress))
+    crystals.keep(rows.findAll(), levelAt(fate.progress))
     journal.flush()
     return 0.0
   }
@@ -108,34 +108,6 @@ class WitheringThreat(
       }
     }
     return null
-  }
-
-  /** Corruption rises under every crystal, strongest at its foot, and heals where none stands any more. */
-  private fun spread(standing: List<StoredCorruptionCrystal>, days: Double) {
-    synchronized(field) {
-      val reached = HashMap<ManaField.Cell, Double>()
-      for (crystal in standing) {
-        cellsWithin(crystal.x, crystal.y, config.crystalReachMetres).forEach { cell ->
-          val nearness = 1.0 - hypot(cell.centreX - crystal.x, cell.centreY - crystal.y) / config.crystalReachMetres
-          reached.merge(cell, nearness, ::maxOf)
-        }
-      }
-
-      reached.forEach { (cell, nearness) -> field.change(cell, config.corruptPerDay * days * nearness) }
-      field.corrupted()
-        .filter { (cell, _) -> cell !in reached }
-        .forEach { (cell, _) -> field.change(cell, -config.healPerDay * days) }
-      field.dropHealed()
-    }
-  }
-
-  private fun cellsWithin(x: Double, y: Double, radius: Double): List<ManaField.Cell> {
-    val reach = (radius / ManaField.CELL_METRES).toInt() + 1
-    val centreX = ManaField.cellOf(x)
-    val centreY = ManaField.cellOf(y)
-    return (centreY - reach..centreY + reach).flatMap { cy ->
-      (centreX - reach..centreX + reach).map { cx -> ManaField.Cell(cx, cy) }
-    }.filter { hypot(it.centreX - x, it.centreY - y) <= radius }
   }
 
   private fun targetCrystals(progress: Double): Int {
