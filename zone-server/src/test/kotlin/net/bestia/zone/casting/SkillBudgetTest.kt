@@ -73,6 +73,18 @@ class SkillBudgetTest {
     assertTrue(ex.message!!.contains("10ms"), "the message should name the deadline: ${ex.message}")
   }
 
+  @Test
+  fun `a cast whose thread is held up without working is not stopped`() {
+    // A sleep stands in for a GC pause or a busy machine: the thread waits, but the script does no work.
+    val budget = SkillBudget(maxOps = 1_000, maxQueryResults = 1_000, maxMillis = 10)
+
+    budget.charge()
+    Thread.sleep(30)
+
+    budget.charge()
+    assertEquals(998, budget.remainingOps)
+  }
+
   private fun budget(maxOps: Int, maxQueryResults: Int = 1_000) =
     SkillBudget(maxOps = maxOps, maxQueryResults = maxQueryResults, maxMillis = 60_000)
 }
