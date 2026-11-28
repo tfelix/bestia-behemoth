@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://cabh7yua8bb6t"]
+[gd_scene load_steps=3 format=3 uid="uid://cabh7yua8bb6t"]
 
 [ext_resource type="Script" uid="uid://bjwh2mwvksb8b" path="res://Game/UI/Chat/chat.gd" id="1_bvrp1"]
+[ext_resource type="Script" path="res://Game/UI/Chat/bestia_log.gd" id="2_blog"]
 
 [node name="Chat" type="VBoxContainer"]
 anchors_preset = 2
@@ -13,8 +14,23 @@ offset_bottom = -14.0
 grow_vertical = 0
 script = ExtResource("1_bvrp1")
 
-[node name="PanelContainer" type="PanelContainer" parent="."]
+[node name="Tabs" type="TabBar" parent="."]
+unique_name_in_owner = true
 layout_mode = 2
+current_tab = 0
+tab_count = 2
+tab_0/title = "CHAT_TAB_CHAT"
+tab_1/title = "CHAT_TAB_BESTIAS"
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="BestiaLog" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+script = ExtResource("2_blog")
 
 [node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
 layout_mode = 2

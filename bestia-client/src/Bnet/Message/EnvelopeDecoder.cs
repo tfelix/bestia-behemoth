@@ -22,6 +22,7 @@ namespace BestiaBehemothClient.Bnet.Message
       [Envelope.MessageOneofCase.BestiaActivity] = e => Master.BestiaActivitySMSG.FromProto(e.BestiaActivity),
       [Envelope.MessageOneofCase.BestiaNews] = e => Master.BestiaNewsSMSG.FromProto(e.BestiaNews),
       [Envelope.MessageOneofCase.AwayReport] = e => Master.AwayReportSMSG.FromProto(e.AwayReport),
+      [Envelope.MessageOneofCase.BestiaDiary] = e => Master.BestiaDiarySMSG.FromProto(e.BestiaDiary),
       [Envelope.MessageOneofCase.ActiveEntity] = e => Master.ActiveEntitySMSG.FromProto(e.ActiveEntity),
       [Envelope.MessageOneofCase.SkillCooldown] = e => Entity.SkillCooldownSMSG.FromProto(e.SkillCooldown),
       [Envelope.MessageOneofCase.JourneyEnded] = e => Entity.JourneyEndedSMSG.FromProto(e.JourneyEnded),

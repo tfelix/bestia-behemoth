@@ -27,6 +27,9 @@ const _SLOT_BAR_WIDTH := 4.0
 const _HP_BAR_HEIGHT := 4.0
 ## Small enough that the master and four bestia rows end above the chat.
 const _FONT_SIZE := 13
+const _STATUS_FONT_SIZE := 11
+## Doing one of these, a bestia is back at work, and a problem it had is over.
+const _WORKING_KINDS: Array[String] = ["GATHERING", "CRAFTING", "MINING", "HAULING", "GUARDING"]
 
 const _EXCHANGE_ICON := preload("res://Theme/Icons/arrows-exchange.svg")
 const _ORDERS_ICON := preload("res://Theme/Icons/flag.svg")
@@ -39,6 +42,8 @@ var _rows: Dictionary = {}
 ## Kept across a rebuild, which a newly caught bestia causes while the others stand where they stood.
 var _exchange_partners: Array[int] = []
 var _since_refresh := 0.0
+## Party rows by player bestia id, which the news names a bestia by.
+var _entity_of_player_bestia: Dictionary = {}
 
 
 func _ready() -> void:
@@ -50,6 +55,8 @@ func _ready() -> void:
 
 	entity_manager.owned_bestias_changed.connect(_on_owned_bestias_changed)
 	entity_manager.controlled_entity_changed.connect(_on_controlled_entity_changed)
+	ConnectionManager.bestia_activity_received.connect(_on_bestia_activity)
+	ConnectionManager.bestia_news_received.connect(_on_bestia_news)
 	_rebuild()
 
 
@@ -81,6 +88,50 @@ func _on_controlled_entity_changed(_previous_id: int, _entity_id: int) -> void:
 	_highlight()
 
 
+## What the bestia is doing, under its HP bar, so the master sees it without opening anything.
+func _add_status_line(bestia: BestiaInfo, row: HBoxContainer) -> void:
+	var status := Label.new()
+	status.add_theme_font_size_override("font_size", _STATUS_FONT_SIZE)
+	status.clip_text = true
+	status.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	status.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.get_child(1).add_child(status)
+
+	_rows[bestia.EntityId]["status"] = status
+	_rows[bestia.EntityId]["alert"] = false
+	_entity_of_player_bestia[bestia.PlayerBestiaId] = bestia.EntityId
+	_show_activity(bestia.EntityId, bestia.Activity)
+
+
+func _on_bestia_activity(message: BestiaActivitySMSG) -> void:
+	_show_activity(message.EntityId, message.Activity)
+
+
+## A problem marks the row with "!" until the bestia is back at work.
+func _on_bestia_news(message: BestiaNewsSMSG) -> void:
+	var entity_id: int = _entity_of_player_bestia.get(message.PlayerBestiaId, 0)
+	if not _rows.has(entity_id) or not BestiaWords.is_problem(message.Kind):
+		return
+	_rows[entity_id]["alert"] = true
+	_rows[entity_id]["status"].text = "! " + BestiaWords.news_line(message)
+	_rows[entity_id]["status"].modulate = UiStyle.DANGER
+
+
+func _show_activity(entity_id: int, activity: BestiaActivityInfo) -> void:
+	if not _rows.has(entity_id) or not _rows[entity_id].has("status"):
+		return
+	var row: Dictionary = _rows[entity_id]
+	var paused := activity != null and not activity.Pause.is_empty()
+	if activity != null and activity.Kind in _WORKING_KINDS and not paused:
+		row["alert"] = false
+	if row["alert"] and not paused:
+		return
+
+	var line := BestiaWords.activity_line(activity)
+	row["status"].text = ("! " + line) if paused else line
+	row["status"].modulate = UiStyle.DANGER if paused else UiStyle.MUTED
+
+
 ## Empty slots show from the start, so a new player learns there is room for bestia before they catch one.
 func _rebuild() -> void:
 	# Removed before freed, so the old rows do not take up layout space for one more frame.
@@ -88,6 +139,7 @@ func _rebuild() -> void:
 		remove_child(child)
 		child.queue_free()
 	_rows.clear()
+	_entity_of_player_bestia.clear()
 
 	var entity_manager := EntityManager.get_instance()
 	if entity_manager.get_owned_master_entity_id() == 0:
@@ -106,6 +158,7 @@ func _rebuild() -> void:
 		var label := "%s  Lv. %d" % [OwnedSlots.title_of(bestia), bestia.Level]
 		var row := _add_owned_row(bestia.EntityId, label, OwnedSlots.name_of(bestia), OwnedSlots.color_of(i + 1))
 		row.add_child(_make_orders_button(bestia, OwnedSlots.color_of(i + 1)))
+		_add_status_line(bestia, row)
 		var slot_button: Button = _rows[bestia.EntityId]["button"]
 		slot_button.tooltip_text = tr("BESTIA_PARTY_ROW_HINT")
 		slot_button.gui_input.connect(_on_bestia_row_input.bind(bestia))

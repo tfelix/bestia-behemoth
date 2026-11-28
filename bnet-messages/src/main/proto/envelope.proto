@@ -74,6 +74,8 @@ import "messages/master/owned_bestias_smsg.proto";
 import "messages/master/bestia_activity_smsg.proto";
 import "messages/master/bestia_news_smsg.proto";
 import "messages/master/away_report_smsg.proto";
+import "messages/master/get_bestia_diary_cmsg.proto";
+import "messages/master/bestia_diary_smsg.proto";
 import "messages/compendium/request_compendium_cmsg.proto";
 import "messages/compendium/compendium_smsg.proto";
 import "messages/master/active_entity_smsg.proto";
@@ -338,6 +340,8 @@ message Envelope {
     BestiaActivitySMSG bestia_activity = 427;
     BestiaNewsSMSG bestia_news = 428;
     AwayReportSMSG away_report = 429;
+    GetBestiaDiaryCMSG get_bestia_diary = 430;
+    BestiaDiarySMSG bestia_diary = 431;
 
     // ENTITY & COMPONENTS 500
     SelectActiveEntity select_active_entity = 500;
