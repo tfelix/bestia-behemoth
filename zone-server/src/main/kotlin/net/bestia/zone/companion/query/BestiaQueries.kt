@@ -4,6 +4,7 @@ import net.bestia.bus.contract.ZoneAnswer
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.master.bestia.SpeciesJobs
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.movement.ecs.Speed
 import net.bestia.zone.travel.Journey
@@ -72,6 +73,7 @@ class BestiaQueries(
           presetId = row.orderPresetId,
           ownOverrides = OrdersOnTheBus.numbersOf(row.ownOverrides),
           activity = row.entityId?.let { doing[it] },
+          allowedJobs = SpeciesJobs.allowedFor(row.bestia).filter { it.isBuilt }.map { it.name },
         )
       }
     )

@@ -26,6 +26,7 @@
 		changed,
 		draftOf,
 		fallbacksFor,
+		mayTake,
 		newRule,
 		ordersOf,
 		ruleOf,
@@ -245,7 +246,8 @@
 								class:chosen={draft.job === job}
 								role="radio"
 								aria-checked={draft.job === job}
-								disabled={!!following}
+								disabled={!!following || !mayTake(b.allowedJobs, job)}
+								title={mayTake(b.allowedJobs, job) ? undefined : 'This species cannot do this job.'}
 								onclick={() => (draft.job = job)}>{JOB_TEXT[job].name}</button
 							>
 						{/each}
@@ -277,7 +279,7 @@
 								<span class="label">When there is nothing to do</span>
 								<select bind:value={draft.fallbackJob}>
 									<option value={null}>Rest</option>
-									{#each fallbacksFor(draft.job) as job (job)}<option value={job}>{JOB_TEXT[job].name}</option>{/each}
+									{#each fallbacksFor(draft.job) as job (job)}<option value={job} disabled={!mayTake(b.allowedJobs, job)}>{JOB_TEXT[job].name}</option>{/each}
 								</select>
 							</label>
 						{/if}

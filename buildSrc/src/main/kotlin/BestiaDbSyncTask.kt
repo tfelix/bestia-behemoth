@@ -94,6 +94,8 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     val description: String? = null,
     /** The AI profile's identifier. None spawns without AI, which never attacks first. */
     val ai: String? = null,
+    /** The jobs an owned bestia of this species may take, so the orders window can grey out the rest. */
+    val jobs: List<String> = emptyList(),
     /** SMALL, MEDIUM or BIG; a mob that names none is MEDIUM on the server too. */
     val size: String = "MEDIUM",
     /** Body weight in kilograms. Absent (0) means the default [bodyWeightKg] derives. */
@@ -183,6 +185,7 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     "armor_types" to armorTypeMaskOf(mob).toString(),
     "non_combatant" to mob.nonCombatant.toString(),
     "habitat" to quoted(mob.habitat.joinToString(",") { it.uppercase() }),
+    "jobs" to quoted(mob.jobs.joinToString(",") { it.uppercase() }),
     "in_compendium" to mob.compendium.toString(),
     "temperament" to quoted(profileOf(mob, profiles)?.temperament ?: PASSIVE),
     "activity_cycle" to quoted((profileOf(mob, profiles)?.activityCycle ?: CATHEMERAL).uppercase()),

@@ -5,7 +5,7 @@ class_name BestiaResource
 ##
 ## Generated/kept in sync from zone-server's mob YMLs by './gradlew syncBestiaDb', which owns [member
 ## bestia_id], the two text keys, [member kind], [member equip_slots], [member armor_types], [member
-## non_combatant], [member habitat], [member in_compendium], [member temperament], [member activity_cycle], [member level_min], [member
+## non_combatant], [member habitat], [member jobs], [member in_compendium], [member temperament], [member activity_cycle], [member level_min], [member
 ## level_max], [member size], [member weight_kg], [member loot_item_ids], [member loot_chances] and the four
 ## [code]essence_*[/code] fields. The English text behind the keys is synced
 ## into Localization/bestias.csv, where it is translated. Anything else here is pure presentation with no
@@ -65,6 +65,10 @@ enum PlaceholderShape { SPHERE, CAPSULE, BOX, CYLINDER, PRISM, TORUS }
 ## land. Read it through [method get_habitat].
 @export var habitat: String = ""
 
+## The jobs an owned bestia of this species may take, comma-separated as the mob YAML names them. Read it through
+## [method get_jobs].
+@export var jobs: String = ""
+
 ## False for species the Bestia Compendium leaves out, such as townsfolk.
 @export var in_compendium: bool = true
 
@@ -117,6 +121,12 @@ func get_portrait() -> Texture2D:
 
 func get_habitat() -> PackedStringArray:
 	return habitat.split(",", false)
+
+
+## A species whose mob YAML names no jobs may still rest and follow, as on the server.
+func get_jobs() -> PackedStringArray:
+	var named := jobs.split(",", false)
+	return named if not named.is_empty() else PackedStringArray(["REST", "FOLLOW"])
 
 
 ## True for a species that attacks on sight rather than only when it is hit.

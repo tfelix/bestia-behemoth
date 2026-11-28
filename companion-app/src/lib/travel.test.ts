@@ -20,6 +20,7 @@ function bestia(changes: Partial<Bestia>): Bestia {
 		overrides: {},
 		rules: [],
 		ownOverrides: {},
+		allowedJobs: [],
 		...changes
 	};
 }
