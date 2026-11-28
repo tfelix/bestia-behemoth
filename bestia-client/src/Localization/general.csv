@@ -276,6 +276,99 @@ ORDERS_PRESET,Preset
 ORDERS_OWN,Own orders
 ORDERS_PRESET_ITEM,%s (followed by %d)
 ORDERS_FOLLOWING_HINT,"Follows the preset. Change the preset to change these orders; only the Fine-tune numbers you tick are its own."
+CHAT_TAB_CHAT,Chat
+CHAT_TAB_BESTIAS,Bestias
+BESTIA_LOG_EMPTY,No news from your Bestias yet.
+AWAY_REPORT_TITLE,While you were away (since %s)
+AWAY_REPORT_DISMISS,Hide
+BESTIA_LOG_ALL,All Bestias
+WEEKDAY_SUN,Sun
+WEEKDAY_MON,Mon
+WEEKDAY_TUE,Tue
+WEEKDAY_WED,Wed
+WEEKDAY_THU,Thu
+WEEKDAY_FRI,Fri
+WEEKDAY_SAT,Sat
+CHAT_TAB_BESTIAS_UNREAD,Bestias (%d)
+BESTIA_PAUSED,Paused: %s
+BESTIA_PAUSE_WORKER_AWAY,the worker is away
+BESTIA_PAUSE_WORKER_OFFLINE,the worker is not in the world
+BESTIA_PAUSE_BAG_FULL,bag full
+BESTIA_PAUSE_STATION_OUT,the fire is out
+BESTIA_PAUSE_CANNOT_CRAFT,cannot make the next one
+BESTIA_PAUSE_NO_FREE_CRAFTER,waiting for a free crafter
+BESTIA_DOING_CRAFTING,Crafting
+BESTIA_DOING_MINING,Mining
+BESTIA_DOING_GATHERING,Gathering
+BESTIA_DOING_HAULING,Carrying its bag to the chest
+BESTIA_DOING_FETCHING_FOOD,Fetching food from the chest
+BESTIA_DOING_EATING,Eating
+BESTIA_DOING_HEALING,Tending its wounds
+BESTIA_DOING_FIGHTING,Fighting
+BESTIA_DOING_RETREATING,Retreating home
+BESTIA_DOING_RESTING_AT_HOME,Resting at home
+BESTIA_DOING_SLEEPING,Sleeping
+BESTIA_DOING_GUARDING,Guarding its area
+BESTIA_DOING_IDLE,Idle
+BESTIA_AT,at %s
+BESTIA_THE_CHEST,the chest
+BESTIA_THE,the %s
+BESTIA_ITS_CHEST,its chest
+BESTIA_MORE,more
+BESTIA_AND,and
+BESTIA_AN_HOUR,an hour
+BESTIA_HOURS,%d hours
+BESTIA_MINUTES,%d minutes
+BESTIA_AT_TIME,at %s
+BESTIA_NEWS_HAULED,Brought %s to %s
+BESTIA_NEWS_WORK_PAUSED,Stopped working: %s
+BESTIA_NEWS_QUEUE_FINISHED,Finished the queue at the %s
+BESTIA_NEWS_NEW_ORDERS,Got new orders: %s
+BESTIA_NEWS_FALLBACK_STARTED,Turned to its other job: %s
+BESTIA_NEWS_ATTACKED,Is under attack
+BESTIA_NEWS_RETREATED,Retreated home
+BESTIA_NEWS_DIED,Was killed
+BESTIA_NEWS_LOST,Was killed and is lost for good
+BESTIA_NEWS_OUT_OF_FOOD,Ran out of food and waits at home
+BESTIA_NEWS_LOW_FOOD,Has food for about two more hours of work
+BESTIA_NEWS_FIELD_EMPTY,Found nothing more to gather
+BESTIA_NEWS_EVENT_SENSED,Felt something stir near the outpost
+BESTIA_STOPPED_STATION_OUT,its fire went out
+BESTIA_STOPPED_CANNOT_CRAFT,it could not make the next one
+BESTIA_STOPPED_CHEST_FULL,the chest is full
+BESTIA_STOPPED_NO_ORE,there is no ore left in reach
+BESTIA_REPORT_SPENT,%s %s.
+BESTIA_DID_WORKING,worked for %s
+BESTIA_DID_RESTING,rested for %s
+BESTIA_DID_IDLE,had nothing to do for %s
+BESTIA_DID_PAUSED,waited for you for %s
+BESTIA_DID_FIGHTING,fought for %s
+BESTIA_DID_SHELTERING,took shelter for %s
+BESTIA_DID_TRAVELLING,travelled for %s
+BESTIA_REPORT_BROUGHT,It brought %s to %s.
+BESTIA_REPORT_MADE_ONE,It finished the queue at the %s.
+BESTIA_REPORT_MADE,It finished %d queues at the %s.
+BESTIA_REPORT_ATTACKED,It was attacked %s.
+BESTIA_REPORT_ATTACKED_TWICE,"It was attacked twice, first %s."
+BESTIA_REPORT_ATTACKED_TIMES,"It was attacked %d times, first %s."
+BESTIA_REPORT_RETREATED,It retreated home %s.
+BESTIA_REPORT_OUT_OF_FOOD,It ran out of food %s.
+BESTIA_REPORT_LOW_FOOD,It ran low on food %s.
+BESTIA_REPORT_WORK_PAUSED,"It stopped working %s, because %s."
+BESTIA_REPORT_FIELD_EMPTY,It found nothing more to gather %s.
+BESTIA_REPORT_FALLBACK_STARTED,"It turned to its other job, %s, %s."
+BESTIA_REPORT_DIED,It was killed %s.
+BESTIA_REPORT_LOST,It was killed and lost for good %s.
+BESTIA_REPORT_NOW_DEAD,It lies where it fell.
+BESTIA_REPORT_NOW_AWAY,It is not in the world now.
+BESTIA_REPORT_NOW,It is %s now.
+BESTIA_REPORT_TO_GO_ON,To go on: %s.
+BESTIA_HINT_EMPTY_CHEST,make room in %s
+BESTIA_HINT_BUILD_SHAFT,build a new mining shaft in its area
+BESTIA_HINT_FEED_FIRE,put fuel in the fire
+BESTIA_HINT_ADD_INGREDIENTS,put what the next item needs in the chest by its station
+BESTIA_HINT_BRING_FOOD,put food in %s
+BESTIA_HINT_REVIVE,go to it and bring it back to life
 ORDERS_JOB,Job
 ORDERS_JOB_NOT_FOR_SPECIES,This species cannot do this job.
 ORDERS_JOB_0,None

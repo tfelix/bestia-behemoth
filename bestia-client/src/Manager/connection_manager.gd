@@ -18,6 +18,7 @@ signal bestia_activity_received(message: BestiaActivitySMSG)
 signal bestia_news_received(message: BestiaNewsSMSG)
 ## What each owned bestia did since the master last logged out. Once, right after login.
 signal away_report_received(message: AwayReportSMSG)
+signal bestia_diary_received(message: BestiaDiarySMSG)
 ## The server confirmed which entity the player now controls.
 signal active_entity_received(message: ActiveEntitySMSG)
 ## One of the player's own entities ended a journey, arrived or not.
@@ -256,6 +257,7 @@ var TakeEggCMSG = load("res://Bnet/Message/Breeding/TakeEggCMSG.cs")
 var PlaceEggCMSG = load("res://Bnet/Message/Breeding/PlaceEggCMSG.cs")
 var InspectEggCMSG = load("res://Bnet/Message/Breeding/InspectEggCMSG.cs")
 var GetBestiaOrdersCMSG = load("res://Bnet/Message/Master/GetBestiaOrdersCMSG.cs")
+var GetBestiaDiaryCMSG = load("res://Bnet/Message/Master/GetBestiaDiaryCMSG.cs")
 var RenameBestiaCMSG = load("res://Bnet/Message/Master/RenameBestiaCMSG.cs")
 var SetBestiaAiConfigCMSG = load("res://Bnet/Message/Master/SetBestiaAiConfigCMSG.cs")
 var GetOrderBookCMSG = load("res://Bnet/Message/Master/GetOrderBookCMSG.cs")
@@ -362,6 +364,9 @@ var rtt_ms: int = -1
 var _ping_sent_at_ms: int = -1
 
 var selected_master_info: MasterInfo = null
+## The last report of what the owned bestias did while the master was away. Kept, because it arrives with the login
+## and may come before the window that shows it exists.
+var last_away_report: AwayReportSMSG = null
 ## From the first SelfSMSG; 0 before it. A loot claim names the accounts that may pick a drop up.
 var account_id: int = 0
 
@@ -1750,6 +1755,11 @@ func rename_bestia(entity_id: int, bestia_name: String) -> void:
 	_socket.SendMessage(msg)
 
 
+func get_bestia_diary() -> void:
+	assert(is_ready_to_send())
+	_socket.SendMessage(GetBestiaDiaryCMSG.new())
+
+
 func get_bestia_orders(player_bestia_id: int) -> void:
 	assert(is_ready_to_send())
 	var msg = GetBestiaOrdersCMSG.new()
@@ -1904,7 +1914,10 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 	elif message is BestiaNewsSMSG:
 		bestia_news_received.emit(message)
 	elif message is AwayReportSMSG:
+		last_away_report = message
 		away_report_received.emit(message)
+	elif message is BestiaDiarySMSG:
+		bestia_diary_received.emit(message)
 	elif message is ActiveEntitySMSG:
 		active_entity_received.emit(message)
 	elif message is JourneyEndedSMSG:

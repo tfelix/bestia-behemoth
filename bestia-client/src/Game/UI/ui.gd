@@ -53,6 +53,7 @@ const _CHART_ENABLING_ITEM_IDS := [21]
 
 const _LETTER_ICON := preload("res://Theme/Icons/mail.svg")
 const _QUEST_ICON := preload("res://Theme/Icons/check.svg")
+const _BESTIA_PROBLEM_ICON := preload("res://Theme/Icons/alert-triangle.svg")
 
 ## Said once when the map server stops accepting this session. Worded here rather than in [MapSource] for the
 ## reason the chat refusals are worded in [code]chat.gd[/code]: the code that detects a thing should not be
@@ -223,6 +224,7 @@ func _ready() -> void:
 	_quest_tracker.inventory = quest_log.inventory
 	_quest_tracker.quest_log = quest_log
 	ConnectionManager.parcel_arrived.connect(_on_parcel_arrived)
+	ConnectionManager.bestia_news_received.connect(_on_bestia_news)
 	ConnectionManager.sense_marks_received.connect(_on_sense_marks)
 	ConnectionManager.gm_mana_layer_received.connect(_minimap.set_gm_mana_layer)
 	ConnectionManager.gm_mana_layer_received.connect(_map_overlay.set_gm_mana_layer)
@@ -748,3 +750,14 @@ func _on_master_profile_status_win_toggled() -> void:
 		var status_content := _status_win.get_content() as StatusPoints
 		if status_content:
 			status_content.request_refresh()
+
+
+## Only news that asks the master to act shows on screen; the rest waits in the chat's Bestias tab.
+func _on_bestia_news(message: BestiaNewsSMSG) -> void:
+	if not BestiaWords.is_problem(message.Kind):
+		return
+	var bestia := EntityManager.get_instance().get_owned_bestias().filter(
+		func(owned: BestiaInfo) -> bool: return owned.PlayerBestiaId == message.PlayerBestiaId
+	)
+	var who: String = OwnedSlots.name_of(bestia[0]) if not bestia.is_empty() else ""
+	_obtained_items.show_notice(_BESTIA_PROBLEM_ICON, "%s: %s" % [who, BestiaWords.news_line(message)])

@@ -11,6 +11,9 @@ signal item_hover_ended()
 @onready var scroll_container: ScrollContainer = %Scroll
 @onready var chat_mode_option: OptionButton = %ChatMode
 @onready var user_whisper_input: LineEdit = %UserWhisper
+@onready var _tabs: TabBar = %Tabs
+@onready var _chat_panel: PanelContainer = %PanelContainer
+@onready var _bestia_log: PanelContainer = %BestiaLog
 
 @export_range(0, 150, 1) var max_chat_lines: int = 100
 @export var max_chat_history: int = 10
@@ -63,6 +66,19 @@ func _ready() -> void:
 	ConnectionManager.operation_success.connect(_on_operation_success)
 	ConnectionManager.bestia_capture_received.connect(_on_bestia_capture)
 	ConnectionManager.journey_ended.connect(_on_journey_ended)
+	_tabs.tab_changed.connect(_show_tab)
+	_bestia_log.unread_changed.connect(_show_unread)
+
+
+## The Bestias tab shows the bestia log in place of the chat lines; typing goes on in either.
+func _show_tab(tab: int) -> void:
+	_chat_panel.visible = tab == 0
+	_bestia_log.visible = tab == 1
+
+
+## While the Bestias tab is not shown, its title counts what came in, so the master sees there is news.
+func _show_unread(count: int) -> void:
+	_tabs.set_tab_title(1, tr("CHAT_TAB_BESTIAS_UNREAD") % count if count > 0 else tr("CHAT_TAB_BESTIAS"))
 
 
 func _input(event):
