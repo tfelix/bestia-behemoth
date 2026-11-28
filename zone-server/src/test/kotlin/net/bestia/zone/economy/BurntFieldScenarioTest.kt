@@ -17,7 +17,9 @@ import net.bestia.zone.world.WorldGenConfig
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.ground.fire.Scar
 import net.bestia.zone.ground.fire.ScorchRegistry
+import net.bestia.zone.ground.ColumnKey
 import net.bestia.zone.ground.ColumnMask
+import net.bestia.zone.prop.FelledWoods
 import net.bestia.zone.prop.WorldObjectDivergenceRegistry
 import net.bestia.zone.world.settlement.SettlementSite
 import net.bestia.zone.world.settlement.SettlementSiteIndex
@@ -42,6 +44,8 @@ import net.bestia.zone.economy.persistence.SettlementLedgerRepository
  * kilometres of ground, so what "burn the field" means is burning a real part of it. That is the
  * honest answer and it is worth a test of its own, because the alternative - tuning the sweep until a
  * single fire is dramatic - would make a farm's whole output hang on a patch the size of a room.
+ *
+ * Felling the woods is the same sentence with planks in it.
  */
 class BurntFieldScenarioTest {
 
@@ -53,9 +57,12 @@ class BurntFieldScenarioTest {
   private val worldService = mockk<WorldService>()
   private val settings = mockk<WorldGenConfig>()
   private val clock = mockk<BestiaClock>()
+  private val felled = mockk<FelledWoods>()
+  private val commodityItems = mockk<CommodityItems>()
 
   private var now = START
   private var scars = emptyMap<Long, Scar>()
+  private var felledTrees = emptyMap<Long, Double>()
 
   private val asyncJobExecutor = mockk<AsyncJobExecutor>().also {
     every { it.submit(any(), any()) } answers { secondArg<() -> Unit>().invoke() }
@@ -64,7 +71,8 @@ class BurntFieldScenarioTest {
   private var damage = newDamage()
   private var service = newService()
 
-  private fun newDamage() = SettlementDamage(sites, scorch, divergence, catalogue, worldService, settings)
+  private fun newDamage() =
+    SettlementDamage(sites, scorch, divergence, felled, catalogue, commodityItems, worldService, settings)
 
   private fun newService() = SettlementEconomyService(
     catalogue = catalogue,
@@ -83,6 +91,7 @@ class BurntFieldScenarioTest {
   private fun startOver() {
     now = START
     scars = emptyMap()
+    felledTrees = emptyMap()
     damage = newDamage()
     service = newService()
   }
@@ -97,6 +106,11 @@ class BurntFieldScenarioTest {
     every { clock.now() } answers { now }
     every { scorch.scarredKeys() } answers { scars.keys.toList() }
     every { scorch.scarOf(any()) } answers { scars[firstArg()] }
+    every { felled.felledColumns() } answers { felledTrees.keys.toList() }
+    every { felled.felledIn(any()) } answers { felledTrees[firstArg()] ?: 0.0 }
+    every { felled.regrowthDays() } returns REGROWTH_DAYS
+    every { felled.yieldPerTree(LOG_ITEM) } returns LOGS_PER_TREE
+    every { commodityItems.itemIdOf("log") } returns LOG_ITEM
     every { divergence.of(any()) } returns null
     every { repository.findAll() } returns emptyList()
     every { repository.save(any()) } answers { firstArg() }
@@ -195,6 +209,53 @@ class BurntFieldScenarioTest {
     assertTrue(breadPrice() <= before + 1, "a single campfire moved the price of bread")
   }
 
+  @Test
+  fun `fell the woods, come back a day later, and the planks cost more`() {
+    val before = priceOf("plank")
+
+    fell(share = 0.5)
+    advanceDays(1)
+
+    assertTrue(priceOf("plank") > before, "the woods are felled and a plank still costs $before")
+  }
+
+  @Test
+  fun `and the bread does not care`() {
+    val before = breadPrice()
+
+    fell(share = 1.0)
+    advanceDays(1)
+
+    assertTrue(breadPrice() <= before, "felling the woods made bread dearer")
+  }
+
+  @Test
+  fun `once the woods have grown back the price comes back down`() {
+    fell(share = 0.5)
+    advanceDays(30)
+    val short = priceOf("plank")
+
+    felledTrees = emptyMap()
+    damage.invalidate()
+    advanceDays(60)
+
+    assertTrue(priceOf("plank") < short, "the woods grew back and a plank is still at $short")
+  }
+
+  @Test
+  fun `one tree for a workbench is not a clear-cut`() {
+    val before = priceOf("plank")
+
+    fell(trees = 1.0)
+    advanceDays(2)
+
+    assertTrue(priceOf("plank") <= before * 1.02, "felling one tree moved the price of planks")
+  }
+
+  private fun priceOf(commodity: String): Double {
+    return assertNotNull(service.marketOf(VILLAGE)).priceOf(commodity)
+  }
+
   private fun breadPrice(): Double {
     return assertNotNull(service.marketOf(VILLAGE)).priceOf("bread")
   }
@@ -246,6 +307,21 @@ class BurntFieldScenarioTest {
     damage.invalidate()
   }
 
+  /** Fells trees in the column next to the village centre, so that the claim-weighted count is exactly [trees]. */
+  private fun fell(share: Double = 0.0, trees: Double = workedTrees() * share) {
+    val radius = Catchment.radiusOf(SettlementTier.VILLAGE, WorldParams().economy)
+    val distance = Math.hypot(CHUNK * 0.5, CHUNK * 0.5)
+
+    felledTrees = mapOf(ColumnKey.of(0, 0) to trees / Catchment.weightAt(distance, radius))
+    damage.invalidate()
+  }
+
+  private fun workedTrees(): Double {
+    val reference = SettlementReference.of(catalogue, VILLAGE, POPULATION.toInt(), wealth = 0.4, traffic = 1.5)
+
+    return minOf(WOODLAND_TREES, reference.throughput.getValue("log") / LOGS_PER_TREE * REGROWTH_DAYS)
+  }
+
   private fun farmedSquareMetres(): Double {
     val radius = Catchment.radiusOf(SettlementTier.VILLAGE, WorldParams().economy)
 
@@ -268,6 +344,7 @@ class BurntFieldScenarioTest {
       traffic = 1.5,
       foodCapacity = FOOD_CAPACITY,
       cerealShare = CEREAL_SHARE,
+      woodlandTrees = WOODLAND_TREES,
     ),
     unordered = listOf(
       building(100L, "miller", BuildingFunction.CRAFT),
@@ -300,6 +377,10 @@ class BurntFieldScenarioTest {
     const val POPULATION = 300.0
     const val FOOD_CAPACITY = 3_000.0
     const val CEREAL_SHARE = 0.4
+    const val WOODLAND_TREES = 50_000.0
+    const val REGROWTH_DAYS = 63.0
+    const val LOGS_PER_TREE = 4.0
+    const val LOG_ITEM = 59L
 
     val WORLD = PersistedWorld(
       name = "test",
