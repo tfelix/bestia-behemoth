@@ -131,16 +131,17 @@ class CompanionRequestDispatcherTest {
       assertEquals(AiConfig(BestiaJob.GUARD, Courage.BOLD), playerBestias.findByIdOrNull(bestia.id)!!.aiConfig)
 
       val tuned = ZoneQuery.SetOrders(
-        master.id, bestia.id, "GATHER", "STEADY", fallbackJob = "CRAFT",
+        master.id, bestia.id, "GATHER", "STEADY", fallbackJob = "GUARD",
         overrides = OrderNumbers(haulAtLoadPct = 60, areaRadius = 500),
       )
       ask(1L, tuned)
       assertEquals(
-        AiConfig(BestiaJob.GATHER, Courage.STEADY, BestiaJob.CRAFT, OrderOverrides(haulAtLoadPct = 60, areaRadius = 64)),
+        AiConfig(BestiaJob.GATHER, Courage.STEADY, BestiaJob.GUARD, OrderOverrides(haulAtLoadPct = 60, areaRadius = 64)),
         playerBestias.findByIdOrNull(bestia.id)!!.aiConfig,
         "a fallback and clamped numbers survive the database",
       )
       assertEquals(Status.INVALID, ask(1L, tuned.copy(job = "GUARD")).status, "a guard takes no fallback")
+      assertEquals(Status.INVALID, ask(1L, tuned.copy(fallbackJob = "CRAFT")).status, "a blob has no hands to craft with")
 
       ask(1L, tuned.copy(rules = listOf(OrderRuleLine("NIGHT", null, "REST_AT_HOME"))))
       assertEquals(

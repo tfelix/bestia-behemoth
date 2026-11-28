@@ -13,6 +13,7 @@ essence: { group: WEAPON, effect: ELEMENT_HUNTER, target: FIRE }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
+jobs: [GUARD, FOLLOW, REST]
 attack-power: 1.02
 weight: 250
 health: 1718

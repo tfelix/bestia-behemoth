@@ -13,6 +13,7 @@ essence: { group: ACCESSORY, effect: ATTRIBUTE_PAIR, target: STR_VIT }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
+jobs: [GUARD, FOLLOW, REST]
 attack-power: 1.05
 weight: 60
 health: 918

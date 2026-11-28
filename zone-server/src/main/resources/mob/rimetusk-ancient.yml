@@ -13,6 +13,7 @@ essence: { group: ARMOR, effect: BOSS, target: FROZEN_AGES }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
+jobs: [GUARD, GATHER, MINE, TRANSPORT, FOLLOW, REST]
 attack-power: 1.25
 weight: 500
 health: 79659

@@ -14,6 +14,7 @@ essence: { group: GARMENT, effect: WHISPER }
 default-attack: RANGED
 aspd: 80
 ai: aggressive_melee
+jobs: [GUARD, GATHER, FOLLOW, REST]
 attack-power: 1
 weight: 60
 health: 440

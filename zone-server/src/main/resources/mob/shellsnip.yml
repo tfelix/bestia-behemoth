@@ -14,6 +14,7 @@ essence: { group: ARMOR, effect: COATED }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
+jobs: [GUARD, GATHER, FOLLOW, REST]
 attack-power: 1.16
 weight: 15
 health: 190

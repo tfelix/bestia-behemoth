@@ -14,6 +14,7 @@ essence: { group: SHIELD, effect: WARD, target: HUMANOID }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
+jobs: [GUARD, GATHER, CRAFT, MINE, BUILD, TRANSPORT, FOLLOW, REST]
 attack-power: 1.1
 weight: 60
 health: 4545

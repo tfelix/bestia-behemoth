@@ -14,6 +14,7 @@ essence: { group: ACCESSORY, effect: REFLEX, target: flame_coat }
 default-attack: RANGED
 aspd: 80
 ai: passive_wanderer
+jobs: [GUARD, GATHER, FOLLOW, REST]
 attack-power: 0.63
 weight: 15
 health: 169

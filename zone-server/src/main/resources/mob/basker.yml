@@ -14,6 +14,7 @@ essence: { group: ARMOR, effect: ELEMENT_BODY, target: FIRE }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
+jobs: [GUARD, GATHER, TRANSPORT, FOLLOW, REST]
 attack-power: 1
 weight: 60
 health: 493

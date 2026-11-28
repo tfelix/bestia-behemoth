@@ -13,6 +13,7 @@ essence: { group: ACCESSORY, effect: QUICK_HANDS }
 default-attack: RANGED
 aspd: 80
 ai: aggressive_melee
+jobs: [GUARD, GATHER, FOLLOW, REST]
 attack-power: 0.87
 weight: 15
 health: 212

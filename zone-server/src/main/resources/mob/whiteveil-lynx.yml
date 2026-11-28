@@ -12,6 +12,7 @@ size: MEDIUM
 default-attack: MELEE
 aspd: 70
 ai: aggressive_melee
+jobs: [GUARD, GATHER, TRANSPORT, FOLLOW, REST]
 attack-power: 1.1
 weight: 90
 health: 8400

@@ -14,6 +14,7 @@ essence: { group: ACCESSORY, effect: LEARNED_TRICK, target: benediction }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
+jobs: [GATHER, TRANSPORT, FOLLOW, REST]
 attack-power: 1
 weight: 250
 health: 1668

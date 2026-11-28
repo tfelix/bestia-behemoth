@@ -12,6 +12,7 @@ size: BIG
 default-attack: RANGED
 aspd: 85
 ai: aggressive_melee
+jobs: [GUARD, GATHER, FOLLOW, REST]
 attack-power: 1.0
 weight: 40
 health: 6200

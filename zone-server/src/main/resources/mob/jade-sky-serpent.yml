@@ -13,6 +13,7 @@ essence: { group: GARMENT, effect: BOSS, target: CLOUD_VEIL }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
+jobs: [GUARD, GATHER, FOLLOW, REST]
 attack-power: 0.04
 weight: 500
 health: 112342

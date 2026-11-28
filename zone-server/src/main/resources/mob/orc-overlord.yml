@@ -13,6 +13,7 @@ essence: { group: ARMOR, effect: BOSS, target: TROPHY_PLATE }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
+jobs: [GUARD, GATHER, CRAFT, MINE, BUILD, TRANSPORT, FOLLOW, REST]
 attack-power: 2.35
 weight: 500
 health: 86344

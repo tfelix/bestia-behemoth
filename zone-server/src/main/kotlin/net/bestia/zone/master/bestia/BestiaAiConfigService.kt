@@ -1,5 +1,6 @@
 package net.bestia.zone.master.bestia
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.bestia.diary.BestiaHappened
 import net.bestia.zone.crafting.station.StationWorkers
 import net.bestia.zone.account.persistence.OrderPreset
@@ -41,7 +42,8 @@ class BestiaAiConfigService(
 
   /**
    * Gives a bestia [orders] of its own, or links it to the preset [presetId] with the numbers of [orders] as its own.
-   * Null when the bestia does not exist, or the preset or a place it names is not its master's.
+   * Null when the bestia does not exist, the preset or a place it names is not its master's, or its species cannot
+   * take the job. Both clients grey out such a job, so the last only comes from a stale or a forged request.
    */
   @Transactional
   fun apply(playerBestiaId: PlayerBestiaId, orders: AiConfig, presetId: Long? = null): StoredOrders? {
@@ -50,11 +52,13 @@ class BestiaAiConfigService(
     val own = orders.overrides.clamped()
 
     if (presetId == null) {
+      if (!fitsSpecies(playerBestia, orders)) return null
       playerBestia.orderPresetId = null
       playerBestia.ownOverrides = OrderOverrides()
       playerBestia.aiConfig = orders.copy(overrides = own)
     } else {
       val preset = presets.findByIdAndMasterId(presetId, playerBestia.master.id) ?: return null
+      if (!fitsSpecies(playerBestia, preset.orders)) return null
       follow(playerBestia, preset, own)
     }
 
@@ -66,11 +70,18 @@ class BestiaAiConfigService(
     return playerBestias.findByIdOrNull(playerBestiaId)?.let(StoredOrders::of)
   }
 
-  /** Gives every bestia that follows [preset] its orders again, each keeping its own numbers. */
+  /**
+   * Gives every bestia that follows [preset] its orders again, each keeping its own numbers. One whose species cannot
+   * take the preset's new job leaves the preset and keeps the orders it had, as its own.
+   */
   @Transactional
   fun reapply(preset: OrderPreset) {
     playerBestias.findAllByOrderPresetId(preset.id).forEach { playerBestia ->
-      follow(playerBestia, preset, playerBestia.ownOverrides)
+      if (SpeciesJobs.fits(playerBestia.bestia, preset.orders)) {
+        follow(playerBestia, preset, playerBestia.ownOverrides)
+      } else {
+        unlink(playerBestia)
+      }
       store(playerBestia)
     }
   }
@@ -79,10 +90,23 @@ class BestiaAiConfigService(
   @Transactional
   fun unlinkAll(presetId: Long) {
     playerBestias.findAllByOrderPresetId(presetId).forEach { playerBestia ->
-      playerBestia.orderPresetId = null
-      playerBestia.ownOverrides = OrderOverrides()
+      unlink(playerBestia)
       store(playerBestia)
     }
+  }
+
+  private fun unlink(playerBestia: PlayerBestia) {
+    playerBestia.orderPresetId = null
+    playerBestia.ownOverrides = OrderOverrides()
+  }
+
+  private fun fitsSpecies(playerBestia: PlayerBestia, orders: AiConfig): Boolean {
+    val fits = SpeciesJobs.fits(playerBestia.bestia, orders)
+    if (!fits) {
+      LOG.warn { "Bestia ${playerBestia.id} (${playerBestia.bestia.identifier}) cannot take ${orders.job}/${orders.fallbackJob}" }
+    }
+
+    return fits
   }
 
   private fun follow(playerBestia: PlayerBestia, preset: OrderPreset, own: OrderOverrides) {
@@ -114,9 +138,14 @@ class BestiaAiConfigService(
 
     world.modify(entityId) { id ->
       val home = get(id, Position::class)?.toVec3L() ?: return@modify
-      add(id, aiAgentFactory.create(profile, species.defaultAttack, species.aspd, homePosition = home, config = config))
+      val orders = SpeciesJobs.fitted(species, config)
+      add(id, aiAgentFactory.create(profile, species.defaultAttack, species.aspd, homePosition = home, config = orders))
       // A bestia at work keeps working: its home stays the station.
       stationWorkers.resume(this, id)
     }
+  }
+
+  private companion object {
+    val LOG = KotlinLogging.logger { }
   }
 }

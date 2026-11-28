@@ -13,6 +13,7 @@ essence: { group: WEAPON, effect: ELEMENT_HUNTER, target: EARTH }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
+jobs: [GUARD, MINE, FOLLOW, REST]
 attack-power: 0.76
 weight: 250
 health: 1886

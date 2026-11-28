@@ -14,6 +14,7 @@ essence: { group: ACCESSORY, effect: QUIET_STEP }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
+jobs: [GATHER, FOLLOW, REST]
 attack-power: 1
 weight: 15
 health: 89

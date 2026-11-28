@@ -135,6 +135,14 @@ class Bestia(
   @Column(name = "habitat", nullable = false)
   var habitat: String = "",
 
+  /**
+   * The jobs an owned bestia of this species may take under orders, as comma-separated `BestiaJob` names, or empty
+   * when the mob YML names none. See `SpeciesJobs`, which reads it.
+   */
+  @Column(name = "jobs", nullable = false)
+  @ColumnDefault("''")
+  var jobs: String = "",
+
   /** True when this species may only be placed by a den standing on corrupted ground. */
   @Column(name = "corrupted_only", nullable = false)
   var corruptedOnly: Boolean = false,

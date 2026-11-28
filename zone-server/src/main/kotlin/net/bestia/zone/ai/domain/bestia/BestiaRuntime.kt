@@ -135,7 +135,7 @@ class BestiaRuntime(
     BestiaJob.CRAFT -> BestiaDomain.CRAFT_AREA
     BestiaJob.MINE -> BestiaDomain.MINE_AREA
     BestiaJob.GUARD -> BestiaDomain.GUARD_AREA
-    BestiaJob.REST -> null
+    BestiaJob.REST, BestiaJob.BUILD, BestiaJob.TRANSPORT, BestiaJob.FOLLOW -> null
   }
 
   override val mainJobIdle = Precondition(BestiaDomain::mainJobIdle)

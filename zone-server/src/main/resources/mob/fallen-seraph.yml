@@ -13,6 +13,7 @@ essence: { group: HEADGEAR, effect: WISDOM }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
+jobs: [GUARD, GATHER, CRAFT, BUILD, FOLLOW, REST]
 attack-power: 0.04
 weight: 250
 health: 11176

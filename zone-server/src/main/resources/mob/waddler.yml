@@ -14,6 +14,7 @@ essence: { group: SHIELD, effect: WARD, target: BIRD }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
+jobs: [GUARD, GATHER, TRANSPORT, FOLLOW, REST]
 attack-power: 1
 weight: 60
 health: 271

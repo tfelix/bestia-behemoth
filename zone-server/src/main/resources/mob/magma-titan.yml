@@ -13,6 +13,7 @@ essence: { group: SHIELD, effect: BOSS, target: FRESH_VENT }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
+jobs: [GUARD, MINE, FOLLOW, REST]
 attack-power: 1.4
 weight: 500
 health: 84256

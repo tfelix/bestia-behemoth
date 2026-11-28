@@ -8,6 +8,7 @@ import net.bestia.bus.contract.ZoneQuery
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
 import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.master.bestia.BestiaAiConfigService
+import net.bestia.zone.master.bestia.SpeciesJobs
 import net.bestia.zone.message.AccountTaskExecutor
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -49,6 +50,10 @@ class OrdersCommand(
     val playerBestia = playerBestias.findByIdOrNull(query.playerBestiaId)
     if (playerBestia == null || playerBestia.master.id != query.masterId) {
       return BusReply.of(correlationId, Status.NOT_FOUND)
+    }
+
+    if (query.presetId == null && !SpeciesJobs.fits(playerBestia.bestia, orders)) {
+      return BusReply.of(correlationId, Status.INVALID, "the species cannot take this job")
     }
 
     val stored = aiConfigs.apply(query.playerBestiaId, orders, query.presetId)

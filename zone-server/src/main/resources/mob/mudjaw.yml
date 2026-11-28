@@ -13,6 +13,7 @@ essence: { group: TOOL, effect: TOUGH_GRIP }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
+jobs: [GUARD, GATHER, MINE, TRANSPORT, FOLLOW, REST]
 attack-power: 1
 weight: 250
 health: 837

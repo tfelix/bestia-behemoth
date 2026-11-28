@@ -13,6 +13,7 @@ essence: { group: SHIELD, effect: ARROW_WARD }
 default-attack: RANGED
 aspd: 80
 ai: aggressive_melee
+jobs: [GUARD, FOLLOW, REST]
 attack-power: 1
 weight: 15
 health: 404

@@ -13,6 +13,7 @@ essence: { group: ARMOR, effect: ELEMENT_BODY, target: UNDEAD }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
+jobs: [GUARD, GATHER, CRAFT, MINE, BUILD, TRANSPORT, FOLLOW, REST]
 attack-power: 1.2
 weight: 60
 health: 879

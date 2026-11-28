@@ -13,6 +13,7 @@ essence: { group: SHIELD, effect: BOSS, target: TIDEWALL }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
+jobs: [GUARD, FOLLOW, REST]
 attack-power: 1.62
 weight: 500
 health: 128880

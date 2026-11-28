@@ -12,6 +12,7 @@ size: SMALL
 essence: { group: ACCESSORY, effect: TAMER }
 # Statuswerte
 ai: passive_wanderer
+jobs: [GUARD, GATHER, FOLLOW, REST]
 health: 10
 mana: 8
 experience: 5

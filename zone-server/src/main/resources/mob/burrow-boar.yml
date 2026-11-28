@@ -14,6 +14,7 @@ essence: { group: WEAPON, effect: BANE, target: BEAST }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
+jobs: [GUARD, GATHER, MINE, TRANSPORT, FOLLOW, REST]
 attack-power: 0.68
 weight: 60
 health: 220
