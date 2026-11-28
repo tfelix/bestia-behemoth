@@ -12,7 +12,7 @@ enum class GoalActivity(val state: BestiaState, private vararg val goals: String
   FETCHING_FOOD(BestiaState.RESTING, "RestockFood"),
   EATING(BestiaState.RESTING, "EatFromBag", "EatVegetation"),
   HEALING(BestiaState.RESTING, "HealFromBag"),
-  FIGHTING(BestiaState.FIGHTING, "KillAttacker", "KillEnemy"),
+  FIGHTING(BestiaState.FIGHTING, "KillAttacker", "KillEnemy", "HelpAlly"),
   RETREATING(BestiaState.SHELTERING, "Retreat"),
   RESTING_AT_HOME(BestiaState.RESTING, "RestAtHome"),
   SLEEPING(BestiaState.RESTING, "Sleep");

@@ -26,6 +26,8 @@ import net.bestia.zone.ecs.core.TickBuckets
 import net.bestia.zone.ecs.core.System as EcsSystem
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.identity.ecs.Master
+import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.world.time.BestiaClock
 import net.bestia.zone.world.time.BestiaDateTime
 import net.bestia.zone.geometry.Vec3L
@@ -123,11 +125,17 @@ class PerceptionSystem(
       // aggro key existed but was never set by anything.
       // A taunt outranks both: a provoked creature fights the one who provoked it.
       val taunter = world.get(id, Taunted::class)?.byEntityId?.takeIf { world.isAlive(it) }
-      val target = taunter ?: attacker ?: nearestHostile
+      val allyAttacker = if (taunter == null && attacker == null && memory.get(BestiaDomain.HELPS_ALLIES) == true) {
+        allyAttacker(world, id, selfPos, sightRadius, profile.perception.aggroMemoryMs)
+      } else {
+        null
+      }
+      val target = taunter ?: attacker ?: allyAttacker ?: nearestHostile
 
       // A provoked creature fights back even if it was never hit and its kind never picks a fight.
       memory.set(CommonKeys.IS_AGGRO, attacker != null || taunter != null)
       memory.set(CommonKeys.ENEMY_IN_SIGHT, target != null)
+      memory.set(BestiaDomain.ALLY_ATTACKED, allyAttacker != null)
 
       if (target != null) {
         val targetPos = world.get(target, Position::class)?.toVec3L() ?: selfPos
@@ -219,6 +227,37 @@ class PerceptionSystem(
     world.get(self, TakenDamage::class)
       ?.mostRecentAttacker(aggroMemoryMs)
       ?.takeIf { world.isAlive(it) && !isOutOfReach(world, self, it) }
+
+  /**
+   * The nearest of those hurting this owned bestia's master or its master's other bestias in sight. The fight is in
+   * sight, so the attacker may stand as far again: an archer shooting at its master is not out of the fight.
+   */
+  private fun allyAttacker(world: World, self: Long, selfPos: Vec3L, sightRadius: Int, aggroMemoryMs: Long): Long? {
+    val masterId = world.get(self, OwnedBestia::class)?.masterId ?: return null
+    val reach = sightRadius * 2L
+    var nearest: Long? = null
+    var nearestDistance = Long.MAX_VALUE
+
+    aoiService.forEachInCube(selfPos, sightRadius * 2L, AoiLayer.DYNAMIC_ONLY) { ally, _, _, _ ->
+      if (ally == self || !isOnSideOf(world, masterId, ally)) return@forEachInCube
+      val attacker = world.get(ally, TakenDamage::class)?.mostRecentAttacker(aggroMemoryMs) ?: return@forEachInCube
+      if (!world.isAlive(attacker) || isOnSideOf(world, masterId, attacker) || isOutOfReach(world, self, attacker)) {
+        return@forEachInCube
+      }
+
+      val distance = world.get(attacker, Position::class)?.toVec3L()?.distance(selfPos) ?: return@forEachInCube
+      if (distance <= reach && distance < nearestDistance) {
+        nearest = attacker
+        nearestDistance = distance
+      }
+    }
+
+    return nearest
+  }
+
+  private fun isOnSideOf(world: World, masterId: Long, id: Long): Boolean {
+    return world.get(id, Master::class)?.masterId == masterId || world.get(id, OwnedBestia::class)?.masterId == masterId
+  }
 
   /**
    * A player bestia defending its owner sees every master as hostile. Inside a ward it could hurt none of them, and

@@ -5,6 +5,7 @@ import net.bestia.zone.ai.profile.BestiaJob
 import net.bestia.zone.bestia.diary.BestiaHappened.Kind
 import net.bestia.zone.bestia.diary.BestiaState
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.travel.Journey
 import net.bestia.zone.travel.JourneyOrder
@@ -13,7 +14,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-/** What an owned bestia's master reads about a fight: the start of it, and a retreat. */
+/** What an owned bestia's master reads about a fight: the start of it, joining one, and a retreat. */
 class OwnedBestiaNewsTest {
 
   private lateinit var ai: AiPipelineFixture
@@ -54,6 +55,21 @@ class OwnedBestiaNewsTest {
     }
 
     assertEquals(listOf(Kind.ATTACKED), kinds().filter { it == Kind.ATTACKED })
+  }
+
+  @Test
+  fun `joining the master's fight is told once`() {
+    owned()
+    val master = ai.spawnPlayer(Vec3L(3, 0, 0))
+    ai.world.getOrThrow(master, Master::class).masterId = 7L
+    val foe = ai.spawnMob("passive_wanderer", Vec3L(5, 0, 0))
+
+    repeat(3) {
+      ai.recordHit(master, foe)
+      live(seconds = 2)
+    }
+
+    assertEquals(1, kinds().count { it == Kind.HELPED })
   }
 
   @Test

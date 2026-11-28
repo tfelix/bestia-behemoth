@@ -33,6 +33,9 @@ class BestiaHappened(
     /** Hit after a quiet while. */
     ATTACKED,
     RETREATED,
+
+    /** Joined a fight its master or another of its master's bestias was in, after a quiet while. */
+    HELPED,
     DIED,
 
     /** Overkilled: it is gone for good. */

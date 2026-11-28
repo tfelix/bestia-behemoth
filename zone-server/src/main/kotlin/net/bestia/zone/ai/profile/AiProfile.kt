@@ -41,7 +41,8 @@ data class AiProfile(
    * The fallback job adds only what the main job lacks, and those goals wait until the main job runs out of work.
    */
   fun underOrders(orders: AiConfig): AiProfile {
-    val main = goalsOf(orders.job) + AiConfig.SELF_CARE_GOALS.map { GoalTuning(it, basePriority = null) }
+    val ownedBestiaGoals = AiConfig.SELF_CARE_GOALS + AiConfig.HELP_ALLY_GOAL
+    val main = goalsOf(orders.job) + ownedBestiaGoals.map { GoalTuning(it, basePriority = null) }
     val fallback = orders.fallbackJob?.let(::goalsOf).orEmpty()
       .filter { candidate -> main.none { it.name == candidate.name } }
       .map { it.copy(onlyWhenMainJobIdle = true) }

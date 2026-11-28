@@ -62,6 +62,10 @@ data class AiConfig(
   @Convert(converter = GatherFilterConverter::class)
   @Column(name = "gather_filter", length = 400)
   val gatherFilter: GatherFilter = GatherFilter(),
+
+  /** Keeps out of fights its master and its master's other bestias are in: for one too frail to help. */
+  @Column(name = "stays_out_of_fights", nullable = false, columnDefinition = "boolean default false")
+  val staysOutOfFights: Boolean = false,
 ) {
 
   /**
@@ -87,6 +91,12 @@ data class AiConfig(
 
     /** The actions that carry [SELF_CARE_GOALS]. */
     val SELF_CARE_ACTIONS = listOf("healFromBag", "eatFromBag", "retreatHome")
+
+    /**
+     * Joining a fight its master or another of its master's bestias is in, whatever its job. Courage and
+     * [staysOutOfFights] decide whether it does; see `BestiaDomain.Goals.HELP_ALLY`.
+     */
+    const val HELP_ALLY_GOAL = "HelpAlly"
   }
 }
 
