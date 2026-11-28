@@ -14,6 +14,7 @@ import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.battle.ecs.status.Mana
+import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.battle.status.StatusEffectId
@@ -268,7 +269,11 @@ class BardSongScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
 
   private fun cast(identifier: String) {
     val skillId = skillId(identifier)
-    world.modify(bard()) { id -> get(id, Mana::class)!!.apply { max = MANA; current = MANA } }
+    world.modify(bard()) { id ->
+      get(id, Mana::class)!!.apply { max = MANA; current = MANA }
+      // A song costs stamina, and rest no longer brings it back: a bard below 30% slows down. This one has eaten.
+      get(id, Stamina::class)!!.apply { current = max }
+    }
     client.sendMessage(ActivateSkillCMSG(accountId, skillId, SKILLS.toMap().getValue(identifier), positionOf(bard()), bard()))
   }
 
