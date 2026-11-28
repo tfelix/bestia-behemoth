@@ -72,6 +72,10 @@ world:
   undeclared-access: fail
   logout-protection-seconds: 1.5
 
+# The scenario masters are low level; the level gate has its own unit test.
+faction:
+  min-swear-level: 1
+
 # Every Spring context in the suite would otherwise bind the same port; PrometheusEndpointTest starts its own.
 metrics:
   port: -1

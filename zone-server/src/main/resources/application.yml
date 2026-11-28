@@ -87,6 +87,10 @@ guild:
 
 # Guild Strongholds stand on Empyrite Seeds the world generator placed. Awake seeds:
 # max(min-awake-seeds, approved guilds / guilds-per-seed, rounded up). Awake seeds never sleep again.
+faction:
+  # A master below this level cannot swear to an Order.
+  min-swear-level: 40
+
 stronghold:
   min-awake-seeds: 4
   guilds-per-seed: 25
