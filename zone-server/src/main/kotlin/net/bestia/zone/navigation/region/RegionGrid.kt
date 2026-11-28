@@ -80,6 +80,15 @@ class RegionGrid(private val water: WaterSource) {
     return surveyAround(x, y).isWet(x, y)
   }
 
+  /** Which water [position] stands in; null on dry land or where the source cannot tell. Generated water only. */
+  fun waterKindAt(position: Vec3L): WaterKind? {
+    if (!water.isReady) return null
+
+    val x = position.x + 0.5
+    val y = position.y + 0.5
+    return surveyAround(x, y).kindAt(x, y)
+  }
+
   private fun surveyAround(x: Double, y: Double): WaterSurvey {
     return water.survey(Aabb(x - 1.0, y - 1.0, x + 1.0, y + 1.0), exact = true)
   }

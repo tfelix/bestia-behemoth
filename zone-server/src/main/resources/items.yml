@@ -2562,6 +2562,7 @@ items:
     weight: 1200
     type: ETC
     material: FOOD
+    craft-axes: { STATE: 0.3, INTEGRITY: 0.5, HEFT: 0.8, EDGE: 0.7, VITALITY: 0.6, COMPLEXITY: 0.3 }
     description: A fast fish with a long, flat bill. It fights the line like a duelist.
 
   - id: 187
@@ -2598,6 +2599,7 @@ items:
     weight: 60
     type: ETC
     material: CLOTH
+    craft-axes: { STATE: 0.6, INTEGRITY: 0.2, HEFT: 0.1, EDGE: -0.6, VITALITY: -0.4 }
     description: |
       A soaked, rotten boot, missing its partner. Every angler catches one sooner or later.
 
@@ -2607,6 +2609,7 @@ items:
     weight: 50
     type: ETC
     material: WOOD
+    craft-axes: { STATE: 0.8, INTEGRITY: 0.1, HEFT: 0.2, EDGE: -0.3, VITALITY: -0.2 }
     description: A grey piece of wood, washed smooth by the water. It burns well once it dries.
 
   - id: 192
@@ -2615,6 +2618,7 @@ items:
     weight: 70
     type: ETC
     material: CLOTH
+    craft-axes: { STATE: 0.5, INTEGRITY: -0.5, HEFT: -0.2, EDGE: -0.4, COMPLEXITY: 0.4 }
     description: |
       A sodden fishing net, knotted beyond use. The cord can still be picked apart.
 
@@ -2622,9 +2626,13 @@ items:
     item-db-name: sealed_bottle
     base-level: 18
     weight: 30
-    type: ETC
+    type: USABLE
     material: GLASS
-    description: A bottle with a wax seal and a rolled paper inside. Collectors pay well for one unopened.
+    script: SealedBottleScript
+    description: |
+      A bottle with a wax seal and a rolled paper inside. Collectors pay well for one unopened.
+
+      Opened, the paper is mostly a map to treasure buried somewhere near. The bottle is kept for the alchemist.
   # What the Sage's spells burn. The GM item command is their only source until crafting can make them.
   - id: 194
     item-db-name: yellow_mana_crystal
@@ -13545,3 +13553,269 @@ items:
       A feast of legends: behemoth rib, phoenix egg and ambrosia. They will sing of the cook.
 
       Satisfied for 60 min: +50% stamina regeneration, +10 to every attribute, HP and mana keep regenerating in combat.
+
+  # Fishing, second catch: the waters' own fish, bait and the rarest haul. Where each bites is `fishing.yml`.
+  - id: 776
+    item-db-name: glimmerfin_minnow
+    base-level: 3
+    weight: 5
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: 0.1, HEFT: -0.4, EDGE: 0.3, VITALITY: 0.5, COMPLEXITY: 0.1 }
+    description: |
+      A finger-long fish whose scales catch the sun like spilled coins. Rivers and ponds are full of them by day.
+
+      Fried by the handful, or hooked whole as bait for something hungrier.
+
+  - id: 777
+    item-db-name: mudgill_loach
+    base-level: 6
+    weight: 15
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: 0.3, HEFT: 0.1, EDGE: -0.2, VITALITY: 0.4, COMPLEXITY: 0.1 }
+    description: |
+      A whiskered, slippery loach that lives in pond mud and bog water and tastes of both.
+
+      Too oily to eat with pleasure, which makes it just right for pressing into fish oil.
+
+  - id: 778
+    item-db-name: tidecrawler_prawn
+    base-level: 12
+    weight: 10
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: 0.2, INTEGRITY: 0.2, EDGE: 0.3, VITALITY: 0.5, COMPLEXITY: 0.2 }
+    description: |
+      A glassy prawn that walks the sea floor on tiptoe and snaps at anything that glitters.
+
+      Sweet in a broth, where it takes the place of salt.
+
+  - id: 779
+    item-db-name: thornback_puffer
+    base-level: 20
+    weight: 25
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: 0.1, INTEGRITY: 0.3, EDGE: 0.6, VITALITY: -0.7, COMPLEXITY: 0.4 }
+    description: |
+      A sea fish that swells into a ball of spines when hooked. Its liver holds enough venom to fell a horse.
+
+      Nobody cooks it twice. An alchemist draws its venom off as a toxin.
+
+  - id: 780
+    item-db-name: stormscale_herring
+    base-level: 28
+    weight: 20
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: 0.2, HEFT: 0.1, EDGE: 0.1, VITALITY: 0.6, COMPLEXITY: 0.1 }
+    description: |
+      A silver-blue herring of the open sea. Its shoals rise to the surface when rain beats on the water.
+
+      Fat enough to press for oil, and good in a seal-blubber stew.
+
+  - id: 781
+    item-db-name: frostjaw_char
+    base-level: 36
+    weight: 45
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: 0.4, INTEGRITY: 0.3, HEFT: 0.2, EDGE: 0.3, VITALITY: 0.5, COMPLEXITY: 0.2 }
+    description: |
+      A char with a pale blue jaw, fished from lakes and rivers in the cold north. It bites best in falling snow.
+
+      Its flesh stays cool long after the catch; cooks set it in aspic, alchemists in cooling draughts.
+
+  - id: 782
+    item-db-name: mirelurk_catfish
+    base-level: 46
+    weight: 70
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: 0.3, HEFT: 0.5, EDGE: -0.1, VITALITY: 0.6, COMPLEXITY: 0.2 }
+    description: |
+      A heavy, black catfish of swamp and bog water that rises from the murk after dark.
+
+      The heart of a proper gumbo.
+
+  - id: 783
+    item-db-name: emberfin_koi
+    base-level: 52
+    weight: 40
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: 0.2, INTEGRITY: 0.2, EDGE: 0.4, VITALITY: 0.6, COMPLEXITY: 0.5 }
+    description: |
+      A red-gold koi that swims in the hot pools of volcanic ground. Its fins glow like coals.
+
+      It keeps its warmth after the catch, which a flambé and a thawing tonic both put to use.
+
+  - id: 784
+    item-db-name: inkhorn_squid
+    base-level: 60
+    weight: 55
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: -0.7, INTEGRITY: 0.1, HEFT: 0.2, EDGE: 0.5, VITALITY: 0.3, COMPLEXITY: 0.8 }
+    description: |
+      A squid with a curled horn on its mantle that hunts the sea at night and clouds the water black when hooked.
+
+      Its ink sac fills a pot of writing ink; the rest is calamari.
+
+  - id: 785
+    item-db-name: tempest_ray
+    base-level: 74
+    weight: 90
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: 0.1, INTEGRITY: 0.4, HEFT: 0.3, EDGE: 0.5, VITALITY: 0.6, COMPLEXITY: 0.6 }
+    description: |
+      A broad ray whose wings crackle with stored lightning. It only rises in a thunderstorm, to feed under the strikes.
+
+      Grilled wing is a sailors' legend. An alchemist puts its spark into elixirs of grace.
+
+  - id: 786
+    item-db-name: voidgill_angler
+    base-level: 92
+    weight: 80
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: -0.3, INTEGRITY: 0.3, HEFT: 0.3, EDGE: 0.6, VITALITY: -0.8, COMPLEXITY: 0.9 }
+    description: |
+      An eyeless angler that only lives in water the corruption has reached. Its lure burns with a sickly violet light.
+
+      Poison through and through, and so the one thing that makes a panacea work.
+
+  - id: 787
+    item-db-name: fish_oil
+    base-level: 12
+    weight: 15
+    type: ETC
+    material: GLASS
+    craft-axes: { STATE: -0.9, INTEGRITY: -0.3, HEFT: -0.3, VITALITY: 0.4, COMPLEXITY: 0.2 }
+    description: |
+      A bottle of amber oil pressed from oily fish. It smells exactly like what it is.
+
+      Burns in a lamp, softens a salve and binds chum and lures together.
+
+  - id: 788
+    item-db-name: puffer_toxin
+    base-level: 20
+    weight: 10
+    type: ETC
+    material: GLASS
+    craft-axes: { STATE: -0.8, INTEGRITY: -0.3, HEFT: -0.6, EDGE: 0.4, VITALITY: -0.9, COMPLEXITY: 0.5 }
+    description: |
+      A few clear drops of thornback venom, drawn off and fixed with alchemical salt.
+
+      A little goes a long way: three vials of poison come from one.
+
+  - id: 789
+    item-db-name: earthworm
+    base-level: 1
+    weight: 1
+    type: AMMO
+    ammo-type: BAIT
+    material: PLANT
+    description: |
+      A fat worm dug from the leaf litter. Put it in the quiver beside a rod and it goes on the hook.
+
+      Draws the fish that grub along the bottom.
+
+  - id: 790
+    item-db-name: minnow_bait
+    base-level: 5
+    weight: 2
+    type: AMMO
+    ammo-type: BAIT
+    material: FOOD
+    description: |
+      A glimmerfin minnow threaded on a hook so it still flashes in the water.
+
+      Draws the hunters: pike, salmon, char and swordfish.
+
+  - id: 791
+    item-db-name: chum_ball
+    base-level: 12
+    weight: 3
+    type: AMMO
+    ammo-type: BAIT
+    material: FOOD
+    description: |
+      Mashed loach bound with fish oil. It clouds the water round the hook.
+
+      Shoals come quickly to it, and everything bites sooner.
+
+  - id: 792
+    item-db-name: glowgrub_lure
+    base-level: 55
+    weight: 2
+    type: AMMO
+    ammo-type: BAIT
+    material: PLANT
+    description: |
+      A glowcap soaked in fish oil until it glows on its own.
+
+      Draws the fish of the dark: moonscale, inkhorn squid and the lanternfish of the deep.
+
+  - id: 793
+    item-db-name: glimmerfin_fritters
+    base-level: 5
+    weight: 15
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A handful of minnows fried crisp with onion. Eaten with the fingers.
+
+      Satisfied for 15 min: +10% stamina regeneration, +2 AGI.
+
+  - id: 794
+    item-db-name: inkhorn_calamari
+    base-level: 60
+    weight: 70
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      Rings of inkhorn squid fried in batter and served on rice blackened with their own ink.
+
+      Satisfied for 30 min: +30% stamina regeneration, +8 INT, cast time -5%.
+
+  - id: 795
+    item-db-name: swordfish_steak
+    base-level: 68
+    weight: 85
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A thick swordfish steak seared with peppercorn and sweetroot.
+
+      Satisfied for 45 min: +40% stamina regeneration, +6 STR, +5 CRIT.
+
+  - id: 796
+    item-db-name: stormgrilled_ray_wing
+    base-level: 74
+    weight: 95
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A tempest ray wing grilled over embers until it stops crackling. It still tingles on the tongue.
+
+      Satisfied for 45 min: +40% stamina regeneration, +8 AGI, +5% attack speed.
+
+  - id: 797
+    item-db-name: barnacled_strongbox
+    base-level: 1
+    weight: 120
+    type: USABLE
+    material: METAL
+    stackable: false
+    script: SunkenStrongboxScript
+    description: |
+      An iron box crusted with barnacles, hauled up from the bottom on a line by sheer luck. Something rattles inside.
+
+      What it holds was sealed in when it came up, so a box keeps its contents whoever opens it.

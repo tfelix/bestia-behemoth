@@ -13,6 +13,7 @@ import net.bestia.worldgen.vector.VectorFeature
 import net.bestia.worldgen.voxel.LavaSampler
 import net.bestia.worldgen.voxel.PondWaterSampler
 import net.bestia.worldgen.voxel.RiverWaterSampler
+import net.bestia.zone.navigation.region.WaterKind
 import net.bestia.zone.navigation.region.WaterSource
 import net.bestia.zone.navigation.region.WaterSurvey
 import org.springframework.stereotype.Service
@@ -96,6 +97,33 @@ class GeneratedWaterSource(private val worlds: WorldService) : WaterSource {
         }
       }
 
+      // The surfaces depthAt takes the highest of, kept apart: the one on top names the water.
+      val seaLevel = generated.config.seaLevel
+      val kindAt = { x: Double, y: Double ->
+        val ground = groundAt(x, y)
+        val molten = lava.surfaceAt(x, y)
+        var kind: WaterKind? = null
+        if (molten.isNaN() || molten <= ground) {
+          var top = ground
+          val standing = surface.waterLevelAt(x, y)
+          if (standing > top) {
+            top = standing
+            // A lake keeps its own surface; standing water at sea level is the sea's.
+            kind = if (standing == seaLevel) WaterKind.SEA else WaterKind.LAKE
+          }
+          val flowing = rivers.surfaceAt(x, y)
+          if (!flowing.isNaN() && flowing > top) {
+            top = flowing
+            kind = WaterKind.RIVER
+          }
+          val impounded = ponds.surfaceAt(x, y)
+          if (!impounded.isNaN() && impounded > top) {
+            kind = WaterKind.POND
+          }
+        }
+        kind
+      }
+
       // The grid asks whether a column is deep and then whether it is wet; one depth answers both.
       var lastDepthX = Double.NaN
       var lastDepthY = Double.NaN
@@ -115,6 +143,7 @@ class GeneratedWaterSource(private val worlds: WorldService) : WaterSource {
         groundAt = groundAt,
         roads = roads(features),
         isWet = { x, y -> cachedDepthAt(x, y) > 0.0 },
+        kindAt = kindAt,
       )
     }
 

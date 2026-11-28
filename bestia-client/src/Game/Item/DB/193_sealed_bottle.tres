@@ -9,4 +9,4 @@ name_key = "SEALED_BOTTLE"
 description_key = "SEALED_BOTTLE_DESC"
 weight = 30
 level = 18
-type = 2
+type = 0

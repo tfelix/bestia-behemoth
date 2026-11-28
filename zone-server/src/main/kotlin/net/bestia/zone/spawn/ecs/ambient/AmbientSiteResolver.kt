@@ -83,6 +83,19 @@ class AmbientSiteResolver(
   }
 
   /**
+   * The level band the wild bestias here are drawn from, the one an ambient site at this spot would ask for. A
+   * sunken strongbox fished up here is filled from it.
+   */
+  fun levelsAt(worldX: Double, worldY: Double): IntRange {
+    val state = state
+    val biome = state.surface.biomeAt(worldX, worldY)
+    val danger = dangerAt(state, worldX, worldY, biome)
+    val facts = facts(state, danger, state.surface.corruptionAt(worldX, worldY), biome, worldX, worldY)
+
+    return facts.levelMin..facts.levelMax
+  }
+
+  /**
    * The site this cell offers, or null where the wilderness holds nothing.
    *
    * Not thread-safe and does not need to be: the only caller is [AmbientSpawnerSystem] on the tick thread.

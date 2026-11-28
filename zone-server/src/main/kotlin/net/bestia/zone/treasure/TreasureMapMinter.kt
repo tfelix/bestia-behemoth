@@ -19,18 +19,26 @@ class TreasureMapMinter(
   private val records: TreasureMapRecordRepository,
 ) {
 
-  class Minted(val record: TreasureMapRecord, val item: Item, val blankItemId: Long)
+  /** [blankItemId] is the blank spent on it, null for a map that came without one. */
+  class Minted(val record: TreasureMapRecord, val item: Item, val blankItemId: Long?)
 
-  /** Spends a blank and draws the map onto a new copy, or null when the master holds no blank any more. */
+  /**
+   * Spends a blank and draws the map onto a new copy, or null when the master holds no blank any more. A map that
+   * was found already drawn, rolled up in a sealed bottle, spends none: [spendsBlank] is false for it.
+   */
   @Transactional
-  fun mint(masterId: Long, cacheId: Long, centreX: Double, centreY: Double, radius: Double): Minted? {
-    val blank = itemRepository.findByIdentifier(ChartService.BLANK_IDENTIFIER) ?: return null
+  fun mint(masterId: Long, cacheId: Long, centreX: Double, centreY: Double, radius: Double, spendsBlank: Boolean = true): Minted? {
     val map = itemRepository.findByIdentifier(TREASURE_MAP) ?: return null
-    inventoryService.removeOneFromMaster(masterId, blank.id, 1) ?: return null
+    var blankItemId: Long? = null
+    if (spendsBlank) {
+      val blank = itemRepository.findByIdentifier(ChartService.BLANK_IDENTIFIER) ?: return null
+      inventoryService.removeOneFromMaster(masterId, blank.id, 1) ?: return null
+      blankItemId = blank.id
+    }
 
     val instance = inventoryService.mintInstanceForMaster(masterId, map)
     val record = records.save(TreasureMapRecord(instance.id, cacheId, centreX, centreY, radius))
-    return Minted(record, map, blank.id)
+    return Minted(record, map, blankItemId)
   }
 
   /** Every copy turns into a crumbled map wherever it is held, and its circle is gone. */

@@ -17,6 +17,8 @@ class Fishing(
   val castFrom: Vec3L,
   val rodUniqueId: Long,
   waitSeconds: Float,
+  /** The bait on the hook, spent when the line went out; null for a bare hook. */
+  val baitItemId: Long? = null,
 ) : DirtyableComponent(), Removable {
 
   var secondsLeft: Float = waitSeconds

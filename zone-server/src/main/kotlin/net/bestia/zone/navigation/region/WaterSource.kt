@@ -46,6 +46,8 @@ interface WaterSource {
  * @property roads the centre lines of the roads and streets through it, which are the easy going
  * @property isWet whether a column stands under any water or lava at all, wadeable or not. Asked after [isDeep]
  *   for the same column. Without one, only deep water is wet: a test's lake has no shallows unless it draws them.
+ * @property kindAt which water stands over a column, the highest where several meet; null on dry land, under
+ *   lava, or where the source cannot tell
  */
 class WaterSurvey(
   val isDeep: (worldX: Double, worldY: Double) -> Boolean,
@@ -53,4 +55,13 @@ class WaterSurvey(
   val groundAt: (worldX: Double, worldY: Double) -> Double = { _, _ -> 0.0 },
   val roads: List<List<Vec2d>> = emptyList(),
   val isWet: (worldX: Double, worldY: Double) -> Boolean = isDeep,
+  val kindAt: (worldX: Double, worldY: Double) -> WaterKind? = { _, _ -> null },
 )
+
+/** Which body of water a column stands in. Fishing reads it once per catch; the grid never does. */
+enum class WaterKind {
+  SEA,
+  LAKE,
+  RIVER,
+  POND,
+}

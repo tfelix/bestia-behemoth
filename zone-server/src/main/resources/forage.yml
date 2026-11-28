@@ -17,9 +17,11 @@ biomes:
     - { item: wild_herb, weight: 15 }
     - { item: bramble_berries, weight: 15 }
     - { item: apple, weight: 10 }
+    - { item: earthworm, weight: 20 }
 
   TEMPERATE_RAINFOREST:
     - { item: field_mushroom, weight: 35 }
+    - { item: earthworm, weight: 20 }
     - { item: wild_herb, weight: 20 }
     - { item: bramble_berries, weight: 15 }
     - { item: black_truffle, weight: 4 }
@@ -29,6 +31,7 @@ biomes:
     - { item: grain, weight: 25 }
     - { item: wild_garlic, weight: 20 }
     - { item: wild_herb, weight: 15 }
+    - { item: earthworm, weight: 15 }
 
   DRYLAND:
     - { item: wild_onion, weight: 30 }
@@ -48,6 +51,7 @@ biomes:
     - { item: sweetroot, weight: 25 }
     - { item: marsh_rice, weight: 25 }
     - { item: wild_herb, weight: 15 }
+    - { item: earthworm, weight: 25 }
 
   LAKE:
     - { item: wild_herb, weight: 20 }

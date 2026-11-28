@@ -10,6 +10,7 @@ import net.bestia.zone.item.persistence.ItemInstance
 import net.bestia.zone.item.persistence.ItemInstanceRepository
 import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.item.persistence.findByIdentifierOrThrow
+import net.bestia.zone.item.stat.ItemRoll
 import net.bestia.zone.util.PlayerBestiaId
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -55,6 +56,30 @@ class ItemBundles(
     bundles.save(bundle)
 
     return instance
+  }
+
+  /**
+   * Mints a [wrapperId] into the master's bag, sealed round one new [contentId] rolled as [roll]. What it holds is
+   * settled here, so it stays the same however often the wrapper changes hands before it is opened.
+   *
+   * @return the wrapper's instance
+   */
+  @Transactional
+  fun sealForMaster(masterId: Long, wrapperId: Long, contentId: Long, roll: ItemRoll): ItemInstance {
+    val wrapper = inventoryService.mintInstanceForMaster(masterId, itemRepository.findById(wrapperId).orElseThrow())
+    val content = ItemInstance(
+      item = itemRepository.findById(contentId).orElseThrow(),
+      slots = roll.sockets,
+      itemLevel = roll.itemLevel,
+    )
+    content.assignRolledStats(roll.stats)
+
+    val bundle = ItemBundle(wrapper)
+    bundle.container.addInstance(itemInstances.save(content))
+    wrapper.heldWeight = wrapper.item.weight + content.weight
+    bundles.save(bundle)
+
+    return wrapper
   }
 
   /**

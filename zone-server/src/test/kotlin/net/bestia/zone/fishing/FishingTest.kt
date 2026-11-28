@@ -8,6 +8,13 @@ import io.mockk.verify
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.worldgen.vector.Aabb
 import net.bestia.zone.battle.GearWear
+import net.bestia.zone.battle.BestiaKind
+import net.bestia.zone.battle.Element
+import net.bestia.zone.battle.Size
+import net.bestia.zone.battle.ammo.AmmoSupply
+import net.bestia.zone.battle.ammo.Ammunition
+import net.bestia.zone.battle.ecs.status.Nature
+import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.battle.ecs.attack.AttackCancelService
 import net.bestia.zone.battle.ecs.exp.GainExp
 import net.bestia.zone.battle.ecs.skill.CastCancelService
@@ -62,9 +69,16 @@ class FishingTest {
     }
   }
 
+  private val ammo = mockk<AmmoSupply>(relaxed = true) {
+    every { nextFor(any(), any(), any()) } returns null
+  }
+  private val strongbox = mockk<SunkenStrongbox>(relaxed = true) {
+    every { isHauled() } returns false
+  }
+
   private val service = FishingService(
     catalogue, RegionGrid(WATER_FROM_X_16), gearWear, CastCancelService(), AttackCancelService(),
-    StrikeTimingCheck(), lowestRolls, { nowNanos },
+    StrikeTimingCheck(), FishingGround.NONE, ammo, strongbox, lowestRolls, { nowNanos },
   )
 
   private lateinit var world: EcsWorld
@@ -147,6 +161,53 @@ class FishingTest {
   }
 
   @Test
+  fun `bait in the quiver goes on the hook when the line goes out`() {
+    val worm = Ammunition(itemId("earthworm"), attack = 0, element = Element.NORMAL)
+    every { ammo.nextFor(any(), any(), FishingService.BAIT_LINE) } returns worm
+    every { ammo.draw(any(), any(), worm) } returns true
+
+    val angler = castLine()
+
+    assertEquals(itemId("earthworm"), world.get(angler, Fishing::class)?.baitItemId)
+    verify { ammo.draw(world, angler, worm) }
+  }
+
+  @Test
+  fun `a bare hook spends nothing`() {
+    val angler = castLine()
+
+    assertNull(world.get(angler, Fishing::class)?.baitItemId)
+    verify(exactly = 0) { ammo.draw(any(), any(), any()) }
+  }
+
+  @Test
+  fun `an own water bestia near the bank helps, a far or foreign one does not`() {
+    val angler = angler()
+    assertFalse(service.hasHelperNear(world, angler))
+
+    helper(masterId = OTHER_MASTER_ID, at = Vec3L(12, 0, 0))
+    assertFalse(service.hasHelperNear(world, angler))
+
+    helper(masterId = MASTER_ID, at = Vec3L(60, 0, 0))
+    assertFalse(service.hasHelperNear(world, angler))
+
+    helper(masterId = MASTER_ID, at = Vec3L(12, 0, 0))
+    assertTrue(service.hasHelperNear(world, angler))
+  }
+
+  @Test
+  fun `a strongbox with no country to fill it from leaves the table's catch`() {
+    every { strongbox.isHauled() } returns true
+    val angler = castLine()
+    waitForBite(angler)
+
+    service.strike(world, angler)
+
+    assertEquals(itemId("old_boot"), world.get(angler, ObtainItemIntent.CreateItemsIntent::class)?.grants?.single()?.itemId)
+    verify(exactly = 0) { strongbox.haulUp(any(), any(), any()) }
+  }
+
+  @Test
   fun `the Fishing rank raises the catch level cap`() {
     assertEquals(10, catalogue.catchLevelCap(0))
     assertEquals(20, catalogue.catchLevelCap(1))
@@ -185,9 +246,18 @@ class FishingTest {
     }
   }
 
+  private fun helper(masterId: Long, at: Vec3L): EntityId {
+    return world.createEntity { id ->
+      add(id, OwnedBestia(masterId = masterId, playerBestiaId = id))
+      add(id, Nature(Element.WATER, Size.SMALL, kind = BestiaKind.AQUATIC))
+      add(id, Position.fromVec3(at))
+    }
+  }
+
   private companion object {
     const val ACCOUNT_ID = 1L
     const val MASTER_ID = 2L
+    const val OTHER_MASTER_ID = 3L
     const val ROD_UNIQUE_ID = 10L
     const val FISHING_SKILL_ID = 30L
     val WATER = Vec3L(16, 0, 0)

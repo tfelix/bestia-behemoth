@@ -268,3 +268,29 @@ meals:
     duration-seconds: 3600
     restore: { health: 1190, stamina: 396 }
     bonus: { stamina-regen-percent: 50, all-attributes: 10, regenerate-in-combat: true }
+
+  # Fishing's own meals, from the waters' fish (recipes 587-590). Numbered on from the forty above.
+
+  # 41. Glimmerfin Fritters (Lv 5)
+  - meal: glimmerfin_fritters
+    duration-seconds: 900
+    restore: { health: 90, stamina: 56 }
+    bonus: { stamina-regen-percent: 10, agility: 2 }
+
+  # 42. Inkhorn Calamari (Lv 60)
+  - meal: inkhorn_calamari
+    duration-seconds: 1800
+    restore: { health: 640, stamina: 226 }
+    bonus: { stamina-regen-percent: 30, intelligence: 8, cast-time-reduction: 5 }
+
+  # 43. Swordfish Steak (Lv 68)
+  - meal: swordfish_steak
+    duration-seconds: 2700
+    restore: { health: 720, stamina: 251 }
+    bonus: { stamina-regen-percent: 40, strength: 6, crit: 5 }
+
+  # 44. Stormgrilled Ray Wing (Lv 74)
+  - meal: stormgrilled_ray_wing
+    duration-seconds: 2700
+    restore: { health: 780, stamina: 269 }
+    bonus: { stamina-regen-percent: 40, agility: 8, aspd-percent: 5 }

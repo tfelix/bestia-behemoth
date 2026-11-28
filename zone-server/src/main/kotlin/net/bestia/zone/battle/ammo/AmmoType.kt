@@ -8,4 +8,7 @@ enum class AmmoType {
   ARROW,
   BOLT,
   STONE,
+
+  /** Hooked on a fishing line, never shot: see `fishing.yml`. */
+  BAIT,
 }

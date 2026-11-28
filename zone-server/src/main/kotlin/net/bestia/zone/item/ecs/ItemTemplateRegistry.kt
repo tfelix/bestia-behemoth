@@ -46,6 +46,7 @@ class ItemTemplateRegistry(
     val armorType: ArmorType? = null,
     val toolKind: ToolKind? = null,
     val equipSlot: EquipmentSlot? = null,
+    val noviceOnly: Boolean = false,
   ) {
     val isAmmo: Boolean
       get() {
@@ -67,7 +68,8 @@ class ItemTemplateRegistry(
     itemRepository.findAll().associate {
       it.id to Template(
         it.id, it.baseLevel, it.weight, it.stackable, it.maxDurability, it.material, it.type, it.ammoType, it.element,
-        it.attackRange, it.twoHanded, it.script, it.bound, it.weaponType, it.armorType, it.toolKind, it.equipSlot
+        it.attackRange, it.twoHanded, it.script, it.bound, it.weaponType, it.armorType, it.toolKind, it.equipSlot,
+        it.noviceOnly,
       )
     }
   }
@@ -83,6 +85,9 @@ class ItemTemplateRegistry(
   fun isBound(itemId: Long): Boolean {
     return templateOf(itemId)?.bound == true
   }
+
+  /** Every item the catalogue knows, for a draw over all of them. */
+  fun all(): Collection<Template> = byItemId.values
 
   /** Null for an id the catalogue does not know. */
   fun templateOf(itemId: Long): Template? {

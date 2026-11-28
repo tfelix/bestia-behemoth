@@ -1786,7 +1786,7 @@ recipes:
     inputs:
       - { item: herbal_extract, amount: 1 }
       - { item: resin, amount: 2 }
-      - { item: jelly, amount: 1 }
+      - { item: fish_oil, amount: 1 }
     skill: { skill: M_ALCHEMY, level: 3 }
     station: ALCHEMY_LABORATORY
     craftSeconds: 11.5
@@ -1837,7 +1837,8 @@ recipes:
     output: { item: regeneration_draught, amount: 1 }
     inputs:
       - { item: herbal_extract, amount: 2 }
-      - { item: jelly, amount: 2 }
+      - { item: jelly, amount: 1 }
+      - { item: fish_oil, amount: 1 }
       - { item: empty_bottle, amount: 1 }
     skill: { skill: M_ALCHEMY, level: 4 }
     station: ALCHEMY_LABORATORY
@@ -1980,6 +1981,7 @@ recipes:
     output: { item: thawing_tonic, amount: 1 }
     inputs:
       - { item: ember_core, amount: 1 }
+      - { item: emberfin_koi, amount: 1 }
       - { item: herbal_extract, amount: 1 }
       - { item: crystal_vial, amount: 1 }
     skill: { skill: M_ALCHEMY, level: 6 }
@@ -2020,7 +2022,8 @@ recipes:
     effect: PRODUCE
     output: { item: cooling_draught, amount: 1 }
     inputs:
-      - { item: frost_herb, amount: 2 }
+      - { item: frost_herb, amount: 1 }
+      - { item: frostjaw_char, amount: 1 }
       - { item: alchemical_salt, amount: 1 }
       - { item: crystal_vial, amount: 1 }
     skill: { skill: M_ALCHEMY, level: 6 }
@@ -2130,7 +2133,8 @@ recipes:
     inputs:
       - { item: sun_herb, amount: 1 }
       - { item: alkahest, amount: 1 }
-      - { item: holy_water, amount: 2 }
+      - { item: holy_water, amount: 1 }
+      - { item: voidgill_angler, amount: 1 }
       - { item: sea_pearl, amount: 1 }
       - { item: crystal_vial, amount: 1 }
     skill: { skill: M_ALCHEMY, level: 9 }
@@ -2144,7 +2148,8 @@ recipes:
     output: { item: greater_elixir_of_grace, amount: 1 }
     inputs:
       - { item: moonscale, amount: 1 }
-      - { item: shadow_shard, amount: 2 }
+      - { item: tempest_ray, amount: 1 }
+      - { item: shadow_shard, amount: 1 }
       - { item: alkahest, amount: 1 }
       - { item: crystal_vial, amount: 1 }
     skill: { skill: M_ALCHEMY, level: 10 }
@@ -2478,7 +2483,7 @@ recipes:
     output: { item: crab_claw_broth, amount: 1 }
     inputs:
       - { item: crab_claw, amount: 1 }
-      - { item: salt, amount: 1 }
+      - { item: tidecrawler_prawn, amount: 1 }
       - { item: sea_kelp, amount: 1 }
     skill: { skill: M_COOKING, level: 1 }
     station: CAMPFIRE
@@ -2652,7 +2657,8 @@ recipes:
     effect: PRODUCE
     output: { item: veil_jelly_aspic, amount: 1 }
     inputs:
-      - { item: veil_jelly, amount: 2 }
+      - { item: veil_jelly, amount: 1 }
+      - { item: frostjaw_char, amount: 1 }
       - { item: frost_mint, amount: 1 }
     skill: { skill: M_COOKING, level: 1 }
     station: CAMPFIRE
@@ -2704,7 +2710,7 @@ recipes:
     inputs:
       - { item: seal_blubber, amount: 1 }
       - { item: sea_kelp, amount: 1 }
-      - { item: salt, amount: 1 }
+      - { item: stormscale_herring, amount: 1 }
     skill: { skill: M_COOKING, level: 1 }
     station: CAMPFIRE
     craftSeconds: 9.7
@@ -2716,6 +2722,7 @@ recipes:
     output: { item: lava_jelly_flambe, amount: 1 }
     inputs:
       - { item: magma_jelly, amount: 1 }
+      - { item: emberfin_koi, amount: 1 }
       - { item: ember_chili, amount: 1 }
     skill: { skill: M_COOKING, level: 1 }
     station: CAMPFIRE
@@ -2753,7 +2760,7 @@ recipes:
     output: { item: croc_tail_gumbo, amount: 1 }
     inputs:
       - { item: croc_tail, amount: 1 }
-      - { item: marsh_rice, amount: 1 }
+      - { item: mirelurk_catfish, amount: 1 }
       - { item: peppercorn, amount: 1 }
     skill: { skill: M_COOKING, level: 1 }
     station: CAMPFIRE
@@ -2900,3 +2907,210 @@ recipes:
     station: CAMPFIRE
     craftSeconds: 21.2
     baseSuccessChance: -0.02
+
+  # --- Fishing ---------------------------------------------------------------------------------------
+  # What the line brings up, put to use: fish oil and venom for the alchemist, bait for the angler, the junk
+  # salvaged, and the meals of the waters' own fish.
+
+  - id: 574
+    identifier: FISH_OIL
+    effect: PRODUCE
+    output: { item: fish_oil, amount: 1 }
+    inputs:
+      - { item: raw_fish, amount: 3 }
+      - { item: empty_bottle, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 2 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 7.6
+    baseSuccessChance: 0.87
+
+  - id: 575
+    identifier: FISH_OIL_FROM_LOACH
+    effect: PRODUCE
+    output: { item: fish_oil, amount: 1 }
+    inputs:
+      - { item: mudgill_loach, amount: 2 }
+      - { item: empty_bottle, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 2 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 7.6
+    baseSuccessChance: 0.87
+
+  - id: 576
+    identifier: FISH_OIL_FROM_HERRING
+    effect: PRODUCE
+    output: { item: fish_oil, amount: 2 }
+    inputs:
+      - { item: stormscale_herring, amount: 2 }
+      - { item: empty_bottle, amount: 2 }
+    skill: { skill: M_ALCHEMY, level: 2 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 7.6
+    baseSuccessChance: 0.87
+
+  - id: 577
+    identifier: LAMP_OIL_FROM_FISH_OIL
+    effect: PRODUCE
+    output: { item: lamp_oil, amount: 2 }
+    inputs:
+      - { item: fish_oil, amount: 1 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: WORKBENCH
+    craftSeconds: 4.0
+    baseSuccessChance: 1
+
+  - id: 578
+    identifier: PUFFER_TOXIN
+    effect: PRODUCE
+    output: { item: puffer_toxin, amount: 1 }
+    inputs:
+      - { item: thornback_puffer, amount: 1 }
+      - { item: alchemical_salt, amount: 1 }
+      - { item: empty_bottle, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 2 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 10.0
+    baseSuccessChance: 0.75
+
+  - id: 579
+    identifier: BASIC_POISON_FROM_PUFFER_TOXIN
+    effect: PRODUCE
+    output: { item: basic_poison, amount: 3 }
+    inputs:
+      - { item: puffer_toxin, amount: 1 }
+      - { item: empty_bottle, amount: 2 }
+    skill: { skill: M_ALCHEMY, level: 1 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 5.5
+    baseSuccessChance: 0.975
+
+  - id: 580
+    identifier: SQUID_INK
+    effect: PRODUCE
+    output: { item: ink, amount: 3 }
+    inputs:
+      - { item: inkhorn_squid, amount: 1 }
+      - { item: empty_bottle, amount: 3 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: WORKBENCH
+    craftSeconds: 5.0
+    baseSuccessChance: 1.0
+
+  - id: 581
+    identifier: MINNOW_BAIT
+    effect: PRODUCE
+    output: { item: minnow_bait, amount: 5 }
+    inputs:
+      - { item: glimmerfin_minnow, amount: 2 }
+    skill: { skill: M_FISHING, level: 1 }
+    station: WORKBENCH
+    craftSeconds: 3.0
+    baseSuccessChance: 1
+
+  - id: 582
+    identifier: CHUM_BALL
+    effect: PRODUCE
+    output: { item: chum_ball, amount: 5 }
+    inputs:
+      - { item: mudgill_loach, amount: 2 }
+      - { item: tidecrawler_prawn, amount: 1 }
+      - { item: fish_oil, amount: 1 }
+    skill: { skill: M_FISHING, level: 2 }
+    station: WORKBENCH
+    craftSeconds: 4.0
+    baseSuccessChance: 1
+
+  - id: 583
+    identifier: GLOWGRUB_LURE
+    effect: PRODUCE
+    output: { item: glowgrub_lure, amount: 3 }
+    inputs:
+      - { item: glowcap, amount: 1 }
+      - { item: fish_oil, amount: 1 }
+    skill: { skill: M_FISHING, level: 3 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 6.0
+    baseSuccessChance: 0.9
+
+  - id: 584
+    identifier: SALVAGE_OLD_BOOT
+    effect: PRODUCE
+    output: { item: leather, amount: 1 }
+    inputs:
+      - { item: old_boot, amount: 2 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: WORKBENCH
+    craftSeconds: 4.0
+    baseSuccessChance: 1
+
+  - id: 585
+    identifier: SALVAGE_DRIFTWOOD
+    effect: PRODUCE
+    output: { item: charcoal, amount: 2 }
+    inputs:
+      - { item: driftwood, amount: 1 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: WORKBENCH
+    craftSeconds: 4.0
+    baseSuccessChance: 1
+
+  - id: 586
+    identifier: SALVAGE_TANGLED_NET
+    effect: PRODUCE
+    output: { item: rope, amount: 1 }
+    inputs:
+      - { item: tangled_net, amount: 2 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: WORKBENCH
+    craftSeconds: 5.0
+    baseSuccessChance: 1
+
+  - id: 587
+    identifier: GLIMMERFIN_FRITTERS
+    effect: PRODUCE
+    output: { item: glimmerfin_fritters, amount: 1 }
+    inputs:
+      - { item: glimmerfin_minnow, amount: 3 }
+      - { item: wild_onion, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 4.8
+    baseSuccessChance: 0.86
+
+  - id: 588
+    identifier: INKHORN_CALAMARI
+    effect: PRODUCE
+    output: { item: inkhorn_calamari, amount: 1 }
+    inputs:
+      - { item: inkhorn_squid, amount: 1 }
+      - { item: marsh_rice, amount: 1 }
+      - { item: speckled_egg, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 13.0
+    baseSuccessChance: 0.42
+
+  - id: 589
+    identifier: SWORDFISH_STEAK
+    effect: PRODUCE
+    output: { item: swordfish_steak, amount: 1 }
+    inputs:
+      - { item: swordfish, amount: 1 }
+      - { item: peppercorn, amount: 1 }
+      - { item: sweetroot, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 14.2
+    baseSuccessChance: 0.356
+
+  - id: 590
+    identifier: STORMGRILLED_RAY_WING
+    effect: PRODUCE
+    output: { item: stormgrilled_ray_wing, amount: 1 }
+    inputs:
+      - { item: tempest_ray, amount: 1 }
+      - { item: wild_herb, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 15.1
+    baseSuccessChance: 0.308

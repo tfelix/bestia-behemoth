@@ -31,8 +31,8 @@ class MealContentTest {
     .filter { meals.isMeal(it.output!!.itemId) }
 
   @Test
-  fun `forty meals, each cooked at a campfire by exactly one recipe`() {
-    assertEquals(40, meals.all().size)
+  fun `forty-four meals, each cooked at a campfire by exactly one recipe`() {
+    assertEquals(44, meals.all().size)
     assertEquals(meals.all().map { it.itemId }.toSet(), cooking.map { it.output!!.itemId }.toSet())
     assertEquals(cooking.size, cooking.map { it.output!!.itemId }.toSet().size)
     assertTrue(cooking.all { it.station == StaticEntityKind.CAMPFIRE })

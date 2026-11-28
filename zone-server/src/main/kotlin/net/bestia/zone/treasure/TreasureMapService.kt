@@ -27,9 +27,19 @@ class TreasureMapService(
   private val world: WorldView,
 ) {
 
-  fun draw(entityId: EntityId, masterId: Long, accountId: Long, cache: TreasureCache, centreX: Double, centreY: Double, radius: Double) {
+  /** [spendsBlank] is false for a map found already drawn, which needs no blank vellum. */
+  fun draw(
+    entityId: EntityId,
+    masterId: Long,
+    accountId: Long,
+    cache: TreasureCache,
+    centreX: Double,
+    centreY: Double,
+    radius: Double,
+    spendsBlank: Boolean = true,
+  ) {
     asyncJobExecutor.submit(masterId) {
-      val minted = minter.mint(masterId, cache.id, centreX, centreY, radius)
+      val minted = minter.mint(masterId, cache.id, centreX, centreY, radius, spendsBlank)
       if (minted == null) {
         outMessageProcessor.sendToPlayer(accountId, OperationErrorSMSG(OpError.CHART_NEEDS_BLANK))
         return@submit
@@ -71,7 +81,7 @@ class TreasureMapService(
         return@modify
       }
 
-      inventory.decItem(minted.blankItemId.toInt())
+      minted.blankItemId?.let { inventory.decItem(it.toInt()) }
       inventory.addItem(
         Inventory.Item(
           itemId = minted.item.id,

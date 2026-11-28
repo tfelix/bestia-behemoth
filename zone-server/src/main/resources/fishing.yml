@@ -1,7 +1,20 @@
-# Fishing: the rods, what bites, and how long it takes. The design is the Fishing page of the design docs.
+# Fishing: the rods, what bites where, bait, helpers and how long it takes. The design is the Fishing page of the
+# design docs.
 #
-# One table for every water. A catch's `level` defaults to its item's `base-level`; treasure names its own,
-# because a pearl is no harder to hook than a fish, only rarer.
+# A catch's `level` defaults to its item's `base-level`; treasure names its own, because a pearl is no harder to hook
+# than a fish, only rarer.
+#
+# Where a catch bites (all optional; leaving one out allows everything):
+#   waters: [SEA, LAKE, RIVER, POND]      the water under the bobber
+#   biomes: [...]                         the ground the angler stands on, worldgen's `Biome` names
+#   corrupted: true                       only off corrupted ground
+#   weather: [...]                        only in these weathers, worldgen's `WeatherKind` names
+#   time: DAY | NIGHT                     only by day or only by night
+# How much likelier it bites:
+#   weather-boost: { kinds: [...], factor: 3.0 }   in these weathers
+#   night-boost: 2.0                               after dark
+#   tags: [...]                                    what bait and helpers favour: JUNK, TREASURE, BOTTOM, PREDATOR,
+#                                                  SHOAL, GLOW
 
 untrained-catch-level-cap: 10
 catch-level-cap-per-rank: 20
@@ -19,23 +32,71 @@ rods:
   - { item: ash_rod, max-catch-level: 75 }
   - { item: steel_rod, max-catch-level: 120 }
 
+# Bait goes in the quiver beside the rod; one goes on the hook with every cast. Each multiplies the weight of the
+# catches carrying a tag it favours by `factor`, and can cut the wait for a bite.
+baits:
+  - { item: earthworm, favours: [BOTTOM], factor: 3.0 }
+  - { item: minnow_bait, favours: [PREDATOR], factor: 3.0 }
+  - { item: chum_ball, favours: [SHOAL], factor: 2.0, wait-cut-percent: 25 }
+  - { item: glowgrub_lure, favours: [GLOW], factor: 3.0, wait-cut-percent: 10 }
+
+# One of the master's own summoned water bestias, standing near and alive, keeps an eye on the line: the bite comes
+# sooner, and it spots what glints on the bottom.
+helper: { range-metres: 15, wait-cut-percent: 20, treasure-factor: 2.0 }
+
+# Once in ten thousand good strikes the line brings up a barnacled strongbox instead. The gear in it is picked from
+# the level band of the wild bestias round the water, up to `levels-above` over it and never above `max-level`, which
+# keeps the legendary tier out.
+sunken-chest: { chance: 0.0001, levels-above: 20, max-level: 80 }
+
 catches:
-  - { item: old_boot, weight: 40 }
-  - { item: driftwood, weight: 40 }
-  - { item: tangled_net, weight: 40 }
-  - { item: raw_fish, weight: 100 }
-  - { item: perch, weight: 100 }
-  - { item: bream, weight: 100 }
-  - { item: sealed_bottle, weight: 4 }
-  - { item: pike, weight: 100 }
-  - { item: sea_pearl, level: 30, weight: 4 }
-  - { item: eel, weight: 100 }
-  - { item: rough_emerald, level: 40, weight: 4 }
-  - { item: coral, level: 45, weight: 4 }
-  - { item: salmon, weight: 100 }
-  - { item: sturgeon, weight: 100 }
-  - { item: rough_ruby, level: 60, weight: 4 }
-  - { item: swordfish, weight: 100 }
-  - { item: moonscale, weight: 100 }
-  - { item: deepmaw, weight: 100 }
-  - { item: abyssal_lanternfish, weight: 100 }
+  # Junk, everywhere. Salvaged at a workbench.
+  - { item: old_boot, weight: 40, tags: [JUNK] }
+  - { item: driftwood, weight: 40, tags: [JUNK] }
+  - { item: tangled_net, weight: 40, tags: [JUNK] }
+
+  # Fish of every water.
+  - { item: raw_fish, weight: 100, tags: [SHOAL] }
+
+  # Fresh water.
+  - { item: glimmerfin_minnow, weight: 100, waters: [RIVER, POND, LAKE], time: DAY, tags: [SHOAL] }
+  - { item: mudgill_loach, weight: 80, waters: [POND, LAKE, RIVER], tags: [BOTTOM] }
+  - { item: perch, weight: 100, waters: [LAKE, POND, RIVER], tags: [SHOAL] }
+  - { item: bream, weight: 100, waters: [LAKE, POND], tags: [BOTTOM] }
+  - { item: pike, weight: 100, waters: [LAKE, RIVER], tags: [PREDATOR] }
+  - { item: eel, weight: 100, waters: [RIVER, POND, LAKE], night-boost: 2.0, tags: [BOTTOM] }
+  - item: frostjaw_char
+    weight: 120
+    waters: [LAKE, RIVER]
+    biomes: [TUNDRA, TAIGA, ALPINE, ICE_SHEET, COLD_DESERT]
+    weather-boost: { kinds: [SNOW, BLIZZARD], factor: 3.0 }
+    tags: [PREDATOR]
+  - { item: salmon, weight: 100, waters: [RIVER], tags: [PREDATOR] }
+  - { item: mirelurk_catfish, weight: 120, waters: [LAKE, POND, RIVER], biomes: [SWAMP, BOG], night-boost: 2.0, tags: [BOTTOM] }
+  - { item: emberfin_koi, weight: 120, biomes: [VOLCANIC_FIELD, GEOTHERMAL_BASIN] }
+  - { item: sturgeon, weight: 100, waters: [LAKE, RIVER], tags: [BOTTOM] }
+
+  # The sea.
+  - { item: tidecrawler_prawn, weight: 100, waters: [SEA], tags: [BOTTOM] }
+  - { item: thornback_puffer, weight: 80, waters: [SEA] }
+  - item: stormscale_herring
+    weight: 80
+    waters: [SEA]
+    weather-boost: { kinds: [RAIN, HEAVY_RAIN, THUNDERSTORM], factor: 3.0 }
+    tags: [SHOAL]
+  - { item: inkhorn_squid, weight: 100, waters: [SEA], night-boost: 2.0, tags: [GLOW] }
+  - { item: swordfish, weight: 100, waters: [SEA], tags: [PREDATOR] }
+  - { item: tempest_ray, weight: 150, waters: [SEA], weather: [THUNDERSTORM] }
+  - { item: deepmaw, weight: 100, waters: [SEA], tags: [PREDATOR] }
+  - { item: abyssal_lanternfish, weight: 100, waters: [SEA], time: NIGHT, tags: [GLOW] }
+
+  # Of the dark, and of the corruption.
+  - { item: moonscale, weight: 100, waters: [SEA, LAKE], time: NIGHT, tags: [GLOW] }
+  - { item: voidgill_angler, weight: 150, corrupted: true, tags: [GLOW] }
+
+  # Treasure.
+  - { item: sealed_bottle, weight: 4, waters: [SEA, RIVER], tags: [TREASURE] }
+  - { item: sea_pearl, level: 30, weight: 4, waters: [SEA], tags: [TREASURE] }
+  - { item: rough_emerald, level: 40, weight: 4, tags: [TREASURE] }
+  - { item: coral, level: 45, weight: 4, waters: [SEA], tags: [TREASURE] }
+  - { item: rough_ruby, level: 60, weight: 4, tags: [TREASURE] }

@@ -54,6 +54,11 @@ class DiscoverableContentTest {
       "CROC_TAIL_GUMBO", "SUNMANE_STEAK", "CLOUDBERRY_PARFAIT", "TRUFFLE_VENISON", "QUEENS_HONEY_GLAZE",
       "THUNDER_EGG_SOUFFLE", "DRAKE_STEAK_DIANE", "SERPENT_SUSHI", "HYDRA_HEART_RAGOUT", "WYVERN_WELLINGTON",
       "LOTUS_LEVIATHAN_BROTH", "PHOENIX_FEAST",
+      // Fishing: fish oil and venom, bait, salvaged junk and the meals of the waters' own fish.
+      "FISH_OIL", "FISH_OIL_FROM_LOACH", "FISH_OIL_FROM_HERRING", "LAMP_OIL_FROM_FISH_OIL", "PUFFER_TOXIN",
+      "BASIC_POISON_FROM_PUFFER_TOXIN", "SQUID_INK", "MINNOW_BAIT", "CHUM_BALL", "GLOWGRUB_LURE", "SALVAGE_OLD_BOOT",
+      "SALVAGE_DRIFTWOOD", "SALVAGE_TANGLED_NET", "GLIMMERFIN_FRITTERS", "INKHORN_CALAMARI", "SWORDFISH_STEAK",
+      "STORMGRILLED_RAY_WING",
     )
 
     assertTrue(gear.size >= 340, "expected the whole equipment catalogue, found ${gear.size}")

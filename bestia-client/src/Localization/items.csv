@@ -588,7 +588,9 @@ DRIFTWOOD_DESC,"A grey piece of wood, washed smooth by the water. It burns well 
 TANGLED_NET,Tangled Net
 TANGLED_NET_DESC,"A sodden fishing net, knotted beyond use. The cord can still be picked apart."
 SEALED_BOTTLE,Sealed Bottle
-SEALED_BOTTLE_DESC,A bottle with a wax seal and a rolled paper inside. Collectors pay well for one unopened.
+SEALED_BOTTLE_DESC,"A bottle with a wax seal and a rolled paper inside. Collectors pay well for one unopened.
+
+Opened, the paper is mostly a map to treasure buried somewhere near. The bottle is kept for the alchemist."
 SHOVEL,Shovel
 SHOVEL_DESC,"A wooden spade on a long handle, its blade hardened in the fire.
 
@@ -1601,45 +1603,45 @@ BESTIA_CENTER_KIT,Storage Center Kit
 BESTIA_CENTER_KIT_DESC,"Gates, pens, a feed trough and a keeper's desk, lashed onto a sledge.
 
 Set it down inside a town without a storage center. Masters keep their bestia there once it is built."
-EARTH_CRYSTAL,earth crystal
+EARTH_CRYSTAL,Earth Crystal
 EARTH_CRYSTAL_DESC,"A brown crystal, rough as a river pebble and much heavier than it looks."
-STEEL_ARROW,steel arrow
+STEEL_ARROW,Steel Arrow
 STEEL_ARROW_DESC,"A reed shaft with a narrow steel head, ground to a needle point.
 
 It hits harder than a plain arrow."
-FIRE_ARROW,fire arrow
+FIRE_ARROW,Fire Arrow
 FIRE_ARROW_DESC,"An arrow whose head glows dull red, a splinter of ember core bound behind it.
 
 It strikes as Fire."
-CRYSTAL_ARROW,crystal arrow
+CRYSTAL_ARROW,Crystal Arrow
 CRYSTAL_ARROW_DESC,"An arrow tipped with a sliver of frost crystal, cold enough to fog in warm air.
 
 It strikes as Water."
-WIND_ARROW,wind arrow
+WIND_ARROW,Wind Arrow
 WIND_ARROW_DESC,"An arrow fletched with a storm feather that will not lie flat.
 
 It strikes as Wind."
-STONE_ARROW,stone arrow
+STONE_ARROW,Stone Arrow
 STONE_ARROW_DESC,"An arrow with a head of brown crystal, blunt and heavy.
 
 It strikes as Earth."
-SILVER_ARROW,silver arrow
+SILVER_ARROW,Silver Arrow
 SILVER_ARROW_DESC,"An arrow with a bright silver head, polished until it shows your face.
 
 It strikes as Holy, and the undead fear it."
-SHADOW_ARROW,shadow arrow
+SHADOW_ARROW,Shadow Arrow
 SHADOW_ARROW_DESC,"An arrow with a black head that seems to swallow the light around it.
 
 It strikes as Shadow."
-SHARP_ARROW,sharp arrow
+SHARP_ARROW,Sharp Arrow
 SHARP_ARROW_DESC,"An arrow with a barbed fang for a head, filed thin along both edges.
 
 It finds the gaps in a hide: far more of its shots are critical."
-POISON_ARROW,poison arrow
+POISON_ARROW,Poison Arrow
 POISON_ARROW_DESC,"An arrow whose head is stained green and smells of the venom it was dipped in.
 
 It strikes as Poison, and may poison what it hits."
-STUN_ARROW,stun arrow
+STUN_ARROW,Stun Arrow
 STUN_ARROW_DESC,"An arrow with a dark, blunt head of lodestone that hums against the palm.
 
 It may stun what it hits."
@@ -1667,7 +1669,7 @@ WARM_STONE,Warm Stone
 WARM_STONE_DESC,"A dark, dense pebble that drinks in heat and gives it back for hours.
 
 It is still warm long after the fire around it has gone out."
-CORRUPTED_SHARD,corrupted shard
+CORRUPTED_SHARD,Corrupted Shard
 CORRUPTED_SHARD_DESC,"A grey, oily splinter of crystal that still crawls faintly under the fingers.
 
 The land around the crystal it came from had already begun to rot."
@@ -2183,3 +2185,91 @@ PHOENIX_FEAST,Phoenix Feast
 PHOENIX_FEAST_DESC,"A feast of legends: behemoth rib, phoenix egg and ambrosia. They will sing of the cook.
 
 Satisfied for 60 min: +50% stamina regeneration, +10 to every attribute, HP and mana keep regenerating in combat."
+GLIMMERFIN_MINNOW,Glimmerfin Minnow
+GLIMMERFIN_MINNOW_DESC,"A finger-long fish whose scales catch the sun like spilled coins. Rivers and ponds are full of them by day.
+
+Fried by the handful, or hooked whole as bait for something hungrier."
+MUDGILL_LOACH,Mudgill Loach
+MUDGILL_LOACH_DESC,"A whiskered, slippery loach that lives in pond mud and bog water and tastes of both.
+
+Too oily to eat with pleasure, which makes it just right for pressing into fish oil."
+TIDECRAWLER_PRAWN,Tidecrawler Prawn
+TIDECRAWLER_PRAWN_DESC,"A glassy prawn that walks the sea floor on tiptoe and snaps at anything that glitters.
+
+Sweet in a broth, where it takes the place of salt."
+THORNBACK_PUFFER,Thornback Puffer
+THORNBACK_PUFFER_DESC,"A sea fish that swells into a ball of spines when hooked. Its liver holds enough venom to fell a horse.
+
+Nobody cooks it twice. An alchemist draws its venom off as a toxin."
+STORMSCALE_HERRING,Stormscale Herring
+STORMSCALE_HERRING_DESC,"A silver-blue herring of the open sea. Its shoals rise to the surface when rain beats on the water.
+
+Fat enough to press for oil, and good in a seal-blubber stew."
+FROSTJAW_CHAR,Frostjaw Char
+FROSTJAW_CHAR_DESC,"A char with a pale blue jaw, fished from lakes and rivers in the cold north. It bites best in falling snow.
+
+Its flesh stays cool long after the catch; cooks set it in aspic, alchemists in cooling draughts."
+MIRELURK_CATFISH,Mirelurk Catfish
+MIRELURK_CATFISH_DESC,"A heavy, black catfish of swamp and bog water that rises from the murk after dark.
+
+The heart of a proper gumbo."
+EMBERFIN_KOI,Emberfin Koi
+EMBERFIN_KOI_DESC,"A red-gold koi that swims in the hot pools of volcanic ground. Its fins glow like coals.
+
+It keeps its warmth after the catch, which a flambé and a thawing tonic both put to use."
+INKHORN_SQUID,Inkhorn Squid
+INKHORN_SQUID_DESC,"A squid with a curled horn on its mantle that hunts the sea at night and clouds the water black when hooked.
+
+Its ink sac fills a pot of writing ink; the rest is calamari."
+TEMPEST_RAY,Tempest Ray
+TEMPEST_RAY_DESC,"A broad ray whose wings crackle with stored lightning. It only rises in a thunderstorm, to feed under the strikes.
+
+Grilled wing is a sailors' legend. An alchemist puts its spark into elixirs of grace."
+VOIDGILL_ANGLER,Voidgill Angler
+VOIDGILL_ANGLER_DESC,"An eyeless angler that only lives in water the corruption has reached. Its lure burns with a sickly violet light.
+
+Poison through and through, and so the one thing that makes a panacea work."
+FISH_OIL,Fish Oil
+FISH_OIL_DESC,"A bottle of amber oil pressed from oily fish. It smells exactly like what it is.
+
+Burns in a lamp, softens a salve and binds chum and lures together."
+PUFFER_TOXIN,Puffer Toxin
+PUFFER_TOXIN_DESC,"A few clear drops of thornback venom, drawn off and fixed with alchemical salt.
+
+A little goes a long way: three vials of poison come from one."
+EARTHWORM,Earthworm
+EARTHWORM_DESC,"A fat worm dug from the leaf litter. Put it in the quiver beside a rod and it goes on the hook.
+
+Draws the fish that grub along the bottom."
+MINNOW_BAIT,Minnow Bait
+MINNOW_BAIT_DESC,"A glimmerfin minnow threaded on a hook so it still flashes in the water.
+
+Draws the hunters: pike, salmon, char and swordfish."
+CHUM_BALL,Chum Ball
+CHUM_BALL_DESC,"Mashed loach bound with fish oil. It clouds the water round the hook.
+
+Shoals come quickly to it, and everything bites sooner."
+GLOWGRUB_LURE,Glowgrub Lure
+GLOWGRUB_LURE_DESC,"A glowcap soaked in fish oil until it glows on its own.
+
+Draws the fish of the dark: moonscale, inkhorn squid and the lanternfish of the deep."
+GLIMMERFIN_FRITTERS,Glimmerfin Fritters
+GLIMMERFIN_FRITTERS_DESC,"A handful of minnows fried crisp with onion. Eaten with the fingers.
+
+Satisfied for 15 min: +10% stamina regeneration, +2 AGI."
+INKHORN_CALAMARI,Inkhorn Calamari
+INKHORN_CALAMARI_DESC,"Rings of inkhorn squid fried in batter and served on rice blackened with their own ink.
+
+Satisfied for 30 min: +30% stamina regeneration, +8 INT, cast time -5%."
+SWORDFISH_STEAK,Swordfish Steak
+SWORDFISH_STEAK_DESC,"A thick swordfish steak seared with peppercorn and sweetroot.
+
+Satisfied for 45 min: +40% stamina regeneration, +6 STR, +5 CRIT."
+STORMGRILLED_RAY_WING,Stormgrilled Ray Wing
+STORMGRILLED_RAY_WING_DESC,"A tempest ray wing grilled over embers until it stops crackling. It still tingles on the tongue.
+
+Satisfied for 45 min: +40% stamina regeneration, +8 AGI, +5% attack speed."
+BARNACLED_STRONGBOX,Barnacled Strongbox
+BARNACLED_STRONGBOX_DESC,"An iron box crusted with barnacles, hauled up from the bottom on a line by sheer luck. Something rattles inside.
+
+What it holds was sealed in when it came up, so a box keeps its contents whoever opens it."
