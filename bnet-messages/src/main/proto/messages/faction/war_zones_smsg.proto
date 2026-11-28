@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "WarZonesSMSGProto";
+
+/**
+ * Every open war zone, where the Orders fight without honor loss. Sent whole to every player whenever a zone opens
+ * or closes, and once after a master enters the world. Empty when no zone is open.
+ */
+message WarZonesSMSG {
+  repeated WarZone zones = 1;
+}
+
+/** A circle on the map, in metres like a treasure map's circle. */
+message WarZone {
+  double x = 1;
+  double y = 2;
+  double radius = 3;
+}

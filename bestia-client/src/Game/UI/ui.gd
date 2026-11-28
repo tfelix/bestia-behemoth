@@ -226,6 +226,7 @@ func _ready() -> void:
 	ConnectionManager.sense_marks_received.connect(_on_sense_marks)
 	ConnectionManager.gm_mana_layer_received.connect(_minimap.set_gm_mana_layer)
 	ConnectionManager.gm_mana_layer_received.connect(_map_overlay.set_gm_mana_layer)
+	ConnectionManager.war_zones_received.connect(_show_war_zones)
 
 	# Clicking an own Breeding Farm or Incubator is what opens it. Placing an egg picks it from the bag.
 	(_breeding_farm_win.get_content() as BreedingFarmPanel).farm_opened.connect(
@@ -521,6 +522,11 @@ func _on_inventory_updated(inventory: Inventory) -> void:
 	_map_overlay.set_has_chart(not held.is_empty() or _holds_treasure_map)
 	(_compendium_win.get_content() as CompendiumPanel).set_has_chart(not held.is_empty())
 	_map_source.set_chart_signature(signature)
+
+
+func _show_war_zones(message: WarZonesSMSG) -> void:
+	_minimap.set_war_zones(message.Zones)
+	_map_overlay.set_war_zones(message.Zones)
 
 
 ## Each treasure map in the bag draws its circle on both maps, and opens them even without a chart.

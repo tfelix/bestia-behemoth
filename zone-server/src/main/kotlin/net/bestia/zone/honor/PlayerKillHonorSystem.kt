@@ -37,6 +37,7 @@ class PlayerKillHonorSystem(
   private val masters: MasterEntityResolver,
   private val aggression: Aggression,
   private val rivalry: FactionRivalry,
+  private val warZones: WarZoneMap,
   private val clock: Clock = Clock.systemUTC(),
 ) : System {
   override val phase = Phase.DEATH
@@ -66,6 +67,7 @@ class PlayerKillHonorSystem(
 
       val killer = masters.selectedMasterEntityOf(killerAccount) ?: return@each
       val at = world.get(killer, Position::class)?.toVec3L() ?: return@each
+      reportRivalKill(world, killer, victim)
 
       if (aggression.isAggressor(world, victim)) {
         rewardDefense(world, killer, victim, at)
@@ -118,18 +120,46 @@ class PlayerKillHonorSystem(
     return world.get(victim, StatusEffects::class)?.hasEffect(StatusEffectId.THIEF.id) == true
   }
 
-  /** Null for an even fight between rival Orders, which is what the Orders are for. */
-  private fun actFor(world: World, killer: EntityId, victim: EntityId): HonorAct? {
-    if (!world.has(victim, Master::class)) {
-      return HonorAct.KILL_PLAYER_BESTIA
+  /** A fight inside a ward never opens a war zone: the PvP page keeps them out of the Protected Zones. */
+  private fun reportRivalKill(world: World, killer: EntityId, victim: EntityId) {
+    val isRivalMaster = world.has(victim, Master::class) && rivalry.areOpposing(world, killer, victim)
+    if (!isRivalMaster || isWarded(world, killer) || isWarded(world, victim)) {
+      return
     }
-    if (!rivalry.areOpposing(world, killer, victim)) {
+
+    world.get(victim, Position::class)?.let { warZones.rivalKill(it.toVec3L()) }
+  }
+
+  /**
+   * Null for an even fight between rival Orders, which is what the Orders are for, and for any fight with a rival
+   * or its bestias inside a war zone.
+   */
+  private fun actFor(world: World, killer: EntityId, victim: EntityId): HonorAct? {
+    val victimMaster = if (world.has(victim, Master::class)) victim else ownerOf(world, victim)
+    val isRival = victimMaster != null && rivalry.areOpposing(world, killer, victimMaster)
+    val inWarZone = isRival && world.get(victim, Position::class)?.let { warZones.covers(it.toVec3L()) } == true
+
+    if (!world.has(victim, Master::class)) {
+      return HonorAct.KILL_PLAYER_BESTIA.takeUnless { inWarZone }
+    }
+    if (!isRival) {
       return HonorAct.KILL_PLAYER
+    }
+    if (inWarZone) {
+      return null
     }
 
     val gap = levelOf(world, killer) - levelOf(world, victim)
 
     return HonorAct.KILL_WEAK_OPPOSING_PLAYER.takeIf { gap >= WEAK_VICTIM_LEVEL_GAP }
+  }
+
+  private fun ownerOf(world: World, bestia: EntityId): EntityId? {
+    return world.get(bestia, Account::class)?.let { masters.selectedMasterEntityOf(it.accountId) }
+  }
+
+  private fun isWarded(world: World, entity: EntityId): Boolean {
+    return world.get(entity, StatusEffects::class)?.hasEffect(StatusEffectId.WARDED.id) == true
   }
 
   private fun levelOf(world: World, entity: EntityId): Int {

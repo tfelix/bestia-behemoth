@@ -118,6 +118,7 @@
  - UPKEEP wave 58: TradeRangeSystem [EverySeconds(seconds=0.5)]
  - UPKEEP wave 58: TreasurySystem [EverySeconds(seconds=60.0)]
  - UPKEEP wave 58: TreeRegrowthSystem [EverySeconds(seconds=60.0)]
+ - UPKEEP wave 58: WarZoneSystem [EverySeconds(seconds=5.0)]
  - UPKEEP wave 58: WarpPortalSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 58: WorldStateSampler [EverySeconds(seconds=5.0)]
  - UPKEEP wave 59: KeepsakeReturnSystem [EverySeconds(seconds=1.0)]
