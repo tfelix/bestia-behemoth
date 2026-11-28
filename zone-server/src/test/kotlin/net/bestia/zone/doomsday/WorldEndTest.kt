@@ -1,5 +1,6 @@
 package net.bestia.zone.doomsday
 
+import net.bestia.zone.config.BootCompletion
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -67,6 +68,8 @@ class WorldEndTest {
   )
 
   private var fate: DoomEnding? = null
+  private val boot = BootCompletion().apply { onReady() }
+
   private val director = mockk<DoomsdayDirector>(relaxed = true) {
     every { ending() } answers { fate }
     every { status() } returns mockk {
@@ -103,7 +106,7 @@ class WorldEndTest {
   private val avatarFall = DoomAvatarFall()
 
   private fun worldEnd(): WorldEnd {
-    return WorldEnd(DoomsdayConfig(), director, windows, legacies, worlds, worldService, fates, out, events, avatarFall, clock)
+    return WorldEnd(DoomsdayConfig(), director, windows, legacies, worlds, worldService, fates, out, events, avatarFall, boot, clock)
   }
 
   private fun later(duration: Duration) {
@@ -112,6 +115,14 @@ class WorldEndTest {
 
   private fun announcements(): List<Pair<Announcement, List<String>>> {
     return broadcasts.filterIsInstance<AnnouncementSMSG>().map { it.announcement to it.args }
+  }
+
+  @Test
+  fun `nothing runs before the boot has finished, so no catalogue is read half imported`() {
+    val notBooted = BootCompletion()
+    WorldEnd(DoomsdayConfig(), director, windows, legacies, worlds, worldService, fates, out, events, avatarFall, notBooted, clock).run()
+
+    verify(exactly = 0) { director.ending() }
   }
 
   @Test

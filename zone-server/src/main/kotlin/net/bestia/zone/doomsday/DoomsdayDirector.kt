@@ -1,5 +1,6 @@
 package net.bestia.zone.doomsday
 
+import net.bestia.zone.config.BootCompletion
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.doomsday.persistence.StoredDoomsday
 import net.bestia.zone.doomsday.persistence.StoredDoomsdayRepository
@@ -28,6 +29,7 @@ class DoomsdayDirector(
   private val signs: DoomsdaySigns,
   private val events: ApplicationEventPublisher,
   private val foreshadow: ForeshadowRunner,
+  private val boot: BootCompletion,
   private val clock: Clock = Clock.systemUTC(),
 ) {
 
@@ -37,7 +39,7 @@ class DoomsdayDirector(
   @Scheduled(fixedDelay = RUN_EVERY_MS, initialDelay = RUN_EVERY_MS)
   @Transactional
   fun run() {
-    if (!config.enabled || !worldService.isLoaded) {
+    if (!config.enabled || !boot.isComplete) {
       return
     }
     runAt(ageDays())
