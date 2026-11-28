@@ -8,6 +8,8 @@ description: >-
   A creature made for game masters to try things on. It is strong, wears every piece of gear and knows every
   attack a bestia can learn. It never appears in the wild.
 kind: DRAGON
+# Every job, so a GM can try any orders on it.
+jobs: [GUARD, GATHER, CRAFT, MINE, BUILD, TRANSPORT, FOLLOW, REST]
 # An owned bestia's pools come from its level, VITALITY and INTELLIGENCE, so these two only count when a GM
 # spawns the species as a creature of its own with `/spawn`.
 health: 20000

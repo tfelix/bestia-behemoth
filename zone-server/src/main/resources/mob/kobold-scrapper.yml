@@ -13,6 +13,7 @@ essence: { group: TOOL, effect: MINING_SPEED }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
+jobs: [GUARD, GATHER, CRAFT, MINE, BUILD, FOLLOW, REST]
 attack-power: 1
 weight: 15
 health: 437

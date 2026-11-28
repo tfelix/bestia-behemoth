@@ -13,6 +13,7 @@ essence: { group: WEAPON, effect: RIDER, target: BLEEDING }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
+jobs: [GUARD, GATHER, TRANSPORT, FOLLOW, REST]
 attack-power: 1.01
 weight: 60
 health: 647

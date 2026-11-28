@@ -13,6 +13,7 @@ essence: { group: HEADGEAR, effect: BOSS, target: PHARAOHS_CROWN }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
+jobs: [GUARD, GATHER, CRAFT, BUILD, TRANSPORT, FOLLOW, REST]
 attack-power: 0.12
 weight: 500
 health: 78542

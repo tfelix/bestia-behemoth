@@ -7,6 +7,11 @@ import type { Bestia, BestiaOrders, OrderNumbers, OrderRuleLine, OrderSheet } fr
 /** The jobs that can run out of work, and so hand over to a fallback. */
 export const TAKES_FALLBACK = ['GATHER', 'CRAFT', 'MINE'];
 
+/** Whether a species may take a job; a roster that names no jobs leaves the check to the zone. */
+export function mayTake(allowedJobs: string[] | undefined, job: string): boolean {
+	return !allowedJobs?.length || allowedJobs.includes(job);
+}
+
 /** What a job may fall back to: any other job but rest. */
 export function fallbacksFor(job: string): string[] {
 	if (!TAKES_FALLBACK.includes(job)) return [];

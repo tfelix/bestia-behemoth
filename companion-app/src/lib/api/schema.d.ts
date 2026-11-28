@@ -1336,6 +1336,7 @@ export interface components {
             presetId?: number;
             ownOverrides: components["schemas"]["OrderNumbers"];
             activity?: components["schemas"]["Activity"];
+            allowedJobs: string[];
         };
         Journey: {
             name?: string;

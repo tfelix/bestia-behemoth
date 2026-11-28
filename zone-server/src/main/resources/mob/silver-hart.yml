@@ -12,6 +12,7 @@ size: BIG
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
+jobs: [GATHER, TRANSPORT, FOLLOW, REST]
 attack-power: 1.0
 weight: 220
 health: 3800

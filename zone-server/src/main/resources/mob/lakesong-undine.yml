@@ -14,6 +14,7 @@ essence: { group: GARMENT, effect: BOSS, target: STILL_LAKE }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
+jobs: [GUARD, FOLLOW, REST]
 attack-power: 0.08
 weight: 120
 health: 65414

@@ -72,6 +72,8 @@ sealed interface ZoneAnswer {
       val ownOverrides: OrderNumbers = OrderNumbers(),
       /** What it is doing now; null when it is not in the world. */
       val activity: Activity? = null,
+      /** The jobs its species may take; the orders page greys out the rest. */
+      val allowedJobs: List<String> = emptyList(),
     )
 
     /**

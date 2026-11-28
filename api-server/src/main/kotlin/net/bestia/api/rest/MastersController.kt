@@ -77,6 +77,8 @@ class MastersController(
     val ownOverrides: OrderNumbers,
     /** What it is doing now; null when it is not in the world. */
     val activity: ZoneAnswer.Roster.Activity?,
+    /** The jobs its species may take; the orders page greys out the rest. */
+    val allowedJobs: List<String>,
   )
 
   /** [route] is the way still ahead as planned; [waypoints] from [nextIndex] on are still to visit. */
@@ -192,6 +194,7 @@ class MastersController(
         presetId = it.presetId,
         ownOverrides = it.ownOverrides,
         activity = it.activity,
+        allowedJobs = it.allowedJobs,
       )
     }
   }

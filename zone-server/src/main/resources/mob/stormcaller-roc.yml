@@ -13,6 +13,7 @@ essence: { group: FOOTGEAR, effect: BOSS, target: STORM_WINGS }
 default-attack: RANGED
 aspd: 80
 ai: aggressive_melee
+jobs: [GUARD, GATHER, FOLLOW, REST]
 attack-power: 4.36
 weight: 500
 health: 8642

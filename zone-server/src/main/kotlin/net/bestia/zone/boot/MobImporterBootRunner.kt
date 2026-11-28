@@ -3,6 +3,7 @@ package net.bestia.zone.boot
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ai.profile.BestiaJob
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.Size
 import net.bestia.zone.battle.status.AttackSpeed
@@ -89,6 +90,9 @@ class MobImporterBootRunner(
      */
     val attributes: Attributes = Attributes(),
     val ai: String? = null,
+
+    /** The jobs an owned bestia of this species may take under orders; null when the file names none. */
+    val jobs: List<BestiaJob>? = null,
     @JsonProperty("equip-slots")
     val equipSlots: List<String> = emptyList(),
     @JsonProperty("armor-types")
@@ -168,6 +172,7 @@ class MobImporterBootRunner(
 
   override fun newEntity(dto: MobYmlDto): Bestia {
     validateTemperature(dto)
+    warnWithoutJobs(dto)
 
     val bestia = Bestia(
       id = dto.id,
@@ -192,6 +197,7 @@ class MobImporterBootRunner(
       agility = dto.attributes.agility,
       experienceReward = dto.experience,
       aiProfile = dto.ai,
+      jobs = jobsOf(dto),
       equipSlotMask = parseEquipSlotMask(dto),
       armorTypeMask = ArmorType.maskOf(dto.armorTypes),
       habitat = parseHabitat(dto),
@@ -237,6 +243,7 @@ class MobImporterBootRunner(
    */
   override fun tryUpdate(dto: MobYmlDto, entity: Bestia): Boolean {
     validateTemperature(dto)
+    warnWithoutJobs(dto)
 
     val habitat = parseHabitat(dto)
     val equipSlotMask = parseEquipSlotMask(dto)
@@ -262,6 +269,7 @@ class MobImporterBootRunner(
         entity.agility != dto.attributes.agility ||
         entity.experienceReward != dto.experience ||
         entity.aiProfile != dto.ai ||
+        entity.jobs != jobsOf(dto) ||
         entity.equipSlotMask != equipSlotMask ||
         entity.armorTypeMask != armorTypeMask ||
         entity.habitat != habitat ||
@@ -301,6 +309,7 @@ class MobImporterBootRunner(
     entity.agility = dto.attributes.agility
     entity.experienceReward = dto.experience
     entity.aiProfile = dto.ai
+    entity.jobs = jobsOf(dto)
     entity.equipSlotMask = equipSlotMask
     entity.armorTypeMask = armorTypeMask
     entity.habitat = habitat
@@ -317,6 +326,20 @@ class MobImporterBootRunner(
     entity.essence = dto.essence
 
     return true
+  }
+
+  private fun jobsOf(dto: MobYmlDto): String {
+    return dto.jobs.orEmpty().joinToString(",") { it.name }
+  }
+
+  /**
+   * A species without `jobs:` can only rest and follow once tamed, and that is almost always a file the exporter
+   * has no row for yet. The species nobody tames carry no jobs on purpose and are left out.
+   */
+  private fun warnWithoutJobs(dto: MobYmlDto) {
+    if (dto.jobs == null && dto.identifier !in SPECIES_WITHOUT_JOBS) {
+      LOG.warn { "Mob '${dto.identifier}' names no jobs; tamed, it may only rest and follow" }
+    }
   }
 
   /**
@@ -442,5 +465,11 @@ class MobImporterBootRunner(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /** Guards, townsfolk and the rift's own creatures: nobody tames them, so they need no jobs. */
+    private val SPECIES_WITHOUT_JOBS = setOf(
+      "archer_guardian", "melee_guardian", "guild_steward", "townsfolk_commoner", "brigand", "corruption_crystal",
+      "rift_crystal", "rift_warden", "void_sovereign",
+    )
   }
 }

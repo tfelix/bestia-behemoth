@@ -13,6 +13,7 @@ essence: { group: FOOTGEAR, effect: LONG_STRIDE }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
+jobs: [GATHER, TRANSPORT, FOLLOW, REST]
 attack-power: 1.26
 weight: 250
 health: 530

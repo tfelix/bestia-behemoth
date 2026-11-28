@@ -14,6 +14,7 @@ essence: { group: ACCESSORY, effect: BOSS, target: ASHEN_REBIRTH }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
+jobs: [GUARD, FOLLOW, REST]
 attack-power: 0.04
 weight: 500
 health: 169294

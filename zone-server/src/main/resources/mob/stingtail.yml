@@ -13,6 +13,7 @@ essence: { group: ACCESSORY, effect: REFLEX, target: acid_skin }
 default-attack: RANGED
 aspd: 80
 ai: aggressive_melee
+jobs: [GUARD, GATHER, FOLLOW, REST]
 attack-power: 1
 weight: 15
 health: 226

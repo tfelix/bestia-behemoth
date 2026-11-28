@@ -13,6 +13,7 @@ essence: { group: HEADGEAR, effect: CLEAR_MIND, target: BLIND }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
+jobs: [GUARD, FOLLOW, REST]
 attack-power: 0.23
 weight: 15
 health: 714

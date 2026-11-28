@@ -13,6 +13,7 @@ essence: { group: HEADGEAR, effect: CLEAR_MIND, target: FEARED }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
+jobs: [GUARD, FOLLOW, REST]
 attack-power: 1
 weight: 60
 health: 1411

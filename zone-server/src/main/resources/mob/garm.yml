@@ -13,6 +13,7 @@ essence: { group: WEAPON, effect: BOSS, target: HOWL_OF_GARM }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
+jobs: [GUARD, GATHER, TRANSPORT, FOLLOW, REST]
 attack-power: 2
 weight: 500
 health: 130962

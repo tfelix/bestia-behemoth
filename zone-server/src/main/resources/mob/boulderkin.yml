@@ -13,6 +13,7 @@ essence: { group: SHIELD, effect: STEADFAST, drawback: MOVE_SPEED }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
+jobs: [GUARD, GATHER, MINE, TRANSPORT, FOLLOW, REST]
 attack-power: 0.89
 weight: 250
 health: 4765

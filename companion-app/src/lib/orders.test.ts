@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Bestia } from '#lib/api/model.ts';
-import { changed, draftOf, fallbacksFor, ordersOf, ruleOf, sheetOf } from './orders';
+import { changed, draftOf, fallbacksFor, mayTake, ordersOf, ruleOf, sheetOf } from './orders';
 
 function bestia(changes: Partial<Bestia>): Bestia {
 	return {
@@ -18,11 +18,18 @@ function bestia(changes: Partial<Bestia>): Bestia {
 		overrides: {},
 		rules: [],
 		ownOverrides: {},
+		allowedJobs: [],
 		...changes
 	};
 }
 
 describe('orders', () => {
+	it('lets a species take only the jobs it may, and leaves an unknown species to the zone', () => {
+		expect(mayTake(['GATHER', 'REST', 'FOLLOW'], 'GATHER')).toBe(true);
+		expect(mayTake(['GATHER', 'REST', 'FOLLOW'], 'MINE')).toBe(false);
+		expect(mayTake([], 'MINE')).toBe(true);
+	});
+
 	it('offers a fallback only behind a job that runs out of work, never the job itself or rest', () => {
 		expect(fallbacksFor('GATHER')).toEqual(['GUARD', 'CRAFT', 'MINE']);
 		expect(fallbacksFor('GUARD')).toEqual([]);

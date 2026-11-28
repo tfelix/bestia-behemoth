@@ -13,6 +13,7 @@ essence: { group: TOOL, effect: RICH_SEAM }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
+jobs: [GUARD, GATHER, MINE, BUILD, FOLLOW, REST]
 attack-power: 1
 weight: 15
 health: 256

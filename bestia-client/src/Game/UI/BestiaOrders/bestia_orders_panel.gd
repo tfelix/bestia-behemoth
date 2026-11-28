@@ -16,6 +16,8 @@ const _LABEL_WIDTH := 90
 const _DELETE_CONFIRM_SECONDS := 3.0
 
 var _player_bestia_id: int = 0
+## Job names from the species' static data; see [method BestiaResource.get_jobs].
+var _species_jobs := PackedStringArray()
 ## What the server says is in force, to tell whether the draft changed. Null until it answered.
 var _sent: BestiaAiConfigSMSG
 var _presets: Array[Dictionary] = []
@@ -72,6 +74,9 @@ func open_for(bestia: BestiaInfo) -> void:
 	_body.visible = false
 	_loading.visible = true
 	title_changed.emit(tr("ORDERS_TITLE") % OwnedSlots.name_of(bestia))
+	var species := BestiaDB.get_instance().get_bestia(bestia.MobId)
+	_species_jobs = species.get_jobs() if species != null else PackedStringArray()
+	_grey_out_foreign_jobs(_job)
 	_area_here.tooltip_text = tr("ORDERS_AREA_HERE") % OwnedSlots.name_of(bestia)
 
 	if ConnectionManager.is_ready_to_send():
@@ -197,6 +202,19 @@ func _fill_fallback_picker() -> void:
 	if _sheet.FallbackJob not in fallbacks:
 		_sheet.FallbackJob = OrderVocabulary.Job.UNSET
 	_select_id(_fallback, _sheet.FallbackJob)
+	_grey_out_foreign_jobs(_fallback)
+
+
+## The jobs this bestia's species cannot take stay listed, greyed out with the reason, so the player learns why. An
+## unknown species greys out nothing: the server checks again.
+func _grey_out_foreign_jobs(picker: OptionButton) -> void:
+	for index in picker.item_count:
+		var job := picker.get_item_id(index)
+		if job == OrderVocabulary.Job.UNSET:
+			continue
+		var allowed: bool = _species_jobs.is_empty() or OrderVocabulary.Job.keys()[job] in _species_jobs
+		picker.set_item_disabled(index, not allowed)
+		picker.set_item_tooltip(index, "" if allowed else tr("ORDERS_JOB_NOT_FOR_SPECIES"))
 
 
 ## A place deleted in the companion app may still be named by orders the window holds; it shows as the default.

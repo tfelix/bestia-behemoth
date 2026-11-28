@@ -62,10 +62,10 @@ data class AiConfig(
   val isValid: Boolean
     get() {
       val fallbackFits = fallbackJob == null ||
-        (job.takesFallback && fallbackJob != job && fallbackJob != BestiaJob.REST)
+        (job.takesFallback && fallbackJob != job && fallbackJob != BestiaJob.REST && fallbackJob?.isBuilt == true)
       val rulesFit = rules.size <= OrderRule.MAX_RULES && rules.all { it.isValid }
 
-      return fallbackFits && rulesFit
+      return job.isBuilt && fallbackFits && rulesFit
     }
 
   companion object {
@@ -88,13 +88,13 @@ data class AiConfig(
  * replacing them, so a job can never grant a creature a behaviour its species does not have — a critter told to
  * GUARD still cannot hunt, because its profile has no kill-on-sight goal to enable.
  *
- * A job's [workGoals] and [workActions] are the exception: they are added whatever the species, until species
- * restrictions on jobs exist.
+ * A job's [workGoals] and [workActions] are the exception: they are added whatever the archetype. Which jobs a
+ * species may take at all is its own list, see `net.bestia.zone.master.bestia.SpeciesJobs`.
  *
  * `KillAttacker` is in every job on purpose: self-defence is not an order a player gets to switch off, and an
  * owned creature that stood still while being killed would be a bug reported as one.
  *
- * Follow joins once the goals that carry it exist.
+ * Build, Transport and Follow exist so a species' list can name them; no orders take them before [isBuilt].
  */
 enum class BestiaJob(
   val goalNames: Set<String>,
@@ -102,6 +102,8 @@ enum class BestiaJob(
   val workActions: List<String> = emptyList(),
   /** Whether it can run out of work, and so hand over to a fallback job. A guard and a resting bestia never do. */
   val takesFallback: Boolean = false,
+  /** False for a job whose goals are not written yet. */
+  val isBuilt: Boolean = true,
 ) {
 
   /** Roam the area around home, engage anything hostile inside it, and walk back to its middle after a fight. */
@@ -139,7 +141,11 @@ enum class BestiaJob(
     workGoals = listOf("Mine", "HaulToChest", "RestockFood"),
     workActions = listOf("claimShaft", "haulToChest", "takeFoodFromChest"),
     takesFallback = true,
-  );
+  ),
+
+  BUILD(setOf("KillAttacker", "Wander", "ReturnHome", "Sleep"), takesFallback = true, isBuilt = false),
+  TRANSPORT(setOf("KillAttacker", "Wander", "ReturnHome", "Sleep"), takesFallback = true, isBuilt = false),
+  FOLLOW(setOf("KillAttacker", "Wander", "ReturnHome", "Sleep"), takesFallback = true, isBuilt = false);
 
   companion object {
     fun fromNameOrNull(name: String): BestiaJob? = entries.firstOrNull { it.name.equals(name, ignoreCase = true) }

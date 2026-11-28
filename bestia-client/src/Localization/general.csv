@@ -277,6 +277,7 @@ ORDERS_OWN,Own orders
 ORDERS_PRESET_ITEM,%s (followed by %d)
 ORDERS_FOLLOWING_HINT,"Follows the preset. Change the preset to change these orders; only the Fine-tune numbers you tick are its own."
 ORDERS_JOB,Job
+ORDERS_JOB_NOT_FOR_SPECIES,This species cannot do this job.
 ORDERS_JOB_0,None
 ORDERS_JOB_1,Guard
 ORDERS_JOB_2,Rest

@@ -13,6 +13,7 @@ essence: { group: FOOTGEAR, effect: DEEP_POOLS }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
+jobs: [GUARD, GATHER, TRANSPORT, FOLLOW, REST]
 attack-power: 0.15
 weight: 250
 health: 1715
