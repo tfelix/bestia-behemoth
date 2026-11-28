@@ -917,7 +917,15 @@ namespace BestiaBehemothClient.Game.World
       {
         PlaceholderWidth = 1.4f, PlaceholderColour = new Color(0.70f, 0.62f, 0.38f), StructureHeight = 2f,
         Action = PropAction.Use
-      } // MINT
+      }, // MINT
+
+      // A forage patch: a low, wide tuft with a berry-red cast until it has a model, so it reads as "something to
+      // eat" next to the green of a herb. What it yields depends on the biome, so one look serves them all.
+      new Kind
+      {
+        PlaceholderWidth = 0.5f, PlaceholderColour = new Color(0.72f, 0.30f, 0.28f), Collectible = true,
+        Action = PropAction.Collect
+      } // FORAGE_PATCH
     };
 
     /// <summary>

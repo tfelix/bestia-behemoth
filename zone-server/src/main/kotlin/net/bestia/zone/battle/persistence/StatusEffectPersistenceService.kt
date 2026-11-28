@@ -27,6 +27,8 @@ data class StatusEffectsSnapshot(
     val remainingSeconds: Float?,
     val sourceEntityId: EntityId?,
     val potency: Int = 0,
+    /** See [ActiveStatusEffect.amount]: what one instance carries beyond its level, like the meal behind SATISFIED. */
+    val amount: Int = 0,
   )
 }
 
@@ -138,7 +140,8 @@ class StatusEffectPersistenceService(
           level = it.level,
           remainingSeconds = it.remainingSeconds.toNullableSeconds(),
           sourceEntityId = it.sourceEntityId,
-          potency = it.potency
+          potency = it.potency,
+          amount = it.amount
         )
       }
     )
@@ -165,7 +168,8 @@ class StatusEffectPersistenceService(
           level = it.level,
           remainingSeconds = it.remainingSeconds,
           sourceEntityId = it.sourceEntityId,
-          potency = it.potency
+          potency = it.potency,
+          amount = it.amount
         )
       }
     }
@@ -216,7 +220,7 @@ class StatusEffectPersistenceService(
       polarity = definition.polarity,
       showsCountdown = script.showsCountdown,
       potency = row.potency
-    )
+    ).also { it.amount = row.amount }
   }
 
   private fun isPersisted(effect: ActiveStatusEffect): Boolean {

@@ -26,16 +26,16 @@ namespace Bnet {
           string.Concat(
             "CjBtZXNzYWdlcy9jb21wb25lbnQvc3RhdHVzX2VmZmVjdF9saXN0X3Ntc2cu",
             "cHJvdG8SBGJuZXQiRgoUU3RhdHVzRWZmZWN0TGlzdFNNU0cSKAoHZWZmZWN0",
-            "cxgCIAMoCzIXLmJuZXQuU3RhdHVzRWZmZWN0RW50cnlKBAgBEAIiYAoRU3Rh",
+            "cxgCIAMoCzIXLmJuZXQuU3RhdHVzRWZmZWN0RW50cnlKBAgBEAIicAoRU3Rh",
             "dHVzRWZmZWN0RW50cnkSEQoJZWZmZWN0X2lkGAEgASgNEg0KBWxldmVsGAIg",
             "ASgNEhkKEXJlbWFpbmluZ19zZWNvbmRzGAMgASgCEg4KBmRlYnVmZhgEIAEo",
-            "CEIyChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CGVN0YXR1c0VmZmVjdExpc3RT",
-            "TVNHUHJvdG9iBnByb3RvMw=="));
+            "CBIOCgZhbW91bnQYBSABKAVCMgoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhlT",
+            "dGF0dXNFZmZlY3RMaXN0U01TR1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.StatusEffectListSMSG), global::Bnet.StatusEffectListSMSG.Parser, new[]{ "Effects" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.StatusEffectEntry), global::Bnet.StatusEffectEntry.Parser, new[]{ "EffectId", "Level", "RemainingSeconds", "Debuff" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.StatusEffectEntry), global::Bnet.StatusEffectEntry.Parser, new[]{ "EffectId", "Level", "RemainingSeconds", "Debuff", "Amount" }, null, null, null, null)
           }));
     }
     #endregion
@@ -273,6 +273,7 @@ namespace Bnet {
       level_ = other.level_;
       remainingSeconds_ = other.remainingSeconds_;
       debuff_ = other.debuff_;
+      amount_ = other.amount_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -333,6 +334,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "amount" field.</summary>
+    public const int AmountFieldNumber = 5;
+    private int amount_;
+    /// <summary>
+    /// What the instance carries beyond its level. For SATISFIED, the item id of the meal behind it.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int Amount {
+      get { return amount_; }
+      set {
+        amount_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -352,6 +368,7 @@ namespace Bnet {
       if (Level != other.Level) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(RemainingSeconds, other.RemainingSeconds)) return false;
       if (Debuff != other.Debuff) return false;
+      if (Amount != other.Amount) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -363,6 +380,7 @@ namespace Bnet {
       if (Level != 0) hash ^= Level.GetHashCode();
       if (RemainingSeconds != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(RemainingSeconds);
       if (Debuff != false) hash ^= Debuff.GetHashCode();
+      if (Amount != 0) hash ^= Amount.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -397,6 +415,10 @@ namespace Bnet {
         output.WriteRawTag(32);
         output.WriteBool(Debuff);
       }
+      if (Amount != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(Amount);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -423,6 +445,10 @@ namespace Bnet {
         output.WriteRawTag(32);
         output.WriteBool(Debuff);
       }
+      if (Amount != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(Amount);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -444,6 +470,9 @@ namespace Bnet {
       }
       if (Debuff != false) {
         size += 1 + 1;
+      }
+      if (Amount != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Amount);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -468,6 +497,9 @@ namespace Bnet {
       }
       if (other.Debuff != false) {
         Debuff = other.Debuff;
+      }
+      if (other.Amount != 0) {
+        Amount = other.Amount;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -504,6 +536,10 @@ namespace Bnet {
             Debuff = input.ReadBool();
             break;
           }
+          case 40: {
+            Amount = input.ReadInt32();
+            break;
+          }
         }
       }
     #endif
@@ -537,6 +573,10 @@ namespace Bnet {
           }
           case 32: {
             Debuff = input.ReadBool();
+            break;
+          }
+          case 40: {
+            Amount = input.ReadInt32();
             break;
           }
         }

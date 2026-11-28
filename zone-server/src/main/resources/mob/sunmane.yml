@@ -51,3 +51,4 @@ loot:
   - { item: raw_hide, chance: 3500 }
   - { item: sharp_fang, chance: 2000 }
   - { item: mana_crystal, chance: 300 }
+  - { item: sunmane_flank, chance: 2500 }

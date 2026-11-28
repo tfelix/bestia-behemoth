@@ -1,5 +1,8 @@
 package net.bestia.zone.crafting.station
 
+import net.bestia.zone.prop.CollectPropIntentSystem
+import net.bestia.zone.battle.ecs.status.WorkFatigue
+import net.bestia.zone.battle.ecs.status.StaminaConfig
 import net.bestia.zone.bestia.diary.BestiaNews
 import net.bestia.zone.bestia.diary.BestiaHappened
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
@@ -41,16 +44,18 @@ class ShaftWorkSystem(
   private val mining: MiningSkill,
   private val ore: ShaftOre,
   private val news: BestiaNews = BestiaNews { },
+  private val fatigue: WorkFatigue = WorkFatigue(StaminaConfig()),
 ) : System {
 
   override val phase = Phase.ITEMS
 
   // Both move workers on and off their work. Before the grant path, like the stations, for what reads the bag.
   override val after = setOf(StationWorkSystem::class)
-  override val before = setOf(ObtainItemIntentSystem::class)
+  override val before = setOf(ObtainItemIntentSystem::class, CollectPropIntentSystem::class)
   override val reads: ComponentClassSet =
-    setOf(Position::class, Inventory::class, CarryCapacity::class, AiAgent::class, Master::class, KnownSkills::class)
-  override val writes: ComponentClassSet = setOf(WorkAssignment::class, SimulationAnchor::class)
+    setOf(Position::class, Inventory::class, CarryCapacity::class, AiAgent::class, Master::class, KnownSkills::class) +
+      WorkFatigue.READS
+  override val writes: ComponentClassSet = setOf(WorkAssignment::class, SimulationAnchor::class) + WorkFatigue.WRITES
 
   /** Shaft id -> seconds of labour put in towards the next carve. Below zero after a carve that took much ore. */
   private val labour = HashMap<Long, Float>()
@@ -88,6 +93,7 @@ class ShaftWorkSystem(
 
     val dug = ore.dig(shaft.id, shaft.position, reach, shaft.ownerAccountId ?: NO_ACCOUNT, miner)
     labour[shaft.id] = done - dug * secondsPerVoxel
+    repeat(dug) { fatigue.charge(world, miner, WorkFatigue.Work.MINE) }
   }
 
   /** A shaft dug out, or a master who cannot mine: its miner goes back to its area and looks for another. */

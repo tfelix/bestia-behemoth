@@ -44,8 +44,8 @@ data class ActiveStatusEffect(
   var ageSeconds: Float = 0f
 
   /**
-   * Runtime only: what one instance carries beyond its level, like a barrier's pool or an endowed element's
-   * ordinal. An effect that needs these is not persisted, since a stored copy would come back without them.
+   * What one instance carries beyond its level, like a barrier's pool, an endowed element's ordinal or the meal
+   * behind a SATISFIED. Kept out of `equals` and `copy`, but stored with a persisted effect and sent to the client.
    */
   var amount: Int = 0
 

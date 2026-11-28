@@ -1,0 +1,101 @@
+# What a forage patch yields, by the biome it grows in. Read at boot into `ForageTable`.
+#
+# A pick draws one item from the patch's biome by weight, and with `second-pick-chance` a second (which may be the
+# same one again). Only what the picker's Herbalism reaches is in the draw: an item's `base-level` in items.yml is the
+# herb level it needs, as for every herb - 10 untrained, then 20 per rank. A biome with nothing in reach refuses the
+# pick; a biome this file leaves out yields what `prop-kinds.yml` says for FORAGE_PATCH, a wild herb.
+#
+# `item` is the `item-db-name` in items.yml; the biomes are worldgen's `Biome` names.
+second-pick-chance: 0.35
+
+biomes:
+
+  TEMPERATE_FOREST:
+    - { item: wild_garlic, weight: 30 }
+    - { item: field_mushroom, weight: 30 }
+    - { item: sweetroot, weight: 20 }
+    - { item: wild_herb, weight: 15 }
+    - { item: bramble_berries, weight: 15 }
+    - { item: apple, weight: 10 }
+
+  TEMPERATE_RAINFOREST:
+    - { item: field_mushroom, weight: 35 }
+    - { item: wild_herb, weight: 20 }
+    - { item: bramble_berries, weight: 15 }
+    - { item: black_truffle, weight: 4 }
+
+  GRASSLAND:
+    - { item: wild_onion, weight: 30 }
+    - { item: grain, weight: 25 }
+    - { item: wild_garlic, weight: 20 }
+    - { item: wild_herb, weight: 15 }
+
+  DRYLAND:
+    - { item: wild_onion, weight: 30 }
+    - { item: grain, weight: 20 }
+    - { item: desert_date, weight: 10 }
+    - { item: saffron_thread, weight: 3 }
+
+  DESERT:
+    - { item: desert_date, weight: 30 }
+    - { item: wild_onion, weight: 15 }
+
+  COLD_DESERT:
+    - { item: wild_onion, weight: 15 }
+    - { item: saffron_thread, weight: 5 }
+
+  RIPARIAN:
+    - { item: sweetroot, weight: 25 }
+    - { item: marsh_rice, weight: 25 }
+    - { item: wild_herb, weight: 15 }
+
+  LAKE:
+    - { item: wild_herb, weight: 20 }
+    - { item: starlight_lotus, weight: 5 }
+
+  BEACH:
+    - { item: sea_kelp, weight: 40 }
+    - { item: salt, weight: 20 }
+
+  BOG:
+    - { item: bog_cranberry, weight: 40 }
+    - { item: wild_herb, weight: 10 }
+
+  SWAMP:
+    - { item: marsh_rice, weight: 30 }
+    - { item: bog_cranberry, weight: 20 }
+
+  TUNDRA:
+    - { item: frost_mint, weight: 30 }
+    - { item: wild_herb, weight: 10 }
+
+  TAIGA:
+    - { item: frost_mint, weight: 25 }
+    - { item: bramble_berries, weight: 20 }
+    - { item: field_mushroom, weight: 15 }
+
+  ALPINE:
+    - { item: cloudberry, weight: 30 }
+    - { item: wild_herb, weight: 15 }
+
+  TROPICAL_SEASONAL_FOREST:
+    - { item: peppercorn, weight: 30 }
+    - { item: cinnamon_bark, weight: 20 }
+    - { item: apple, weight: 15 }
+    - { item: grape, weight: 15 }
+
+  TROPICAL_RAINFOREST:
+    - { item: cinnamon_bark, weight: 20 }
+    - { item: grape, weight: 20 }
+    - { item: vanilla_pod, weight: 5 }
+
+  VOLCANIC_FIELD:
+    - { item: ember_chili, weight: 30 }
+
+  BADLANDS:
+    - { item: ember_chili, weight: 20 }
+    - { item: wild_onion, weight: 10 }
+
+  GEOTHERMAL_BASIN:
+    - { item: wild_herb, weight: 20 }
+    - { item: ambrosia_bloom, weight: 4 }

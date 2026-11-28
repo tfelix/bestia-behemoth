@@ -50,3 +50,4 @@ loot:
   - { item: soft_fur, chance: 3000 }
   - { item: raw_meat, chance: 2500 }
   - { item: frost_crystal, chance: 1200 }
+  - { item: frost_marrow, chance: 2000 }

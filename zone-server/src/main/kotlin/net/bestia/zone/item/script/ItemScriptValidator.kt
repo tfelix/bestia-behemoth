@@ -16,11 +16,13 @@ import org.springframework.stereotype.Component
 @Component
 class ItemScriptValidator(
   private val itemRepository: ItemRepository,
-  private val itemScripts: List<ItemScript>,
+  private val executionService: ItemScriptExecutionService,
   private val equipmentScriptRegistry: EquipmentScriptRegistry,
 ) : CatalogValidator {
 
   override fun validate() {
+    val itemScripts = executionService.allScripts
+
     LOG.info { "Validating ${itemScripts.size} item script(s)..." }
 
     // Check for duplicate scripts (multiple scripts with the same itemId)

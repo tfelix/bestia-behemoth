@@ -16,7 +16,14 @@ enum class HerbKind {
   MANA,
   FROST,
   SUN,
-  GHOST;
+  GHOST,
+
+  /**
+   * A forage patch: not one herb but a bit of everything edible the land around it grows - wild garlic in a forest,
+   * kelp on a beach, chilies on a lava field. What it yields is the zone's to decide from the biome; worldgen only
+   * says where one grows.
+   */
+  FORAGE;
 
   companion object {
 
@@ -26,10 +33,14 @@ enum class HerbKind {
     /**
      * The herb on one cell. [roll] is the cell's own draw in `0..1`, so a place keeps its herbs. The checks run
      * from the rarest herb down, so blighted ground in strong mana grows ghost herbs, not mana herbs.
+     *
+     * A forage patch takes the top of the roll and the rare herbs its bottom, so the two never compete for a cell.
+     * Blighted ground grows none: nothing there is fit to eat.
      */
     fun of(blighted: Boolean, mana: Double, biome: Biome, roll: Double, params: GroundCoverParams): HerbKind {
       return when {
         blighted -> if (roll < params.ghostHerbShare) GHOST else WILD
+        roll >= 1.0 - params.forageShare -> FORAGE
         mana >= params.manaHerbMinMana && roll < params.manaHerbShare -> MANA
         biome in COLD && roll < params.frostHerbShare -> FROST
         biome in HOT_AND_DRY && roll < params.sunHerbShare -> SUN

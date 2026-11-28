@@ -50,3 +50,4 @@ loot:
   - { item: reptile_scale, chance: 4000 }
   - { item: venom_sac, chance: 3000 }
   - { item: dragon_scale, chance: 300 }
+  - { item: hydra_heart, chance: 1000 }

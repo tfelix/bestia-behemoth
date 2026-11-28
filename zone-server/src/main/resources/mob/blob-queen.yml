@@ -54,3 +54,4 @@ loot:
   - { item: apple, chance: 5000 }
   - { item: mana_crystal, chance: 1500 }
   - { item: gold_ring, chance: 1000 }
+  - { item: royal_jelly, chance: 10000 }

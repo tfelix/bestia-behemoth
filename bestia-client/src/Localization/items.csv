@@ -52,7 +52,9 @@ ARMOR_BLUEPRINT_DESC,"A smith's drawing of a breastplate, with the hard part - t
 HEARTY_STEW,Hearty Stew
 HEARTY_STEW_DESC,"A bowl of thick stew made from whatever was to hand, still steaming from the fire.
 
-Restores health and stamina both, which no potion does."
+Restores health and stamina both, which no potion does.
+
+Satisfied for 15 min: +10% stamina regeneration, +2 VIT."
 IRON_SWORD,Iron Sword
 IRON_SWORD_DESC,"A straight iron blade, plain and heavier than it looks.
 
@@ -1849,3 +1851,335 @@ PHILOSOPHERS_DRAUGHT,Philosopher's Draught
 PHILOSOPHERS_DRAUGHT_DESC,"A draught in which a philosopher's stone was dissolved. It tastes of nothing at all.
 
 Raises every attribute a great deal for ten minutes."
+WILD_GARLIC,Wild Garlic
+WILD_GARLIC_DESC,"A bulb of wild garlic, dug from the forest floor. The smell stays on your hands for a day.
+
+Grows in forage patches of the temperate forests and the grasslands."
+WILD_ONION,Wild Onion
+WILD_ONION_DESC,"A small, sharp onion with its green still on.
+
+Grows in forage patches of the grasslands and the dry plains."
+FIELD_MUSHROOM,Field Mushroom
+FIELD_MUSHROOM_DESC,"A pale, meaty mushroom that is, for once, entirely safe to eat.
+
+Grows in forage patches of the temperate forests."
+SWEETROOT,Sweetroot
+SWEETROOT_DESC,"A knobbly orange root that turns soft and sweet over a fire.
+
+Grows in forage patches of the temperate forests and along the rivers."
+SEA_KELP,Sea Kelp
+SEA_KELP_DESC,"A rubbery ribbon of kelp, still smelling of the tide.
+
+Grows in forage patches on the beaches."
+BOG_CRANBERRY,Bog Cranberry
+BOG_CRANBERRY_DESC,"A handful of tart red berries from the moss of a bog.
+
+Grows in forage patches of the bogs and swamps."
+MARSH_RICE,Marsh Rice
+MARSH_RICE_DESC,"Long dark grains stripped from a stalk of wild rice.
+
+Grows in forage patches of the swamps and along the rivers."
+FROST_MINT,Frost Mint
+FROST_MINT_DESC,"Pale mint leaves rimed with frost that never quite melts.
+
+Grows in forage patches of the tundra and the taiga."
+PEPPERCORN,Peppercorn
+PEPPERCORN_DESC,"A twist of black peppercorns from a jungle vine. Worth more than its weight in copper.
+
+Grows in forage patches of the seasonal tropical forests."
+DESERT_DATE,Desert Date
+DESERT_DATE_DESC,"A sticky, honey-sweet date from a palm that should not grow where it does.
+
+Grows in forage patches of the deserts and dry plains."
+CINNAMON_BARK,Cinnamon Bark
+CINNAMON_BARK_DESC,"A curl of fragrant inner bark, peeled from a tropical tree.
+
+Grows in forage patches of the tropical forests."
+EMBER_CHILI,Ember Chili
+EMBER_CHILI_DESC,"A chili that glows faintly red in the dark. Do not rub your eyes.
+
+Grows in forage patches on the lava fields and in the badlands."
+CLOUDBERRY,Cloudberry
+CLOUDBERRY_DESC,"A golden berry from the high meadows, said to taste of the clouds it grows under.
+
+Grows in forage patches of the alpine heights."
+BLACK_TRUFFLE,Black Truffle
+BLACK_TRUFFLE_DESC,"A lumpy black truffle with a smell that fills a room.
+
+Grows, rarely, in forage patches of the temperate rainforests."
+VANILLA_POD,Vanilla Pod
+VANILLA_POD_DESC,"A long, dark, glossy pod from an orchid of the deep jungle.
+
+Grows, rarely, in forage patches of the tropical rainforests."
+SAFFRON_THREAD,Saffron Thread
+SAFFRON_THREAD_DESC,"A pinch of crimson threads from a crocus of the dry heights. Gold is easier to come by.
+
+Grows, rarely, in forage patches of the dry plains and cold deserts."
+STARLIGHT_LOTUS,Starlight Lotus
+STARLIGHT_LOTUS_DESC,"A lotus that opens only under the stars, and keeps a little of their light.
+
+Grows, rarely, in forage patches on the shores of lakes."
+AMBROSIA_BLOOM,Ambrosia Bloom
+AMBROSIA_BLOOM_DESC,"A flower from the hot springs whose nectar the old songs call the food of gods.
+
+Grows, rarely, in forage patches of the geothermal basins."
+SPECKLED_EGG,Speckled Egg
+SPECKLED_EGG_DESC,"A brown egg speckled like a pecklet's breast. Handle with care.
+
+Dropped by pecklets."
+CRAB_CLAW,Crab Claw
+CRAB_CLAW_DESC,"A shellsnip's claw, heavy with sweet white meat once you crack it.
+
+Dropped by shellsnips."
+NECTAR_DROP,Nectar Drop
+NECTAR_DROP_DESC,"A bead of golden nectar a buzzlet was carrying home.
+
+Dropped by buzzlets."
+SNAIL_MEAT,Snail Meat
+SNAIL_MEAT_DESC,"The chewy foot of a bogsnail. Better than it sounds, with enough garlic.
+
+Dropped by bogsnails."
+PUFFCAP_CAP,Puffcap Cap
+PUFFCAP_CAP_DESC,"The spongy cap of a puffcap, emptied of its spores. Nutty, once cooked.
+
+Dropped by puffcaps."
+SCORPION_TAIL,Scorpion Tail
+SCORPION_TAIL_DESC,"A stingtail's tail with the sting cut off. Crunchy.
+
+Dropped by stingtails."
+VENISON,Venison
+VENISON_DESC,"A lean, dark haunch of deer.
+
+Dropped by tallhorns and mossback stags."
+YAK_BUTTER,Yak Butter
+YAK_BUTTER_DESC,"A pale yellow block of butter churned from a woolhorn yak's milk.
+
+Dropped by woolhorn yaks."
+VEIL_JELLY,Veil Jelly
+VEIL_JELLY_DESC,"A cool, blue-glowing jelly from a jellyveil's bell. It stops stinging once it is cooked.
+
+Dropped by jellyveils."
+MOUNTAIN_MUTTON,Mountain Mutton
+MOUNTAIN_MUTTON_DESC,"A tough, gamey cut from a crag ram that wants a long time in the pot.
+
+Dropped by crag rams."
+SEAL_BLUBBER,Seal Blubber
+SEAL_BLUBBER_DESC,"A slab of tuskseal blubber. It keeps a body warm from the inside.
+
+Dropped by tuskseals."
+CROC_TAIL,Croc Tail
+CROC_TAIL_DESC,"A mudjaw's tail, scaled and boned. Tastes like a chicken that could eat you.
+
+Dropped by mudjaws."
+MAGMA_JELLY,Magma Jelly
+MAGMA_JELLY_DESC,"A lump of jelly from a magmaslug, still warm enough to cook an egg on.
+
+Dropped by magmaslugs."
+ROYAL_JELLY,Royal Jelly
+ROYAL_JELLY_DESC,"The rich, shimmering jelly a blob queen is made of. Blobs fight over every drop.
+
+Dropped by the blob queen."
+SUNMANE_FLANK,Sunmane Flank
+SUNMANE_FLANK_DESC,"A flank of sunmane, golden-marbled and warm to the touch.
+
+Dropped by sunmanes."
+QUEEN_HONEY,Queen's Honey
+QUEEN_HONEY_DESC,"Dark amber honey from the heart of a hive queen's comb.
+
+Dropped by the hive queen."
+THUNDER_EGG,Thunder Egg
+THUNDER_EGG_DESC,"A stormstrider's egg that crackles when you shake it. Don't.
+
+Dropped by stormstriders."
+FROST_MARROW,Frost Marrow
+FROST_MARROW_DESC,"A marrow bone from a rimehulk yeti, cold as a glacier at its core.
+
+Dropped by rimehulk yetis."
+DRAKE_STEAK,Drake Steak
+DRAKE_STEAK_DESC,"A thick steak from a geyser drake, steaming even when raw.
+
+Dropped by geyser drakes."
+SERPENT_FILLET,Serpent Fillet
+SERPENT_FILLET_DESC,"A translucent fillet from a brineserpent, fine enough to eat raw.
+
+Dropped by brineserpents."
+HYDRA_HEART,Hydra Heart
+HYDRA_HEART_DESC,"One of a hydra's hearts. It still beats now and then.
+
+Dropped by hydras."
+WYVERN_TENDERLOIN,Wyvern Tenderloin
+WYVERN_TENDERLOIN_DESC,"The tenderest cut of a wyvern, from under the wing.
+
+Dropped by frost wyverns and canyon wyverns."
+EMBER_GLAND,Ember Gland
+EMBER_GLAND_DESC,"The gland a salamander breathes fire from. A cook's spice, used by the grain.
+
+Dropped by salamanders."
+PHOENIX_EGG,Phoenix Egg
+PHOENIX_EGG_DESC,"An egg of the ember phoenix, too hot to hold without gloves.
+
+Dropped by the ember phoenix."
+LEVIATHAN_STEAK,Leviathan Steak
+LEVIATHAN_STEAK_DESC,"A steak cut from a leviathan, enough to feed a village, if a village dared.
+
+Dropped by the leviathan."
+BEHEMOTH_RIB,Behemoth Rib
+BEHEMOTH_RIB_DESC,"A single rib of the behemoth, with meat on it. It takes two to carry.
+
+Dropped by the behemoth."
+GRILLED_SKEWER,Grilled Skewer
+GRILLED_SKEWER_DESC,"Chunks of meat and onion charred on a stick over an open fire.
+
+Satisfied for 15 min: +10% stamina regeneration, +5% speed off the road."
+JELLY_DUMPLINGS,Jelly Dumplings
+JELLY_DUMPLINGS_DESC,"Wobbly dumplings with a sweet jelly heart. Better than they look.
+
+Satisfied for 15 min: +10% stamina regeneration, +3% healing received."
+GARLIC_FISH,Garlic Fish
+GARLIC_FISH_DESC,"A whole fish roasted with a bulb of wild garlic in its belly.
+
+Satisfied for 15 min: +10% stamina regeneration, +3 HIT."
+GRAIN_PORRIDGE,Rat-Grain Porridge
+GRAIN_PORRIDGE_DESC,"A thick porridge of field grain with a grated apple stirred in. Farmhands swear by it.
+
+Satisfied for 15 min: +10% stamina regeneration, skills cost 10% less stamina."
+FRIED_EGG_AND_HERBS,Fried Egg & Herbs
+FRIED_EGG_AND_HERBS_DESC,"A speckled egg fried in a pan, scattered with chopped herbs.
+
+Satisfied for 15 min: +10% stamina regeneration, +2 HP regeneration."
+CRAB_CLAW_BROTH,Crab-Claw Broth
+CRAB_CLAW_BROTH_DESC,"A salty broth of crab and kelp that tastes of the sea.
+
+Satisfied for 15 min: +10% stamina regeneration, +5% water resistance."
+MUSHROOM_PAN,Mushroom Pan
+MUSHROOM_PAN_DESC,"Mushrooms and strips of meat sizzled together in their own juices.
+
+Satisfied for 15 min: +10% stamina regeneration, +2 INT, +2 mana regeneration."
+SWEETROOT_MASH,Sweetroot Mash
+SWEETROOT_MASH_DESC,"A bowl of mashed sweetroot, smooth with a spoon of jelly. A worker's breakfast.
+
+Satisfied for 15 min: +10% stamina regeneration, 15% less stamina lost to work, weather and the road."
+BERRY_TART,Berry Tart
+BERRY_TART_DESC,"A crumbly tart of bramble berries glazed with nectar.
+
+Satisfied for 15 min: +10% stamina regeneration, +2 AGI."
+GARLIC_SNAILS,Garlic Snails
+GARLIC_SNAILS_DESC,"Bogsnail cooked in its own juices with plenty of garlic. The bog has never tasted better.
+
+Satisfied for 15 min: +10% stamina regeneration, +10% poison resistance."
+SMOKED_PERCH,Smoked Perch
+SMOKED_PERCH_DESC,"A perch salted and hung in the smoke of the campfire overnight.
+
+Satisfied for 15 min: +10% stamina regeneration, +5% carry capacity."
+PUFFCAP_RISOTTO,Puffcap Risotto
+PUFFCAP_RISOTTO_DESC,"Creamy marsh rice stirred slowly with puffcap and herbs.
+
+Satisfied for 15 min: +10% stamina regeneration, +3 WIL."
+CRANBERRY_BOAR_ROAST,Cranberry Boar Roast
+CRANBERRY_BOAR_ROAST_DESC,"A roast of boar glazed with tart bog cranberries.
+
+Satisfied for 15 min: +10% stamina regeneration, +3 STR."
+CRISPY_SCORPION,Crispy Scorpion
+CRISPY_SCORPION_DESC,"Stingtail tails fried until they crack between the teeth.
+
+Satisfied for 15 min: +10% stamina regeneration, +3 CRIT."
+BREAM_RICE_BOWL,Bream Rice Bowl
+BREAM_RICE_BOWL_DESC,"Flaked bream on a bed of marsh rice, wrapped in kelp to carry.
+
+Satisfied for 15 min: +10% stamina regeneration, +5% carry capacity, 5% less stamina lost to work, weather and the road."
+VENISON_PIE,Venison Pie
+VENISON_PIE_DESC,"A deep pie of venison and mushrooms under a golden crust.
+
+Satisfied for 20 min: +20% stamina regeneration, +4 VIT, +3% max HP."
+FROST_MINT_TEA_CAKE,Frost-Mint Tea Cake
+FROST_MINT_TEA_CAKE_DESC,"A sweet little cake that leaves a cool tingle and, oddly, a warm belly.
+
+Satisfied for 20 min: +20% stamina regeneration, +10% water resistance, 10% less stamina lost to work, weather and the road, and keeps you warm in the cold."
+PEPPERED_PIKE,Peppered Pike
+PEPPERED_PIKE_DESC,"A pike steak crusted thick with cracked pepper.
+
+Satisfied for 20 min: +20% stamina regeneration, +5 HIT, +3 FLEE."
+YAK_BUTTER_BREAD,Yak Butter Bread
+YAK_BUTTER_BREAD_DESC,"A heavy flatbread soaked in yak butter. The mountain folk work all day on one.
+
+Satisfied for 20 min: +20% stamina regeneration, 25% less stamina lost to work, weather and the road."
+VEIL_JELLY_ASPIC,Veil-Jelly Aspic
+VEIL_JELLY_ASPIC_DESC,"A cold, faintly glowing aspic of jellyveil and mint.
+
+Satisfied for 20 min: +20% stamina regeneration, +5% max mana, +4 mana regeneration."
+MUTTON_HOTPOT,Mutton Hotpot
+MUTTON_HOTPOT_DESC,"Crag ram stewed for hours with sweetroot and garlic until it falls apart.
+
+Satisfied for 20 min: +20% stamina regeneration, +10% carry capacity."
+DATE_STUFFED_EEL,Date-Stuffed Eel
+DATE_STUFFED_EEL_DESC,"An eel roasted with sweet desert dates in its belly. It keeps a body cool under any sun.
+
+Satisfied for 20 min: +20% stamina regeneration, +10% fire resistance, and keeps you cool in the heat."
+CINNAMON_HONEYCAKES,Cinnamon Honeycakes
+CINNAMON_HONEYCAKES_DESC,"Small sticky cakes of honey and cinnamon. Fingers stay nimble, if sticky.
+
+Satisfied for 20 min: +20% stamina regeneration, +4 DEX, 5% faster casting."
+BLUBBER_STEW,Blubber Stew
+BLUBBER_STEW_DESC,"A rich, oily stew from the ice shelves. Nothing keeps a fighter going like it.
+
+Satisfied for 20 min: +20% stamina regeneration, HP and mana keep regenerating in combat."
+LAVA_JELLY_FLAMBE,Lava-Jelly Flambé
+LAVA_JELLY_FLAMBE_DESC,"Magmaslug jelly set alight at the table. Eat it before it eats the table.
+
+Satisfied for 20 min: +20% stamina regeneration, +8% damage against earth creatures."
+ROYAL_JELLY_CUSTARD,Royal Jelly Custard
+ROYAL_JELLY_CUSTARD_DESC,"A trembling custard made with the blob queen's own jelly. Fit for a king, or a very large blob.
+
+Satisfied for 30 min: +30% stamina regeneration, +3 to every attribute."
+SMOKED_SALMON_PLATE,Smoked Salmon Plate
+SMOKED_SALMON_PLATE_DESC,"Thin slices of smoked salmon dressed with frost mint.
+
+Satisfied for 30 min: +30% stamina regeneration, +6 WIL, +5% healing received."
+CROC_TAIL_GUMBO,Croc-Tail Gumbo
+CROC_TAIL_GUMBO_DESC,"A dark, peppery swamp stew with chunks of mudjaw tail.
+
+Satisfied for 30 min: +30% stamina regeneration, +10% poison and bleeding resistance."
+SUNMANE_STEAK,Sunmane Steak
+SUNMANE_STEAK_DESC,"A sunmane steak seared hot and fast, with a chili rub that bites back.
+
+Satisfied for 30 min: +30% stamina regeneration, +6 STR, +3% attack speed."
+CLOUDBERRY_PARFAIT,Cloudberry Parfait
+CLOUDBERRY_PARFAIT_DESC,"A light, airy parfait of cloudberries. You feel you could float past anyone.
+
+Satisfied for 30 min: +30% stamina regeneration, 15% shorter range at which creatures notice you."
+TRUFFLE_VENISON,Truffle Venison
+TRUFFLE_VENISON_DESC,"Venison with shaved black truffle. Bestias follow the smell for miles.
+
+Satisfied for 30 min: +30% stamina regeneration, +5 catch chance when taming."
+QUEENS_HONEY_GLAZE,Queen's Honey Glaze
+QUEENS_HONEY_GLAZE_DESC,"Sturgeon lacquered in the hive queen's dark honey. A whole workday in one plate.
+
+Satisfied for 30 min: +30% stamina regeneration, 40% less stamina lost to work, weather and the road, +10% carry capacity."
+THUNDER_EGG_SOUFFLE,Thunder-Egg Soufflé
+THUNDER_EGG_SOUFFLE_DESC,"A soufflé that rises with a crackle of static. Your feet feel lighter for hours.
+
+Satisfied for 30 min: +30% stamina regeneration, +8 AGI, +10% speed off the road."
+DRAKE_STEAK_DIANE,Drake Steak Diane
+DRAKE_STEAK_DIANE_DESC,"Drake steak in a saffron and marrow sauce. Hot drake, cold marrow, and a warrior's appetite.
+
+Satisfied for 45 min: +40% stamina regeneration, +6% max HP, +8 VIT."
+SERPENT_SUSHI,Serpent Sushi
+SERPENT_SUSHI_DESC,"Rolls of brineserpent and moonscale on marsh rice. Demands a steady hand to make and gives one back.
+
+Satisfied for 45 min: +40% stamina regeneration, +8 DEX, +8 HIT."
+HYDRA_HEART_RAGOUT,Hydra Heart Ragout
+HYDRA_HEART_RAGOUT_DESC,"A ragout of hydra heart. Every bite makes you a little hungrier for the next fight.
+
+Satisfied for 45 min: +40% stamina regeneration, 1% of damage dealt heals you."
+WYVERN_WELLINGTON,Wyvern Wellington
+WYVERN_WELLINGTON_DESC,"Wyvern tenderloin wrapped in pastry, spiced with ember gland and saffron.
+
+Satisfied for 60 min: +50% stamina regeneration, +10 STR, +10% fire and water resistance."
+LOTUS_LEVIATHAN_BROTH,Lotus Leviathan Broth
+LOTUS_LEVIATHAN_BROTH_DESC,"A clear broth of the deep, with a starlight lotus floating in it.
+
+Satisfied for 60 min: +50% stamina regeneration, +10% max HP and mana, skills cost 20% less stamina."
+PHOENIX_FEAST,Phoenix Feast
+PHOENIX_FEAST_DESC,"A feast of legends: behemoth rib, phoenix egg and ambrosia. They will sing of the cook.
+
+Satisfied for 60 min: +50% stamina regeneration, +10 to every attribute, HP and mana keep regenerating in combat."

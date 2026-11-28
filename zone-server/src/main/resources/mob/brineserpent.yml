@@ -50,3 +50,4 @@ loot:
   - { item: reptile_scale, chance: 3000 }
   - { item: salt, chance: 2500 }
   - { item: sea_pearl, chance: 500 }
+  - { item: serpent_fillet, chance: 2500 }

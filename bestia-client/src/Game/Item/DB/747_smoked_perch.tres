@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 747
+name_key = "SMOKED_PERCH"
+description_key = "SMOKED_PERCH_DESC"
+weight = 40
+level = 10

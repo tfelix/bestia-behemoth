@@ -49,3 +49,4 @@ armor-types: [LIGHT, MEDIUM]
 loot:
   - { item: venom_sac, chance: 1500 }
   - { item: chitin, chance: 2000 }
+  - { item: scorpion_tail, chance: 2000 }

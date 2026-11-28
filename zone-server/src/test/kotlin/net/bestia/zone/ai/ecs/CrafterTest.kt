@@ -15,7 +15,6 @@ import net.bestia.zone.crafting.station.CrafterProfiles
 import net.bestia.zone.crafting.station.StationWork
 import net.bestia.zone.crafting.station.StationWorkSystem
 import net.bestia.zone.crafting.station.StationWorkers
-import net.bestia.zone.ecs.core.System
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.Master
@@ -24,7 +23,6 @@ import net.bestia.zone.item.ecs.CarryCapacity
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.item.material.ItemMaterial
-import net.bestia.zone.prop.CollectPropIntentSystem
 import net.bestia.zone.prop.StructureEntry
 import net.bestia.zone.prop.station.QueueEntry
 import net.bestia.zone.prop.station.WorkAssignment
@@ -34,7 +32,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import kotlin.reflect.KClass
 
 /** A bestia under CRAFT orders taking the stations of its master that wait for a free crafter. */
 class CrafterTest {
@@ -150,14 +147,9 @@ class CrafterTest {
     ai.world.add(crafter, CarryCapacity(0, 10))
     station(1L, Vec3L(6, 0, 0), amount = 5)
     val chest = ai.spawnChest(Vec3L(8, 0, 0), structureId = 9L, masterId = MASTER)
-    ai.world.registerSystems(listOf(AfterPickups(stationWork())))
+    ai.world.registerSystems(listOf(stationWork()))
 
     ai.tickUntil(maxTicks = 20 * 120, describe = { "the chest holds ${productsIn(chest)}" }) { productsIn(chest) >= 2 }
-  }
-
-  /** The fixture's pickups and the station both grant items; which runs first does not matter here. */
-  private class AfterPickups(work: StationWorkSystem) : System by work {
-    override val after: Set<KClass<out System>> = setOf(CollectPropIntentSystem::class)
   }
 
   private fun productsIn(id: EntityId): Int {

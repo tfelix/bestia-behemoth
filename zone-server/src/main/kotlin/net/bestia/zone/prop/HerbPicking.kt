@@ -27,9 +27,15 @@ class HerbPicking(
   fun mayPick(world: World, pickerId: EntityId, kind: StaticEntityKind, yieldItemId: Long): Boolean {
     if (kind !in HERBS) return true
     val herbLevel = items.baseLevelOf(yieldItemId) ?: return true
+
+    return herbLevel <= maxLevelFor(world, pickerId)
+  }
+
+  /** The highest herb level [pickerId] may pick, by its own Herbalism or, for a bestia, its master's. */
+  fun maxLevelFor(world: World, pickerId: EntityId): Int {
     val herbalism = herbalismId?.let { OwnerSkills.levelOf(world, pickerId, it) } ?: 0
 
-    return herbLevel <= maxHerbLevel(herbalism)
+    return maxHerbLevel(herbalism)
   }
 
   companion object {

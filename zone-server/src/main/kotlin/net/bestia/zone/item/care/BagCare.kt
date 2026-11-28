@@ -5,7 +5,12 @@ import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.item.container.InventoryService
+import net.bestia.zone.item.eating.Eating
+import net.bestia.zone.item.eating.EatingService
+import net.bestia.zone.item.meal.MealScript
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ItemOwner
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
@@ -30,6 +35,8 @@ class BagCare(
   private val scripts: ItemScriptExecutionService,
   private val inventoryService: InventoryService,
   private val asyncJobExecutor: AsyncJobExecutor,
+  /** Null in a test without meals: everything is then eaten on the spot. */
+  private val eating: EatingService? = null,
 ) {
 
   enum class Need { STAMINA, HEALTH }
@@ -43,10 +50,20 @@ class BagCare(
     }
   }
 
-  /** Uses the carried item that restores the most of [need]. False when there is none, or it changed nothing. */
+  /**
+   * Uses the carried item that restores the most of [need]. False when there is none, or it changed nothing.
+   *
+   * For stamina, a bestia that is not [StatusEffectId.SATISFIED] reaches for a meal first, and one that is saves its
+   * meals for later. A meal is not eaten here but begun, see [EatingService]: [isEating] says when it is through.
+   */
   fun use(world: World, entityId: EntityId, need: Need): Boolean {
     val inventory = world.get(entityId, Inventory::class) ?: return false
-    val (held, script) = bestFor(inventory, need) ?: return false
+    val (held, script) = bestFor(inventory, need, mealsFirst = need == Need.STAMINA && !isSatisfied(world, entityId))
+      ?: return false
+
+    if (eating != null && eating.isMeal(held.itemId)) {
+      return eating.begin(world, entityId, held.playerItemId, interrupt = false)
+    }
 
     if (!scripts.use(world, entityId, script, held.playerItemId, ScriptArgs.EMPTY)) {
       return false
@@ -61,8 +78,19 @@ class BagCare(
     return candidatesFor(inventory, need).sortedByDescending { (_, script) -> script.restores(need) }.map { it.first }
   }
 
-  private fun bestFor(inventory: Inventory, need: Need): Pair<Inventory.Item, RestorativeScript>? {
-    return candidatesFor(inventory, need).maxByOrNull { (_, script) -> script.restores(need) }
+  /** Whether [entityId] is still busy eating a meal [use] began. */
+  fun isEating(world: World, entityId: EntityId): Boolean = eating?.isEating(world, entityId) == true
+
+  private fun isSatisfied(world: World, entityId: EntityId): Boolean {
+    return world.get(entityId, StatusEffects::class)?.hasEffect(StatusEffectId.SATISFIED.id) == true
+  }
+
+  private fun bestFor(inventory: Inventory, need: Need, mealsFirst: Boolean = false): Pair<Inventory.Item, RestorativeScript>? {
+    val preferMeal = compareBy<Pair<Inventory.Item, RestorativeScript>> { (_, script) ->
+      (script is MealScript) == mealsFirst
+    }
+
+    return candidatesFor(inventory, need).maxWithOrNull(preferMeal.thenBy { (_, script) -> script.restores(need) })
   }
 
   private fun candidatesFor(inventory: Inventory, need: Need): List<Pair<Inventory.Item, RestorativeScript>> {
@@ -100,9 +128,9 @@ class BagCare(
     /** Food, and cloth for bandages. */
     private val CARE_MATERIALS = setOf(ItemMaterial.FOOD, ItemMaterial.CLOTH)
 
-    val READS: ComponentClassSet = setOf(Inventory::class)
+    val READS: ComponentClassSet = setOf(Inventory::class, StatusEffects::class)
 
-    /** A restorative moves the vitals and takes from the bag. */
-    val WRITES: ComponentClassSet = setOf(Inventory::class, Health::class, Stamina::class)
+    /** A restorative moves the vitals and takes from the bag; a meal starts being eaten. */
+    val WRITES: ComponentClassSet = setOf(Inventory::class, Health::class, Stamina::class, Eating::class)
   }
 }

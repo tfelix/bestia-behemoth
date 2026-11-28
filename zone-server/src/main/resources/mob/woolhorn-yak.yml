@@ -50,3 +50,4 @@ loot:
   - { item: wool, chance: 4000 }
   - { item: raw_meat, chance: 2500 }
   - { item: horn, chance: 1000 }
+  - { item: yak_butter, chance: 2000 }

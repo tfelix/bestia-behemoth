@@ -134,10 +134,11 @@ class CraftingChainTest {
     val byId = Regex("""item-id:\s*(\d+)""")
     val drops = byName.findAll(text("classpath:mob/*.yml")).map { it.groupValues[1] }
     val fished = byName.findAll(text("classpath:fishing.yml")).map { it.groupValues[1] }
+    val foraged = byName.findAll(text("classpath:forage.yml")).map { it.groupValues[1] }
     val props = byId.findAll(text("classpath:prop-kinds.yml")).map { catalog.item(it.groupValues[1].toLong()).identifier }
     val ores = OreYield.ITEM_BY_RESOURCE.values + OreCompanions.identifiers()
 
-    return (drops + fished + props + ores).toSet()
+    return (drops + fished + foraged + props + ores).toSet()
   }
 
   private fun kitRecipe(station: StaticEntityKind): Recipe {

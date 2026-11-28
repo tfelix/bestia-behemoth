@@ -2409,3 +2409,494 @@ recipes:
     station: FURNACE
     craftSeconds: 24.0
     baseSuccessChance: -0.35
+
+  # --- Cooking: every meal but the starter Hearty Stew, discovered at a burning campfire. ---
+
+  - id: 535
+    identifier: GRILLED_SKEWER
+    effect: PRODUCE
+    output: { item: grilled_skewer, amount: 1 }
+    inputs:
+      - { item: raw_meat, amount: 2 }
+      - { item: wild_onion, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 4.3
+    baseSuccessChance: 0.88
+
+  - id: 536
+    identifier: JELLY_DUMPLINGS
+    effect: PRODUCE
+    output: { item: jelly_dumplings, amount: 1 }
+    inputs:
+      - { item: jelly, amount: 2 }
+      - { item: grain, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 4.3
+    baseSuccessChance: 0.88
+
+  - id: 537
+    identifier: GARLIC_FISH
+    effect: PRODUCE
+    output: { item: garlic_fish, amount: 1 }
+    inputs:
+      - { item: raw_fish, amount: 1 }
+      - { item: wild_garlic, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 4.5
+    baseSuccessChance: 0.88
+
+  - id: 538
+    identifier: GRAIN_PORRIDGE
+    effect: PRODUCE
+    output: { item: grain_porridge, amount: 1 }
+    inputs:
+      - { item: grain, amount: 3 }
+      - { item: apple, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 4.5
+    baseSuccessChance: 0.88
+
+  - id: 539
+    identifier: FRIED_EGG_AND_HERBS
+    effect: PRODUCE
+    output: { item: fried_egg_and_herbs, amount: 1 }
+    inputs:
+      - { item: speckled_egg, amount: 1 }
+      - { item: wild_herb, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 4.6
+    baseSuccessChance: 0.87
+
+  - id: 540
+    identifier: CRAB_CLAW_BROTH
+    effect: PRODUCE
+    output: { item: crab_claw_broth, amount: 1 }
+    inputs:
+      - { item: crab_claw, amount: 1 }
+      - { item: salt, amount: 1 }
+      - { item: sea_kelp, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 4.8
+    baseSuccessChance: 0.86
+
+  - id: 541
+    identifier: MUSHROOM_PAN
+    effect: PRODUCE
+    output: { item: mushroom_pan, amount: 1 }
+    inputs:
+      - { item: field_mushroom, amount: 2 }
+      - { item: raw_meat, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 4.8
+    baseSuccessChance: 0.86
+
+  - id: 542
+    identifier: SWEETROOT_MASH
+    effect: PRODUCE
+    output: { item: sweetroot_mash, amount: 1 }
+    inputs:
+      - { item: sweetroot, amount: 2 }
+      - { item: jelly, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 5.0
+    baseSuccessChance: 0.84
+
+  - id: 543
+    identifier: BERRY_TART
+    effect: PRODUCE
+    output: { item: berry_tart, amount: 1 }
+    inputs:
+      - { item: bramble_berries, amount: 2 }
+      - { item: grain, amount: 1 }
+      - { item: nectar_drop, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 5.2
+    baseSuccessChance: 0.84
+
+  - id: 544
+    identifier: GARLIC_SNAILS
+    effect: PRODUCE
+    output: { item: garlic_snails, amount: 1 }
+    inputs:
+      - { item: snail_meat, amount: 2 }
+      - { item: wild_garlic, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 5.3
+    baseSuccessChance: 0.83
+
+  - id: 545
+    identifier: SMOKED_PERCH
+    effect: PRODUCE
+    output: { item: smoked_perch, amount: 1 }
+    inputs:
+      - { item: perch, amount: 1 }
+      - { item: salt, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 5.5
+    baseSuccessChance: 0.82
+
+  - id: 546
+    identifier: PUFFCAP_RISOTTO
+    effect: PRODUCE
+    output: { item: puffcap_risotto, amount: 1 }
+    inputs:
+      - { item: puffcap_cap, amount: 1 }
+      - { item: marsh_rice, amount: 1 }
+      - { item: wild_herb, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 6.1
+    baseSuccessChance: 0.79
+
+  - id: 547
+    identifier: CRANBERRY_BOAR_ROAST
+    effect: PRODUCE
+    output: { item: cranberry_boar_roast, amount: 1 }
+    inputs:
+      - { item: raw_meat, amount: 2 }
+      - { item: bog_cranberry, amount: 2 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 6.4
+    baseSuccessChance: 0.77
+
+  - id: 548
+    identifier: CRISPY_SCORPION
+    effect: PRODUCE
+    output: { item: crispy_scorpion, amount: 1 }
+    inputs:
+      - { item: scorpion_tail, amount: 2 }
+      - { item: wild_onion, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 6.7
+    baseSuccessChance: 0.76
+
+  - id: 549
+    identifier: BREAM_RICE_BOWL
+    effect: PRODUCE
+    output: { item: bream_rice_bowl, amount: 1 }
+    inputs:
+      - { item: bream, amount: 1 }
+      - { item: marsh_rice, amount: 1 }
+      - { item: sea_kelp, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 7.0
+    baseSuccessChance: 0.74
+
+  - id: 550
+    identifier: VENISON_PIE
+    effect: PRODUCE
+    output: { item: venison_pie, amount: 1 }
+    inputs:
+      - { item: venison, amount: 2 }
+      - { item: grain, amount: 2 }
+      - { item: field_mushroom, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 7.3
+    baseSuccessChance: 0.72
+
+  - id: 551
+    identifier: FROST_MINT_TEA_CAKE
+    effect: PRODUCE
+    output: { item: frost_mint_tea_cake, amount: 1 }
+    inputs:
+      - { item: frost_mint, amount: 1 }
+      - { item: grain, amount: 1 }
+      - { item: nectar_drop, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 7.6
+    baseSuccessChance: 0.71
+
+  - id: 552
+    identifier: PEPPERED_PIKE
+    effect: PRODUCE
+    output: { item: peppered_pike, amount: 1 }
+    inputs:
+      - { item: pike, amount: 1 }
+      - { item: peppercorn, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 7.9
+    baseSuccessChance: 0.69
+
+  - id: 553
+    identifier: YAK_BUTTER_BREAD
+    effect: PRODUCE
+    output: { item: yak_butter_bread, amount: 1 }
+    inputs:
+      - { item: yak_butter, amount: 1 }
+      - { item: grain, amount: 2 }
+      - { item: salt, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 8.2
+    baseSuccessChance: 0.68
+
+  - id: 554
+    identifier: VEIL_JELLY_ASPIC
+    effect: PRODUCE
+    output: { item: veil_jelly_aspic, amount: 1 }
+    inputs:
+      - { item: veil_jelly, amount: 2 }
+      - { item: frost_mint, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 8.5
+    baseSuccessChance: 0.66
+
+  - id: 555
+    identifier: MUTTON_HOTPOT
+    effect: PRODUCE
+    output: { item: mutton_hotpot, amount: 1 }
+    inputs:
+      - { item: mountain_mutton, amount: 2 }
+      - { item: wild_garlic, amount: 1 }
+      - { item: sweetroot, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 8.8
+    baseSuccessChance: 0.64
+
+  - id: 556
+    identifier: DATE_STUFFED_EEL
+    effect: PRODUCE
+    output: { item: date_stuffed_eel, amount: 1 }
+    inputs:
+      - { item: eel, amount: 1 }
+      - { item: desert_date, amount: 2 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 9.1
+    baseSuccessChance: 0.63
+
+  - id: 557
+    identifier: CINNAMON_HONEYCAKES
+    effect: PRODUCE
+    output: { item: cinnamon_honeycakes, amount: 1 }
+    inputs:
+      - { item: honeycomb, amount: 1 }
+      - { item: cinnamon_bark, amount: 1 }
+      - { item: grain, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 9.4
+    baseSuccessChance: 0.61
+
+  - id: 558
+    identifier: BLUBBER_STEW
+    effect: PRODUCE
+    output: { item: blubber_stew, amount: 1 }
+    inputs:
+      - { item: seal_blubber, amount: 1 }
+      - { item: sea_kelp, amount: 1 }
+      - { item: salt, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 9.7
+    baseSuccessChance: 0.6
+
+  - id: 559
+    identifier: LAVA_JELLY_FLAMBE
+    effect: PRODUCE
+    output: { item: lava_jelly_flambe, amount: 1 }
+    inputs:
+      - { item: magma_jelly, amount: 1 }
+      - { item: ember_chili, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 10.0
+    baseSuccessChance: 0.58
+
+  - id: 560
+    identifier: ROYAL_JELLY_CUSTARD
+    effect: PRODUCE
+    output: { item: royal_jelly_custard, amount: 1 }
+    inputs:
+      - { item: royal_jelly, amount: 1 }
+      - { item: speckled_egg, amount: 1 }
+      - { item: nectar_drop, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 10.3
+    baseSuccessChance: 0.56
+
+  - id: 561
+    identifier: SMOKED_SALMON_PLATE
+    effect: PRODUCE
+    output: { item: smoked_salmon_plate, amount: 1 }
+    inputs:
+      - { item: salmon, amount: 1 }
+      - { item: frost_mint, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 10.6
+    baseSuccessChance: 0.55
+
+  - id: 562
+    identifier: CROC_TAIL_GUMBO
+    effect: PRODUCE
+    output: { item: croc_tail_gumbo, amount: 1 }
+    inputs:
+      - { item: croc_tail, amount: 1 }
+      - { item: marsh_rice, amount: 1 }
+      - { item: peppercorn, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 10.9
+    baseSuccessChance: 0.53
+
+  - id: 563
+    identifier: SUNMANE_STEAK
+    effect: PRODUCE
+    output: { item: sunmane_steak, amount: 1 }
+    inputs:
+      - { item: sunmane_flank, amount: 1 }
+      - { item: ember_chili, amount: 1 }
+      - { item: salt, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 11.2
+    baseSuccessChance: 0.52
+
+  - id: 564
+    identifier: CLOUDBERRY_PARFAIT
+    effect: PRODUCE
+    output: { item: cloudberry_parfait, amount: 1 }
+    inputs:
+      - { item: cloudberry, amount: 2 }
+      - { item: yak_butter, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 11.5
+    baseSuccessChance: 0.5
+
+  - id: 565
+    identifier: TRUFFLE_VENISON
+    effect: PRODUCE
+    output: { item: truffle_venison, amount: 1 }
+    inputs:
+      - { item: venison, amount: 1 }
+      - { item: black_truffle, amount: 1 }
+      - { item: wild_herb, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 12.1
+    baseSuccessChance: 0.47
+
+  - id: 566
+    identifier: QUEENS_HONEY_GLAZE
+    effect: PRODUCE
+    output: { item: queens_honey_glaze, amount: 1 }
+    inputs:
+      - { item: queen_honey, amount: 1 }
+      - { item: sturgeon, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 12.4
+    baseSuccessChance: 0.45
+
+  - id: 567
+    identifier: THUNDER_EGG_SOUFFLE
+    effect: PRODUCE
+    output: { item: thunder_egg_souffle, amount: 1 }
+    inputs:
+      - { item: thunder_egg, amount: 1 }
+      - { item: vanilla_pod, amount: 1 }
+      - { item: yak_butter, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 13.0
+    baseSuccessChance: 0.42
+
+  - id: 568
+    identifier: DRAKE_STEAK_DIANE
+    effect: PRODUCE
+    output: { item: drake_steak_diane, amount: 1 }
+    inputs:
+      - { item: drake_steak, amount: 1 }
+      - { item: saffron_thread, amount: 1 }
+      - { item: frost_marrow, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 13.6
+    baseSuccessChance: 0.39
+
+  - id: 569
+    identifier: SERPENT_SUSHI
+    effect: PRODUCE
+    output: { item: serpent_sushi, amount: 1 }
+    inputs:
+      - { item: serpent_fillet, amount: 1 }
+      - { item: marsh_rice, amount: 1 }
+      - { item: moonscale, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 14.5
+    baseSuccessChance: 0.34
+
+  - id: 570
+    identifier: HYDRA_HEART_RAGOUT
+    effect: PRODUCE
+    output: { item: hydra_heart_ragout, amount: 1 }
+    inputs:
+      - { item: hydra_heart, amount: 1 }
+      - { item: black_truffle, amount: 1 }
+      - { item: ember_chili, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 15.4
+    baseSuccessChance: 0.29
+
+  - id: 571
+    identifier: WYVERN_WELLINGTON
+    effect: PRODUCE
+    output: { item: wyvern_wellington, amount: 1 }
+    inputs:
+      - { item: wyvern_tenderloin, amount: 1 }
+      - { item: ember_gland, amount: 1 }
+      - { item: saffron_thread, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 16.3
+    baseSuccessChance: 0.24
+
+  - id: 572
+    identifier: LOTUS_LEVIATHAN_BROTH
+    effect: PRODUCE
+    output: { item: lotus_leviathan_broth, amount: 1 }
+    inputs:
+      - { item: deepmaw, amount: 1 }
+      - { item: starlight_lotus, amount: 1 }
+      - { item: leviathan_steak, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 19.0
+    baseSuccessChance: 0.1
+
+  - id: 573
+    identifier: PHOENIX_FEAST
+    effect: PRODUCE
+    output: { item: phoenix_feast, amount: 1 }
+    inputs:
+      - { item: phoenix_egg, amount: 1 }
+      - { item: ambrosia_bloom, amount: 1 }
+      - { item: behemoth_rib, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
+    craftSeconds: 21.2
+    baseSuccessChance: -0.02

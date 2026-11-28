@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 746
+name_key = "GARLIC_SNAILS"
+description_key = "GARLIC_SNAILS_DESC"
+weight = 39
+level = 9

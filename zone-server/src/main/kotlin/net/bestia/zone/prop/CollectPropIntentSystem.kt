@@ -1,5 +1,9 @@
 package net.bestia.zone.prop
 
+import net.bestia.zone.entity.StaticEntityKind
+import net.bestia.zone.prop.forage.ForagePicking
+import net.bestia.zone.battle.ecs.status.WorkFatigue
+import net.bestia.zone.battle.ecs.status.StaminaConfig
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto
 import net.bestia.zone.identity.ecs.Account
@@ -64,12 +68,15 @@ class CollectPropIntentSystem(
   private val outMessageProcessor: OutMessageProcessor,
   private val gatheringExp: GatheringExp,
   private val herbs: HerbPicking,
+  private val fatigue: WorkFatigue = WorkFatigue(StaminaConfig()),
+  /** Null in a test without forage: a patch then yields its `prop-kinds.yml` item. */
+  private val forage: ForagePicking? = null,
 ) : System {
   override val phase = Phase.ITEMS
 
   override val reads: ComponentClassSet = setOf(
     Account::class, Position::class, PropPose::class, StaticVisual::class, WorldObjectIdentity::class
-  ) + GatheringExp.READS + herbs.reads
+  ) + GatheringExp.READS + herbs.reads + WorkFatigue.READS
 
   /**
    * [ObtainItemIntent.CreateItemIntent] is declared even though it is added to a *different* entity than the
@@ -77,8 +84,9 @@ class CollectPropIntentSystem(
    * The prop components because a removed prop may leave another in its place.
    */
   override val writes: ComponentClassSet = setOf(
-    CollectPropIntent::class, ObtainItemIntent.CreateItemIntent::class, Animation::class
-  ) + PropRemoval.WRITES + GatheringExp.WRITES
+    CollectPropIntent::class, ObtainItemIntent.CreateItemIntent::class, ObtainItemIntent.CreateItemsIntent::class,
+    Animation::class
+  ) + PropRemoval.WRITES + GatheringExp.WRITES + WorkFatigue.WRITES
 
   override fun update(world: World, deltaTime: Float) {
     world.query(CollectPropIntent::class).each { collectorId ->
@@ -125,11 +133,20 @@ class CollectPropIntentSystem(
       return deny(world, collectorId, OperationErrorProto.OpError.HERB_TOO_RARE)
     }
 
+    // A forage patch yields what its biome grows instead, and only what the picker's Herbalism reaches.
+    val foraged = if (visual.kind == StaticEntityKind.FORAGE_PATCH) forage?.pick(world, collectorId, pose.position) else null
+    if (foraged != null && foraged.isEmpty()) {
+      return deny(world, collectorId, OperationErrorProto.OpError.HERB_TOO_RARE)
+    }
+    val grants = foraged ?: mapOf(collect.itemId to collect.amount)
+
     // The claim. Synchronous in memory, which is the whole reason the race above resolves - see the class note.
     // Whether it comes back is the kind's call, which PropRemoval reads.
     removal.removed(world, propId, PropRemoval.Cause.USED_UP)
-    world.add(collectorId, ObtainItemIntent.CreateItemIntent(collect.itemId, collect.amount))
-    gatheringExp.award(world, collectorId, collect.itemId, collect.amount)
+    val intents = grants.map { (itemId, amount) -> ObtainItemIntent.CreateItemIntent(itemId, amount) }
+    world.add(collectorId, intents.singleOrNull() ?: ObtainItemIntent.CreateItemsIntent(intents))
+    grants.forEach { (itemId, amount) -> gatheringExp.award(world, collectorId, itemId, amount) }
+    fatigue.charge(world, collectorId, WorkFatigue.Work.GATHER)
     // Bends down for it, as for a stack off the ground: nothing else says who took the crystal that just vanished.
     world.get(collectorId, Animation::class)?.startPickUp()
 
