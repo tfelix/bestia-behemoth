@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 import net.bestia.zone.economy.Commodity
 import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.economy.EconomyCatalogue
-import net.bestia.zone.economy.PriceCurve
+import net.bestia.zone.economy.Shop
 
 /**
  * The economy checks that need catalogues the boot fills in later - the items and the recipes are written
@@ -19,8 +19,8 @@ import net.bestia.zone.economy.PriceCurve
  * - **I22.** A trade with no entry is a shop standing in every town in the world with nobody in it.
  * - **A stale block.** An `unbound` entry naming an item that now exists is a trade somebody could have
  *   bound and did not. Refusing it makes the list prune itself.
- * - **I21.** A crafting loop that is profitable at the price bounds is a gold printer, and it looks
- *   exactly like a well-priced recipe until somebody runs it ten thousand times.
+ * - **I21.** A crafting loop that pays inside one town is a gold printer, and it looks exactly like a
+ *   well-priced recipe until somebody runs it ten thousand times.
  */
 @Component
 class EconomyCoverage(
@@ -92,39 +92,34 @@ class EconomyCoverage(
   }
 
   /**
-   * I21: no buy-craft-sell loop pays, even at the extremes of the price band.
+   * I21: no buy-craft-sell loop pays inside one town.
    *
-   * The paranoid case on purpose: inputs bought where they are at the floor, the output sold where it is
-   * at the ceiling, and the recipe's success chance charged against it because inputs are consumed on a
-   * failure too. That is a player carrying goods between two towns, which is intended play - what must
-   * not be intended is the *crafting* leg turning a price gap into money from nothing.
-   *
-   * Only recipes made entirely of priced items are checkable, and today none is: nothing an NPC sells is
-   * an input to anything a player forges. The check is here rather than later because the day iron gets a
-   * producer it has to fail loudly, not be remembered.
+   * Not across the price band: buying cheap in one town and selling dear in another is hauling, which is
+   * intended play, and measured that way every recipe worth crafting would be a printer.
    */
   private fun checkNoCraftingLoopPrints(priced: Map<Long, Commodity>) {
     val printers = recipes.all()
       .filter { it.effect == RecipeEffect.PRODUCE }
-      .mapNotNull { recipe -> profitAtExtremes(recipe, priced)?.let { recipe to it } }
+      .mapNotNull { recipe -> profitInOneTown(recipe, priced)?.let { recipe to it } }
       .filter { (_, profit) -> profit >= 0.0 }
       .map { (recipe, profit) -> "${recipe.identifier} (+${"%.1f".format(profit)} per attempt)" }
 
     require(printers.isEmpty()) {
-      "These recipes turn NPC goods into money at the price bounds: ${printers.sorted()}"
+      "These recipes turn NPC goods into money inside one town: ${printers.sorted()}"
     }
   }
 
   /** Null when any of the recipe's items has no price, which makes the loop unrunnable against NPCs. */
-  private fun profitAtExtremes(recipe: Recipe, priced: Map<Long, Commodity>): Double? {
+  private fun profitInOneTown(recipe: Recipe, priced: Map<Long, Commodity>): Double? {
     val output = recipe.output ?: return null
     val sold = priced[output.itemId] ?: return null
     val bought = recipe.inputs.map { priced[it.itemId] ?: return null }
 
-    // A base below zero is a craft that only skill lifts into reach; it books no revenue on its own.
-    val revenue = PriceCurve.CEILING * sold.refPrice * output.amount * maxOf(0f, recipe.baseSuccessChance)
+    // Reference prices, because a town's own multiplier scales both sides alike. Inputs are consumed on a
+    // failure too, and a base below zero is a craft that only skill lifts into reach.
+    val revenue = sold.refPrice * (1.0 - Shop.SPREAD) * output.amount * maxOf(0f, recipe.baseSuccessChance)
     val cost = recipe.inputs.zip(bought).sumOf { (stack, commodity) ->
-      PriceCurve.FLOOR * commodity.refPrice * stack.amount
+      commodity.refPrice * (1.0 + Shop.SPREAD) * stack.amount
     }
 
     return revenue - cost

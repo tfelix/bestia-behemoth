@@ -15,10 +15,8 @@ import net.bestia.zone.item.material.ItemMaterial
 /**
  * The boot checks that need the item and recipe catalogues.
  *
- * I21 is the one worth writing first, and it needs a test of its own for an awkward reason: no recipe
- * the game ships is made entirely of priced items, so the shipped check passes by having nothing to
- * look at. A check that has never been seen to fail is not a check, so the printer below is synthetic -
- * what it proves is that the day iron gets a producer, the boot stops.
+ * I21 needs a synthetic printer: a shipped recipe that failed it would stop the boot, so the only way to
+ * see the check fail is a recipe made up for the test.
  */
 class EconomyCoverageTest {
 
@@ -70,9 +68,9 @@ class EconomyCoverageTest {
 
   @Test
   fun `I21 - a recipe that turns cheap NPC goods into a dear one is refused`() {
-    // Grain into bread at three sacks a loaf: profitable at the bounds, because bread is only three
-    // times the price of grain and the band between the floor and the ceiling is eight times wide.
-    recipes.load(listOf(bake(grainPerLoaf = 3, chance = 1.0f)))
+    // Grain into bread at two sacks a loaf: six coins of grain become nine of bread in the same town,
+    // which still pays after the spread on both legs.
+    recipes.load(listOf(bake(grainPerLoaf = 2, chance = 1.0f)))
 
     val error = assertFailsWith<IllegalArgumentException> { coverage().validate() }
 
@@ -80,11 +78,9 @@ class EconomyCoverageTest {
   }
 
   @Test
-  fun `and one that is loss-making at the bounds passes`() {
-    // The same recipe with enough grain in it. Twenty-five sacks a loaf is absurd bread and exactly the
-    // point: at the extremes of the price band, crafting has to be a bad way to make money. Twenty-four
-    // is break-even to the penny and is refused too, because "not profitable" is the wrong bar.
-    recipes.load(listOf(bake(grainPerLoaf = 25, chance = 1.0f)))
+  fun `and one that is loss-making in one town passes`() {
+    // Three sacks cost more than the loaf sells for once the spread is paid on both legs.
+    recipes.load(listOf(bake(grainPerLoaf = 3, chance = 1.0f)))
 
     coverage().validate()
   }
@@ -92,8 +88,8 @@ class EconomyCoverageTest {
   @Test
   fun `a low success chance is what usually saves a recipe, and it is charged for`() {
     // Inputs are consumed on a failure too, so the same recipe that prints at full success does not at
-    // one attempt in ten.
-    recipes.load(listOf(bake(grainPerLoaf = 3, chance = 0.1f)))
+    // one attempt in two.
+    recipes.load(listOf(bake(grainPerLoaf = 2, chance = 0.5f)))
 
     coverage().validate()
   }
