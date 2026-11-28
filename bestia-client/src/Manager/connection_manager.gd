@@ -12,6 +12,12 @@ signal entity_received(message: EntitySMSG)
 signal self_received(message: SelfSMSG)
 ## Every bestia the selected master owns, whole, whenever that set changes.
 signal owned_bestias_received(message: OwnedBestiasSMSG)
+## One owned bestia does something new: its status line changed.
+signal bestia_activity_received(message: BestiaActivitySMSG)
+## Something an owned bestia did, as its diary tells it, while the player plays.
+signal bestia_news_received(message: BestiaNewsSMSG)
+## What each owned bestia did since the master last logged out. Once, right after login.
+signal away_report_received(message: AwayReportSMSG)
 ## The server confirmed which entity the player now controls.
 signal active_entity_received(message: ActiveEntitySMSG)
 ## One of the player's own entities ended a journey, arrived or not.
@@ -1893,6 +1899,12 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		self_received.emit(message)
 	elif message is OwnedBestiasSMSG:
 		owned_bestias_received.emit(message)
+	elif message is BestiaActivitySMSG:
+		bestia_activity_received.emit(message)
+	elif message is BestiaNewsSMSG:
+		bestia_news_received.emit(message)
+	elif message is AwayReportSMSG:
+		away_report_received.emit(message)
 	elif message is ActiveEntitySMSG:
 		active_entity_received.emit(message)
 	elif message is JourneyEndedSMSG:

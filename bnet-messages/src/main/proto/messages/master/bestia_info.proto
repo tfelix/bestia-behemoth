@@ -5,6 +5,7 @@ package bnet;
 import "messages/vec3.proto";
 import "messages/master/bestia_genetics.proto";
 import "messages/master/bestia_origin.proto";
+import "messages/master/bestia_activity.proto";
 
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "BestiaInfoProto";
@@ -23,4 +24,6 @@ message BestiaInfo {
   BestiaOrigin origin = 9;
   /** Who caught it, bred it or was given it. */
   string origin_master_name = 10;
+  /** What it does now, for its status line; absent where the receiver is not its owner or it is not in the world. */
+  BestiaActivity activity = 11;
 }

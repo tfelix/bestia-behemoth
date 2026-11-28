@@ -27,17 +27,19 @@ namespace Bnet {
             "CiFtZXNzYWdlcy9tYXN0ZXIvYmVzdGlhX2luZm8ucHJvdG8SBGJuZXQaE21l",
             "c3NhZ2VzL3ZlYzMucHJvdG8aJW1lc3NhZ2VzL21hc3Rlci9iZXN0aWFfZ2Vu",
             "ZXRpY3MucHJvdG8aI21lc3NhZ2VzL21hc3Rlci9iZXN0aWFfb3JpZ2luLnBy",
-            "b3RvIoACCgpCZXN0aWFJbmZvEhEKCWVudGl0eV9pZBgBIAEoBhIOCgZtb2Jf",
-            "aWQYAiABKA0SDAoEbmFtZRgDIAEoCRINCgVsZXZlbBgEIAEoDRIcCghwb3Np",
-            "dGlvbhgFIAEoCzIKLmJuZXQuVmVjMxIcCgNzZXgYBiABKA4yDy5ibmV0LkJl",
-            "c3RpYVNleBIcCgNpdnMYByABKAsyDy5ibmV0Lkl2UmVhZGluZxIYChBwbGF5",
-            "ZXJfYmVzdGlhX2lkGAggASgEEiIKBm9yaWdpbhgJIAEoDjISLmJuZXQuQmVz",
-            "dGlhT3JpZ2luEhoKEm9yaWdpbl9tYXN0ZXJfbmFtZRgKIAEoCUIoChVuZXQu",
-            "YmVzdGlhLmJuZXQucHJvdG9CD0Jlc3RpYUluZm9Qcm90b2IGcHJvdG8z"));
+            "b3RvGiVtZXNzYWdlcy9tYXN0ZXIvYmVzdGlhX2FjdGl2aXR5LnByb3RvIqgC",
+            "CgpCZXN0aWFJbmZvEhEKCWVudGl0eV9pZBgBIAEoBhIOCgZtb2JfaWQYAiAB",
+            "KA0SDAoEbmFtZRgDIAEoCRINCgVsZXZlbBgEIAEoDRIcCghwb3NpdGlvbhgF",
+            "IAEoCzIKLmJuZXQuVmVjMxIcCgNzZXgYBiABKA4yDy5ibmV0LkJlc3RpYVNl",
+            "eBIcCgNpdnMYByABKAsyDy5ibmV0Lkl2UmVhZGluZxIYChBwbGF5ZXJfYmVz",
+            "dGlhX2lkGAggASgEEiIKBm9yaWdpbhgJIAEoDjISLmJuZXQuQmVzdGlhT3Jp",
+            "Z2luEhoKEm9yaWdpbl9tYXN0ZXJfbmFtZRgKIAEoCRImCghhY3Rpdml0eRgL",
+            "IAEoCzIULmJuZXQuQmVzdGlhQWN0aXZpdHlCKAoVbmV0LmJlc3RpYS5ibmV0",
+            "LnByb3RvQg9CZXN0aWFJbmZvUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, global::Bnet.BestiaGeneticsReflection.Descriptor, global::Bnet.BestiaOriginReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, global::Bnet.BestiaGeneticsReflection.Descriptor, global::Bnet.BestiaOriginReflection.Descriptor, global::Bnet.BestiaActivityReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.BestiaInfo), global::Bnet.BestiaInfo.Parser, new[]{ "EntityId", "MobId", "Name", "Level", "Position", "Sex", "Ivs", "PlayerBestiaId", "Origin", "OriginMasterName" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.BestiaInfo), global::Bnet.BestiaInfo.Parser, new[]{ "EntityId", "MobId", "Name", "Level", "Position", "Sex", "Ivs", "PlayerBestiaId", "Origin", "OriginMasterName", "Activity" }, null, null, null, null)
           }));
     }
     #endregion
@@ -89,6 +91,7 @@ namespace Bnet {
       playerBestiaId_ = other.playerBestiaId_;
       origin_ = other.origin_;
       originMasterName_ = other.originMasterName_;
+      activity_ = other.activity_ != null ? other.activity_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -224,6 +227,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "activity" field.</summary>
+    public const int ActivityFieldNumber = 11;
+    private global::Bnet.BestiaActivity activity_;
+    /// <summary>
+    ///* What it does now, for its status line; absent where the receiver is not its owner or it is not in the world. 
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.BestiaActivity Activity {
+      get { return activity_; }
+      set {
+        activity_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -249,6 +267,7 @@ namespace Bnet {
       if (PlayerBestiaId != other.PlayerBestiaId) return false;
       if (Origin != other.Origin) return false;
       if (OriginMasterName != other.OriginMasterName) return false;
+      if (!object.Equals(Activity, other.Activity)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -266,6 +285,7 @@ namespace Bnet {
       if (PlayerBestiaId != 0UL) hash ^= PlayerBestiaId.GetHashCode();
       if (Origin != global::Bnet.BestiaOrigin.Unspecified) hash ^= Origin.GetHashCode();
       if (OriginMasterName.Length != 0) hash ^= OriginMasterName.GetHashCode();
+      if (activity_ != null) hash ^= Activity.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -324,6 +344,10 @@ namespace Bnet {
         output.WriteRawTag(82);
         output.WriteString(OriginMasterName);
       }
+      if (activity_ != null) {
+        output.WriteRawTag(90);
+        output.WriteMessage(Activity);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -374,6 +398,10 @@ namespace Bnet {
         output.WriteRawTag(82);
         output.WriteString(OriginMasterName);
       }
+      if (activity_ != null) {
+        output.WriteRawTag(90);
+        output.WriteMessage(Activity);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -413,6 +441,9 @@ namespace Bnet {
       }
       if (OriginMasterName.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(OriginMasterName);
+      }
+      if (activity_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Activity);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -461,6 +492,12 @@ namespace Bnet {
       }
       if (other.OriginMasterName.Length != 0) {
         OriginMasterName = other.OriginMasterName;
+      }
+      if (other.activity_ != null) {
+        if (activity_ == null) {
+          Activity = new global::Bnet.BestiaActivity();
+        }
+        Activity.MergeFrom(other.Activity);
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -527,6 +564,13 @@ namespace Bnet {
             OriginMasterName = input.ReadString();
             break;
           }
+          case 90: {
+            if (activity_ == null) {
+              Activity = new global::Bnet.BestiaActivity();
+            }
+            input.ReadMessage(Activity);
+            break;
+          }
         }
       }
     #endif
@@ -590,6 +634,13 @@ namespace Bnet {
           }
           case 82: {
             OriginMasterName = input.ReadString();
+            break;
+          }
+          case 90: {
+            if (activity_ == null) {
+              Activity = new global::Bnet.BestiaActivity();
+            }
+            input.ReadMessage(Activity);
             break;
           }
         }

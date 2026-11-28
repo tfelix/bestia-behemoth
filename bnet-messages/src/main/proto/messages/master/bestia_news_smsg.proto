@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "BestiaNewsSmsgProto";
+
+// Something one of the player's bestias did, as its diary tells it. Sent while the player plays.
+message BestiaNewsSMSG {
+  uint64 player_bestia_id = 1;
+  // NEW_ORDERS, HAULED, WORK_PAUSED, QUEUE_FINISHED, ATTACKED, RETREATED, DIED, LOST, OUT_OF_FOOD, LOW_FOOD,
+  // EVENT_SENSED, FIELD_EMPTY or FALLBACK_STARTED.
+  string kind = 2;
+  // Item identifiers with amounts, for a haul.
+  map<string, uint32> items = 3;
+  // A station's kind or, for a haul, the chest's name; empty if none.
+  string place = 4;
+  // Why work stopped (a station pause, CHEST_FULL or NO_ORE), the job for NEW_ORDERS and FALLBACK_STARTED, or the
+  // kind of event for EVENT_SENSED; empty if none.
+  string reason = 5;
+  int64 at_epoch_ms = 6;
+}

@@ -2,6 +2,8 @@ package net.bestia.zone.master.net
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
+import net.bestia.zone.master.bestia.AwayReportSMSG
+import net.bestia.zone.master.bestia.AwayReports
 import net.bestia.zone.master.bestia.OwnedBestiaSpawnService
 import net.bestia.zone.master.bestia.OwnedBestiasPublisher
 import net.bestia.zone.skill.ecs.KnownSkills
@@ -12,6 +14,7 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.weather.WeatherPublisher
 import net.bestia.zone.item.equip.EquipmentRevalidationService
 import net.bestia.zone.message.IoMessageHandler
+import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.decoder
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
@@ -27,6 +30,8 @@ class SelectMasterHandler(
   private val ownedBestiaSpawnService: OwnedBestiaSpawnService,
   private val ownedBestiasPublisher: OwnedBestiasPublisher,
   private val asyncJobExecutor: AsyncJobExecutor,
+  private val awayReports: AwayReports,
+  private val outMessageProcessor: OutMessageProcessor,
 ) : IoMessageHandler<SelectMasterCMSG> {
   override val wire = decoder(MessageCase.SELECT_MASTER) { accountId, envelope ->
     SelectMasterCMSG(accountId, envelope.selectMaster.masterId)
@@ -58,6 +63,7 @@ class SelectMasterHandler(
       equipmentRevalidationService.revalidate(msg.selectedMasterId, bestia.entityId, bestia.playerBestiaId)
     }
     ownedBestiasPublisher.publish(msg.playerId)
+    awayReports.of(msg.selectedMasterId)?.let { outMessageProcessor.sendToPlayer(msg.playerId, AwayReportSMSG(it)) }
 
     return true
   }

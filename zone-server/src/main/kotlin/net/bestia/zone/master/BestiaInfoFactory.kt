@@ -4,6 +4,7 @@ import net.bestia.bnet.proto.BestiaGeneticsProto
 import net.bestia.zone.account.PlayerBestiaNotFoundException
 import net.bestia.zone.bestia.IvReading
 import net.bestia.zone.master.skill.BloodlineStudy
+import net.bestia.zone.master.bestia.BestiaActivities
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.session.ConnectionInfoService
@@ -18,6 +19,7 @@ class BestiaInfoFactory(
   private val playerBestiaRepository: PlayerBestiaRepository,
   private val world: WorldView,
   private val bloodlineStudy: BloodlineStudy,
+  private val activities: BestiaActivities,
 ) {
 
   fun getBestiaInfo(playerEntities: Collection<ConnectionInfoService.PlayerEntity>): List<SelfSMSG.BestiaInfo> {
@@ -47,6 +49,7 @@ class BestiaInfoFactory(
           ivs = IvReading(playerBestia.individualValues, readsExactIvs).toBnet(),
           origin = playerBestia.origin.toBnet(),
           originMasterName = playerBestia.originMasterName,
+          activity = activities.of(this, id, playerBestia.aiConfig.job)?.toBnet(),
         )
       } ?: throw EntityNotAliveException(entityId)
     }
