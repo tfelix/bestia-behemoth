@@ -167,7 +167,7 @@ class StationWorkSystem(
 
   /** Only the pauses that last until somebody acts; a bag full or a worker off to eat sorts itself out. */
   private fun tellStopped(station: StructureEntry, pause: StationPause) {
-    if (pause in LASTING_PAUSES) tell(station, BestiaHappened.Kind.WORK_PAUSED, pause.name)
+    if (pause in StationPause.LASTING) tell(station, BestiaHappened.Kind.WORK_PAUSED, pause.name)
   }
 
   /** Told to the diary of the bestia that works [station]; the owner working it themself is there to see. */
@@ -219,7 +219,5 @@ class StationWorkSystem(
 
   private companion object {
     val LOG = KotlinLogging.logger { }
-
-    val LASTING_PAUSES = setOf(StationPause.STATION_OUT, StationPause.CANNOT_CRAFT)
   }
 }

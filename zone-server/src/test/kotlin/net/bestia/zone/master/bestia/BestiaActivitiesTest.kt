@@ -1,8 +1,7 @@
-package net.bestia.zone.companion.query
+package net.bestia.zone.master.bestia
 
 import io.mockk.every
 import io.mockk.mockk
-import net.bestia.bus.contract.ZoneAnswer.Roster.Activity
 import net.bestia.zone.ai.ecs.AiPipelineFixture
 import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.ai.profile.BestiaJob
@@ -60,7 +59,7 @@ class BestiaActivitiesTest {
     work.of(5L).pause = StationPause.BAG_FULL
 
     assertEquals(
-      Activity("CRAFTING", item = "plank", done = 4, total = 20, station = "WORKBENCH", pause = "BAG_FULL"),
+      BestiaActivity("CRAFTING", item = "plank", done = 4, total = 20, station = "WORKBENCH", pause = "BAG_FULL"),
       activities.of(ai.world, crafter, BestiaJob.CRAFT),
     )
   }

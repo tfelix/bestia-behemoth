@@ -756,6 +756,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/companion/masters/{masterId}/away-report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["awayReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/companion/emblems/{hash}.png": {
         parameters: {
             query?: never;
@@ -1358,6 +1374,40 @@ export interface components {
             /** Format: int32 */
             nextIndex: number;
             route: components["schemas"]["Position"][];
+        };
+        AwayReport: {
+            /** Format: int64 */
+            sinceEpochMs: number;
+            masterInWorld: boolean;
+            bestias: components["schemas"]["BestiaReport"][];
+        };
+        BestiaReport: {
+            /** Format: int64 */
+            playerBestiaId: number;
+            name?: string;
+            species: string;
+            brought: {
+                [key: string]: number;
+            };
+            broughtTo: string[];
+            madeAt: {
+                [key: string]: number;
+            };
+            timeIn: {
+                [key: string]: number;
+            };
+            incidents: components["schemas"]["Incident"][];
+            now: string;
+            nowAt?: string;
+            blocker?: string;
+            hint?: string;
+        };
+        Incident: {
+            kind: string;
+            /** Format: int64 */
+            atEpochMs: number;
+            reason?: string;
+            place?: string;
         };
         Catalog: {
             version: string;
@@ -2780,6 +2830,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["Bestia"][];
+                };
+            };
+        };
+    };
+    awayReport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                masterId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AwayReport"];
                 };
             };
         };

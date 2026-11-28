@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/master/bestia_activity.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "BestiaActivitySmsgProto";
+
+// One of the player's bestias does something new. Sent to its owner while the owner plays, at most every 2 s per bestia.
+message BestiaActivitySMSG {
+  fixed64 entity_id = 1;
+  uint64 player_bestia_id = 2;
+  BestiaActivity activity = 3;
+}

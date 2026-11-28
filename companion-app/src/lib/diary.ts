@@ -3,7 +3,8 @@ import type { DiaryEntry } from '#lib/api/model.ts';
 import { PAUSE_TEXT, stationName } from '#lib/activity.ts';
 import { itemName, JOB_TEXT } from '#lib/names.ts';
 
-const STOPPED: Record<string, string> = {
+/** Why work stopped, as a diary line's reason names it. */
+export const STOPPED: Record<string, string> = {
 	...PAUSE_TEXT,
 	STATION_OUT: 'its fire went out',
 	CANNOT_CRAFT: 'it could not make the next one',
@@ -18,7 +19,7 @@ export function diaryText(line: DiaryEntry): string {
 		case 'NEW_ORDERS':
 			return `Got new orders: ${JOB_TEXT[line.reason ?? '']?.name ?? line.reason}`;
 		case 'HAULED':
-			return `Brought ${goods(line.items)} to the chest`;
+			return `Brought ${goods(line.items)} to ${line.place ?? 'the chest'}`;
 		case 'WORK_PAUSED':
 			return `Stopped working${at}: ${STOPPED[line.reason ?? ''] ?? line.reason?.toLowerCase()}`;
 		case 'QUEUE_FINISHED':
@@ -37,9 +38,18 @@ export function diaryText(line: DiaryEntry): string {
 			return 'Was killed and lost for good';
 		case 'EVENT_SENSED':
 			return `Felt something of the ${line.reason ?? 'land'} stir near the outpost`;
+		case 'FIELD_EMPTY':
+			return 'Found nothing more to gather in its area';
+		case 'FALLBACK_STARTED':
+			return `Had no more work and turned to its other job: ${JOB_TEXT[line.reason ?? '']?.name ?? line.reason}`;
 		default:
 			return line.kind;
 	}
+}
+
+/** STATE lines feed the away report; the diary lists only what happened. */
+export function shownInDiary(line: DiaryEntry): boolean {
+	return line.kind !== 'STATE';
 }
 
 function goods(items: Record<string, number>): string {

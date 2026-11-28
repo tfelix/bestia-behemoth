@@ -42,6 +42,10 @@ namespace BestiaBehemothClient.Bnet.Message.Master
     [Export]
     public string OriginMasterName { get; set; } = "";
 
+    /// <summary>What it does now, for its status line; null when the server sent none.</summary>
+    [Export]
+    public BestiaActivityInfo Activity { get; set; }
+
     /// <summary>
     /// Creates a BestiaInfo message from protobuf data
     /// </summary>
@@ -59,7 +63,8 @@ namespace BestiaBehemothClient.Bnet.Message.Master
         Sex = (int)protoBestiaInfo.Sex,
         Ivs = IvReadingInfo.FromProto(protoBestiaInfo.Ivs),
         Origin = (int)protoBestiaInfo.Origin,
-        OriginMasterName = protoBestiaInfo.OriginMasterName
+        OriginMasterName = protoBestiaInfo.OriginMasterName,
+        Activity = protoBestiaInfo.Activity == null ? null : BestiaActivityInfo.FromProto(protoBestiaInfo.Activity)
       };
 
       // Convert Vec3 to Godot Vector3 with null check (swap Y and Z: server z-up to Godot y-up)

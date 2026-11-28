@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "AwayReportSmsgProto";
+
+// What each of the master's bestias did since the master last left the world. Sent once, right after login.
+// Facts only: the client puts them in words.
+message AwayReportSMSG {
+  int64 since_epoch_ms = 1;
+  repeated BestiaAwayReport bestias = 2;
+}
+
+message BestiaAwayReport {
+  uint64 player_bestia_id = 1;
+  // Empty when it has no name of its own.
+  string name = 2;
+  string species = 3;
+  // Item identifiers with the amounts it hauled.
+  map<string, uint32> brought = 4;
+  // The named chests the goods went to.
+  repeated string brought_to = 5;
+  // Queues it finished, per station kind.
+  map<string, uint32> made_at = 6;
+  // Seconds per state: WORKING, IDLE, RESTING, PAUSED, FIGHTING, SHELTERING or TRAVELLING.
+  map<string, uint64> time_in = 7;
+  // Oldest first.
+  repeated BestiaIncident incidents = 8;
+  // An activity kind as in BestiaActivity, NOT_IN_WORLD or DEAD.
+  string now = 9;
+  // The station it works at now, if any.
+  string now_at = 10;
+  // Why it stopped, if it still has: CHEST_FULL, NO_ORE, STATION_OUT, CANNOT_CRAFT, OUT_OF_FOOD or DIED; empty if not.
+  string blocker = 11;
+  // What gets it going again: EMPTY_CHEST, BUILD_SHAFT, FEED_FIRE, ADD_INGREDIENTS, BRING_FOOD or REVIVE.
+  string hint = 12;
+}
+
+// One thing that happened, with the kind, place and reason of its diary line.
+message BestiaIncident {
+  string kind = 1;
+  int64 at_epoch_ms = 2;
+  string reason = 3;
+  string place = 4;
+}

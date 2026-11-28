@@ -5,6 +5,7 @@ import net.bestia.zone.bestia.diary.BestiaNews
 import net.bestia.zone.bestia.diary.BestiaHappened
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.ai.domain.bestia.JobChest
+import net.bestia.zone.ai.domain.bestia.NamedPlace
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.geometry.Vec3L
@@ -47,7 +48,8 @@ class JobChestSense(
     val masterId = context.world.get(context.entityId, OwnedBestia::class)?.masterId ?: return
     // At a station, the chest nearest it is the one that pays its queue.
     val workplace = context.world.get(context.entityId, WorkAssignment::class)?.position
-    val chest = namedChest(context, masterId) ?: nearestChest(masterId, workplace ?: area.center)
+    val named = namedChest(context, masterId)
+    val chest = named ?: nearestChest(masterId, workplace ?: area.center)
 
     if (chest == null) {
       context.forget(BestiaDomain.JOB_CHEST)
@@ -65,7 +67,7 @@ class JobChestSense(
 
     tellWhenFull(context, goods.isNotEmpty() && goodsThatFit.isEmpty())
 
-    context.remember(BestiaDomain.JOB_CHEST, JobChest(chest.id, chest.position))
+    context.remember(BestiaDomain.JOB_CHEST, JobChest(chest.id, chest.position, named?.let { chestPlaceOf(context)?.name }))
     context.remember(BestiaDomain.CHEST_HAS_ROOM, contents.size() < ChestStorage.SLOTS || goodsThatFit.isNotEmpty())
     context.remember(BestiaDomain.GOODS_TO_HAUL, goodsThatFit.isNotEmpty())
     context.remember(BestiaDomain.FOOD_IN_CHEST, care.hasFor(contents, BagCare.Need.STAMINA, items))
@@ -87,10 +89,13 @@ class JobChestSense(
 
   /** The chest the orders name, while it stands and is still the master's. */
   private fun namedChest(context: SenseContext, masterId: Long): StructureEntry? {
-    val placeId = context.recall(BestiaDomain.CHEST_PLACE_ID) ?: return null
-    val structureId = places.placeOf(placeId)?.chestStructureId ?: return null
+    val structureId = chestPlaceOf(context)?.chestStructureId ?: return null
 
     return structures.of(structureId)?.takeIf { it.ownerMasterId == masterId && !it.isUnderConstruction }
+  }
+
+  private fun chestPlaceOf(context: SenseContext): NamedPlace? {
+    return context.recall(BestiaDomain.CHEST_PLACE_ID)?.let(places::placeOf)
   }
 
   private fun nearestChest(masterId: Long, to: Vec3L): StructureEntry? {

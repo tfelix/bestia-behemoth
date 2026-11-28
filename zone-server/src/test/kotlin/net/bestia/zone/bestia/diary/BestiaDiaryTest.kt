@@ -8,6 +8,7 @@ import io.mockk.slot
 import io.mockk.verify
 import net.bestia.zone.persistence.AsyncJobExecutor
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import java.time.Clock
 import java.time.Duration
@@ -19,6 +20,7 @@ class BestiaDiaryTest {
   private val now = Instant.parse("2026-11-11T12:00:00Z")
   private val lines = mockk<DiaryLineRepository>(relaxed = true) {
     every { save(any<DiaryLine>()) } answers { firstArg() }
+    every { findFirstByPlayerBestiaIdAndKindOrderByAtDesc(any(), any()) } returns null
   }
   private val jobs = mockk<AsyncJobExecutor> {
     every { submit(any<Long>(), any()) } answers { secondArg<() -> Unit>().invoke() }
@@ -45,6 +47,44 @@ class BestiaDiaryTest {
     diary.record(newestFirst.first())
 
     verify { lines.deleteAll(newestFirst.takeLast(2)) }
+  }
+
+  @Test
+  fun `a haul within the hour adds its goods to the last haul's line`() {
+    val last = DiaryLine(7L, 1L, now.minusSeconds(50 * 60), BestiaHappened.Kind.HAULED, items = "log:12", place = "Camp")
+    every { lines.findFirstByPlayerBestiaIdAndKindOrderByAtDesc(1L, BestiaHappened.Kind.HAULED) } returns last
+
+    diary.record(DiaryLine(7L, 1L, now, BestiaHappened.Kind.HAULED, items = "log:3,herb:2", place = "Camp"))
+
+    assertEquals(mapOf("log" to 15, "herb" to 2), last.itemAmounts())
+    assertEquals(now.minusSeconds(50 * 60), last.at)
+    verify(exactly = 1) { lines.save(any<DiaryLine>()) }
+    verify { lines.save(last) }
+  }
+
+  @Test
+  fun `a haul after the hour or to another chest starts a new line`() {
+    val older = DiaryLine(7L, 1L, now.minusSeconds(61 * 60), BestiaHappened.Kind.HAULED, items = "log:12", place = "Camp")
+    every { lines.findFirstByPlayerBestiaIdAndKindOrderByAtDesc(1L, BestiaHappened.Kind.HAULED) } returns older
+    val late = DiaryLine(7L, 1L, now, BestiaHappened.Kind.HAULED, items = "log:3", place = "Camp")
+    val elsewhere = DiaryLine(7L, 1L, now, BestiaHappened.Kind.HAULED, items = "log:3", place = null)
+
+    diary.record(late)
+    every { lines.findFirstByPlayerBestiaIdAndKindOrderByAtDesc(1L, BestiaHappened.Kind.HAULED) } returns
+      DiaryLine(7L, 1L, now.minusSeconds(60), BestiaHappened.Kind.HAULED, items = "log:1", place = "Camp")
+    diary.record(elsewhere)
+
+    assertEquals(mapOf("log" to 12), older.itemAmounts())
+    verify { lines.save(late) }
+    verify { lines.save(elsewhere) }
+  }
+
+  @Test
+  fun `only kinds that merge look for a line to merge into`() {
+    diary.record(DiaryLine(7L, 1L, now, BestiaHappened.Kind.ATTACKED))
+
+    verify(exactly = 0) { lines.findFirstByPlayerBestiaIdAndKindOrderByAtDesc(any(), any()) }
+    assertNull(BestiaHappened.Kind.ATTACKED.mergesWithin)
   }
 
   @Test

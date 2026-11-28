@@ -87,6 +87,7 @@ class CompanionRequestDispatcher(
       is ZoneQuery.SaveOrderPreset -> presets.save(id, account, query)
       is ZoneQuery.DeleteOrderPreset -> presets.delete(id, account, query)
       is ZoneQuery.Diary -> found(id, diaries.diary(account, query.masterId))
+      is ZoneQuery.AwayReport -> found(id, diaries.awayReport(account, query.masterId))
       is ZoneQuery.BestiaPlaces -> places.list(id, account, query)
       is ZoneQuery.SaveAreaPlace -> places.saveArea(id, account, query)
       is ZoneQuery.SaveChestPlace -> places.saveChest(id, account, query)

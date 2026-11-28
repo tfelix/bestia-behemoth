@@ -91,7 +91,7 @@ class HaulToChestActionTemplate(
       val items = hauled.mapNotNull { (itemId, amount) -> identifierOf(itemId)?.let { it to amount } }.toMap()
       if (items.isEmpty()) return
 
-      news.tell(BestiaHappened(this, masterId, playerBestiaId, BestiaHappened.Kind.HAULED, items = items))
+      news.tell(BestiaHappened(this, masterId, playerBestiaId, BestiaHappened.Kind.HAULED, items = items, place = chest.placeName))
     }
 
     override fun toString(): String = "Deposit(${chest.structureId})"

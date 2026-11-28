@@ -37,8 +37,8 @@ class DiaryLine(
   val kind: BestiaHappened.Kind,
 
   /** `identifier:amount` pairs joined by `,`. */
-  @Column(length = 400)
-  val items: String? = null,
+  @Column(length = ITEMS_LENGTH)
+  var items: String? = null,
 
   @Column(length = 40)
   val place: String? = null,
@@ -58,6 +58,8 @@ class DiaryLine(
   }
 
   companion object {
+    const val ITEMS_LENGTH = 400
+
     fun itemsOf(items: Map<String, Int>): String? {
       return items.takeIf { it.isNotEmpty() }?.entries?.joinToString(",") { (identifier, amount) -> "$identifier:$amount" }
     }

@@ -3,6 +3,7 @@
 	import { getJson } from '#lib/api/client.ts';
 	import type { GuildView, MasterSheet, PartyView } from '#lib/api/model.ts';
 	import Age from '#lib/components/Age.svelte';
+	import AwayReportCard from '#lib/components/AwayReportCard.svelte';
 	import Emblem from '#lib/components/Emblem.svelte';
 	import { touchesMaster } from '#lib/events.ts';
 	import { guarded } from '#lib/guard.ts';
@@ -72,6 +73,8 @@
 			</div>
 			<Age asOf={sheet.asOf} live={sheet.inWorld} />
 		</section>
+
+		<AwayReportCard {masterId} />
 
 		<section class="panel rise">
 			<div class="points">

@@ -257,6 +257,10 @@ class Master(
   @ColumnDefault("0")
   var persistedAtEpochMs: Long = 0
 
+  /** When this master last left the world, in epoch milliseconds; null until it first has. */
+  @Column(name = "logged_out_at")
+  var loggedOutAtEpochMs: Long? = null
+
   @OneToOne(cascade = [CascadeType.ALL], orphanRemoval = true)
   @JoinColumn(name = "container_id", nullable = false)
   override val container: ItemContainer = ItemContainer(ItemContainer.Type.MASTER)

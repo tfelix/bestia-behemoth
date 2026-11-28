@@ -71,6 +71,9 @@ import "messages/scroll/inscription_options_smsg.proto";
 import "messages/master/monster_sense_smsg.proto";
 import "messages/master/bestia_capture_smsg.proto";
 import "messages/master/owned_bestias_smsg.proto";
+import "messages/master/bestia_activity_smsg.proto";
+import "messages/master/bestia_news_smsg.proto";
+import "messages/master/away_report_smsg.proto";
 import "messages/compendium/request_compendium_cmsg.proto";
 import "messages/compendium/compendium_smsg.proto";
 import "messages/master/active_entity_smsg.proto";
@@ -332,6 +335,9 @@ message Envelope {
     SwapStoredBestiaCMSG swap_stored_bestia = 424;
     ReleaseStoredBestiaCMSG release_stored_bestia = 425;
     RenameBestiaCMSG rename_bestia = 426;
+    BestiaActivitySMSG bestia_activity = 427;
+    BestiaNewsSMSG bestia_news = 428;
+    AwayReportSMSG away_report = 429;
 
     // ENTITY & COMPONENTS 500
     SelectActiveEntity select_active_entity = 500;

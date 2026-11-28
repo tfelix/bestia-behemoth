@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import { getJson } from '#lib/api/client.ts';
 	import type { Bestia, DiaryEntry } from '#lib/api/model.ts';
-	import { diaryText } from '#lib/diary.ts';
+	import { diaryText, shownInDiary } from '#lib/diary.ts';
 	import { touchesMaster } from '#lib/events.ts';
 	import { guarded } from '#lib/guard.ts';
 	import { live } from '#lib/live.svelte.ts';
@@ -33,7 +33,7 @@
 		return live.on((event) => touchesMaster(event, id) && void load(id));
 	});
 
-	const shown = $derived((lines ?? []).filter((line) => only == null || line.playerBestiaId === only));
+	const shown = $derived((lines ?? []).filter((line) => shownInDiary(line) && (only == null || line.playerBestiaId === only)));
 
 	/** Lines grouped under the day they happened, newest day first. */
 	const days = $derived(

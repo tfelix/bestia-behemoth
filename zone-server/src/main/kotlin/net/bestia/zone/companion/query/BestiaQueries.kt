@@ -4,6 +4,8 @@ import net.bestia.bus.contract.ZoneAnswer
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.master.bestia.BestiaActivities
+import net.bestia.zone.master.bestia.BestiaActivity
 import net.bestia.zone.master.bestia.SpeciesJobs
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.movement.ecs.Speed
@@ -41,7 +43,7 @@ class BestiaQueries(
     }
     val jobs = rows.filter { it.entityId != null }.associate { it.entityId!! to it.aiConfig.job }
     val doing: Map<Long, ZoneAnswer.Roster.Activity> = world.read {
-      jobs.mapNotNull { (id, job) -> activities.of(this, id, job)?.let { id to it } }.toMap()
+      jobs.mapNotNull { (id, job) -> activities.of(this, id, job)?.let { id to activityOf(it) } }.toMap()
     }
     val now = System.currentTimeMillis()
 
@@ -78,6 +80,12 @@ class BestiaQueries(
           gatherFilter = OrdersOnTheBus.gatherFilterOf(row.aiConfig.gatherFilter),
         )
       }
+    )
+  }
+
+  private fun activityOf(activity: BestiaActivity): ZoneAnswer.Roster.Activity {
+    return ZoneAnswer.Roster.Activity(
+      activity.kind, activity.item, activity.done, activity.total, activity.station, activity.pause,
     )
   }
 

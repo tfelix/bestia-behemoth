@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "BestiaActivityProto";
+
+// What an owned bestia is doing, for its status line. The same facts the companion app shows.
+message BestiaActivity {
+  // CRAFTING, MINING, GATHERING, HAULING, FETCHING_FOOD, EATING, HEALING, FIGHTING, RETREATING, RESTING_AT_HOME,
+  // SLEEPING, GUARDING or IDLE.
+  string kind = 1;
+  // At a station: the item identifier it makes, empty otherwise.
+  string item = 2;
+  uint32 done = 3;
+  // 0 when there is nothing to count.
+  uint32 total = 4;
+  // The station's kind, for example WORKBENCH.
+  string station = 5;
+  // Why the station waits, for example STATION_OUT; empty while it works.
+  string pause = 6;
+}

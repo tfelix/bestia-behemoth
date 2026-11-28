@@ -101,6 +101,7 @@ class BestiaRuntime(
     val areaRadius = overrides.areaRadius?.toLong() ?: speciesRadius
 
     memory.set(BestiaDomain.MAIN_JOB, config.job, Blackboard.PERMANENT)
+    config.fallbackJob?.let { memory.set(BestiaDomain.FALLBACK_JOB, it, Blackboard.PERMANENT) }
     memory.set(BestiaDomain.RULES, config.rules, Blackboard.PERMANENT)
     memory.set(BestiaDomain.CARE_ITEMS, config.careItems, Blackboard.PERMANENT)
     memory.set(BestiaDomain.GATHER_FILTER, config.gatherFilter, Blackboard.PERMANENT)

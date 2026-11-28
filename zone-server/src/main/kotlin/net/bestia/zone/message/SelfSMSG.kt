@@ -1,6 +1,7 @@
 package net.bestia.zone.message
 
 import net.bestia.bnet.proto.BestiaGeneticsProto
+import net.bestia.bnet.proto.BestiaActivityProto
 import net.bestia.bnet.proto.BestiaInfoProto
 import net.bestia.bnet.proto.BestiaOriginProto
 import net.bestia.bnet.proto.EnvelopeProto
@@ -32,6 +33,8 @@ data class SelfSMSG(
     val ivs: BestiaGeneticsProto.IvReading? = null,
     val origin: BestiaOriginProto.BestiaOrigin,
     val originMasterName: String,
+    /** Its status line, for its owner only. */
+    val activity: BestiaActivityProto.BestiaActivity? = null,
   ) {
 
     fun toBnet(): BestiaInfoProto.BestiaInfo {
@@ -53,6 +56,7 @@ data class SelfSMSG(
         .setOrigin(origin)
         .setOriginMasterName(originMasterName)
       ivs?.let(info::setIvs)
+      activity?.let(info::setActivity)
 
       return info.build()
     }
