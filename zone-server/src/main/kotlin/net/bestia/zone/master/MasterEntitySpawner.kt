@@ -1,6 +1,7 @@
 package net.bestia.zone.master
 
 import net.bestia.zone.casting.portal.WarpMarks
+import net.bestia.zone.identity.ecs.FactionMembership
 import net.bestia.zone.movement.ecs.Facing
 import net.bestia.zone.item.profession.Profession
 import net.bestia.zone.item.profession.Professions
@@ -180,6 +181,7 @@ class MasterEntitySpawner(
       add(id, KnownSkills(learnedSkillIds.toMutableMap()))
       add(id, Professions(Profession.listOf(master.professions)))
       add(id, WarpMarks(WarpMarks.decode(master.warpMarks)))
+      add(id, FactionMembership(master.faction, master.factionSwornAt, master.unswornUntil))
       // The stored pair only breaks ties: a content edit to the tree since the last save is caught here.
       professions.refresh(this, id)
       add(id, KnownRecipes(knownRecipeIds.toMutableSet()))

@@ -28,9 +28,13 @@ import net.bestia.zone.skill.persistence.Skill
 import net.bestia.zone.skill.persistence.SkillRepository
 import net.bestia.zone.workexp.WorkExpLedger
 import net.bestia.zone.world.SpawnPointAvailability
+import net.bestia.worldgen.core.Faction
+import net.bestia.zone.identity.ecs.FactionMembership
 import org.junit.jupiter.api.Test
+import java.time.Instant
 import java.awt.Color
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 /**
  * What a master takes with it out of the world - in particular that leaving while dead resolves the
@@ -134,6 +138,20 @@ class MasterEntityPersisterTest {
     sut.persist(listOfNotNull(sut.snapshot(world, id)))
 
     assertEquals(345, row.exp)
+  }
+
+  @Test
+  fun `the Order and the time unsworn are stored with the master`() {
+    val world = testWorld()
+    val id = world.master(dead = false)
+    val swornAt = Instant.parse("2026-11-01T10:00:00Z")
+    world.add(id, FactionMembership(Faction.ETERNITY, swornAt, unswornUntil = null))
+
+    sut.persist(listOfNotNull(sut.snapshot(world, id)))
+
+    assertEquals(Faction.ETERNITY, row.faction)
+    assertEquals(swornAt, row.factionSwornAt)
+    assertNull(row.unswornUntil)
   }
 
   @Test

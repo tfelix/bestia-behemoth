@@ -1,6 +1,7 @@
 package net.bestia.zone.account.persistence
 
 import jakarta.persistence.*
+import net.bestia.worldgen.core.Faction
 import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.container.ContainerOwner
@@ -199,6 +200,17 @@ class Master(
   @Column(name = "warp_marks", nullable = false, length = 512)
   @ColumnDefault("''")
   var warpMarks: String = ""
+
+  /** The Order this master is sworn to, see `FactionMembership`. Kept when a world ends. */
+  @Enumerated(EnumType.STRING)
+  @Column(name = "faction")
+  var faction: Faction? = null
+
+  @Column(name = "faction_sworn_at")
+  var factionSwornAt: java.time.Instant? = null
+
+  @Column(name = "unsworn_until")
+  var unswornUntil: java.time.Instant? = null
 
   @OneToMany(mappedBy = "master", cascade = [CascadeType.ALL], orphanRemoval = true)
   val learnedSkills: MutableSet<LearnedSkill> = mutableSetOf()

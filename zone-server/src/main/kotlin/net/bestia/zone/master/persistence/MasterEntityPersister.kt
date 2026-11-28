@@ -20,6 +20,7 @@ import net.bestia.zone.battle.ecs.status.SkillPoints
 import net.bestia.zone.battle.ecs.status.StatusPoints
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.identity.ecs.FactionMembership
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.persistence.EntityPersister
 import net.bestia.zone.persistence.EntitySnapshot
@@ -61,6 +62,7 @@ data class MasterSnapshot(
   val honor: HonorLedger,
   val professions: List<Profession>,
   val warpMarks: List<Vec3L>,
+  val faction: FactionMembership,
 ) : EntitySnapshot {
 
   /** Keyed like every other write about this master, inventory included, so they land in order. */
@@ -91,7 +93,7 @@ class MasterEntityPersister(
   override val reads: ComponentClassSet = setOf(
     MasterComponent::class, Position::class, Level::class, Exp::class, SkillPoints::class,
     StatusPoints::class, BaseStatusValues::class, Health::class, Mana::class, Dead::class, KnownSkills::class,
-    Honor::class, Professions::class, WarpMarks::class, WorkExpLedger::class,
+    Honor::class, Professions::class, WarpMarks::class, WorkExpLedger::class, FactionMembership::class,
   )
 
   override fun supports(world: World, id: EntityId): Boolean =
@@ -127,6 +129,7 @@ class MasterEntityPersister(
       honor = world.get(id, Honor::class)?.ledger ?: HonorLedger(),
       professions = world.get(id, Professions::class)?.held.orEmpty(),
       warpMarks = world.get(id, WarpMarks::class)?.spots.orEmpty(),
+      faction = world.get(id, FactionMembership::class) ?: FactionMembership(),
     )
   }
 
@@ -166,6 +169,9 @@ class MasterEntityPersister(
       master.honorLastLossAt = snap.honor.lastLossAt
       master.professions = Profession.stored(snap.professions)
       master.warpMarks = WarpMarks.encode(snap.warpMarks)
+      master.faction = snap.faction.faction
+      master.factionSwornAt = snap.faction.swornAt
+      master.unswornUntil = snap.faction.unswornUntil
       master.persistedAtEpochMs = System.currentTimeMillis()
       masterRepository.save(master)
       saveLearnedSkills(master, snap.learnedSkills)

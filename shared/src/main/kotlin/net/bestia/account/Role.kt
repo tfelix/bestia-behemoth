@@ -23,7 +23,8 @@ enum class Role(val authorities: Set<Authority>) {
       Authority.MAP_REVEAL,
       Authority.HONOR,
       Authority.ANNOUNCE,
-      Authority.WORLD_EVENTS
+      Authority.WORLD_EVENTS,
+      Authority.FACTIONS
     )
   ),
   SUPER_GM(Authority.entries.toSet());
