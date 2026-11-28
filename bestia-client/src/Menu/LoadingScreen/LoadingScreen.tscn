@@ -14,11 +14,14 @@
 [ext_resource type="Texture2D" uid="uid://cpmep2pquywdy" path="res://Menu/LoadingScreen/loading_screen_11.jpg" id="12_art"]
 [ext_resource type="Texture2D" uid="uid://dpq2rxlqenh6l" path="res://Menu/LoadingScreen/loading_screen_12.jpg" id="13_art"]
 [ext_resource type="Texture2D" uid="uid://b752wdo1mf47" path="res://Menu/LoadingScreen/loading_screen_13.jpg" id="14_art"]
+[ext_resource type="Texture2D" uid="uid://psbfo1hev67b" path="res://Menu/LoadingScreen/loading_screen_14.jpg" id="15_art"]
+[ext_resource type="Texture2D" uid="uid://cesuwccgw6vjw" path="res://Menu/LoadingScreen/loading_screen_15.jpg" id="16_art"]
+[ext_resource type="Texture2D" uid="uid://d0pqoyau1piay" path="res://Menu/LoadingScreen/loading_screen_16.jpg" id="17_art"]
 
 [node name="LoadingScreen" type="CanvasLayer" unique_id=1288041131]
 layer = 128
 script = ExtResource("1_wlscr")
-artworks = Array[Texture2D]([ExtResource("2_art"), ExtResource("3_art"), ExtResource("4_oelju"), ExtResource("5_art"), ExtResource("6_art"), ExtResource("7_art"), ExtResource("8_art"), ExtResource("9_art"), ExtResource("10_art"), ExtResource("11_art"), ExtResource("12_art"), ExtResource("13_art"), ExtResource("14_art")])
+artworks = Array[Texture2D]([ExtResource("2_art"), ExtResource("3_art"), ExtResource("4_oelju"), ExtResource("5_art"), ExtResource("6_art"), ExtResource("7_art"), ExtResource("8_art"), ExtResource("9_art"), ExtResource("10_art"), ExtResource("11_art"), ExtResource("12_art"), ExtResource("13_art"), ExtResource("14_art"), ExtResource("15_art"), ExtResource("16_art"), ExtResource("17_art")])
 
 [node name="Fade" type="Control" parent="." unique_id=165452283]
 unique_name_in_owner = true
