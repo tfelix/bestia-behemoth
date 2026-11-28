@@ -10,6 +10,7 @@ import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.item.care.BagCare
+import net.bestia.zone.item.care.CareItems
 import net.bestia.zone.item.ecs.ChestStorage
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.prop.PlayerStructureRegistry
@@ -58,7 +59,8 @@ class JobChestSense(
     }
 
     val contents = chests.contentsOf(chest.id)
-    val goods = context.world.get(context.entityId, Inventory::class)?.let(care::spareGoods).orEmpty()
+    val items = context.recall(BestiaDomain.CARE_ITEMS) ?: CareItems()
+    val goods = context.world.get(context.entityId, Inventory::class)?.let { care.spareGoods(it, items) }.orEmpty()
     val goodsThatFit = ChestStorage.whatFits(contents, goods)
 
     tellWhenFull(context, goods.isNotEmpty() && goodsThatFit.isEmpty())
@@ -66,8 +68,8 @@ class JobChestSense(
     context.remember(BestiaDomain.JOB_CHEST, JobChest(chest.id, chest.position))
     context.remember(BestiaDomain.CHEST_HAS_ROOM, contents.size() < ChestStorage.SLOTS || goodsThatFit.isNotEmpty())
     context.remember(BestiaDomain.GOODS_TO_HAUL, goodsThatFit.isNotEmpty())
-    context.remember(BestiaDomain.FOOD_IN_CHEST, care.hasFor(contents, BagCare.Need.STAMINA))
-    context.remember(BestiaDomain.FOOD_STOCK_IN_CHEST, care.staminaStockOf(contents))
+    context.remember(BestiaDomain.FOOD_IN_CHEST, care.hasFor(contents, BagCare.Need.STAMINA, items))
+    context.remember(BestiaDomain.FOOD_STOCK_IN_CHEST, care.staminaStockOf(contents, items))
   }
 
   /** Once per stretch of being full: a bestia whose chest takes nothing more has stopped working. */

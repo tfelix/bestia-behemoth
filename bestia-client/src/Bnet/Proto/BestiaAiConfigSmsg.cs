@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CittZXNzYWdlcy9tYXN0ZXIvYmVzdGlhX2FpX2NvbmZpZ19zbXNnLnByb3Rv",
             "EgRibmV0Gi9tZXNzYWdlcy9tYXN0ZXIvc2V0X2Jlc3RpYV9haV9jb25maWdf",
-            "Y21zZy5wcm90byKIBAoSQmVzdGlhQWlDb25maWdTTVNHEhgKEHBsYXllcl9i",
+            "Y21zZy5wcm90byLDBAoSQmVzdGlhQWlDb25maWdTTVNHEhgKEHBsYXllcl9i",
             "ZXN0aWFfaWQYASABKAQSLAoDam9iGAUgASgOMh8uYm5ldC5TZXRCZXN0aWFB",
             "aUNvbmZpZ0NNU0cuSm9iEjQKB2NvdXJhZ2UYBiABKA4yIy5ibmV0LlNldEJl",
             "c3RpYUFpQ29uZmlnQ01TRy5Db3VyYWdlEjUKDGZhbGxiYWNrX2pvYhgHIAEo",
@@ -36,14 +36,15 @@ namespace Bnet {
             "Ry5SdWxlEhYKCXByZXNldF9pZBgKIAEoBEgAiAEBEhoKDWFyZWFfcGxhY2Vf",
             "aWQYCyABKARIAYgBARIbCg5jaGVzdF9wbGFjZV9pZBgMIAEoBEgCiAEBEjwK",
             "DW93bl9vdmVycmlkZXMYDSABKAsyJS5ibmV0LlNldEJlc3RpYUFpQ29uZmln",
-            "Q01TRy5PdmVycmlkZXNCDAoKX3ByZXNldF9pZEIQCg5fYXJlYV9wbGFjZV9p",
-            "ZEIRCg9fY2hlc3RfcGxhY2VfaWRKBAgCEANKBAgDEARKBAgEEAVCMAoVbmV0",
-            "LmJlc3RpYS5ibmV0LnByb3RvQhdCZXN0aWFBaUNvbmZpZ1Ntc2dQcm90b2IG",
-            "cHJvdG8z"));
+            "Q01TRy5PdmVycmlkZXMSOQoKY2FyZV9pdGVtcxgOIAEoCzIlLmJuZXQuU2V0",
+            "QmVzdGlhQWlDb25maWdDTVNHLkNhcmVJdGVtc0IMCgpfcHJlc2V0X2lkQhAK",
+            "Dl9hcmVhX3BsYWNlX2lkQhEKD19jaGVzdF9wbGFjZV9pZEoECAIQA0oECAMQ",
+            "BEoECAQQBUIwChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CF0Jlc3RpYUFpQ29u",
+            "ZmlnU21zZ1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.SetBestiaAiConfigCmsgReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.BestiaAiConfigSMSG), global::Bnet.BestiaAiConfigSMSG.Parser, new[]{ "PlayerBestiaId", "Job", "Courage", "FallbackJob", "Overrides", "Rules", "PresetId", "AreaPlaceId", "ChestPlaceId", "OwnOverrides" }, new[]{ "PresetId", "AreaPlaceId", "ChestPlaceId" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.BestiaAiConfigSMSG), global::Bnet.BestiaAiConfigSMSG.Parser, new[]{ "PlayerBestiaId", "Job", "Courage", "FallbackJob", "Overrides", "Rules", "PresetId", "AreaPlaceId", "ChestPlaceId", "OwnOverrides", "CareItems" }, new[]{ "PresetId", "AreaPlaceId", "ChestPlaceId" }, null, null, null)
           }));
     }
     #endregion
@@ -102,6 +103,7 @@ namespace Bnet {
       areaPlaceId_ = other.areaPlaceId_;
       chestPlaceId_ = other.chestPlaceId_;
       ownOverrides_ = other.ownOverrides_ != null ? other.ownOverrides_.Clone() : null;
+      careItems_ = other.careItems_ != null ? other.careItems_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -281,6 +283,18 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "care_items" field.</summary>
+    public const int CareItemsFieldNumber = 14;
+    private global::Bnet.SetBestiaAiConfigCMSG.Types.CareItems careItems_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.SetBestiaAiConfigCMSG.Types.CareItems CareItems {
+      get { return careItems_; }
+      set {
+        careItems_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -306,6 +320,7 @@ namespace Bnet {
       if (AreaPlaceId != other.AreaPlaceId) return false;
       if (ChestPlaceId != other.ChestPlaceId) return false;
       if (!object.Equals(OwnOverrides, other.OwnOverrides)) return false;
+      if (!object.Equals(CareItems, other.CareItems)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -323,6 +338,7 @@ namespace Bnet {
       if (HasAreaPlaceId) hash ^= AreaPlaceId.GetHashCode();
       if (HasChestPlaceId) hash ^= ChestPlaceId.GetHashCode();
       if (ownOverrides_ != null) hash ^= OwnOverrides.GetHashCode();
+      if (careItems_ != null) hash ^= CareItems.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -378,6 +394,10 @@ namespace Bnet {
         output.WriteRawTag(106);
         output.WriteMessage(OwnOverrides);
       }
+      if (careItems_ != null) {
+        output.WriteRawTag(114);
+        output.WriteMessage(CareItems);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -425,6 +445,10 @@ namespace Bnet {
         output.WriteRawTag(106);
         output.WriteMessage(OwnOverrides);
       }
+      if (careItems_ != null) {
+        output.WriteRawTag(114);
+        output.WriteMessage(CareItems);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -462,6 +486,9 @@ namespace Bnet {
       }
       if (ownOverrides_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(OwnOverrides);
+      }
+      if (careItems_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(CareItems);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -508,6 +535,12 @@ namespace Bnet {
           OwnOverrides = new global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides();
         }
         OwnOverrides.MergeFrom(other.OwnOverrides);
+      }
+      if (other.careItems_ != null) {
+        if (careItems_ == null) {
+          CareItems = new global::Bnet.SetBestiaAiConfigCMSG.Types.CareItems();
+        }
+        CareItems.MergeFrom(other.CareItems);
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -574,6 +607,13 @@ namespace Bnet {
             input.ReadMessage(OwnOverrides);
             break;
           }
+          case 114: {
+            if (careItems_ == null) {
+              CareItems = new global::Bnet.SetBestiaAiConfigCMSG.Types.CareItems();
+            }
+            input.ReadMessage(CareItems);
+            break;
+          }
         }
       }
     #endif
@@ -637,6 +677,13 @@ namespace Bnet {
               OwnOverrides = new global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides();
             }
             input.ReadMessage(OwnOverrides);
+            break;
+          }
+          case 114: {
+            if (careItems_ == null) {
+              CareItems = new global::Bnet.SetBestiaAiConfigCMSG.Types.CareItems();
+            }
+            input.ReadMessage(CareItems);
             break;
           }
         }

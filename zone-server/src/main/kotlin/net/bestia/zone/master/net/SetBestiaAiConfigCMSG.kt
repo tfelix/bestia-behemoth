@@ -29,6 +29,7 @@ data class SetBestiaAiConfigCMSG(
         msg.job, msg.courage, msg.fallbackJob, msg.overrides, msg.rulesList,
         areaPlaceId = msg.takeIf { it.hasAreaPlaceId() }?.areaPlaceId,
         chestPlaceId = msg.takeIf { it.hasChestPlaceId() }?.chestPlaceId,
+        careItems = msg.careItems,
       )
 
       return SetBestiaAiConfigCMSG(

@@ -12,6 +12,7 @@ import net.bestia.zone.ai.core.state.StateKey
 import net.bestia.zone.ai.core.state.WorldState
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.item.care.BagCare
+import net.bestia.zone.item.care.CareItems
 
 /**
  * Uses one item from the bestia's own bag for [need], grounding [BestiaDomain.Goals.HEAL_FROM_BAG] or
@@ -41,8 +42,11 @@ class UseFromBagActionTemplate private constructor(
   }
 
   private class UseFromBag(private val care: BagCare, private val need: BagCare.Need) : BtNode {
-    override fun tick(context: BtContext): Status =
-      if (care.use(context.world, context.entityId, need)) Status.SUCCESS else Status.FAILURE
+    override fun tick(context: BtContext): Status {
+      val items = context.memory.get(BestiaDomain.CARE_ITEMS) ?: CareItems()
+
+      return if (care.use(context.world, context.entityId, need, items)) Status.SUCCESS else Status.FAILURE
+    }
 
     override fun toString(): String = "UseFromBag($need)"
   }

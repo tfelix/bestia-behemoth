@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Bestia } from '#lib/api/model.ts';
-import { changed, draftOf, fallbacksFor, mayTake, ordersOf, ruleOf, sheetOf } from './orders';
+import { MAX_ITEMS, changed, draftOf, fallbacksFor, mayTake, ordersOf, ruleOf, sheetOf, withItem } from './orders';
 
 function bestia(changes: Partial<Bestia>): Bestia {
 	return {
@@ -19,6 +19,7 @@ function bestia(changes: Partial<Bestia>): Bestia {
 		rules: [],
 		ownOverrides: {},
 		allowedJobs: [],
+		careItems: { neverUse: [], alsoUse: [] },
 		...changes
 	};
 }
@@ -69,7 +70,26 @@ describe('orders', () => {
 			overrides: {},
 			rules: [{ condition: 'DAY', threshold: undefined, action: 'KEEP_WORKING' }],
 			areaPlaceId: undefined,
-			chestPlaceId: undefined
+			chestPlaceId: undefined,
+			careItems: { neverUse: [], alsoUse: [] }
 		});
+	});
+
+	it('sends its care items, and none while it follows a preset', () => {
+		const careItems = { neverUse: [46], alsoUse: [3] };
+		const own = draftOf(bestia({ careItems }));
+		expect(ordersOf(own).careItems).toEqual(careItems);
+		expect(changed(bestia({ careItems }), own)).toBe(false);
+
+		own.careItems.alsoUse.push(4);
+		expect(changed(bestia({ careItems }), own)).toBe(true);
+		expect(ordersOf({ ...own, presetId: 3 }).careItems).toEqual({ neverUse: [], alsoUse: [] });
+	});
+
+	it('adds an item once, and no more than fit', () => {
+		expect(withItem([3], 3)).toEqual([3]);
+		expect(withItem([3], 4)).toEqual([3, 4]);
+		const full = Array.from({ length: MAX_ITEMS }, (_, i) => i + 1);
+		expect(withItem(full, 99)).toBe(full);
 	});
 });

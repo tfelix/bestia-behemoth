@@ -41,6 +41,9 @@ message SetBestiaAiConfigCMSG {
   /** A named chest instead of the nearest. */
   optional uint64 chest_place_id = 12;
 
+  /** The items it may use to look after itself, beyond common food and bandages. */
+  CareItems care_items = 13;
+
   /** "When condition then action". Only the pairs the server allows; see OrderRule there. */
   message Rule {
     Condition condition = 1;
@@ -68,6 +71,14 @@ message SetBestiaAiConfigCMSG {
       KEEP_WORKING = 6;
       HOLD_GROUND = 7;
     }
+  }
+
+  /** Item ids, at most 8 in each list. */
+  message CareItems {
+    /** Never used, even where they would qualify. */
+    repeated uint64 never_use = 1;
+    /** Used on top of common food and bandages, for example a healing potion. */
+    repeated uint64 also_use = 2;
   }
 
   /** An unset field keeps what the courage step and the job choose. */

@@ -57,6 +57,36 @@ class BagCareTest {
   }
 
   @Test
+  fun `leaves alone what it must never use`() {
+    val bestia = bestiaWith(bagWith(BREAD to 1, CHEESE to 1))
+
+    assertTrue(care.use(world, bestia, BagCare.Need.STAMINA, CareItems(neverUse = listOf(CHEESE))))
+
+    assertEquals(45, world.getOrThrow(bestia, Stamina::class).current)
+    assertTrue(world.getOrThrow(bestia, Inventory::class).hasItem(CHEESE.toInt()))
+  }
+
+  @Test
+  fun `drinks a potion it may also use`() {
+    val bag = bagWith(POTION to 1)
+    val bestia = bestiaWith(bag)
+    val items = CareItems(alsoUse = listOf(POTION))
+
+    assertTrue(care.hasFor(bag, BagCare.Need.HEALTH, items))
+    assertTrue(care.use(world, bestia, BagCare.Need.HEALTH, items))
+    assertEquals(55, world.getOrThrow(bestia, Health::class).current)
+  }
+
+  @Test
+  fun `hauls what it must never use and keeps what it may also use`() {
+    val bag = bagWith(BREAD to 2, POTION to 1)
+
+    val goods = care.spareGoods(bag, CareItems(neverUse = listOf(BREAD), alsoUse = listOf(POTION)))
+
+    assertEquals(listOf(BREAD), goods.map { it.itemId })
+  }
+
+  @Test
   fun `has nothing for a need no carried item meets`() {
     val bag = bagWith(BREAD to 1)
 

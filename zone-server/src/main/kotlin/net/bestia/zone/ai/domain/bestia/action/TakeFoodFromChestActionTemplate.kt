@@ -16,6 +16,7 @@ import net.bestia.zone.ai.domain.bestia.JobChest
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.item.care.BagCare
+import net.bestia.zone.item.care.CareItems
 import net.bestia.zone.item.container.ItemHandover
 import net.bestia.zone.item.ecs.CarryCapacity
 import net.bestia.zone.item.ecs.CarryCheck
@@ -67,8 +68,9 @@ class TakeFoodFromChestActionTemplate(
 
       val exchange = ChestExchange.open(context.world, aoi, context.entityId, chest) ?: return Status.FAILURE
       var wanted = PORTIONS
+      val items = context.memory.get(BestiaDomain.CARE_ITEMS) ?: CareItems()
 
-      for (food in care.suppliesFor(exchange.contents, BagCare.Need.STAMINA)) {
+      for (food in care.suppliesFor(exchange.contents, BagCare.Need.STAMINA, items)) {
         val amount = minOf(wanted, food.amount)
         if (!CarryCheck.fits(context.world, context.entityId, food.weight * amount)) continue
 

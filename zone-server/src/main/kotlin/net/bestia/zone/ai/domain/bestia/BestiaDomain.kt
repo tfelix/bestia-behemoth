@@ -45,6 +45,7 @@ import net.bestia.zone.battle.attack.AttackExecutionService
 import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.care.BagCare
+import net.bestia.zone.item.care.CareItems
 import net.bestia.zone.item.container.ItemHandover
 
 /**
@@ -151,6 +152,9 @@ object BestiaDomain : AiDomainCatalogue {
   /** Whether its own bag holds something it may eat for stamina, or put on for health. See [BagCare]. */
   val FOOD_IN_BAG = StateKey<Boolean>("foodInBag", observed = true)
   val HEAL_IN_BAG = StateKey<Boolean>("healInBag", observed = true)
+
+  /** The items an owned bestia's orders allow or forbid it on top of common food and bandages. */
+  val CARE_ITEMS = StateKey<CareItems>("careItems", retain = Blackboard.PERMANENT)
 
   /** An owned bestia's care and courage lines, from its orders. Wild mobs have none. */
   val EAT_BELOW_STAMINA_PCT = StateKey<Int>("eatBelowStaminaPct", retain = Blackboard.PERMANENT)

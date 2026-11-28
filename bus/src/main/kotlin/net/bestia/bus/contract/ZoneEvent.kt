@@ -41,6 +41,7 @@ sealed interface ZoneEvent {
     val chestPlaceId: Long? = null,
     val presetId: Long? = null,
     val ownOverrides: OrderNumbers = OrderNumbers(),
+    val careItems: OrderCareItems = OrderCareItems(),
   ) : ZoneEvent
 
   /**

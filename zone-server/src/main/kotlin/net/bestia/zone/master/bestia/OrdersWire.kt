@@ -1,6 +1,7 @@
 package net.bestia.zone.master.bestia
 
 import net.bestia.bnet.proto.OrderSheetProto.OrderSheet
+import net.bestia.bnet.proto.SetBestiaAiConfigCmsgProto.SetBestiaAiConfigCMSG.CareItems as WireCareItems
 import net.bestia.bnet.proto.SetBestiaAiConfigCmsgProto.SetBestiaAiConfigCMSG.Courage as WireCourage
 import net.bestia.bnet.proto.SetBestiaAiConfigCmsgProto.SetBestiaAiConfigCMSG.Job
 import net.bestia.bnet.proto.SetBestiaAiConfigCmsgProto.SetBestiaAiConfigCMSG.Overrides
@@ -10,6 +11,7 @@ import net.bestia.zone.ai.profile.BestiaJob
 import net.bestia.zone.ai.profile.Courage
 import net.bestia.zone.ai.profile.OrderOverrides
 import net.bestia.zone.ai.profile.OrderRule
+import net.bestia.zone.item.care.CareItems
 
 /** Bestia orders to and from the game wire. */
 object OrdersWire {
@@ -23,19 +25,25 @@ object OrdersWire {
     rules: List<Rule>,
     areaPlaceId: Long?,
     chestPlaceId: Long?,
+    careItems: WireCareItems,
   ): AiConfig? {
     val mainJob = BestiaJob.fromNameOrNull(job.name) ?: return null
     val step = Courage.fromNameOrNull(courage.name) ?: return null
     val fallback = fallbackFrom(fallbackJob).getOrElse { return null }
     val lines = rulesFrom(rules) ?: return null
 
-    return AiConfig(mainJob, step, fallback, overridesFrom(overrides), lines, areaPlaceId, chestPlaceId).takeIf { it.isValid }
+    val orders = AiConfig(
+      mainJob, step, fallback, overridesFrom(overrides), lines, areaPlaceId, chestPlaceId, careItemsFrom(careItems),
+    )
+
+    return orders.takeIf { it.isValid }
   }
 
   fun ordersFrom(sheet: OrderSheet): AiConfig? = ordersFrom(
     sheet.job, sheet.courage, sheet.fallbackJob, sheet.overrides, sheet.rulesList,
     sheet.takeIf { it.hasAreaPlaceId() }?.areaPlaceId,
     sheet.takeIf { it.hasChestPlaceId() }?.chestPlaceId,
+    sheet.careItems,
   )
 
   fun sheetOf(orders: AiConfig): OrderSheet {
@@ -45,6 +53,7 @@ object OrdersWire {
       .setFallbackJob(fallbackTo(orders.fallbackJob))
       .setOverrides(overridesTo(orders.overrides))
       .addAllRules(rulesTo(orders.rules))
+      .setCareItems(careItemsTo(orders.careItems))
     orders.areaPlaceId?.let(sheet::setAreaPlaceId)
     orders.chestPlaceId?.let(sheet::setChestPlaceId)
 
@@ -83,6 +92,14 @@ object OrdersWire {
       .setAction(Rule.Action.valueOf(rule.action.name))
     rule.threshold?.let(wire::setThreshold)
     wire.build()
+  }
+
+  fun careItemsFrom(wire: WireCareItems): CareItems {
+    return CareItems(neverUse = wire.neverUseList.toList(), alsoUse = wire.alsoUseList.toList())
+  }
+
+  fun careItemsTo(items: CareItems): WireCareItems {
+    return WireCareItems.newBuilder().addAllNeverUse(items.neverUse).addAllAlsoUse(items.alsoUse).build()
   }
 
   fun overridesTo(overrides: OrderOverrides): Overrides {

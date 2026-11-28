@@ -22,7 +22,8 @@ import org.springframework.stereotype.Component
  * A bestia looking after itself from its own bag. Runs on the tick: the live bag goes first and the database
  * follows behind, keyed by the master like every other item write.
  *
- * Only food and bandages. Potions and drinks come in glass, and those stay the master's to hand out.
+ * By default only food and bandages. Potions and drinks come in glass, and those stay the master's to hand out,
+ * unless the bestia's [CareItems] allow them.
  */
 @Component
 class BagCare(
@@ -34,19 +35,21 @@ class BagCare(
 
   enum class Need { STAMINA, HEALTH }
 
-  fun hasFor(inventory: Inventory, need: Need): Boolean = bestFor(inventory, need) != null
+  fun hasFor(inventory: Inventory, need: Need, items: CareItems = CareItems()): Boolean {
+    return bestFor(inventory, need, items) != null
+  }
 
   /** What a working bestia carries for its master: everything but what it wears and its own care items. */
-  fun spareGoods(inventory: Inventory): List<Inventory.Item> {
+  fun spareGoods(inventory: Inventory, items: CareItems = CareItems()): List<Inventory.Item> {
     return inventory.getItems().filter { held ->
-      !held.equipped && careScriptOf(held.itemId) == null && !templates.isBound(held.itemId)
+      !held.equipped && careScriptOf(held.itemId, items) == null && !templates.isBound(held.itemId)
     }
   }
 
   /** Uses the carried item that restores the most of [need]. False when there is none, or it changed nothing. */
-  fun use(world: World, entityId: EntityId, need: Need): Boolean {
+  fun use(world: World, entityId: EntityId, need: Need, items: CareItems = CareItems()): Boolean {
     val inventory = world.get(entityId, Inventory::class) ?: return false
-    val (held, script) = bestFor(inventory, need) ?: return false
+    val (held, script) = bestFor(inventory, need, items) ?: return false
 
     if (!scripts.use(world, entityId, script, held.playerItemId, ScriptArgs.EMPTY)) {
       return false
@@ -57,31 +60,43 @@ class BagCare(
   }
 
   /** How much stamina the food in [inventory] would give, all eaten: what a worker has left to work on. */
-  fun staminaStockOf(inventory: Inventory): Int {
-    return candidatesFor(inventory, Need.STAMINA).sumOf { (held, script) -> held.amount * script.stamina }
+  fun staminaStockOf(inventory: Inventory, items: CareItems = CareItems()): Int {
+    return candidatesFor(inventory, Need.STAMINA, items).sumOf { (held, script) -> held.amount * script.stamina }
   }
 
   /** The items in [inventory] a bestia may use for [need], best first. */
-  fun suppliesFor(inventory: Inventory, need: Need): List<Inventory.Item> {
-    return candidatesFor(inventory, need).sortedByDescending { (_, script) -> script.restores(need) }.map { it.first }
+  fun suppliesFor(inventory: Inventory, need: Need, items: CareItems = CareItems()): List<Inventory.Item> {
+    return candidatesFor(inventory, need, items)
+      .sortedByDescending { (_, script) -> script.restores(need) }
+      .map { it.first }
   }
 
-  private fun bestFor(inventory: Inventory, need: Need): Pair<Inventory.Item, RestorativeScript>? {
-    return candidatesFor(inventory, need).maxByOrNull { (_, script) -> script.restores(need) }
+  private fun bestFor(inventory: Inventory, need: Need, items: CareItems): Pair<Inventory.Item, RestorativeScript>? {
+    return candidatesFor(inventory, need, items).maxByOrNull { (_, script) -> script.restores(need) }
   }
 
-  private fun candidatesFor(inventory: Inventory, need: Need): List<Pair<Inventory.Item, RestorativeScript>> {
+  private fun candidatesFor(
+    inventory: Inventory,
+    need: Need,
+    items: CareItems,
+  ): List<Pair<Inventory.Item, RestorativeScript>> {
     return inventory.getItems()
       .filter { !it.equipped }
-      .mapNotNull { held -> careScriptOf(held.itemId)?.let { held to it } }
+      .mapNotNull { held -> careScriptOf(held.itemId, items)?.let { held to it } }
       .filter { (_, script) -> script.restores(need) > 0 }
   }
 
-  private fun careScriptOf(itemId: Long): RestorativeScript? {
-    val template = templates.templateOf(itemId) ?: return null
-    if (template.type != Item.ItemType.USABLE || template.material !in CARE_MATERIALS) return null
+  private fun careScriptOf(itemId: Long, items: CareItems): RestorativeScript? {
+    if (itemId in items.neverUse) return null
+    if (itemId !in items.alsoUse && !isCommonCare(itemId)) return null
 
     return scripts.scriptOf(itemId) as? RestorativeScript
+  }
+
+  private fun isCommonCare(itemId: Long): Boolean {
+    val template = templates.templateOf(itemId) ?: return false
+
+    return template.type == Item.ItemType.USABLE && template.material in CARE_MATERIALS
   }
 
   private fun RestorativeScript.restores(need: Need): Int = when (need) {

@@ -9,4 +9,5 @@ data class OrderSheet(
   val rules: List<OrderRuleLine> = emptyList(),
   val areaPlaceId: Long? = null,
   val chestPlaceId: Long? = null,
+  val careItems: OrderCareItems = OrderCareItems(),
 )

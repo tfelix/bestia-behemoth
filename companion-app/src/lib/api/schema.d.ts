@@ -944,6 +944,10 @@ export interface components {
             /** Format: double */
             northMetres: number;
         };
+        OrderCareItems: {
+            neverUse: number[];
+            alsoUse: number[];
+        };
         OrderNumbers: {
             /** Format: int32 */
             retreatBelowHealthPct?: number;
@@ -972,6 +976,7 @@ export interface components {
             areaPlaceId?: number;
             /** Format: int64 */
             chestPlaceId?: number;
+            careItems: components["schemas"]["OrderCareItems"];
         };
         PresetWrite: {
             name: string;
@@ -998,6 +1003,7 @@ export interface components {
             /** Format: int64 */
             presetId?: number;
             ownOverrides: components["schemas"]["OrderNumbers"];
+            careItems: components["schemas"]["OrderCareItems"];
         };
         JourneyOrder: {
             waypoints: components["schemas"]["Position"][];
@@ -1337,6 +1343,7 @@ export interface components {
             ownOverrides: components["schemas"]["OrderNumbers"];
             activity?: components["schemas"]["Activity"];
             allowedJobs: string[];
+            careItems: components["schemas"]["OrderCareItems"];
         };
         Journey: {
             name?: string;

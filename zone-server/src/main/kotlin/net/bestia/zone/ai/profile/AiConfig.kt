@@ -6,6 +6,7 @@ import jakarta.persistence.Embeddable
 import jakarta.persistence.Transient
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
+import net.bestia.zone.item.care.CareItems
 
 /**
  * A bestia's orders: what it does while its owner is not driving it, and the only AI surface a player can change.
@@ -53,11 +54,15 @@ data class AiConfig(
   /** The named chest it hauls to and eats from, instead of the nearest one. */
   @Column(name = "chest_place_id")
   val chestPlaceId: Long? = null,
+
+  @Convert(converter = CareItemsConverter::class)
+  @Column(name = "care_items", length = 400)
+  val careItems: CareItems = CareItems(),
 ) {
 
   /**
-   * Whether these orders can be followed: a fallback only behind a job that runs out of work and not itself, and a
-   * short list of rules that each make sense.
+   * Whether these orders can be followed: a fallback only behind a job that runs out of work and not itself, a
+   * short list of rules that each make sense, and short lists of care items.
    */
   val isValid: Boolean
     get() {
@@ -65,7 +70,7 @@ data class AiConfig(
         (job.takesFallback && fallbackJob != job && fallbackJob != BestiaJob.REST && fallbackJob?.isBuilt == true)
       val rulesFit = rules.size <= OrderRule.MAX_RULES && rules.all { it.isValid }
 
-      return job.isBuilt && fallbackFits && rulesFit
+      return job.isBuilt && fallbackFits && rulesFit && careItems.isValid
     }
 
   companion object {

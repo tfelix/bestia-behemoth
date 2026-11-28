@@ -6,6 +6,7 @@ import net.bestia.zone.ai.profile.BestiaJob
 import net.bestia.zone.ai.profile.Courage
 import net.bestia.zone.ai.profile.OrderOverrides
 import net.bestia.zone.ai.profile.OrderRule
+import net.bestia.zone.item.care.CareItems
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
@@ -20,9 +21,17 @@ class OrdersWireTest {
       listOf(OrderRule(OrderRule.Condition.NIGHT, null, OrderRule.Action.REST_AT_HOME)),
       areaPlaceId = 11,
       chestPlaceId = 12,
+      careItems = CareItems(neverUse = listOf(46, 58), alsoUse = listOf(3)),
     )
 
     assertEquals(orders, OrdersWire.ordersFrom(OrdersWire.sheetOf(orders)))
+  }
+
+  @Test
+  fun `a sheet with more than eight care items is refused`() {
+    val tooMany = AiConfig(BestiaJob.REST, careItems = CareItems(alsoUse = (1L..9L).toList()))
+
+    assertNull(OrdersWire.ordersFrom(OrdersWire.sheetOf(tooMany)))
   }
 
   @Test

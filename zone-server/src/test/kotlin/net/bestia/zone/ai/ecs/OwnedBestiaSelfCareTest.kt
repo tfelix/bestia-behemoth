@@ -6,6 +6,7 @@ import net.bestia.zone.ai.profile.Courage
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.item.care.CareItems
 import net.bestia.zone.item.care.TestBagCare.BANDAGE
 import net.bestia.zone.item.care.TestBagCare.BREAD
 import net.bestia.zone.item.care.TestBagCare.POTION
@@ -76,6 +77,17 @@ class OwnedBestiaSelfCareTest {
 
     assertEquals(30, ai.world.getOrThrow(bestia, Health::class).current)
     assertEquals(1, ai.world.getOrThrow(bestia, Inventory::class).getItem(POTION.toInt())?.amount)
+  }
+
+  @Test
+  fun `a hurt bestia drinks a potion its orders allow`() {
+    val bestia = ai.spawnMob(
+      "passive_wanderer", home, health = 30, maxHealth = 100,
+      orders = AiConfig(BestiaJob.REST, Courage.BRAVE, careItems = CareItems(alsoUse = listOf(POTION))),
+    )
+    ai.world.add(bestia, bagWith(POTION to 1))
+
+    ai.tickUntil { ai.world.getOrThrow(bestia, Health::class).current == 75 }
   }
 
   // -------------------------------------------------------------------- courage

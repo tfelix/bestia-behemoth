@@ -9,6 +9,7 @@
 		type BestiaOrders,
 		type BestiaPlace,
 		type BestiaPlaces,
+		type Catalog,
 		type ChestWrite,
 		type OrderPreset,
 		type PresetWrite
@@ -17,10 +18,12 @@
 	import { touchesMaster } from '#lib/events.ts';
 	import { guarded } from '#lib/guard.ts';
 	import { live } from '#lib/live.svelte.ts';
-	import { COURAGE_NAME, JOB_TEXT, speciesName } from '#lib/names.ts';
+	import { COURAGE_NAME, JOB_TEXT, itemName, speciesName } from '#lib/names.ts';
 	import {
 		ACTION_NAME,
+		CARE_LISTS,
 		CONDITIONS,
+		MAX_ITEMS,
 		MAX_RULES,
 		NUMBERS,
 		changed,
@@ -31,6 +34,7 @@
 		ordersOf,
 		ruleOf,
 		sheetOf,
+		withItem,
 		type OrderDraft
 	} from '#lib/orders.ts';
 	import { activityText } from '#lib/activity.ts';
@@ -46,6 +50,17 @@
 	let chestName = $state('');
 	let drafts = $state<Record<number, Draft>>({});
 	let failure = $state<string | null>(null);
+	let items = $state<Catalog['items']>([]);
+
+	/** What a bestia could use on itself: the usable items, by name. */
+	const usableItems = $derived(
+		items.filter((item) => item.type === 'USABLE').sort((a, b) => itemName(a.identifier).localeCompare(itemName(b.identifier)))
+	);
+
+	function nameOfItem(itemId: number): string {
+		const item = items.find((each) => each.id === itemId);
+		return item ? itemName(item.identifier) : `#${itemId}`;
+	}
 
 	function freshDraft(b: Bestia, note: string | null): Draft {
 		return { ...draftOf(b), key: crypto.randomUUID(), sending: false, note, presetName: '' };
@@ -68,6 +83,12 @@
 			failure = e instanceof Error ? e.message : String(e);
 		}
 	}
+
+	$effect(() => {
+		void getJson<Catalog>('/v1/companion/catalog')
+			.then((catalog) => (items = catalog.items))
+			.catch(() => {});
+	});
 
 	$effect(() => {
 		const id = masterId;
@@ -319,6 +340,32 @@
 						</div>
 
 						{#if !following}
+							<div class="label">Care items <span class="muted small">(it also uses common food and bandages)</span></div>
+							{#each CARE_LISTS as list (list.key)}
+								<div class="items">
+									<span class="muted small">{list.name}</span>
+									{#each draft.careItems[list.key] as itemId, i (itemId)}
+										<span class="item"
+											>{nameOfItem(itemId)}
+											<button class="btn small" aria-label="Remove item" onclick={() => draft.careItems[list.key].splice(i, 1)}>×</button></span
+										>
+									{/each}
+									{#if draft.careItems[list.key].length < MAX_ITEMS}
+										<select
+											aria-label={`${list.name}: add an item`}
+											value=""
+											onchange={(e) => {
+												draft.careItems[list.key] = withItem(draft.careItems[list.key], Number(e.currentTarget.value));
+												e.currentTarget.value = '';
+											}}
+										>
+											<option value="">Add…</option>
+											{#each usableItems as item (item.id)}<option value={item.id}>{itemName(item.identifier)}</option>{/each}
+										</select>
+									{/if}
+								</div>
+							{/each}
+
 							<div class="label">Rules <span class="muted small">(read from the top, the first that holds decides)</span></div>
 							{#each draft.rules as rule, i (i)}
 								{@const condition = CONDITIONS[rule.condition]}
@@ -552,6 +599,23 @@
 
 	.threshold {
 		width: 4rem;
+	}
+
+	.items {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.4rem;
+		margin: 0.35rem 0 0.6rem;
+	}
+
+	.item {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3rem;
+		padding-left: 0.5rem;
+		border: 1px solid var(--edge);
+		border-radius: 0.45rem;
 	}
 
 	.preset span:first-child {

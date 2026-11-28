@@ -18,6 +18,7 @@ import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.ai.domain.bestia.JobChest
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.item.care.BagCare
+import net.bestia.zone.item.care.CareItems
 import net.bestia.zone.item.container.ItemHandover
 import net.bestia.zone.item.ecs.ChestStorage
 
@@ -71,7 +72,8 @@ class HaulToChestActionTemplate(
       if (deposited) return Status.SUCCESS
 
       val exchange = ChestExchange.open(context.world, aoi, context.entityId, chest) ?: return Status.FAILURE
-      val deposit = ChestStorage.whatFits(exchange.contents, care.spareGoods(exchange.bag))
+      val items = context.memory.get(BestiaDomain.CARE_ITEMS) ?: CareItems()
+      val deposit = ChestStorage.whatFits(exchange.contents, care.spareGoods(exchange.bag, items))
       // Summed first: handing a pile over empties it.
       val hauled = deposit.groupBy { it.itemId }.mapValues { (_, piles) -> piles.sumOf { it.amount } }
       deposit.forEach { item ->

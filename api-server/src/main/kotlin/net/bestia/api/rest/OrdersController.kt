@@ -1,6 +1,7 @@
 package net.bestia.api.rest
 
 import net.bestia.bus.contract.OrderRuleLine
+import net.bestia.bus.contract.OrderCareItems
 import net.bestia.bus.contract.OrderNumbers
 import net.bestia.api.auth.CompanionAuthFilter.Companion.ACCOUNT_ID
 import net.bestia.api.bus.ZoneClient
@@ -45,6 +46,8 @@ class OrdersController(
     val chestPlaceId: Long? = null,
     val presetId: Long? = null,
     val ownOverrides: OrderNumbers = OrderNumbers(),
+    /** Items it never uses to look after itself, and those it may use on top of common food and bandages. */
+    val careItems: OrderCareItems = OrderCareItems(),
   )
 
   @PutMapping
@@ -56,14 +59,14 @@ class OrdersController(
     @RequestBody orders: BestiaOrders,
   ): BestiaOrders {
     val query = ZoneQuery.SetOrders(masterId, bestiaId, orders.job, orders.courage, orders.fallbackJob, orders.overrides, orders.rules,
-      orders.areaPlaceId, orders.chestPlaceId, orders.presetId,
+      orders.areaPlaceId, orders.chestPlaceId, orders.presetId, orders.careItems,
     )
     val stored = zone.ask(accountId, query, idempotencyKey.take(MAX_KEY_LENGTH)).answerOrThrow<ZoneAnswer.Orders>()
 
     cache.forget(accountId)
     return BestiaOrders(
       stored.job, stored.courage, stored.fallbackJob, stored.overrides, stored.rules, stored.areaPlaceId, stored.chestPlaceId,
-      stored.presetId, stored.ownOverrides,
+      stored.presetId, stored.ownOverrides, stored.careItems,
     )
   }
 

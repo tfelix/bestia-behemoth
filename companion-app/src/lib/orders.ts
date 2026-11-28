@@ -2,7 +2,7 @@
  * Bestia orders as the Fine-tune form edits them, mirroring what the zone accepts: which jobs take a fallback, the
  * limits of each number, and which rule actions each condition allows. The zone checks all of it again.
  */
-import type { Bestia, BestiaOrders, OrderNumbers, OrderRuleLine, OrderSheet } from '#lib/api/model.ts';
+import type { Bestia, BestiaOrders, OrderCareItems, OrderNumbers, OrderRuleLine, OrderSheet } from '#lib/api/model.ts';
 
 /** The jobs that can run out of work, and so hand over to a fallback. */
 export const TAKES_FALLBACK = ['GATHER', 'CRAFT', 'MINE'];
@@ -29,6 +29,19 @@ export const NUMBERS: { key: NumberKey; name: string; min: number; max: number; 
 ];
 
 export const MAX_RULES = 8;
+
+/** Items a bestia may use to look after itself, beyond common food and bandages, and those it must leave alone. */
+export const CARE_LISTS: { key: keyof OrderCareItems; name: string }[] = [
+	{ key: 'neverUse', name: 'Never use' },
+	{ key: 'alsoUse', name: 'May also use' }
+];
+
+export const MAX_ITEMS = 8;
+
+/** [list] with [itemId] at its end, unless it holds it already or is full. */
+export function withItem(list: number[], itemId: number): number[] {
+	return list.includes(itemId) || list.length >= MAX_ITEMS ? list : [...list, itemId];
+}
 
 export const CONDITIONS: Record<string, { name: string; takesThreshold: boolean; actions: string[] }> = {
 	STAMINA_BELOW: { name: 'Stamina below', takesThreshold: true, actions: ['EAT', 'REST_AT_HOME'] },
@@ -58,6 +71,7 @@ export type OrderDraft = {
 	rules: OrderRuleLine[];
 	areaPlaceId: number | null;
 	chestPlaceId: number | null;
+	careItems: OrderCareItems;
 	presetId: number | null;
 };
 
@@ -71,6 +85,7 @@ export function draftOf(b: Bestia): OrderDraft {
 		rules: (b.rules ?? []).map((rule) => ({ ...rule })),
 		areaPlaceId: b.areaPlaceId ?? null,
 		chestPlaceId: b.chestPlaceId ?? null,
+		careItems: { neverUse: [...(b.careItems?.neverUse ?? [])], alsoUse: [...(b.careItems?.alsoUse ?? [])] },
 		presetId: b.presetId ?? null
 	};
 }
@@ -79,7 +94,15 @@ export function draftOf(b: Bestia): OrderDraft {
 export function ordersOf(draft: OrderDraft): BestiaOrders {
 	const numbers = withoutBlanks(draft.numbers);
 	if (draft.presetId != null) {
-		return { job: draft.job, courage: draft.courage, presetId: draft.presetId, overrides: numbers, rules: [], ownOverrides: {} };
+		return {
+			job: draft.job,
+			courage: draft.courage,
+			presetId: draft.presetId,
+			overrides: numbers,
+			rules: [],
+			ownOverrides: {},
+			careItems: { neverUse: [], alsoUse: [] }
+		};
 	}
 	const fallbackJob = fallbacksFor(draft.job).includes(draft.fallbackJob ?? '') ? (draft.fallbackJob ?? undefined) : undefined;
 	return {
@@ -90,13 +113,14 @@ export function ordersOf(draft: OrderDraft): BestiaOrders {
 		rules: draft.rules.map(ruleOf),
 		areaPlaceId: draft.areaPlaceId ?? undefined,
 		chestPlaceId: draft.chestPlaceId ?? undefined,
-		ownOverrides: {}
+		ownOverrides: {},
+		careItems: { neverUse: [...draft.careItems.neverUse], alsoUse: [...draft.careItems.alsoUse] }
 	};
 }
 
 export function sheetOf(draft: OrderDraft): OrderSheet {
-	const { job, courage, fallbackJob, overrides, rules, areaPlaceId, chestPlaceId } = ordersOf({ ...draft, presetId: null });
-	return { job, courage, fallbackJob, overrides, rules, areaPlaceId, chestPlaceId };
+	const { job, courage, fallbackJob, overrides, rules, areaPlaceId, chestPlaceId, careItems } = ordersOf({ ...draft, presetId: null });
+	return { job, courage, fallbackJob, overrides, rules, areaPlaceId, chestPlaceId, careItems };
 }
 
 /** Whether [draft] differs from what [b] has now. */

@@ -74,6 +74,7 @@ sealed interface ZoneAnswer {
       val activity: Activity? = null,
       /** The jobs its species may take; the orders page greys out the rest. */
       val allowedJobs: List<String> = emptyList(),
+      val careItems: OrderCareItems = OrderCareItems(),
     )
 
     /**
@@ -265,6 +266,7 @@ sealed interface ZoneAnswer {
     val chestPlaceId: Long? = null,
     val presetId: Long? = null,
     val ownOverrides: OrderNumbers = OrderNumbers(),
+    val careItems: OrderCareItems = OrderCareItems(),
   ) : ZoneAnswer
 
   /** A master's named places, and every chest of theirs that a chest place can name. */

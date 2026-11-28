@@ -17,6 +17,8 @@ const JOBS: Array[int] = [Job.GUARD, Job.GATHER, Job.CRAFT, Job.MINE, Job.REST]
 const COURAGE_STEPS: Array[int] = [1, 2, 3, 4, 5]
 
 const MAX_RULES := 8
+## In each list of items, such as the care items.
+const MAX_ITEMS := 8
 const THRESHOLD_MIN := 1
 const THRESHOLD_MAX := 99
 const NEW_RULE_THRESHOLD := 30
@@ -75,6 +77,17 @@ static func fitted(rule: Dictionary) -> Dictionary:
 	if takes_threshold(condition):
 		threshold = rule["threshold"] if rule["threshold"] >= 0 else NEW_RULE_THRESHOLD
 	return {"condition": condition, "action": action, "threshold": threshold}
+
+
+## What a bestia could use on itself: the usable items, by name.
+static func care_item_choices() -> Array[ItemResource]:
+	var usable: Array[ItemResource] = []
+	for item in ItemDB.get_instance().all_items():
+		if item.type == ItemResource.ItemType.USABLE:
+			usable.append(item)
+	usable.sort_custom(func(a: ItemResource, b: ItemResource) -> bool:
+		return str(TranslationServer.translate(a.name_key)).naturalnocasecmp_to(str(TranslationServer.translate(b.name_key))) < 0)
+	return usable
 
 
 static func new_rule() -> Dictionary:

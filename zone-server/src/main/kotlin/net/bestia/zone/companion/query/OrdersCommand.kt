@@ -28,6 +28,7 @@ class OrdersCommand(
   fun apply(correlationId: String, accountId: Long, query: ZoneQuery.SetOrders): BusReply {
     val sheet = OrderSheet(
       query.job, query.courage, query.fallbackJob, query.overrides, query.rules, query.areaPlaceId, query.chestPlaceId,
+      query.careItems,
     )
     val orders = OrdersOnTheBus.ordersOf(sheet).getOrElse { return BusReply.of(correlationId, Status.INVALID, it.message) }
 

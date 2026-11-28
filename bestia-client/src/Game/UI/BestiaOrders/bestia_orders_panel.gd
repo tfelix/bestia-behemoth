@@ -55,6 +55,8 @@ var _chest: OptionButton
 var _fine_tune_toggle: Button
 var _fine_tune: VBoxContainer
 var _numbers: OrderNumbersEditor
+var _never_use: OrderItemsEditor
+var _also_use: OrderItemsEditor
 var _rules: OrderRulesEditor
 var _give: Button
 
@@ -173,12 +175,16 @@ func _show_draft() -> void:
 		_numbers.set_numbers(_sheet.Overrides, {})
 	else:
 		_numbers.set_numbers(_own, _preset_sheet().Overrides if following else {})
+	_never_use.set_items(_sheet.NeverUse)
+	_also_use.set_items(_sheet.AlsoUse)
 	_rules.set_rules(_sheet.Rules)
 
 	for picker in [_job, _fallback, _area, _chest]:
 		picker.disabled = locked
 	_area_here.disabled = locked
 	_courage.editable = not locked
+	_never_use.set_editable(not locked)
+	_also_use.set_editable(not locked)
 	_rules.set_editable(not locked)
 	_give.text = tr("ORDERS_SAVE_PRESET") if _editing_preset else tr("ORDERS_GIVE")
 	_update_give()
@@ -273,6 +279,8 @@ func _read_widgets() -> void:
 	_sheet.FallbackJob = _fallback.get_selected_id() if _fallback_row.visible else OrderVocabulary.Job.UNSET
 	_sheet.AreaPlaceId = _area.get_selected_id()
 	_sheet.ChestPlaceId = _chest.get_selected_id()
+	_sheet.NeverUse.assign(_never_use.get_items())
+	_sheet.AlsoUse.assign(_also_use.get_items())
 	_sheet.Rules.assign(_rules.get_rules())
 	if _editing_preset:
 		_sheet.Overrides = _numbers.get_numbers()
@@ -288,7 +296,7 @@ func _key_of(sheet: OrderSheet, preset_id: int, own: Dictionary) -> String:
 		return JSON.stringify([preset_id, _sorted(own)])
 	return JSON.stringify([
 		sheet.Job, sheet.Courage, sheet.FallbackJob, _sorted(sheet.Overrides), sheet.Rules, sheet.AreaPlaceId,
-		sheet.ChestPlaceId,
+		sheet.ChestPlaceId, sheet.NeverUse, sheet.AlsoUse,
 	])
 
 
@@ -450,6 +458,10 @@ func _build() -> void:
 	_numbers = OrderNumbersEditor.new()
 	_numbers.changed.connect(_update_give)
 	_fine_tune.add_child(_numbers)
+	_fine_tune.add_child(UiStyle.label(tr("ORDERS_CARE_ITEMS"), 13, UiStyle.MUTED))
+	var care_choices := OrderVocabulary.care_item_choices()
+	_never_use = _add_items_editor(tr("ORDERS_NEVER_USE"), care_choices)
+	_also_use = _add_items_editor(tr("ORDERS_ALSO_USE"), care_choices)
 	_fine_tune.add_child(UiStyle.label(tr("ORDERS_RULES"), 13, UiStyle.MUTED))
 	_rules = OrderRulesEditor.new()
 	_rules.changed.connect(_update_give)
@@ -470,6 +482,13 @@ func _add_tool(row: HBoxContainer, text: String) -> Button:
 	button.add_theme_font_size_override("font_size", 12)
 	row.add_child(button)
 	return button
+
+
+func _add_items_editor(title: String, choices: Array[ItemResource]) -> OrderItemsEditor:
+	var editor := OrderItemsEditor.new(title, choices)
+	editor.changed.connect(_update_give)
+	_fine_tune.add_child(editor)
+	return editor
 
 
 func _add_row(body: VBoxContainer, title: String) -> HBoxContainer:

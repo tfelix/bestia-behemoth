@@ -21,6 +21,7 @@ export type Service = Schemas['Service'];
 export type PlaceDetail = Schemas['PlaceDetail'];
 export type BestiaOrders = Schemas['BestiaOrders'];
 export type OrderNumbers = Schemas['OrderNumbers'];
+export type OrderCareItems = Schemas['OrderCareItems'];
 export type OrderRuleLine = Schemas['OrderRuleLine'];
 export type OrderSheet = Schemas['OrderSheet'];
 export type OrderPreset = Schemas['OrderPreset'];
