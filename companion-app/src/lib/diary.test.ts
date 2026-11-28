@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { diaryText } from './diary';
+import { diaryText, shownInDiary } from './diary';
 
 const line = { playerBestiaId: 1, atEpochMs: 0, items: {} };
 
@@ -8,6 +8,24 @@ describe('diary', () => {
 		expect(diaryText({ ...line, kind: 'HAULED', items: { unknown_log: 12, unknown_herb: 3 } })).toBe(
 			'Brought 12 unknown_log, 3 unknown_herb to the chest'
 		);
+	});
+
+	it('names the chest a haul went to', () => {
+		expect(diaryText({ ...line, kind: 'HAULED', items: { unknown_log: 2 }, place: 'Camp chest' })).toBe(
+			'Brought 2 unknown_log to Camp chest'
+		);
+	});
+
+	it('says when the field is empty and the other job takes over', () => {
+		expect(diaryText({ ...line, kind: 'FIELD_EMPTY' })).toBe('Found nothing more to gather in its area');
+		expect(diaryText({ ...line, kind: 'FALLBACK_STARTED', reason: 'CRAFT' })).toBe(
+			'Had no more work and turned to its other job: Craft'
+		);
+	});
+
+	it('keeps state lines out of the list', () => {
+		expect(shownInDiary({ ...line, kind: 'STATE', reason: 'WORKING' })).toBe(false);
+		expect(shownInDiary({ ...line, kind: 'HAULED' })).toBe(true);
 	});
 
 	it('says where and why work stopped', () => {

@@ -46,11 +46,29 @@ class BestiaDiary(
 
   @Transactional
   fun record(line: DiaryLine) {
+    if (mergedIntoLast(line)) return
+
     lines.save(line)
     val excess = lines.countByPlayerBestiaId(line.playerBestiaId) - config.maxLinesPerBestia
     if (excess > 0) {
       lines.deleteAll(lines.findAllByPlayerBestiaIdOrderByAtDesc(line.playerBestiaId).takeLast(excess.toInt()))
     }
+  }
+
+  /** A haul soon after the last one adds to its line, so the diary sums the goods per hour instead of per trip. */
+  private fun mergedIntoLast(line: DiaryLine): Boolean {
+    val window = line.kind.mergesWithin ?: return false
+    val last = lines.findFirstByPlayerBestiaIdAndKindOrderByAtDesc(line.playerBestiaId, line.kind) ?: return false
+    if (last.place != line.place || Duration.between(last.at, line.at) > window) return false
+
+    val summed = last.itemAmounts().toMutableMap()
+    line.itemAmounts().forEach { (identifier, amount) -> summed.merge(identifier, amount, Int::plus) }
+    val items = DiaryLine.itemsOf(summed)
+    if ((items?.length ?: 0) > DiaryLine.ITEMS_LENGTH) return false
+
+    last.items = items
+    lines.save(last)
+    return true
   }
 
   @Scheduled(fixedDelay = SWEEP_MILLIS, initialDelay = SWEEP_MILLIS)

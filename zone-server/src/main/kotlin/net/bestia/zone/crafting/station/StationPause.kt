@@ -10,5 +10,10 @@ enum class StationPause(val wire: StationStateSmsgProto.StationPause) {
   BAG_FULL(StationStateSmsgProto.StationPause.STATION_PAUSE_BAG_FULL),
   STATION_OUT(StationStateSmsgProto.StationPause.STATION_PAUSE_STATION_OUT),
   CANNOT_CRAFT(StationStateSmsgProto.StationPause.STATION_PAUSE_CANNOT_CRAFT),
-  NO_FREE_CRAFTER(StationStateSmsgProto.StationPause.STATION_PAUSE_NO_FREE_CRAFTER)
+  NO_FREE_CRAFTER(StationStateSmsgProto.StationPause.STATION_PAUSE_NO_FREE_CRAFTER);
+
+  companion object {
+    /** The pauses that last until somebody acts; a bag full or a worker off to eat sorts itself out. */
+    val LASTING = setOf(STATION_OUT, CANNOT_CRAFT)
+  }
 }

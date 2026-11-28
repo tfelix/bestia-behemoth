@@ -2,6 +2,7 @@ package net.bestia.zone.bestia.diary
 
 import net.bestia.zone.BestiaEvent
 import net.bestia.zone.util.PlayerBestiaId
+import java.time.Duration
 
 /**
  * Something an owned bestia did or met that its master reads in the diary later, and some of which they are told at
@@ -20,9 +21,10 @@ class BestiaHappened(
   val reason: String? = null,
 ) : BestiaEvent(source) {
 
-  enum class Kind {
+  /** A kind with [mergesWithin] adds its items to the bestia's last line of that kind and place for that long. */
+  enum class Kind(val mergesWithin: Duration? = null) {
     NEW_ORDERS,
-    HAULED,
+    HAULED(mergesWithin = Duration.ofHours(1)),
 
     /** Work stopped and will not go on by itself: the fire is out, the chest is full, the shaft is dug out. */
     WORK_PAUSED,
@@ -43,5 +45,14 @@ class BestiaHappened(
 
     /** Keeping watch at an Observation Outpost, it felt a world event begin to stir; [reason] is its kind. */
     EVENT_SENSED,
+
+    /** What it does has changed for a while; [reason] is the new [BestiaState]. For the away report, not the diary. */
+    STATE,
+
+    /** Its gather area holds nothing more it may take. */
+    FIELD_EMPTY,
+
+    /** Its main job ran out of work and its fallback job took over; [reason] is the fallback job. */
+    FALLBACK_STARTED,
   }
 }

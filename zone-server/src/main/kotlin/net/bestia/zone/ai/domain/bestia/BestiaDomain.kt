@@ -192,6 +192,9 @@ object BestiaDomain : AiDomainCatalogue {
   /** The job an owned bestia's orders give it first. Its fallback job waits until [mainJobIdle]. */
   val MAIN_JOB = StateKey<BestiaJob>("mainJob", retain = Blackboard.PERMANENT)
 
+  /** The job its orders give it for when [MAIN_JOB] has nothing to do. */
+  val FALLBACK_JOB = StateKey<BestiaJob>("fallbackJob", retain = Blackboard.PERMANENT)
+
   /** What an owned gatherer's orders let it take. See `GatherSense`. */
   val GATHER_FILTER = StateKey<GatherFilter>("gatherFilter", retain = Blackboard.PERMANENT)
 

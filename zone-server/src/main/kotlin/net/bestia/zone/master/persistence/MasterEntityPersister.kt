@@ -22,6 +22,7 @@ import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.persistence.EntityPersister
+import net.bestia.zone.persistence.PersistAndRemove
 import net.bestia.zone.persistence.EntitySnapshot
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.account.persistence.LearnedSkill
@@ -61,6 +62,8 @@ data class MasterSnapshot(
   val honor: HonorLedger,
   val professions: List<Profession>,
   val warpMarks: List<Vec3L>,
+  /** Taken as it leaves the world: the logout, a disconnect or the end of its disconnect protection. */
+  val leftWorld: Boolean = false,
 ) : EntitySnapshot {
 
   /** Keyed like every other write about this master, inventory included, so they land in order. */
@@ -91,7 +94,7 @@ class MasterEntityPersister(
   override val reads: ComponentClassSet = setOf(
     MasterComponent::class, Position::class, Level::class, Exp::class, SkillPoints::class,
     StatusPoints::class, BaseStatusValues::class, Health::class, Mana::class, Dead::class, KnownSkills::class,
-    Honor::class, Professions::class, WarpMarks::class, WorkExpLedger::class,
+    Honor::class, Professions::class, WarpMarks::class, WorkExpLedger::class, PersistAndRemove::class,
   )
 
   override fun supports(world: World, id: EntityId): Boolean =
@@ -127,6 +130,7 @@ class MasterEntityPersister(
       honor = world.get(id, Honor::class)?.ledger ?: HonorLedger(),
       professions = world.get(id, Professions::class)?.held.orEmpty(),
       warpMarks = world.get(id, WarpMarks::class)?.spots.orEmpty(),
+      leftWorld = world.has(id, PersistAndRemove::class),
     )
   }
 
@@ -167,6 +171,7 @@ class MasterEntityPersister(
       master.professions = Profession.stored(snap.professions)
       master.warpMarks = WarpMarks.encode(snap.warpMarks)
       master.persistedAtEpochMs = System.currentTimeMillis()
+      if (snap.leftWorld) master.loggedOutAtEpochMs = master.persistedAtEpochMs
       masterRepository.save(master)
       saveLearnedSkills(master, snap.learnedSkills)
       LOG.debug { "Persisted master ${master.id} at ${master.currentPosition} (level ${master.level})" }

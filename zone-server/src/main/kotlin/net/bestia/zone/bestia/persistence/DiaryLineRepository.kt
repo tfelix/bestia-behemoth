@@ -1,5 +1,6 @@
 package net.bestia.zone.bestia.persistence
 
+import net.bestia.zone.bestia.diary.BestiaHappened
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
@@ -13,6 +14,8 @@ interface DiaryLineRepository : JpaRepository<DiaryLine, Long> {
   fun countByPlayerBestiaId(playerBestiaId: Long): Long
 
   fun findAllByPlayerBestiaIdOrderByAtDesc(playerBestiaId: Long): List<DiaryLine>
+
+  fun findFirstByPlayerBestiaIdAndKindOrderByAtDesc(playerBestiaId: Long, kind: BestiaHappened.Kind): DiaryLine?
 
   @Modifying
   @Query("delete from DiaryLine l where l.at < :before")

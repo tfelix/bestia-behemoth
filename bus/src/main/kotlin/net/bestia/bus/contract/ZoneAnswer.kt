@@ -292,9 +292,11 @@ sealed interface ZoneAnswer {
   data class Diary(val lines: List<DiaryEntry>) : ZoneAnswer {
 
     /**
-     * [kind] is NEW_ORDERS, HAULED, WORK_PAUSED, QUEUE_FINISHED, ATTACKED, RETREATED, DIED, LOST or EVENT_SENSED.
-     * [items] are item identifiers with amounts, [place] a station's kind, [reason] why work stopped (a station
-     * pause, CHEST_FULL or NO_ORE), for NEW_ORDERS the job, or for EVENT_SENSED the kind of event.
+     * [kind] is NEW_ORDERS, HAULED, WORK_PAUSED, QUEUE_FINISHED, ATTACKED, RETREATED, DIED, LOST, OUT_OF_FOOD,
+     * LOW_FOOD, EVENT_SENSED, FIELD_EMPTY, FALLBACK_STARTED or STATE. [items] are item identifiers with amounts,
+     * [place] a station's kind or, for HAULED, the chest's name, [reason] why work stopped (a station pause,
+     * CHEST_FULL or NO_ORE), for NEW_ORDERS and FALLBACK_STARTED the job, for EVENT_SENSED the kind of event, or for
+     * STATE what the bestia does now (WORKING, IDLE, RESTING, PAUSED, FIGHTING, SHELTERING, TRAVELLING).
      */
     data class DiaryEntry(
       val playerBestiaId: Long,

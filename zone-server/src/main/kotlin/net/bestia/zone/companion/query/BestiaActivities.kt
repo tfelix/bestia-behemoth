@@ -2,6 +2,7 @@ package net.bestia.zone.companion.query
 
 import net.bestia.bus.contract.ZoneAnswer.Roster.Activity
 import net.bestia.zone.ai.ecs.AiAgent
+import net.bestia.zone.ai.ecs.GoalActivity
 import net.bestia.zone.ai.profile.BestiaJob
 import net.bestia.zone.crafting.RecipeRegistry
 import net.bestia.zone.crafting.station.StationPause
@@ -33,8 +34,7 @@ class BestiaActivities(
     val workplace = world.get(entityId, WorkAssignment::class)?.let { structures.of(it.structureId) }
 
     // Self-care, fighting and hauling break off the work; anything else at a workplace is the work itself.
-    val kind = GOAL_KINDS[goal]
-    if (kind != null) return Activity(kind)
+    GoalActivity.ofGoal(goal)?.let { return Activity(it.name) }
     if (workplace != null) return atWorkplace(workplace)
 
     return Activity(if (job == BestiaJob.GUARD) "GUARDING" else "IDLE")
@@ -54,22 +54,6 @@ class BestiaActivities(
       total = entry?.amount,
       station = station.kind.name,
       pause = pause?.name,
-    )
-  }
-
-  private companion object {
-    val GOAL_KINDS = mapOf(
-      "Gather" to "GATHERING",
-      "HaulToChest" to "HAULING",
-      "RestockFood" to "FETCHING_FOOD",
-      "EatFromBag" to "EATING",
-      "EatVegetation" to "EATING",
-      "HealFromBag" to "HEALING",
-      "KillAttacker" to "FIGHTING",
-      "KillEnemy" to "FIGHTING",
-      "Retreat" to "RETREATING",
-      "RestAtHome" to "RESTING_AT_HOME",
-      "Sleep" to "SLEEPING",
     )
   }
 }

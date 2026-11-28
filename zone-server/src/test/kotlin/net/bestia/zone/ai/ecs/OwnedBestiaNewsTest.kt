@@ -3,8 +3,11 @@ package net.bestia.zone.ai.ecs
 import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.ai.profile.BestiaJob
 import net.bestia.zone.bestia.diary.BestiaHappened.Kind
+import net.bestia.zone.bestia.diary.BestiaState
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.OwnedBestia
+import net.bestia.zone.travel.Journey
+import net.bestia.zone.travel.JourneyOrder
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -14,11 +17,12 @@ import org.junit.jupiter.api.Test
 class OwnedBestiaNewsTest {
 
   private lateinit var ai: AiPipelineFixture
+  private var nowMs = 0L
 
   @BeforeEach
   fun setup() {
     ai = AiPipelineFixture()
-    ai.world.registerSystems(listOf(OwnedBestiaWatchSystem(ai.news)))
+    ai.world.registerSystems(listOf(OwnedBestiaWatchSystem(ai.news, now = { nowMs })))
   }
 
   private fun owned(health: Int = 10): EntityId {
@@ -28,6 +32,16 @@ class OwnedBestiaNewsTest {
   }
 
   private fun kinds() = ai.told.map { it.kind }
+
+  private fun statesTold() = ai.told.filter { it.kind == Kind.STATE }.map { it.reason }
+
+  /** Ticks the world for [seconds], moving the watch's clock along with it. */
+  private fun live(seconds: Int) {
+    repeat(seconds) {
+      nowMs += 1_000
+      ai.tick(times = 20)
+    }
+  }
 
   @Test
   fun `a fight is told once, not every blow`() {
@@ -51,5 +65,23 @@ class OwnedBestiaNewsTest {
     ai.tick(times = 30)
 
     assertEquals(1, kinds().count { it == Kind.RETREATED })
+  }
+
+  @Test
+  fun `a state is told once it has lasted, and a short one not at all`() {
+    val bestia = owned()
+
+    live(seconds = 70)
+    assertEquals(listOf(BestiaState.RESTING.name), statesTold())
+
+    ai.world.add(bestia, Journey(listOf(Vec3L(40, 0, 0)), JourneyOrder.PLAYER))
+    live(seconds = 10)
+    ai.world.remove(bestia, Journey::class)
+    live(seconds = 70)
+    assertEquals(listOf(BestiaState.RESTING.name), statesTold())
+
+    ai.world.add(bestia, Journey(listOf(Vec3L(40, 0, 0)), JourneyOrder.PLAYER))
+    live(seconds = 70)
+    assertEquals(listOf(BestiaState.RESTING.name, BestiaState.TRAVELLING.name), statesTold())
   }
 }
