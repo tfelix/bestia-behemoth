@@ -6,7 +6,7 @@ package net.bestia.zone.entity.observe
  */
 data class WorldTarget(val kind: Kind, val key: String) {
 
-  enum class Kind { PROP, POI, TOWNSFOLK, GRAVE, CACHE, SETTLEMENT }
+  enum class Kind { PROP, POI, TOWNSFOLK, GRAVE, CACHE, SETTLEMENT, ENVOY }
 
   companion object {
 
@@ -33,6 +33,11 @@ data class WorldTarget(val kind: Kind, val key: String) {
     /** A settlement, by its index in the chronicle. */
     fun settlement(index: Int): WorldTarget {
       return WorldTarget(Kind.SETTLEMENT, index.toString())
+    }
+
+    /** An Order's Envoy, by the Order's name and the settlement it stands in. */
+    fun envoy(factionName: String, settlementIndex: Int): WorldTarget {
+      return WorldTarget(Kind.ENVOY, "$factionName/$settlementIndex")
     }
 
     /** [identity] of a `TownsfolkIdentity`. */

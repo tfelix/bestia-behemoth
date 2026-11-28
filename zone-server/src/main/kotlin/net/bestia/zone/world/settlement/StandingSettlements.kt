@@ -38,6 +38,10 @@ class StandingSettlements private constructor(
 
   val size: Int get() = entries.size
 
+  fun entriesOf(tiers: Set<SettlementTier>): List<Entry> {
+    return entries.filter { it.tier in tiers }
+  }
+
   /** The settlement history left standing at [index], or null for one it never founded or left a ruin. */
   fun entryOf(index: Int): Entry? {
     return byIndex[index]

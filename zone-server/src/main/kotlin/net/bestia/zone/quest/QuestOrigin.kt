@@ -9,4 +9,7 @@ enum class QuestOrigin {
 
   /** A town that asks for something on the blackboard. */
   TOWN,
+
+  /** An Order's Envoy, for a master who asks to join. */
+  ORDER,
 }
