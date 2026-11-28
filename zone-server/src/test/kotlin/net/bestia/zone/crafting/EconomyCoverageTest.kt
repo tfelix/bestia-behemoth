@@ -132,6 +132,7 @@ class EconomyCoverageTest {
     val KNOWN = mapOf(
       "grain" to 28L, "flour" to 29L, "bread" to 30L, "weapon_repair_kit" to 641L, "armor_repair_kit" to 642L,
       "log" to 59L, "plank" to 60L, "charcoal" to 623L,
+      "iron_ingot" to 9L, "nails" to 75L,
     )
   }
 }

@@ -24,14 +24,15 @@ class EconomyCatalogueTest {
   }
 
   @Test
-  fun `only the last good of a chain is used up, and everything above it exists to make it`() {
-    // The property the whole reference derivation rests on: a good with a demand of its own feeds no trade, so
-    // every throughput above it is worked out from that rather than authored.
-    val eaten = catalogue.commodities().filter { it.perCapitaPerDay > 0.0 }.map { it.id }
-    val consumed = catalogue.trades().flatMap { trade -> trade.consumes.map { it.commodity } }
+  fun `a good residents use can also feed a trade, and its throughput counts both`() {
+    val reference = SettlementReference.of(catalogue, settlement = 1, population = 1000, wealth = 1.0, traffic = 0.0)
+    val charcoal = catalogue.commodityOrThrow("charcoal")
+    val forge = catalogue.trades().single { it.id == "smithing" }.consumes.single { it.commodity == "charcoal" }
 
-    assertEquals(listOf("bread", "weapon_repair_kit", "armor_repair_kit", "plank", "charcoal"), eaten)
-    assertTrue(eaten.none { it in consumed })
+    val households = 1000 * charcoal.perCapitaPerDay
+    val smith = reference.throughput.getValue("nails") * forge.perUnit
+
+    assertEquals(households + smith, reference.throughput.getValue("charcoal"), 1e-9)
   }
 
   @Test

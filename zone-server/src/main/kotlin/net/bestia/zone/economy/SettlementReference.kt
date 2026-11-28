@@ -42,11 +42,11 @@ class SettlementReference(
     /**
      * Everything a settlement of this size and connectedness would hold.
      *
-     * ### Throughput is derived from what households eat, not authored per trade
+     * ### Throughput is derived from what households use, not authored per trade
      *
-     * Only the last good in a chain has a demand of its own; everything above it exists to feed that. So
-     * bread's throughput is what the residents eat, flour's is what the bakery needs to bake it, and
-     * grain's is what the mill needs to grind that - walking the graph backwards from consumption.
+     * A good's throughput is what the residents use of it plus what the trades above it draw off. So
+     * bread's is what the residents eat, flour's is what the bakery needs to bake it, and charcoal's is
+     * the households' fuel plus the smith's - walking the graph backwards from consumption.
      *
      * Doing it the other way round, by authoring a rate per baker, means the roster and the runtime each
      * carry their own idea of how much a town needs and they drift the first time either is retuned.
