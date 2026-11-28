@@ -47,6 +47,9 @@ class CraftBonusService(
   private val forgeArmorId: Long? get() = skillIds[SkillId.M_FORGE_ARMOR]
   private val upgradeEquipmentId: Long? get() = skillIds[SkillId.M_UPGRADE_EQUIPMENT]
   private val runicEtchingId: Long? get() = skillIds[SkillId.M_RUNIC_ETCHING]
+  private val alchemyId: Long? get() = skillIds[SkillId.M_ALCHEMY]
+  private val transmutationId: Long? get() = skillIds[SkillId.M_TRANSMUTATION]
+  private val alchemyMasteryId: Long? get() = skillIds[SkillId.M_ALCHEMY_MASTERY]
 
   /**
    * The chance [recipe] succeeds for this crafter, clamped to [MIN_SUCCESS]..1: a recipe's base may be negative (see
@@ -58,8 +61,16 @@ class CraftBonusService(
    *
    * [attributes] are the crafter's own, whoever crafts: a master, or a bestia working with its master's skills.
    * [bestiaLevel] is the level of the Bestia an etching binds; every other craft ignores it.
+   * [itemLevel] is the base level of what the recipe makes, which Alchemy and Transmutation weigh against the
+   * crafter's reliable item level; every other craft ignores it.
    */
-  fun successChance(known: KnownSkills?, recipe: Recipe, attributes: StatusValues?, bestiaLevel: Int = 0): Float {
+  fun successChance(
+    known: KnownSkills?,
+    recipe: Recipe,
+    attributes: StatusValues?,
+    bestiaLevel: Int = 0,
+    itemLevel: Int = 0,
+  ): Float {
     val base = recipe.baseSuccessChance + attributeBonus(attributes, recipe)
     if (known == null) return base.coerceIn(MIN_SUCCESS, 1f)
 
@@ -84,13 +95,21 @@ class CraftBonusService(
 
       runicEtchingId -> at(ETCHING_SUCCESS, known.levelIn(runicEtchingId))
 
+      alchemyId -> at(ALCHEMY_SUCCESS, known.levelIn(alchemyId)) + at(MASTERY_SUCCESS, known.levelIn(alchemyMasteryId))
+
+      transmutationId -> at(TRANSMUTATION_SUCCESS, known.levelIn(transmutationId))
+
       // A repair's chance is the recipe's own. The docs give Equipment Repair a max item level and no success
       // table, and inventing one here would be inventing content.
       else -> 0f
     }
 
     // After the clamp, so each level above the reliable one costs five points off the chance the window shows.
-    val penalty = if (recipe.requiredSkillId == runicEtchingId) etchingPenalty(known, bestiaLevel) else 0f
+    val penalty = when (recipe.requiredSkillId) {
+      runicEtchingId -> etchingPenalty(known, bestiaLevel)
+      alchemyId, transmutationId -> brewingPenalty(known, recipe, itemLevel)
+      else -> 0f
+    }
 
     return ((base + bonus).coerceIn(MIN_SUCCESS, 1f) - penalty).coerceIn(MIN_SUCCESS, 1f)
   }
@@ -113,7 +132,8 @@ class CraftBonusService(
    * shortens a craft, and the reason [Recipe.craftSeconds] is a base rather than a duration.
    *
    * Cooking has its own reduction table and does not stack with Master Craftsman: the docs put the two in
-   * different trees, so a crafter holding both would otherwise get a discount the design never granted.
+   * different trees, so a crafter holding both would otherwise get a discount the design never granted. Alchemy is
+   * the same with Alchemy Mastery's table: a brew is not construction.
    *
    * An etching takes the craft duration of the Bestia's level, [bestiaLevel].
    */
@@ -121,10 +141,10 @@ class CraftBonusService(
     val base = if (recipe.etches) recipe.craftSeconds * bestiaLevel * bestiaLevel else recipe.craftSeconds
     if (known == null) return base.coerceAtLeast(MIN_CRAFT_SECONDS)
 
-    val reduction = if (recipe.requiredSkillId == cookingId) {
-      at(COOKING_TIME_REDUCTION, known.levelIn(cookingId))
-    } else {
-      at(MASTER_CRAFTSMAN_TIME_REDUCTION, known.levelIn(masterCraftsmanId))
+    val reduction = when (recipe.requiredSkillId) {
+      cookingId -> at(COOKING_TIME_REDUCTION, known.levelIn(cookingId))
+      alchemyId -> at(MASTERY_TIME_REDUCTION, known.levelIn(alchemyMasteryId))
+      else -> at(MASTER_CRAFTSMAN_TIME_REDUCTION, known.levelIn(masterCraftsmanId))
     }
 
     // Floored rather than allowed to reach zero: a craft resolving in the tick it started would never show a
@@ -179,6 +199,20 @@ class CraftBonusService(
   /** The highest Bestia level Runic Etching binds at its full chance: ten a rank, no limit at rank ten. */
   fun reliableBestiaLevel(known: KnownSkills?): Int =
     ceilingAt(RELIABLE_BESTIA_LEVEL_STEP, RELIABLE_BESTIA_UNCAPPED_AT, rankIn(known, runicEtchingId))
+
+  /**
+   * The highest item level Alchemy or Transmutation (whichever [recipe] needs) makes at its full chance: ten a rank,
+   * no limit at rank ten, the docs' "100+".
+   */
+  fun reliableItemLevel(known: KnownSkills?, recipe: Recipe): Int =
+    ceilingAt(RELIABLE_ITEM_LEVEL_STEP, RELIABLE_ITEM_UNCAPPED_AT, rankIn(known, recipe.requiredSkillId))
+
+  /** No hard cap: every item level above the reliable one costs five points, as an etching's Bestia level does. */
+  private fun brewingPenalty(known: KnownSkills, recipe: Recipe, itemLevel: Int): Float {
+    val levelsAbove = (itemLevel - reliableItemLevel(known, recipe)).coerceAtLeast(0)
+
+    return levelsAbove * BREWING_PENALTY_PER_LEVEL
+  }
 
   /** No hard cap, as with forging: every Bestia level above the reliable one costs a little more chance. */
   private fun etchingPenalty(known: KnownSkills, bestiaLevel: Int): Float {
@@ -307,6 +341,17 @@ class CraftBonusService(
     private const val RELIABLE_BESTIA_LEVEL_STEP = 10
     private const val RELIABLE_BESTIA_UNCAPPED_AT = 10
     private const val ETCHING_PENALTY_PER_LEVEL = 0.05f
+
+    /** Alchemy and Transmutation Lv.1-10: +5% a level, reliable up to item level 10 a level, "100+" at full rank. */
+    private val ALCHEMY_SUCCESS = (1..10).map { it * 0.05f }
+    private val TRANSMUTATION_SUCCESS = (1..10).map { it * 0.05f }
+    private const val RELIABLE_ITEM_LEVEL_STEP = 10
+    private const val RELIABLE_ITEM_UNCAPPED_AT = 10
+    private const val BREWING_PENALTY_PER_LEVEL = 0.05f
+
+    /** Alchemy Mastery Lv.1-5: +5% a level on Alchemy's chance, -10% a level on its brewing time. */
+    private val MASTERY_SUCCESS = (1..5).map { it * 0.05f }
+    private val MASTERY_TIME_REDUCTION = (1..5).map { it * 0.10f }
 
     /** Equipment Repair Lv.1-5: item tier 20 rising to "100+", so twenty a level and no ceiling at full rank. */
     private const val REPAIR_ITEM_LEVEL_STEP = 20

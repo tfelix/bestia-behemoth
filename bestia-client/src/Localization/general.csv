@@ -1242,6 +1242,12 @@ STATUS_EFFECT_300,Royal Swarm: a master near you wears the Hive Queen's essence.
 STATUS_EFFECT_301,"Captain's Orders: your master wears the Drowned Captain's essence. More ATK and MATK."
 STATUS_EFFECT_302,Tidewall spent: the next blow lands until the tide rises again.
 STATUS_EFFECT_304,Nine Tails: your next spell is instant and costs no mana.
+STATUS_EFFECT_305,Elixir of Might: more STR.
+STATUS_EFFECT_306,Elixir of Fortitude: more VIT.
+STATUS_EFFECT_307,Elixir of Insight: more INT.
+STATUS_EFFECT_308,Elixir of Precision: more DEX.
+STATUS_EFFECT_309,Elixir of Grace: more AGI.
+STATUS_EFFECT_310,Elixir of Resolve: more WIL.
 STATUS_EFFECT_235,Playing War March: everyone on your side near you moves and swings faster.
 STATUS_EFFECT_236,War March: a Bard's song. You move and swing faster.
 STATUS_EFFECT_237,Playing Mirage Dance: everyone on your side near you dodges more often.

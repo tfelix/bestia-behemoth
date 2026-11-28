@@ -11,7 +11,7 @@ import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
 /**
- * Potion Pitcher (`skills.yml` id 175): throws a potion from the caster's bag onto an ally, where it works as if the
+ * Potion Pitcher (`skills.yml` id 158): throws a potion from the caster's bag onto an ally, where it works as if the
  * ally drank it, `+10%/lv` stronger. `args[0]` is the potion's item id.
  */
 @Component

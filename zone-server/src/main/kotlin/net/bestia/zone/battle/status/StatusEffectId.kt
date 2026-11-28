@@ -143,7 +143,15 @@ enum class StatusEffectId(val id: Long) {
   CAPTAINS_ORDERS(301),
   TIDEWALL_SPENT(302),
   NINE_TAILS_COUNT(303),
-  NINE_TAILS_READY(304);
+  NINE_TAILS_READY(304),
+
+  // An Alchemist's elixirs, one attribute each.
+  STRENGTH_ELIXIR(305),
+  VITALITY_ELIXIR(306),
+  INTELLIGENCE_ELIXIR(307),
+  DEXTERITY_ELIXIR(308),
+  AGILITY_ELIXIR(309),
+  WILLPOWER_ELIXIR(310);
 
   companion object {
     private val byId = entries.associateBy { it.id }

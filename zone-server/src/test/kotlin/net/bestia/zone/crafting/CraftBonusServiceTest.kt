@@ -232,6 +232,51 @@ class CraftBonusServiceTest {
     assertEquals(1f, service.successChance(fullRank, recipe, null, bestiaLevel = 120), TOLERANCE)
   }
 
+  @Test
+  fun `alchemy is five percent a level and its mastery five more`() {
+    val recipe = recipeRequiring(ALCHEMY)
+
+    assertEquals(0.05f, service.successChance(known(ALCHEMY to 1), recipe, null, itemLevel = 10), TOLERANCE)
+    assertEquals(0.50f + 0.25f, service.successChance(known(ALCHEMY to 10, ALCHEMY_MASTERY to 5), recipe, null, itemLevel = 100), TOLERANCE)
+  }
+
+  /** Mastery is the Alchemist's own: it does nothing for a transmutation. */
+  @Test
+  fun `transmutation is five percent a level without the mastery`() {
+    val recipe = recipeRequiring(TRANSMUTATION)
+
+    assertEquals(0.50f, service.successChance(known(TRANSMUTATION to 10, ALCHEMY_MASTERY to 5), recipe, null, itemLevel = 100), TOLERANCE)
+  }
+
+  @Test
+  fun `a brew loses five percent for each item level above the reliable one`() {
+    val recipe = recipeRequiring(ALCHEMY, baseSuccessChance = 0.5f)
+    val rankThree = known(ALCHEMY to 3)
+
+    assertEquals(30, service.reliableItemLevel(rankThree, recipe))
+    assertEquals(0.65f, service.successChance(rankThree, recipe, null, itemLevel = 30), TOLERANCE)
+    assertEquals(0.40f, service.successChance(rankThree, recipe, null, itemLevel = 35), TOLERANCE)
+  }
+
+  @Test
+  fun `at full rank no item level is too high to brew reliably`() {
+    val recipe = recipeRequiring(ALCHEMY, baseSuccessChance = 0.3f)
+
+    assertEquals(0.80f, service.successChance(known(ALCHEMY to 10), recipe, null, itemLevel = 115), TOLERANCE)
+  }
+
+  /** Mastery's speed replaces Master Craftsman's on a brew, as Cooking's does on a meal. */
+  @Test
+  fun `alchemy mastery shortens a brew and master craftsman does not`() {
+    val brew = recipeRequiring(ALCHEMY, craftSeconds = 10f)
+    val transmutation = recipeRequiring(TRANSMUTATION, craftSeconds = 10f)
+    val both = known(ALCHEMY_MASTERY to 5, MASTER_CRAFTSMAN to 5)
+
+    assertEquals(5f, service.craftSeconds(both, brew), TOLERANCE)
+    assertEquals(5f, service.craftSeconds(known(MASTER_CRAFTSMAN to 5), transmutation), TOLERANCE)
+    assertEquals(10f, service.craftSeconds(known(MASTER_CRAFTSMAN to 5), brew), TOLERANCE)
+  }
+
   private fun known(vararg levels: Pair<String, Int>) =
     KnownSkills(levels.associate { (identifier, level) -> SKILL_IDS.getValue(identifier) to level }.toMutableMap())
 
@@ -266,6 +311,9 @@ class CraftBonusServiceTest {
     const val EQUIPMENT_REPAIR = "M_EQUIPMENT_REPAIR"
     const val UPGRADE_EQUIPMENT = "M_UPGRADE_EQUIPMENT"
     const val RUNIC_ETCHING = "M_RUNIC_ETCHING"
+    const val ALCHEMY = "M_ALCHEMY"
+    const val TRANSMUTATION = "M_TRANSMUTATION"
+    const val ALCHEMY_MASTERY = "M_ALCHEMY_MASTERY"
 
     /** Arbitrary but distinct, since the service only ever compares them. */
     val SKILL_IDS = mapOf(
@@ -279,7 +327,10 @@ class CraftBonusServiceTest {
       MASTER_SMITH to 17L,
       COOKING to 3L,
       UPGRADE_EQUIPMENT to 44L,
-      RUNIC_ETCHING to 18L
+      RUNIC_ETCHING to 18L,
+      ALCHEMY to 21L,
+      TRANSMUTATION to 22L,
+      ALCHEMY_MASTERY to 23L
     )
   }
 }

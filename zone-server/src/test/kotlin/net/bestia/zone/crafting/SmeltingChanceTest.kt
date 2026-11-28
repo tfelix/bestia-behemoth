@@ -9,7 +9,7 @@ import kotlin.math.max
  * The shipped refining recipes against the docs' smelting table (`natural-resources.md`, "Ore Levels"):
  * `0.30 - max(0, oreLevel - 10) * 0.01`, which is below zero from ore level 40 up. A recipe holds that number as
  * it is, because a high ore really does start below zero and only skill, stats and bonuses lift it. Charcoal costs
- * another ten points (`crafting.md`, "Ore Refinement Success Chance").
+ * another ten points (`crafting.md`, "Ore Refinement Success Chance"); an Alchemist's flux gives twenty-five back.
  */
 class SmeltingChanceTest {
 
@@ -25,7 +25,8 @@ class SmeltingChanceTest {
     smelts.forEach { recipe ->
       val ore = recipe.inputs.map { catalog.item(it.itemId) }.first { it.identifier.endsWith("_ore") }
       val fuelMalus = if (recipe.inputs.any { catalog.item(it.itemId).identifier == "charcoal" }) CHARCOAL_MALUS else 0f
-      val expected = 0.30f - max(0, ore.baseLevel - 10) * 0.01f - fuelMalus
+      val fluxBonus = if (recipe.inputs.any { catalog.item(it.itemId).identifier in FLUXES }) FLUX_BONUS else 0f
+      val expected = 0.30f - max(0, ore.baseLevel - 10) * 0.01f - fuelMalus + fluxBonus
 
       assertEquals(expected, recipe.baseSuccessChance, 1e-4f, "${recipe.identifier} smelts ${ore.identifier} (Lv. ${ore.baseLevel})")
     }
@@ -40,5 +41,9 @@ class SmeltingChanceTest {
 
   private companion object {
     const val CHARCOAL_MALUS = 0.10f
+
+    /** An Alchemist's flux draws the dross out of the melt: a quarter more likely to come out whole. */
+    const val FLUX_BONUS = 0.25f
+    val FLUXES = setOf("smelting_flux", "arcane_flux")
   }
 }

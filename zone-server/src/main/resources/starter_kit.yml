@@ -21,6 +21,13 @@ blueprints:
   - MITHRIL_INGOT_CHARCOAL
   - ADAMANTIUM_INGOT_CHARCOAL
   - BRICK_CHARCOAL
+  # The fluxed twin of six smelts: the ore has no craft-axes, so it could not be discovered either.
+  - IRON_INGOT_FLUXED
+  - SILVER_INGOT_FLUXED
+  - GOLD_BAR_FLUXED
+  - PALLADIUM_INGOT_FLUXED
+  - MITHRIL_INGOT_FLUXED
+  - ADAMANTIUM_INGOT_FLUXED
   - GOLD_BAR
   - GOLD_COIN
   - IRON_SWORD
