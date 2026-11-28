@@ -96,7 +96,8 @@ object EconomyProbe {
       ),
       traffic = economy.attribute(EconomyChannels.TRAFFIC),
       foodCapacity = economy.attribute(EconomyChannels.FOOD_CAPACITY),
-      cerealShare = economy.attribute(EconomyChannels.CEREAL_SHARE)
+      cerealShare = economy.attribute(EconomyChannels.CEREAL_SHARE),
+      woodlandTrees = economy.attribute(EconomyChannels.WOODLAND_TREES)
     )
   }
 

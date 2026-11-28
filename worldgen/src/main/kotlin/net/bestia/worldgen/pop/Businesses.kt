@@ -181,7 +181,10 @@ object BusinessCatalogue {
     BusinessType(
       "bestia_center", "bestia center", Sector.SERVICE, 3_000.0, SettlementTier.VILLAGE.minPopulation,
       alwaysAtLeastOne = true
-    )
+    ),
+    // Fells the woods in the catchment for the carpenter and the charcoal burner. Works the land like a
+    // farmer does, which is why it sits in the farm sector. Appended, because markers store list positions.
+    BusinessType("woodcutter", "woodcutter", Sector.FARM, 300.0, 60, listOf(Precondition.NEEDS_TIMBER))
   )
 
   /**
@@ -450,4 +453,7 @@ object EconomyChannels {
 
   /** Road traffic through the settlement. */
   const val TRAFFIC = "traffic"
+
+  /** Fellable tree props in the catchment, each weighted by the settlement's claim on its ground. */
+  const val WOODLAND_TREES = "woodland_trees"
 }

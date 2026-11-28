@@ -113,6 +113,7 @@ unbound:
   - { business: fishmonger, reason: "raw_fish is not priced as a commodity yet" }
   - { business: shipwright, reason: "hull_timber is not priced as a commodity yet" }
   - { business: carpenter, reason: "log and plank are not priced as commodities yet" }
+  - { business: woodcutter, reason: "log is not priced as a commodity yet" }
   - { business: charcoaler, reason: "coal and the log it is charred from are not priced as commodities yet" }
   - { business: mason, reason: "quarried_stone and cut_stone are not priced as commodities yet" }
   - { business: potter, reason: "clay_pot and brick are not priced as commodities yet" }

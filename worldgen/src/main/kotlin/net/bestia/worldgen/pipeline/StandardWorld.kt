@@ -250,7 +250,7 @@ object StandardWorld {
       SpawnerStage(base, p.spawner),
       VegetationStandStage(base, p.vegetationStand, p.vegetation),
       TownStage(base, p.town),
-      EconomyStage(base, p.economy),
+      EconomyStage(base, p.economy, p.vegetation),
       // The last word on what stands on the ground, and the only stage whose output is decided by a coin toss
       // rather than by the land: one roll per catalogue entry says whether this world holds that POI at
       // all. Reads the settlements, the sites and the cave mouths in order to keep away from them.

@@ -163,6 +163,18 @@ class EconomyStageTest {
     assertEquals(together.wealth, alone.wealth)
   }
 
+  @Test
+  fun `the catchment counts its trees, and the summary carries them`() {
+    val trees = economies.map { it.attribute(EconomyChannels.WOODLAND_TREES) }
+    assertTrue(trees.all { it >= 0.0 && it.isFinite() }, "a settlement has a woodland of $trees")
+    assertTrue(trees.any { it > 0.0 }, "no settlement in the world has any woods")
+
+    val wooded = economies.maxBy { it.attribute(EconomyChannels.WOODLAND_TREES) }
+    val summary = EconomyProbe.summaryFor(generated.world, wooded.attribute(EconomyChannels.INDEX).toInt())
+    assertNotNull(summary)
+    assertEquals(wooded.attribute(EconomyChannels.WOODLAND_TREES), summary.woodlandTrees)
+  }
+
   /**
    * The demographic pyramid is a pyramid.
    *
