@@ -308,6 +308,39 @@ sealed interface ZoneAnswer {
     )
   }
 
+  /**
+   * What each of a master's bestias did since the master last left the world, as facts the app puts in words.
+   * [masterInWorld] is true while the master plays: the game showed the report at login, so the app hides it.
+   */
+  data class AwayReport(val sinceEpochMs: Long, val masterInWorld: Boolean, val bestias: List<BestiaReport>) : ZoneAnswer {
+
+    /**
+     * [brought] are item identifiers with the amounts it hauled, [broughtTo] the named chests they went to and
+     * [madeAt] the queues it finished per station kind. [timeIn] is seconds per state: WORKING, IDLE, RESTING,
+     * PAUSED, FIGHTING, SHELTERING or TRAVELLING. [now] is an activity kind as in [Roster.Activity], NOT_IN_WORLD or
+     * DEAD, [nowAt] its station. [blocker] is why it stopped, if it still has: CHEST_FULL, NO_ORE, STATION_OUT,
+     * CANNOT_CRAFT, OUT_OF_FOOD or DIED; [hint] what gets it going again: EMPTY_CHEST, BUILD_SHAFT, FEED_FIRE,
+     * ADD_INGREDIENTS, BRING_FOOD or REVIVE.
+     */
+    data class BestiaReport(
+      val playerBestiaId: Long,
+      val name: String?,
+      val species: String,
+      val brought: Map<String, Int>,
+      val broughtTo: List<String>,
+      val madeAt: Map<String, Int>,
+      val timeIn: Map<String, Long>,
+      val incidents: List<Incident>,
+      val now: String,
+      val nowAt: String?,
+      val blocker: String?,
+      val hint: String?,
+    )
+
+    /** One thing that happened, oldest first. [kind], [place] and [reason] are as in [Diary.DiaryEntry]. */
+    data class Incident(val kind: String, val atEpochMs: Long, val reason: String?, val place: String?)
+  }
+
   /** A master's crafting stations, nearest the master's home first. */
   data class Workshop(val stations: List<StationView>) : ZoneAnswer {
 

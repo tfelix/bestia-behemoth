@@ -128,6 +128,9 @@ sealed interface ZoneQuery {
   /** What the master's bestias did lately, newest first. */
   data class Diary(val masterId: Long) : ZoneQuery
 
+  /** What each of the master's bestias did since the master last left the world. */
+  data class AwayReport(val masterId: Long) : ZoneQuery
+
   /** The master's crafting stations, their queues and workers, and what the chest beside each can pay for. */
   data class Workshop(val masterId: Long) : ZoneQuery
 

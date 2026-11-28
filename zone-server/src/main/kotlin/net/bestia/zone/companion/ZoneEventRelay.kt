@@ -57,10 +57,10 @@ class ZoneEventRelay(
     }
   }
 
-  /** Death has its own event above. */
+  /** Death has its own event above; a state line is only for the away report. */
   @EventListener
   fun onBestiaHappened(happened: BestiaHappened) {
-    if (happened.kind == BestiaHappened.Kind.DIED) return
+    if (happened.kind == BestiaHappened.Kind.DIED || happened.kind == BestiaHappened.Kind.STATE) return
 
     jobs.submit(happened.masterId) {
       val bestia = playerBestias.findByIdOrNull(happened.playerBestiaId) ?: return@submit
@@ -76,6 +76,7 @@ class ZoneEventRelay(
           place = happened.place,
           reason = happened.reason,
           whilePlaying = connections.hasActiveSession(accountId),
+          items = happened.items,
         )
       )
     }

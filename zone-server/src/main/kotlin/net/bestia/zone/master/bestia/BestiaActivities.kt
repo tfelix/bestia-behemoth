@@ -1,12 +1,12 @@
-package net.bestia.zone.companion.query
+package net.bestia.zone.master.bestia
 
-import net.bestia.bus.contract.ZoneAnswer.Roster.Activity
 import net.bestia.zone.ai.ecs.AiAgent
 import net.bestia.zone.ai.ecs.GoalActivity
 import net.bestia.zone.ai.profile.BestiaJob
 import net.bestia.zone.crafting.RecipeRegistry
 import net.bestia.zone.crafting.station.StationPause
 import net.bestia.zone.crafting.station.StationWork
+import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
@@ -17,8 +17,8 @@ import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
 /**
- * What a bestia in the world is doing now, for the companion app's status line. Read inside a world lease: the
- * structure registry and station progress belong to the tick thread.
+ * What a bestia in the world is doing now, for its status line in the game and the companion app. Read on the tick
+ * or inside a world lease: the structure registry and station progress belong to the tick thread.
  */
 @Component
 class BestiaActivities(
@@ -28,26 +28,26 @@ class BestiaActivities(
   private val work: StationWork,
 ) {
 
-  fun of(world: World, entityId: EntityId, job: BestiaJob): Activity? {
+  fun of(world: World, entityId: EntityId, job: BestiaJob): BestiaActivity? {
     val agent = world.get(entityId, AiAgent::class) ?: return null
     val goal = agent.currentGoal?.name
     val workplace = world.get(entityId, WorkAssignment::class)?.let { structures.of(it.structureId) }
 
     // Self-care, fighting and hauling break off the work; anything else at a workplace is the work itself.
-    GoalActivity.ofGoal(goal)?.let { return Activity(it.name) }
+    GoalActivity.ofGoal(goal)?.let { return BestiaActivity(it.name) }
     if (workplace != null) return atWorkplace(workplace)
 
-    return Activity(if (job == BestiaJob.GUARD) "GUARDING" else "IDLE")
+    return BestiaActivity(if (job == BestiaJob.GUARD) "GUARDING" else "IDLE")
   }
 
-  private fun atWorkplace(station: StructureEntry): Activity {
-    if (station.kind == StaticEntityKind.MINING_SHAFT) return Activity("MINING", station = station.kind.name)
+  private fun atWorkplace(station: StructureEntry): BestiaActivity {
+    if (station.kind == StaticEntityKind.MINING_SHAFT) return BestiaActivity("MINING", station = station.kind.name)
 
     val entry = station.queue.firstOrNull()
     val output = entry?.let { recipes.of(it.recipeId)?.output }
     val pause = work.peek(station.id)?.pause?.takeIf { it != StationPause.NONE }
 
-    return Activity(
+    return BestiaActivity(
       kind = "CRAFTING",
       item = output?.let { items.identifierOf(it.itemId) },
       done = entry?.done,
@@ -55,5 +55,9 @@ class BestiaActivities(
       station = station.kind.name,
       pause = pause?.name,
     )
+  }
+
+  companion object {
+    val READS: ComponentClassSet = setOf(AiAgent::class, WorkAssignment::class)
   }
 }

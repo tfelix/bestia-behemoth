@@ -31,6 +31,7 @@ class BusFrameTest {
       ZoneQuery.SaveOrderPreset(7, null, "Camp", OrderSheet("GATHER", "BOLD", rules = listOf(OrderRuleLine("DAY", null, "KEEP_WORKING")))),
       ZoneQuery.DeleteOrderPreset(7, 3),
       ZoneQuery.Diary(7),
+      ZoneQuery.AwayReport(7),
       ZoneQuery.BestiaPlaces(7),
       ZoneQuery.SaveAreaPlace(7, placeId = null, name = "North field", eastMetres = 40.0, northMetres = 80.0, radius = 16),
       ZoneQuery.SaveChestPlace(7, placeId = 3, name = "Camp chest", chestStructureId = 9),
@@ -106,6 +107,16 @@ class BusFrameTest {
         listOf(ZoneAnswer.BestiaPlaces.ChestSpot(9, 1.0, 2.0)),
       ),
       ZoneAnswer.Diary(listOf(ZoneAnswer.Diary.DiaryEntry(3, 99, "HAULED", mapOf("log" to 12), null, null))),
+      ZoneAnswer.AwayReport(
+        sinceEpochMs = 99, masterInWorld = false,
+        bestias = listOf(
+          ZoneAnswer.AwayReport.BestiaReport(
+            3, "Pip", "fox", brought = mapOf("log" to 214), broughtTo = listOf("Camp chest"), madeAt = mapOf("CAMPFIRE" to 1),
+            timeIn = mapOf("WORKING" to 25_200L), incidents = listOf(ZoneAnswer.AwayReport.Incident("OUT_OF_FOOD", 120, null, null)),
+            now = "RESTING_AT_HOME", nowAt = null, blocker = "OUT_OF_FOOD", hint = "BRING_FOOD",
+          )
+        ),
+      ),
       ZoneAnswer.Workshop(
         listOf(
           ZoneAnswer.Workshop.StationView(
@@ -165,6 +176,7 @@ class BusFrameTest {
       ZoneEvent.NotebookChanged(1, masterId = null, collection = "keybindings", key = "_", revision = 3, deleted = false, json = "{}"),
       ZoneEvent.JourneyEnded(1, 2, 3, "Rex", "wolf", "Ore run", "STUCK", MapPoint(1.0, 2.0), whilePlaying = false),
       ZoneEvent.BestiaHappening(1, 2, 3, "Rex", "wolf", "WORK_PAUSED", "CAMPFIRE", "STATION_OUT", whilePlaying = false),
+      ZoneEvent.BestiaHappening(1, 2, 3, "Rex", "wolf", "HAULED", "Camp chest", null, whilePlaying = true, items = mapOf("log" to 12)),
       ZoneEvent.OrdersChanged(1, 2, 3, "GATHER", "STEADY", careItems = OrderCareItems(neverUse = listOf(46))),
       ZoneEvent.OrdersChanged(1, 2, 3, "GATHER", "STEADY", gatherFilter = OrderGatherFilter(onlyItems = listOf(142))),
     )

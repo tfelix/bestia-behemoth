@@ -35,6 +35,7 @@ enum class ZoneQueryKind {
   SAVE_ORDER_PRESET,
   DELETE_ORDER_PRESET,
   DIARY,
+  AWAY_REPORT,
   BESTIA_PLACES,
   SAVE_AREA_PLACE,
   SAVE_CHEST_PLACE,
@@ -88,6 +89,7 @@ enum class ZoneQueryKind {
         is ZoneQuery.SaveOrderPreset -> SAVE_ORDER_PRESET
         is ZoneQuery.DeleteOrderPreset -> DELETE_ORDER_PRESET
         is ZoneQuery.Diary -> DIARY
+        is ZoneQuery.AwayReport -> AWAY_REPORT
         is ZoneQuery.BestiaPlaces -> BESTIA_PLACES
         is ZoneQuery.SaveAreaPlace -> SAVE_AREA_PLACE
         is ZoneQuery.SaveChestPlace -> SAVE_CHEST_PLACE

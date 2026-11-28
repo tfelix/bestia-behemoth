@@ -60,6 +60,8 @@ sealed interface ZoneEvent {
     val place: String?,
     val reason: String?,
     val whilePlaying: Boolean,
+    /** Item identifiers with amounts, for a haul. */
+    val items: Map<String, Int> = emptyMap(),
   ) : ZoneEvent
 
   /** The account entered the world with [masterId], or left it ([inWorld] false, [masterId] null). */
