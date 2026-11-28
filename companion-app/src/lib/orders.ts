@@ -94,6 +94,8 @@ export type OrderDraft = {
 	chestPlaceId: number | null;
 	careItems: OrderCareItems;
 	gatherFilter: OrderGatherFilter;
+	/** The Bestia's own, kept while it follows a preset. */
+	staysOutOfFights: boolean;
 	presetId: number | null;
 };
 
@@ -109,6 +111,7 @@ export function draftOf(b: Bestia): OrderDraft {
 		chestPlaceId: b.chestPlaceId ?? null,
 		careItems: { neverUse: [...(b.careItems?.neverUse ?? [])], alsoUse: [...(b.careItems?.alsoUse ?? [])] },
 		gatherFilter: { skip: [...(b.gatherFilter?.skip ?? [])], onlyItems: [...(b.gatherFilter?.onlyItems ?? [])] },
+		staysOutOfFights: b.staysOutOfFights ?? false,
 		presetId: b.presetId ?? null
 	};
 }
@@ -125,7 +128,8 @@ export function ordersOf(draft: OrderDraft): BestiaOrders {
 			rules: [],
 			ownOverrides: {},
 			careItems: { neverUse: [], alsoUse: [] },
-			gatherFilter: { skip: [], onlyItems: [] }
+			gatherFilter: { skip: [], onlyItems: [] },
+			staysOutOfFights: draft.staysOutOfFights
 		};
 	}
 	const fallbackJob = fallbacksFor(draft.job).includes(draft.fallbackJob ?? '') ? (draft.fallbackJob ?? undefined) : undefined;
@@ -139,7 +143,8 @@ export function ordersOf(draft: OrderDraft): BestiaOrders {
 		chestPlaceId: draft.chestPlaceId ?? undefined,
 		ownOverrides: {},
 		careItems: { neverUse: [...draft.careItems.neverUse], alsoUse: [...draft.careItems.alsoUse] },
-		gatherFilter: { skip: [...draft.gatherFilter.skip], onlyItems: [...draft.gatherFilter.onlyItems] }
+		gatherFilter: { skip: [...draft.gatherFilter.skip], onlyItems: [...draft.gatherFilter.onlyItems] },
+		staysOutOfFights: draft.staysOutOfFights
 	};
 }
 

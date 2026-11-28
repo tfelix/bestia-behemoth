@@ -85,6 +85,8 @@ function clause(same: Incident[], clock: (epochMs: number) => string): string | 
 			return same.length === 1 ? `was attacked ${when}` : `was attacked ${times(same.length)}, first ${when}`;
 		case 'RETREATED':
 			return `retreated home ${when}`;
+		case 'HELPED':
+			return `helped in a fight ${when}`;
 		case 'OUT_OF_FOOD':
 			return `ran out of food ${when}`;
 		case 'LOW_FOOD':

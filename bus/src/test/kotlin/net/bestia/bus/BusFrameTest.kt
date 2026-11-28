@@ -39,6 +39,7 @@ class BusFrameTest {
       ZoneQuery.SetOrders(7, 11, "GATHER", "STEADY", areaPlaceId = 3, chestPlaceId = 4),
       ZoneQuery.SetOrders(7, 11, "GATHER", "STEADY", careItems = OrderCareItems(neverUse = listOf(46), alsoUse = listOf(3, 4))),
       ZoneQuery.SetOrders(7, 11, "GATHER", "STEADY", gatherFilter = OrderGatherFilter(skip = listOf("TREE"), onlyItems = listOf(32))),
+      ZoneQuery.SetOrders(7, 11, "GATHER", "STEADY", staysOutOfFights = true),
       ZoneQuery.SaveOrderPreset(7, null, "Reeds", OrderSheet("GATHER", "BOLD", gatherFilter = OrderGatherFilter(onlyItems = listOf(32)))),
       ZoneQuery.Workshop(7),
       ZoneQuery.QueueAtStation(7, structureId = 5, recipeId = 42, amount = 3),
@@ -129,6 +130,7 @@ class BusFrameTest {
       ZoneAnswer.Orders(2, "MINE", "BOLD", fallbackJob = "GUARD", overrides = OrderNumbers(retreatBelowHealthPct = 0)),
       ZoneAnswer.Orders(2, "GATHER", "BOLD", careItems = OrderCareItems(alsoUse = listOf(3))),
       ZoneAnswer.Orders(2, "GATHER", "BOLD", gatherFilter = OrderGatherFilter(skip = listOf("PLANT", "CRYSTAL"))),
+      ZoneAnswer.Orders(2, "GATHER", "BOLD", staysOutOfFights = true),
       ZoneAnswer.ChatSent(null),
       ZoneAnswer.ChatSent(ZoneAnswer.ChatSent.NOT_IN_GUILD),
       ZoneAnswer.ChatSent(ZoneAnswer.ChatSent.TARGET_UNAVAILABLE),
@@ -179,6 +181,7 @@ class BusFrameTest {
       ZoneEvent.BestiaHappening(1, 2, 3, "Rex", "wolf", "HAULED", "Camp chest", null, whilePlaying = true, items = mapOf("log" to 12)),
       ZoneEvent.OrdersChanged(1, 2, 3, "GATHER", "STEADY", careItems = OrderCareItems(neverUse = listOf(46))),
       ZoneEvent.OrdersChanged(1, 2, 3, "GATHER", "STEADY", gatherFilter = OrderGatherFilter(onlyItems = listOf(142))),
+      ZoneEvent.OrdersChanged(1, 2, 3, "GATHER", "STEADY", staysOutOfFights = true),
     )
 
     for (event in events) {

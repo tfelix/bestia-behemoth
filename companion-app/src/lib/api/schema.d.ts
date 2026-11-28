@@ -1026,6 +1026,7 @@ export interface components {
             ownOverrides: components["schemas"]["OrderNumbers"];
             careItems: components["schemas"]["OrderCareItems"];
             gatherFilter: components["schemas"]["OrderGatherFilter"];
+            staysOutOfFights: boolean;
         };
         JourneyOrder: {
             waypoints: components["schemas"]["Position"][];
@@ -1367,6 +1368,7 @@ export interface components {
             allowedJobs: string[];
             careItems: components["schemas"]["OrderCareItems"];
             gatherFilter: components["schemas"]["OrderGatherFilter"];
+            staysOutOfFights: boolean;
         };
         Journey: {
             name?: string;

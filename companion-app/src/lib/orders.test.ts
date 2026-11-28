@@ -21,6 +21,7 @@ function bestia(changes: Partial<Bestia>): Bestia {
 		allowedJobs: [],
 		careItems: { neverUse: [], alsoUse: [] },
 		gatherFilter: { skip: [], onlyItems: [] },
+		staysOutOfFights: false,
 		...changes
 	};
 }
@@ -86,6 +87,17 @@ describe('orders', () => {
 		own.careItems.alsoUse.push(4);
 		expect(changed(bestia({ careItems }), own)).toBe(true);
 		expect(ordersOf({ ...own, presetId: 3 }).careItems).toEqual({ neverUse: [], alsoUse: [] });
+	});
+
+	it('keeps staying out of fights as the Bestia\'s own, also on a preset, and never in a preset\'s sheet', () => {
+		const frail = bestia({ staysOutOfFights: true, presetId: 3 });
+		const draft = draftOf(frail);
+
+		expect(ordersOf(draft).staysOutOfFights).toBe(true);
+		expect(changed(frail, draft)).toBe(false);
+		expect(sheetOf(draft)).not.toHaveProperty('staysOutOfFights');
+		draft.staysOutOfFights = false;
+		expect(changed(frail, draft)).toBe(true);
 	});
 
 	it('keeps skipped categories in the zone order, so an unchanged filter is no change', () => {

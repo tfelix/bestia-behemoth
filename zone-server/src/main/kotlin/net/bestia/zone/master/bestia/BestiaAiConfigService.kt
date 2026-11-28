@@ -59,7 +59,7 @@ class BestiaAiConfigService(
     } else {
       val preset = presets.findByIdAndMasterId(presetId, playerBestia.master.id) ?: return null
       if (!fitsSpecies(playerBestia, preset.orders)) return null
-      follow(playerBestia, preset, own)
+      follow(playerBestia, preset, own, orders.staysOutOfFights)
     }
 
     return store(playerBestia)
@@ -78,7 +78,7 @@ class BestiaAiConfigService(
   fun reapply(preset: OrderPreset) {
     playerBestias.findAllByOrderPresetId(preset.id).forEach { playerBestia ->
       if (SpeciesJobs.fits(playerBestia.bestia, preset.orders)) {
-        follow(playerBestia, preset, playerBestia.ownOverrides)
+        follow(playerBestia, preset, playerBestia.ownOverrides, playerBestia.aiConfig.staysOutOfFights)
       } else {
         unlink(playerBestia)
       }
@@ -109,11 +109,15 @@ class BestiaAiConfigService(
     return fits
   }
 
-  private fun follow(playerBestia: PlayerBestia, preset: OrderPreset, own: OrderOverrides) {
+  /** Staying out of fights is the bestia's own, so one frail bestia needs no preset of its own. */
+  private fun follow(playerBestia: PlayerBestia, preset: OrderPreset, own: OrderOverrides, staysOutOfFights: Boolean) {
     val presetOrders = preset.orders
     playerBestia.orderPresetId = preset.id
     playerBestia.ownOverrides = own
-    playerBestia.aiConfig = presetOrders.copy(overrides = presetOrders.overrides.overlaidWith(own).clamped())
+    playerBestia.aiConfig = presetOrders.copy(
+      overrides = presetOrders.overrides.overlaidWith(own).clamped(),
+      staysOutOfFights = staysOutOfFights,
+    )
   }
 
   private fun store(playerBestia: PlayerBestia): StoredOrders {

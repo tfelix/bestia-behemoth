@@ -83,6 +83,7 @@ class MastersController(
     val allowedJobs: List<String>,
     val careItems: OrderCareItems,
     val gatherFilter: OrderGatherFilter,
+    val staysOutOfFights: Boolean,
   )
 
   /** [route] is the way still ahead as planned; [waypoints] from [nextIndex] on are still to visit. */
@@ -201,6 +202,7 @@ class MastersController(
         allowedJobs = it.allowedJobs,
         careItems = it.careItems,
         gatherFilter = it.gatherFilter,
+        staysOutOfFights = it.staysOutOfFights,
       )
     }
   }

@@ -27,6 +27,8 @@ var _places: Array[Dictionary] = []
 var _sheet: OrderSheet
 var _preset_id: int = 0
 var _own: Dictionary = {}
+## The bestia's own, never the preset's: one frail bestia needs no preset of its own.
+var _stays_out_of_fights := false
 ## The draft is the followed preset's sheet, and giving it saves the preset.
 var _editing_preset := false
 ## The next order book answers the save of the preset being edited.
@@ -50,6 +52,7 @@ var _fallback: OptionButton
 var _fallback_row: Control
 var _courage: HSlider
 var _courage_name: Label
+var _stays_out: CheckBox
 var _area: OptionButton
 var _chest: OptionButton
 var _fine_tune_toggle: Button
@@ -102,6 +105,7 @@ func _on_orders(msg: BestiaAiConfigSMSG) -> void:
 	_sheet = msg.Orders.Copy()
 	_preset_id = msg.PresetId
 	_own = msg.OwnOverrides.duplicate() if msg.PresetId != 0 else msg.Orders.Overrides.duplicate()
+	_stays_out_of_fights = msg.Orders.StaysOutOfFights
 	_loading.visible = false
 	_body.visible = true
 	_show_draft()
@@ -173,6 +177,8 @@ func _show_draft() -> void:
 	_fill_fallback_picker()
 	_courage.set_value_no_signal(_sheet.Courage)
 	_courage_name.text = OrderVocabulary.courage_name(_sheet.Courage)
+	_stays_out.set_pressed_no_signal(_stays_out_of_fights)
+	_stays_out.visible = not _editing_preset
 	_fill_place_picker(_area, OrderVocabulary.PLACE_AREA, tr("ORDERS_AROUND_HOME"), _sheet.AreaPlaceId)
 	_fill_place_picker(_chest, OrderVocabulary.PLACE_CHEST, tr("ORDERS_NEAREST_CHEST"), _sheet.ChestPlaceId)
 	if _editing_preset:
@@ -308,6 +314,7 @@ func _read_widgets() -> void:
 	_sheet.NeverUse.assign(_never_use.get_items())
 	_sheet.AlsoUse.assign(_also_use.get_items())
 	_sheet.Rules.assign(_rules.get_rules())
+	_stays_out_of_fights = _stays_out.button_pressed
 	if _editing_preset:
 		_sheet.Overrides = _numbers.get_numbers()
 		return
@@ -343,7 +350,8 @@ func _update_give() -> void:
 		_give.disabled = _key_of(_sheet, 0, {}) == _key_of(_preset_sheet(), 0, {})
 		return
 	var sent_own: Dictionary = _sent.OwnOverrides if _sent.PresetId != 0 else _sent.Orders.Overrides
-	_give.disabled = _key_of(_sheet, _preset_id, _own) == _key_of(_sent.Orders, _sent.PresetId, sent_own)
+	_give.disabled = _key_of(_sheet, _preset_id, _own) == _key_of(_sent.Orders, _sent.PresetId, sent_own) \
+		and _stays_out_of_fights == _sent.Orders.StaysOutOfFights
 
 
 func _on_give_pressed() -> void:
@@ -354,6 +362,7 @@ func _on_give_pressed() -> void:
 		_saving_preset = true
 		ConnectionManager.save_order_preset(_preset_id, _preset_name(), _sheet)
 	else:
+		_sheet.StaysOutOfFights = _stays_out_of_fights
 		ConnectionManager.set_bestia_orders(_player_bestia_id, _sheet, _preset_id, _own)
 
 
@@ -457,6 +466,11 @@ func _build() -> void:
 	_courage_name = UiStyle.label("", 13, UiStyle.ACCENT)
 	_courage_name.custom_minimum_size = Vector2(64, 0)
 	courage_row.add_child(_courage_name)
+	_stays_out = CheckBox.new()
+	_stays_out.text = tr("ORDERS_STAYS_OUT_OF_FIGHTS")
+	_stays_out.tooltip_text = tr("ORDERS_STAYS_OUT_OF_FIGHTS_HINT")
+	_stays_out.toggled.connect(func(_on: bool) -> void: _update_give())
+	_add_row(_body, "").add_child(_stays_out)
 
 	_area = _add_picker(_body, tr("ORDERS_AREA"), func(_i: int) -> void: _update_give())
 	_area_here = Button.new()

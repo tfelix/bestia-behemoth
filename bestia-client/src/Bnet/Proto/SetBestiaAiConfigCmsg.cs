@@ -25,7 +25,7 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci9tZXNzYWdlcy9tYXN0ZXIvc2V0X2Jlc3RpYV9haV9jb25maWdfY21zZy5w",
-            "cm90bxIEYm5ldCLbDQoVU2V0QmVzdGlhQWlDb25maWdDTVNHEhgKEHBsYXll",
+            "cm90bxIEYm5ldCL4DQoVU2V0QmVzdGlhQWlDb25maWdDTVNHEhgKEHBsYXll",
             "cl9iZXN0aWFfaWQYASABKAQSLAoDam9iGAUgASgOMh8uYm5ldC5TZXRCZXN0",
             "aWFBaUNvbmZpZ0NNU0cuSm9iEjQKB2NvdXJhZ2UYBiABKA4yIy5ibmV0LlNl",
             "dEJlc3RpYUFpQ29uZmlnQ01TRy5Db3VyYWdlEjUKDGZhbGxiYWNrX2pvYhgH",
@@ -36,40 +36,41 @@ namespace Bnet {
             "Y2VfaWQYCyABKARIAYgBARIbCg5jaGVzdF9wbGFjZV9pZBgMIAEoBEgCiAEB",
             "EjkKCmNhcmVfaXRlbXMYDSABKAsyJS5ibmV0LlNldEJlc3RpYUFpQ29uZmln",
             "Q01TRy5DYXJlSXRlbXMSPwoNZ2F0aGVyX2ZpbHRlchgOIAEoCzIoLmJuZXQu",
-            "U2V0QmVzdGlhQWlDb25maWdDTVNHLkdhdGhlckZpbHRlchq2AwoEUnVsZRI9",
-            "Cgljb25kaXRpb24YASABKA4yKi5ibmV0LlNldEJlc3RpYUFpQ29uZmlnQ01T",
-            "Ry5SdWxlLkNvbmRpdGlvbhIWCgl0aHJlc2hvbGQYAiABKAVIAIgBARI3CgZh",
-            "Y3Rpb24YAyABKA4yJy5ibmV0LlNldEJlc3RpYUFpQ29uZmlnQ01TRy5SdWxl",
-            "LkFjdGlvbiKJAQoJQ29uZGl0aW9uEhkKFUNPTkRJVElPTl9VTlNQRUNJRklF",
-            "RBAAEhEKDVNUQU1JTkFfQkVMT1cQARIQCgxIRUFMVEhfQkVMT1cQAhINCglC",
-            "QUdfQUJPVkUQAxIJCgVOSUdIVBAEEgcKA0RBWRAFEhkKFVNUUk9OR0VSX0ZP",
-            "RV9JTl9TSUdIVBAGIoMBCgZBY3Rpb24SFgoSQUNUSU9OX1VOU1BFQ0lGSUVE",
-            "EAASBwoDRUFUEAESEAoMUkVTVF9BVF9IT01FEAISCAoESEVBTBADEgsKB1JF",
-            "VFJFQVQQBBIMCghIQVVMX05PVxAFEhAKDEtFRVBfV09SS0lORxAGEg8KC0hP",
-            "TERfR1JPVU5EEAdCDAoKX3RocmVzaG9sZBowCglDYXJlSXRlbXMSEQoJbmV2",
-            "ZXJfdXNlGAEgAygEEhAKCGFsc29fdXNlGAIgAygEGskBCgxHYXRoZXJGaWx0",
-            "ZXISRQoEc2tpcBgBIAMoDjI3LmJuZXQuU2V0QmVzdGlhQWlDb25maWdDTVNH",
-            "LkdhdGhlckZpbHRlci5HYXRoZXJDYXRlZ29yeRISCgpvbmx5X2l0ZW1zGAIg",
-            "AygEIl4KDkdhdGhlckNhdGVnb3J5Eh8KG0dBVEhFUl9DQVRFR09SWV9VTlNQ",
-            "RUNJRklFRBAAEgkKBUxPT1NFEAESCQoFUExBTlQQAhIICgRUUkVFEAMSCwoH",
-            "Q1JZU1RBTBAEGqkCCglPdmVycmlkZXMSJQoYcmV0cmVhdF9iZWxvd19oZWFs",
-            "dGhfcGN0GAEgASgFSACIAQESIgoVZWF0X2JlbG93X3N0YW1pbmFfcGN0GAIg",
-            "ASgFSAGIAQESIgoVaGVhbF9iZWxvd19oZWFsdGhfcGN0GAMgASgFSAKIAQES",
-            "HQoQaGF1bF9hdF9sb2FkX3BjdBgEIAEoBUgDiAEBEhgKC2FyZWFfcmFkaXVz",
-            "GAUgASgFSASIAQFCGwoZX3JldHJlYXRfYmVsb3dfaGVhbHRoX3BjdEIYChZf",
-            "ZWF0X2JlbG93X3N0YW1pbmFfcGN0QhgKFl9oZWFsX2JlbG93X2hlYWx0aF9w",
-            "Y3RCEwoRX2hhdWxfYXRfbG9hZF9wY3RCDgoMX2FyZWFfcmFkaXVzIlAKA0pv",
-            "YhITCg9KT0JfVU5TUEVDSUZJRUQQABIJCgVHVUFSRBABEggKBFJFU1QQAhIK",
-            "CgZHQVRIRVIQAxIJCgVDUkFGVBAEEggKBE1JTkUQBSJbCgdDb3VyYWdlEhcK",
-            "E0NPVVJBR0VfVU5TUEVDSUZJRUQQABIJCgVUSU1JRBABEgsKB0NBUkVGVUwQ",
-            "AhIKCgZTVEVBRFkQAxIICgRCT0xEEAQSCQoFQlJBVkUQBUIMCgpfcHJlc2V0",
-            "X2lkQhAKDl9hcmVhX3BsYWNlX2lkQhEKD19jaGVzdF9wbGFjZV9pZEoECAIQ",
-            "A0oECAMQBEoECAQQBUIzChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CGlNldEJl",
-            "c3RpYUFpQ29uZmlnQ21zZ1Byb3RvYgZwcm90bzM="));
+            "U2V0QmVzdGlhQWlDb25maWdDTVNHLkdhdGhlckZpbHRlchIbChNzdGF5c19v",
+            "dXRfb2ZfZmlnaHRzGA8gASgIGrYDCgRSdWxlEj0KCWNvbmRpdGlvbhgBIAEo",
+            "DjIqLmJuZXQuU2V0QmVzdGlhQWlDb25maWdDTVNHLlJ1bGUuQ29uZGl0aW9u",
+            "EhYKCXRocmVzaG9sZBgCIAEoBUgAiAEBEjcKBmFjdGlvbhgDIAEoDjInLmJu",
+            "ZXQuU2V0QmVzdGlhQWlDb25maWdDTVNHLlJ1bGUuQWN0aW9uIokBCglDb25k",
+            "aXRpb24SGQoVQ09ORElUSU9OX1VOU1BFQ0lGSUVEEAASEQoNU1RBTUlOQV9C",
+            "RUxPVxABEhAKDEhFQUxUSF9CRUxPVxACEg0KCUJBR19BQk9WRRADEgkKBU5J",
+            "R0hUEAQSBwoDREFZEAUSGQoVU1RST05HRVJfRk9FX0lOX1NJR0hUEAYigwEK",
+            "BkFjdGlvbhIWChJBQ1RJT05fVU5TUEVDSUZJRUQQABIHCgNFQVQQARIQCgxS",
+            "RVNUX0FUX0hPTUUQAhIICgRIRUFMEAMSCwoHUkVUUkVBVBAEEgwKCEhBVUxf",
+            "Tk9XEAUSEAoMS0VFUF9XT1JLSU5HEAYSDwoLSE9MRF9HUk9VTkQQB0IMCgpf",
+            "dGhyZXNob2xkGjAKCUNhcmVJdGVtcxIRCgluZXZlcl91c2UYASADKAQSEAoI",
+            "YWxzb191c2UYAiADKAQayQEKDEdhdGhlckZpbHRlchJFCgRza2lwGAEgAygO",
+            "MjcuYm5ldC5TZXRCZXN0aWFBaUNvbmZpZ0NNU0cuR2F0aGVyRmlsdGVyLkdh",
+            "dGhlckNhdGVnb3J5EhIKCm9ubHlfaXRlbXMYAiADKAQiXgoOR2F0aGVyQ2F0",
+            "ZWdvcnkSHwobR0FUSEVSX0NBVEVHT1JZX1VOU1BFQ0lGSUVEEAASCQoFTE9P",
+            "U0UQARIJCgVQTEFOVBACEggKBFRSRUUQAxILCgdDUllTVEFMEAQaqQIKCU92",
+            "ZXJyaWRlcxIlChhyZXRyZWF0X2JlbG93X2hlYWx0aF9wY3QYASABKAVIAIgB",
+            "ARIiChVlYXRfYmVsb3dfc3RhbWluYV9wY3QYAiABKAVIAYgBARIiChVoZWFs",
+            "X2JlbG93X2hlYWx0aF9wY3QYAyABKAVIAogBARIdChBoYXVsX2F0X2xvYWRf",
+            "cGN0GAQgASgFSAOIAQESGAoLYXJlYV9yYWRpdXMYBSABKAVIBIgBAUIbChlf",
+            "cmV0cmVhdF9iZWxvd19oZWFsdGhfcGN0QhgKFl9lYXRfYmVsb3dfc3RhbWlu",
+            "YV9wY3RCGAoWX2hlYWxfYmVsb3dfaGVhbHRoX3BjdEITChFfaGF1bF9hdF9s",
+            "b2FkX3BjdEIOCgxfYXJlYV9yYWRpdXMiUAoDSm9iEhMKD0pPQl9VTlNQRUNJ",
+            "RklFRBAAEgkKBUdVQVJEEAESCAoEUkVTVBACEgoKBkdBVEhFUhADEgkKBUNS",
+            "QUZUEAQSCAoETUlORRAFIlsKB0NvdXJhZ2USFwoTQ09VUkFHRV9VTlNQRUNJ",
+            "RklFRBAAEgkKBVRJTUlEEAESCwoHQ0FSRUZVTBACEgoKBlNURUFEWRADEggK",
+            "BEJPTEQQBBIJCgVCUkFWRRAFQgwKCl9wcmVzZXRfaWRCEAoOX2FyZWFfcGxh",
+            "Y2VfaWRCEQoPX2NoZXN0X3BsYWNlX2lkSgQIAhADSgQIAxAESgQIBBAFQjMK",
+            "FW5ldC5iZXN0aWEuYm5ldC5wcm90b0IaU2V0QmVzdGlhQWlDb25maWdDbXNn",
+            "UHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG), global::Bnet.SetBestiaAiConfigCMSG.Parser, new[]{ "PlayerBestiaId", "Job", "Courage", "FallbackJob", "Overrides", "Rules", "PresetId", "AreaPlaceId", "ChestPlaceId", "CareItems", "GatherFilter" }, new[]{ "PresetId", "AreaPlaceId", "ChestPlaceId" }, new[]{ typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Job), typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Courage) }, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Rule), global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Parser, new[]{ "Condition", "Threshold", "Action" }, new[]{ "Threshold" }, new[]{ typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Condition), typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Action) }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG), global::Bnet.SetBestiaAiConfigCMSG.Parser, new[]{ "PlayerBestiaId", "Job", "Courage", "FallbackJob", "Overrides", "Rules", "PresetId", "AreaPlaceId", "ChestPlaceId", "CareItems", "GatherFilter", "StaysOutOfFights" }, new[]{ "PresetId", "AreaPlaceId", "ChestPlaceId" }, new[]{ typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Job), typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Courage) }, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Rule), global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Parser, new[]{ "Condition", "Threshold", "Action" }, new[]{ "Threshold" }, new[]{ typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Condition), typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Action) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.CareItems), global::Bnet.SetBestiaAiConfigCMSG.Types.CareItems.Parser, new[]{ "NeverUse", "AlsoUse" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter), global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter.Parser, new[]{ "Skip", "OnlyItems" }, null, new[]{ typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter.Types.GatherCategory) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides), global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides.Parser, new[]{ "RetreatBelowHealthPct", "EatBelowStaminaPct", "HealBelowHealthPct", "HaulAtLoadPct", "AreaRadius" }, new[]{ "RetreatBelowHealthPct", "EatBelowStaminaPct", "HealBelowHealthPct", "HaulAtLoadPct", "AreaRadius" }, null, null, null)})
@@ -135,6 +136,7 @@ namespace Bnet {
       chestPlaceId_ = other.chestPlaceId_;
       careItems_ = other.careItems_ != null ? other.careItems_.Clone() : null;
       gatherFilter_ = other.gatherFilter_ != null ? other.gatherFilter_.Clone() : null;
+      staysOutOfFights_ = other.staysOutOfFights_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -347,6 +349,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "stays_out_of_fights" field.</summary>
+    public const int StaysOutOfFightsFieldNumber = 15;
+    private bool staysOutOfFights_;
+    /// <summary>
+    ///* Keeps out of the fights its master and its master's other bestias are in. 
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool StaysOutOfFights {
+      get { return staysOutOfFights_; }
+      set {
+        staysOutOfFights_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -373,6 +390,7 @@ namespace Bnet {
       if (ChestPlaceId != other.ChestPlaceId) return false;
       if (!object.Equals(CareItems, other.CareItems)) return false;
       if (!object.Equals(GatherFilter, other.GatherFilter)) return false;
+      if (StaysOutOfFights != other.StaysOutOfFights) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -391,6 +409,7 @@ namespace Bnet {
       if (HasChestPlaceId) hash ^= ChestPlaceId.GetHashCode();
       if (careItems_ != null) hash ^= CareItems.GetHashCode();
       if (gatherFilter_ != null) hash ^= GatherFilter.GetHashCode();
+      if (StaysOutOfFights != false) hash ^= StaysOutOfFights.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -450,6 +469,10 @@ namespace Bnet {
         output.WriteRawTag(114);
         output.WriteMessage(GatherFilter);
       }
+      if (StaysOutOfFights != false) {
+        output.WriteRawTag(120);
+        output.WriteBool(StaysOutOfFights);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -501,6 +524,10 @@ namespace Bnet {
         output.WriteRawTag(114);
         output.WriteMessage(GatherFilter);
       }
+      if (StaysOutOfFights != false) {
+        output.WriteRawTag(120);
+        output.WriteBool(StaysOutOfFights);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -541,6 +568,9 @@ namespace Bnet {
       }
       if (gatherFilter_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(GatherFilter);
+      }
+      if (StaysOutOfFights != false) {
+        size += 1 + 1;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -593,6 +623,9 @@ namespace Bnet {
           GatherFilter = new global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter();
         }
         GatherFilter.MergeFrom(other.GatherFilter);
+      }
+      if (other.StaysOutOfFights != false) {
+        StaysOutOfFights = other.StaysOutOfFights;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -666,6 +699,10 @@ namespace Bnet {
             input.ReadMessage(GatherFilter);
             break;
           }
+          case 120: {
+            StaysOutOfFights = input.ReadBool();
+            break;
+          }
         }
       }
     #endif
@@ -736,6 +773,10 @@ namespace Bnet {
               GatherFilter = new global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter();
             }
             input.ReadMessage(GatherFilter);
+            break;
+          }
+          case 120: {
+            StaysOutOfFights = input.ReadBool();
             break;
           }
         }

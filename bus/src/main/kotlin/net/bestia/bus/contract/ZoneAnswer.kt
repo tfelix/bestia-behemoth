@@ -76,6 +76,7 @@ sealed interface ZoneAnswer {
       val allowedJobs: List<String> = emptyList(),
       val careItems: OrderCareItems = OrderCareItems(),
       val gatherFilter: OrderGatherFilter = OrderGatherFilter(),
+      val staysOutOfFights: Boolean = false,
     )
 
     /**
@@ -269,6 +270,7 @@ sealed interface ZoneAnswer {
     val ownOverrides: OrderNumbers = OrderNumbers(),
     val careItems: OrderCareItems = OrderCareItems(),
     val gatherFilter: OrderGatherFilter = OrderGatherFilter(),
+    val staysOutOfFights: Boolean = false,
   ) : ZoneAnswer
 
   /** A master's named places, and every chest of theirs that a chest place can name. */

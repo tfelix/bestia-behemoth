@@ -139,6 +139,7 @@ class ZoneEventRelay(
         orders.ownOverrides,
         orders.careItems,
         orders.gatherFilter,
+        orders.staysOutOfFights,
       )
     )
   }

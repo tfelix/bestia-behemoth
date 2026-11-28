@@ -51,6 +51,8 @@ class OrdersController(
     val careItems: OrderCareItems = OrderCareItems(),
     /** What a gatherer takes; empty for everything. */
     val gatherFilter: OrderGatherFilter = OrderGatherFilter(),
+    /** Keeps out of the fights its master and its master's other bestias are in. */
+    val staysOutOfFights: Boolean = false,
   )
 
   @PutMapping
@@ -63,13 +65,14 @@ class OrdersController(
   ): BestiaOrders {
     val query = ZoneQuery.SetOrders(masterId, bestiaId, orders.job, orders.courage, orders.fallbackJob, orders.overrides, orders.rules,
       orders.areaPlaceId, orders.chestPlaceId, orders.presetId, orders.careItems, orders.gatherFilter,
+      orders.staysOutOfFights,
     )
     val stored = zone.ask(accountId, query, idempotencyKey.take(MAX_KEY_LENGTH)).answerOrThrow<ZoneAnswer.Orders>()
 
     cache.forget(accountId)
     return BestiaOrders(
       stored.job, stored.courage, stored.fallbackJob, stored.overrides, stored.rules, stored.areaPlaceId, stored.chestPlaceId,
-      stored.presetId, stored.ownOverrides, stored.careItems, stored.gatherFilter,
+      stored.presetId, stored.ownOverrides, stored.careItems, stored.gatherFilter, stored.staysOutOfFights,
     )
   }
 

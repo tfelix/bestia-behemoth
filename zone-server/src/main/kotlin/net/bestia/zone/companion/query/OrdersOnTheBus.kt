@@ -59,7 +59,7 @@ object OrdersOnTheBus {
     return ZoneAnswer.Orders(
       playerBestiaId, sheet.job, sheet.courage, sheet.fallbackJob, sheet.overrides, sheet.rules,
       sheet.areaPlaceId, sheet.chestPlaceId, stored.presetId, numbersOf(stored.ownOverrides), sheet.careItems,
-      sheet.gatherFilter,
+      sheet.gatherFilter, stored.orders.staysOutOfFights,
     )
   }
 
