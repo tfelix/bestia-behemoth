@@ -373,6 +373,10 @@ func set_treasure_circles(circles: Array[Vector3]) -> void:
 	_view.treasure_circles = circles
 
 
+func set_war_zones(zones: Array[Vector3]) -> void:
+	_view.war_zones = zones
+
+
 func set_has_chart(has_chart: bool) -> void:
 	_has_chart = has_chart
 	if not has_chart and visible:

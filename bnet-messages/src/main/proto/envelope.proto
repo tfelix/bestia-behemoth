@@ -139,6 +139,7 @@ import "messages/map/static_entity_removed_smsg.proto";
 import "messages/map/collect_prop_cmsg.proto";
 import "messages/map/dig_cmsg.proto";
 import "messages/map/treasure_shimmer_smsg.proto";
+import "messages/faction/war_zones_smsg.proto";
 import "messages/map/interact_entity_cmsg.proto";
 import "messages/shop/open_shop_cmsg.proto";
 import "messages/shop/shop_offer_smsg.proto";
@@ -380,6 +381,9 @@ message Envelope {
     SetGuildEmblemCMSG set_guild_emblem = 639;
     TransferGuildLeadershipCMSG transfer_guild_leadership = 640;
     LiftGuildExpulsionCMSG lift_guild_expulsion = 641;
+
+    // FACTION 642
+    WarZonesSMSG war_zones = 642;
 
     // CRAFTING & BUILDING 700
     CraftableRecipesSMSG craftable_recipes = 700;

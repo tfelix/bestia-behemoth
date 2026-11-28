@@ -37,6 +37,8 @@ const _BORDER_PIXELS_SMALL := 8.0
 const _MARKER_OUTLINE := Color(0.15, 0.11, 0.08)
 ## A treasure map's circle, in the gold the shimmer of Treasure Sense uses.
 const _TREASURE_INK := Color(0.9, 0.68, 0.2)
+## A war zone's circle: blood red, so it is never read as a treasure map.
+const _WAR_ZONE_INK := Color(0.82, 0.16, 0.12)
 
 ## The arrow head, in pixels from the player's own position at [member marker_scale] 1. The notch is what
 ## stops it reading as a plain triangle, which at this size is the difference between "facing" and "here".
@@ -368,6 +370,12 @@ var treasure_circles: Array[Vector3] = []:
 		treasure_circles = value
 		queue_redraw()
 
+## The open war zones, as [member treasure_circles] are given: centre x, centre y and radius in metres.
+var war_zones: Array[Vector3] = []:
+	set(value):
+		war_zones = value
+		queue_redraw()
+
 ## A GM's view of the mana field and the event director; null, or a layer of width 0, draws nothing.
 var gm_mana_layer: GmManaLayerSMSG = null:
 	set(value):
@@ -664,6 +672,7 @@ func _draw() -> void:
 	_draw_places()
 	_draw_services()
 	_draw_marks()
+	_draw_war_zones()
 	_draw_treasure_circles()
 	_draw_journeys()
 	_draw_draft()
@@ -817,6 +826,16 @@ func _draw_treasure_circles() -> void:
 		for pass_ink: Color in [_MARKER_OUTLINE, _TREASURE_INK]:
 			var width := 4.0 if pass_ink == _MARKER_OUTLINE else 2.0
 			draw_arc(at, radius, 0.0, TAU, 48, pass_ink, width, true)
+
+
+func _draw_war_zones() -> void:
+	for zone in war_zones:
+		var at := _to_screen(Vector2(zone.x, zone.y))
+		var radius := maxf(zone.z / _metres_per_pixel(), _PIN_RADIUS)
+		draw_circle(at, radius, Color(_WAR_ZONE_INK, 0.15))
+		for pass_ink: Color in [_MARKER_OUTLINE, _WAR_ZONE_INK]:
+			var width := 4.0 if pass_ink == _MARKER_OUTLINE else 2.0
+			draw_arc(at, radius, 0.0, TAU, 64, pass_ink, width, true)
 
 
 func _draw_pin() -> void:

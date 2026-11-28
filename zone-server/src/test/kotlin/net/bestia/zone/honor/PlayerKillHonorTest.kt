@@ -19,10 +19,12 @@ import kotlin.test.assertTrue
 /** Who pays for a kill between players, through the aggressor flag and the kill system together. */
 class PlayerKillHonorTest {
 
+  private val warZones = FakeWarZones()
+
   private val fixture = HonorFixture { f ->
     listOf(
       AggressorSystem(f.masters, f.aggression, f.statusEffects),
-      PlayerKillHonorSystem(f.service, f.masters, f.aggression, FactionRivalry()),
+      PlayerKillHonorSystem(f.service, f.masters, f.aggression, FactionRivalry(), warZones),
     )
   }
   private val world = fixture.world
@@ -168,6 +170,53 @@ class PlayerKillHonorTest {
     assertEquals(10, globalOf(attacker))
   }
 
+  @Test
+  fun `in a war zone even a rival far below is free to kill`() {
+    val weakRival = fixture.master(HERE + Vec3L(3, 0, 0), level = 1)
+    val strongAttacker = fixture.master(HERE + Vec3L(6, 0, 0), level = 11)
+    swear(strongAttacker, Faction.ETERNITY)
+    swear(weakRival, Faction.CHAOS)
+    warZones.coversAll = true
+    hit(strongAttacker, weakRival)
+    kill(strongAttacker, weakRival)
+
+    assertEquals(20, globalOf(strongAttacker))
+  }
+
+  @Test
+  fun `a war zone changes nothing for an unsworn victim`() {
+    swear(attacker, Faction.CHAOS)
+    warZones.coversAll = true
+    hit(attacker, victim)
+    kill(attacker, victim)
+
+    assertEquals(10, globalOf(attacker))
+  }
+
+  @Test
+  fun `a kill between rivals is reported where the victim fell, other kills are not`() {
+    val bystander = fixture.master(HERE + Vec3L(8, 0, 0))
+    swear(attacker, Faction.CHAOS)
+    swear(victim, Faction.ETERNITY)
+    hit(attacker, victim)
+    kill(attacker, victim)
+    hit(attacker, bystander)
+    kill(attacker, bystander)
+
+    assertEquals(listOf(HERE + Vec3L(5, 0, 0)), warZones.kills)
+  }
+
+  @Test
+  fun `a kill inside a ward opens no war zone`() {
+    swear(attacker, Faction.CHAOS)
+    swear(victim, Faction.ETERNITY)
+    fixture.statusEffects.applyEffect(world, victim, StatusEffectId.WARDED, level = 1)
+    hit(attacker, victim)
+    kill(attacker, victim)
+
+    assertTrue(warZones.kills.isEmpty())
+  }
+
   private fun hit(from: EntityId, to: EntityId) {
     world.update(to, { IncomingDamage() }) { it.add(10, from) }
     world.tick(0.1f)
@@ -186,6 +235,19 @@ class PlayerKillHonorTest {
 
   private fun globalOf(entity: EntityId): Int {
     return world.get(entity, Honor::class)!!.shownValue
+  }
+
+  private class FakeWarZones : WarZoneMap {
+    var coversAll = false
+    val kills = mutableListOf<Vec3L>()
+
+    override fun covers(at: Vec3L): Boolean {
+      return coversAll
+    }
+
+    override fun rivalKill(at: Vec3L) {
+      kills.add(at)
+    }
   }
 
   private companion object {

@@ -66,6 +66,8 @@ signal survey_minigame_opened(message: SurveyMinigameSMSG)
 signal sense_marks_received(message: SenseMarksSMSG)
 ## A GM's view of the mana field and the event director, or an empty one when the GM turned it off.
 signal gm_mana_layer_received(message: GmManaLayerSMSG)
+## The open war zones changed, or the master just entered the world.
+signal war_zones_received(message: WarZonesSMSG)
 signal scry_sight_received(message: ScrySightSMSG)
 ## Sense read a monster's values.
 signal monster_sensed(message: MonsterSenseSMSG)
@@ -1948,6 +1950,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		sense_marks_received.emit(message)
 	elif message is GmManaLayerSMSG:
 		gm_mana_layer_received.emit(message)
+	elif message is WarZonesSMSG:
+		war_zones_received.emit(message)
 	elif message is ScrySightSMSG:
 		scry_sight_received.emit(message)
 	elif message is MonsterSenseSMSG:

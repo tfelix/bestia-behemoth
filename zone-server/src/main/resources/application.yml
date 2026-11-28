@@ -93,6 +93,13 @@ faction:
   # Mana crystals the Novitiate of Eternity or Chaos asks for, and the days it has to be walked in.
   novitiate-offerings: 3
   novitiate-days: 30
+  # Rival kills close together open a war zone, where Order members fight without honor loss (pvp.md).
+  war-zone:
+    radius-metres: 1000
+    linger-minutes: 30
+    kills: 3
+    kill-window-minutes: 10
+    kill-area-metres: 300
 
 stronghold:
   min-awake-seeds: 4
