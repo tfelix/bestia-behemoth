@@ -1671,3 +1671,741 @@ recipes:
     station: CARVING_TABLE
     craftSeconds: 1.2
     baseSuccessChance: 0.5
+
+  # --- Alchemy, brewed from item level 10 to 115 -------------------------------------------------------
+  # Every input has craft-axes, so every brew is discovered. The curves are the forging ones: rank ceil(L / 10),
+  # chance 0.90 - max(0, L - 10) * 0.015 (below zero above L70, as forging does), 4 + 0.3 * L seconds. Alchemy and
+  # Alchemy Mastery lift the chance, and every item level above the brewer's reliable one costs 5%: CraftBonusService.
+
+  - id: 480
+    identifier: ALCHEMICAL_SALT
+    effect: PRODUCE
+    output: { item: alchemical_salt, amount: 2 }
+    inputs:
+      - { item: salt, amount: 2 }
+      - { item: charcoal, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 1 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 7.0
+    baseSuccessChance: 0.900
+
+  - id: 481
+    identifier: MEDICINE
+    effect: PRODUCE
+    output: { item: medicine, amount: 1 }
+    inputs:
+      - { item: medicinal_herb, amount: 2 }
+      - { item: honeycomb, amount: 1 }
+      - { item: empty_bottle, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 1 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 7.0
+    baseSuccessChance: 0.900
+
+  - id: 482
+    identifier: ANTIDOTE
+    effect: PRODUCE
+    output: { item: antidote, amount: 1 }
+    inputs:
+      - { item: medicinal_herb, amount: 1 }
+      - { item: venom_sac, amount: 1 }
+      - { item: empty_bottle, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 2 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 7.6
+    baseSuccessChance: 0.870
+
+  - id: 483
+    identifier: HERBAL_EXTRACT
+    effect: PRODUCE
+    output: { item: herbal_extract, amount: 1 }
+    inputs:
+      - { item: medicinal_herb, amount: 3 }
+      - { item: alchemical_salt, amount: 1 }
+      - { item: empty_bottle, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 2 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 8.5
+    baseSuccessChance: 0.825
+
+  - id: 484
+    identifier: VIGOR_DRAUGHT
+    effect: PRODUCE
+    output: { item: vigor_draught, amount: 1 }
+    inputs:
+      - { item: thornvine, amount: 2 }
+      - { item: apple, amount: 2 }
+      - { item: empty_bottle, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 2 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 10.0
+    baseSuccessChance: 0.750
+
+  - id: 485
+    identifier: WARMING_DRAUGHT
+    effect: PRODUCE
+    output: { item: warming_draught, amount: 1 }
+    inputs:
+      - { item: warm_stone, amount: 1 }
+      - { item: herbal_extract, amount: 1 }
+      - { item: empty_bottle, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 3 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 10.6
+    baseSuccessChance: 0.720
+
+  - id: 486
+    identifier: CATALYST
+    effect: PRODUCE
+    output: { item: catalyst, amount: 1 }
+    inputs:
+      - { item: alchemical_salt, amount: 2 }
+      - { item: mana_dust, amount: 2 }
+      - { item: spore_dust, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 3 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 11.5
+    baseSuccessChance: 0.675
+
+  - id: 487
+    identifier: SMELTING_FLUX
+    effect: PRODUCE
+    output: { item: smelting_flux, amount: 3 }
+    inputs:
+      - { item: alchemical_salt, amount: 2 }
+      - { item: bone_shard, amount: 2 }
+    skill: { skill: M_ALCHEMY, level: 3 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 11.5
+    baseSuccessChance: 0.675
+
+  - id: 488
+    identifier: BURN_SALVE
+    effect: PRODUCE
+    output: { item: burn_salve, amount: 1 }
+    inputs:
+      - { item: herbal_extract, amount: 1 }
+      - { item: resin, amount: 2 }
+      - { item: jelly, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 3 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 11.5
+    baseSuccessChance: 0.675
+
+  - id: 489
+    identifier: BLASTING_CHARGE
+    effect: PRODUCE
+    output: { item: blasting_charge, amount: 1 }
+    inputs:
+      - { item: charcoal, amount: 2 }
+      - { item: alchemical_salt, amount: 2 }
+      - { item: lamp_oil, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 3 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 13.0
+    baseSuccessChance: 0.600
+
+  - id: 490
+    identifier: MANA_TINCTURE
+    effect: PRODUCE
+    output: { item: mana_tincture, amount: 1 }
+    inputs:
+      - { item: mana_herb, amount: 2 }
+      - { item: mana_essence, amount: 1 }
+      - { item: empty_bottle, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 4 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 14.5
+    baseSuccessChance: 0.525
+
+  - id: 491
+    identifier: SWIFTNESS_POTION
+    effect: PRODUCE
+    output: { item: swiftness_potion, amount: 1 }
+    inputs:
+      - { item: feather, amount: 3 }
+      - { item: mana_tincture, amount: 1 }
+      - { item: empty_bottle, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 4 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 14.5
+    baseSuccessChance: 0.525
+
+  - id: 492
+    identifier: REGENERATION_DRAUGHT
+    effect: PRODUCE
+    output: { item: regeneration_draught, amount: 1 }
+    inputs:
+      - { item: herbal_extract, amount: 2 }
+      - { item: jelly, amount: 2 }
+      - { item: empty_bottle, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 4 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 16.0
+    baseSuccessChance: 0.450
+
+  - id: 493
+    identifier: CLARITY_DRAUGHT
+    effect: PRODUCE
+    output: { item: clarity_draught, amount: 1 }
+    inputs:
+      - { item: mana_herb, amount: 1 }
+      - { item: holy_water, amount: 1 }
+      - { item: spore_dust, amount: 1 }
+      - { item: empty_bottle, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 4 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 16.0
+    baseSuccessChance: 0.450
+
+  - id: 494
+    identifier: CRYSTAL_VIAL
+    effect: PRODUCE
+    output: { item: crystal_vial, amount: 2 }
+    inputs:
+      - { item: glass, amount: 3 }
+      - { item: aetherite_shard, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 5 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 17.5
+    baseSuccessChance: 0.375
+
+  - id: 495
+    identifier: ELIXIR_OF_MIGHT
+    effect: PRODUCE
+    output: { item: elixir_of_might, amount: 1 }
+    inputs:
+      - { item: horn, amount: 2 }
+      - { item: herbal_extract, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 5 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 17.5
+    baseSuccessChance: 0.375
+
+  - id: 496
+    identifier: ELIXIR_OF_FORTITUDE
+    effect: PRODUCE
+    output: { item: elixir_of_fortitude, amount: 1 }
+    inputs:
+      - { item: reptile_scale, amount: 2 }
+      - { item: herbal_extract, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 5 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 17.8
+    baseSuccessChance: 0.360
+
+  - id: 497
+    identifier: ELIXIR_OF_GRACE
+    effect: PRODUCE
+    output: { item: elixir_of_grace, amount: 1 }
+    inputs:
+      - { item: feather, amount: 3 }
+      - { item: glowcap, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 5 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 18.1
+    baseSuccessChance: 0.345
+
+  - id: 498
+    identifier: ELIXIR_OF_PRECISION
+    effect: PRODUCE
+    output: { item: elixir_of_precision, amount: 1 }
+    inputs:
+      - { item: lens, amount: 1 }
+      - { item: thornvine, amount: 2 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 5 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 18.4
+    baseSuccessChance: 0.330
+
+  - id: 499
+    identifier: ELIXIR_OF_INSIGHT
+    effect: PRODUCE
+    output: { item: elixir_of_insight, amount: 1 }
+    inputs:
+      - { item: mana_ink, amount: 1 }
+      - { item: mana_tincture, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 5 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 19.0
+    baseSuccessChance: 0.300
+
+  - id: 500
+    identifier: GREATER_HEALTH_POTION
+    effect: PRODUCE
+    output: { item: greater_health_potion, amount: 1 }
+    inputs:
+      - { item: herbal_extract, amount: 3 }
+      - { item: glowcap, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 5 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 19.0
+    baseSuccessChance: 0.300
+
+  - id: 501
+    identifier: GREATER_MANA_POTION
+    effect: PRODUCE
+    output: { item: greater_mana_potion, amount: 1 }
+    inputs:
+      - { item: mana_tincture, amount: 2 }
+      - { item: mana_herb, amount: 2 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 5 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 19.0
+    baseSuccessChance: 0.300
+
+  - id: 502
+    identifier: ELIXIR_OF_RESOLVE
+    effect: PRODUCE
+    output: { item: elixir_of_resolve, amount: 1 }
+    inputs:
+      - { item: cut_amethyst, amount: 1 }
+      - { item: holy_water, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 6 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 19.6
+    baseSuccessChance: 0.270
+
+  - id: 503
+    identifier: THAWING_TONIC
+    effect: PRODUCE
+    output: { item: thawing_tonic, amount: 1 }
+    inputs:
+      - { item: ember_core, amount: 1 }
+      - { item: herbal_extract, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 6 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 20.5
+    baseSuccessChance: 0.225
+
+  - id: 504
+    identifier: ALKAHEST
+    effect: PRODUCE
+    output: { item: alkahest, amount: 1 }
+    inputs:
+      - { item: quicksilver, amount: 1 }
+      - { item: alchemical_salt, amount: 2 }
+      - { item: catalyst, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 6 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 22.0
+    baseSuccessChance: 0.150
+
+  - id: 505
+    identifier: ENDURANCE_TONIC
+    effect: PRODUCE
+    output: { item: endurance_tonic, amount: 1 }
+    inputs:
+      - { item: thornvine, amount: 3 }
+      - { item: frost_herb, amount: 1 }
+      - { item: herbal_extract, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 6 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 22.0
+    baseSuccessChance: 0.150
+
+  - id: 506
+    identifier: COOLING_DRAUGHT
+    effect: PRODUCE
+    output: { item: cooling_draught, amount: 1 }
+    inputs:
+      - { item: frost_herb, amount: 2 }
+      - { item: alchemical_salt, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 6 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 22.0
+    baseSuccessChance: 0.150
+
+  - id: 507
+    identifier: REJUVENATION_POTION
+    effect: PRODUCE
+    output: { item: rejuvenation_potion, amount: 1 }
+    inputs:
+      - { item: herbal_extract, amount: 2 }
+      - { item: mana_tincture, amount: 2 }
+      - { item: coral, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 7 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 23.5
+    baseSuccessChance: 0.075
+
+  - id: 508
+    identifier: STONE_SOFTENER
+    effect: PRODUCE
+    output: { item: stone_softener, amount: 1 }
+    inputs:
+      - { item: quicksilver, amount: 1 }
+      - { item: holy_water, amount: 2 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 7 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 23.5
+    baseSuccessChance: 0.075
+
+  - id: 509
+    identifier: BARRIER_POTION
+    effect: PRODUCE
+    output: { item: barrier_potion, amount: 1 }
+    inputs:
+      - { item: earth_crystal, amount: 1 }
+      - { item: golden_carapace, amount: 1 }
+      - { item: alkahest, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 7 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 25.0
+    baseSuccessChance: 0.000
+
+  - id: 510
+    identifier: SUPERIOR_HEALTH_POTION
+    effect: PRODUCE
+    output: { item: superior_health_potion, amount: 1 }
+    inputs:
+      - { item: herbal_extract, amount: 4 }
+      - { item: frost_herb, amount: 2 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 8 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 26.5
+    baseSuccessChance: -0.075
+
+  - id: 511
+    identifier: SUPERIOR_MANA_POTION
+    effect: PRODUCE
+    output: { item: superior_mana_potion, amount: 1 }
+    inputs:
+      - { item: mana_tincture, amount: 3 }
+      - { item: frost_crystal, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 8 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 26.5
+    baseSuccessChance: -0.075
+
+  - id: 512
+    identifier: GREATER_ELIXIR_OF_PRECISION
+    effect: PRODUCE
+    output: { item: greater_elixir_of_precision, amount: 1 }
+    inputs:
+      - { item: storm_feather, amount: 2 }
+      - { item: cut_opal, amount: 1 }
+      - { item: alkahest, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 9 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 30.4
+    baseSuccessChance: -0.270
+
+  - id: 513
+    identifier: GREATER_ELIXIR_OF_MIGHT
+    effect: PRODUCE
+    output: { item: greater_elixir_of_might, amount: 1 }
+    inputs:
+      - { item: wyrm_bone, amount: 1 }
+      - { item: dragon_scale, amount: 1 }
+      - { item: alkahest, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 9 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 31.0
+    baseSuccessChance: -0.300
+
+  - id: 514
+    identifier: PANACEA
+    effect: PRODUCE
+    output: { item: panacea, amount: 1 }
+    inputs:
+      - { item: sun_herb, amount: 1 }
+      - { item: alkahest, amount: 1 }
+      - { item: holy_water, amount: 2 }
+      - { item: sea_pearl, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 9 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 31.0
+    baseSuccessChance: -0.300
+
+  - id: 515
+    identifier: GREATER_ELIXIR_OF_GRACE
+    effect: PRODUCE
+    output: { item: greater_elixir_of_grace, amount: 1 }
+    inputs:
+      - { item: moonscale, amount: 1 }
+      - { item: shadow_shard, amount: 2 }
+      - { item: alkahest, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 10 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 31.6
+    baseSuccessChance: -0.330
+
+  - id: 516
+    identifier: QUINTESSENCE
+    effect: PRODUCE
+    output: { item: quintessence, amount: 1 }
+    inputs:
+      - { item: pure_mana_essence, amount: 2 }
+      - { item: star_core, amount: 1 }
+      - { item: alkahest, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 10 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 32.5
+    baseSuccessChance: -0.375
+
+  - id: 517
+    identifier: SUPREME_HEALTH_POTION
+    effect: PRODUCE
+    output: { item: supreme_health_potion, amount: 1 }
+    inputs:
+      - { item: herbal_extract, amount: 4 }
+      - { item: sun_herb, amount: 2 }
+      - { item: quintessence, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 10 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 32.5
+    baseSuccessChance: -0.375
+
+  - id: 518
+    identifier: SUPREME_MANA_POTION
+    effect: PRODUCE
+    output: { item: supreme_mana_potion, amount: 1 }
+    inputs:
+      - { item: mana_tincture, amount: 3 }
+      - { item: star_core, amount: 1 }
+      - { item: quintessence, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 10 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 32.5
+    baseSuccessChance: -0.375
+
+  - id: 519
+    identifier: GREATER_ELIXIR_OF_INSIGHT
+    effect: PRODUCE
+    output: { item: greater_elixir_of_insight, amount: 1 }
+    inputs:
+      - { item: star_core, amount: 1 }
+      - { item: quintessence, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 10 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 32.5
+    baseSuccessChance: -0.375
+
+  - id: 520
+    identifier: GREATER_ELIXIR_OF_FORTITUDE
+    effect: PRODUCE
+    output: { item: greater_elixir_of_fortitude, amount: 1 }
+    inputs:
+      - { item: deepmaw, amount: 1 }
+      - { item: golden_carapace, amount: 2 }
+      - { item: alkahest, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 10 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 33.4
+    baseSuccessChance: -0.420
+
+  - id: 521
+    identifier: GREATER_ELIXIR_OF_RESOLVE
+    effect: PRODUCE
+    output: { item: greater_elixir_of_resolve, amount: 1 }
+    inputs:
+      - { item: ghost_herb, amount: 2 }
+      - { item: holy_water, amount: 2 }
+      - { item: quintessence, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 10 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 34.0
+    baseSuccessChance: -0.450
+
+  - id: 522
+    identifier: SLIM_SUPREME_HEALTH_POTION
+    effect: PRODUCE
+    output: { item: slim_supreme_health_potion, amount: 2 }
+    inputs:
+      - { item: supreme_health_potion, amount: 2 }
+      - { item: alkahest, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 10 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 34.0
+    baseSuccessChance: -0.450
+
+  - id: 523
+    identifier: SLIM_SUPREME_MANA_POTION
+    effect: PRODUCE
+    output: { item: slim_supreme_mana_potion, amount: 2 }
+    inputs:
+      - { item: supreme_mana_potion, amount: 2 }
+      - { item: alkahest, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 10 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 34.0
+    baseSuccessChance: -0.450
+
+  - id: 524
+    identifier: ELIXIR_OF_LIFE
+    effect: PRODUCE
+    output: { item: elixir_of_life, amount: 1 }
+    inputs:
+      - { item: ghost_herb, amount: 2 }
+      - { item: sun_herb, amount: 2 }
+      - { item: quintessence, amount: 1 }
+      - { item: abyssal_lanternfish, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 10 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 35.5
+    baseSuccessChance: -0.525
+
+  - id: 525
+    identifier: PHILOSOPHERS_DRAUGHT
+    effect: PRODUCE
+    output: { item: philosophers_draught, amount: 1 }
+    inputs:
+      - { item: philosophers_stone, amount: 1 }
+      - { item: quintessence, amount: 1 }
+      - { item: abyssal_lanternfish, amount: 1 }
+      - { item: crystal_vial, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 10 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 38.5
+    baseSuccessChance: -0.675
+
+  # --- Transmutation, the rarer matter ------------------------------------------------------------------
+
+  - id: 526
+    identifier: QUICKSILVER_TRANSMUTED
+    effect: PRODUCE
+    output: { item: quicksilver, amount: 1 }
+    inputs:
+      - { item: silver_ingot, amount: 1 }
+      - { item: mana_concentrate, amount: 1 }
+    skill: { skill: M_TRANSMUTATION, level: 6 }
+    station: TRANSMUTATION_WORKBENCH
+    craftSeconds: 22.0
+    baseSuccessChance: 0.150
+
+  - id: 527
+    identifier: ARCANE_FLUX
+    effect: PRODUCE
+    output: { item: arcane_flux, amount: 2 }
+    inputs:
+      - { item: smelting_flux, amount: 2 }
+      - { item: pure_mana_essence, amount: 1 }
+      - { item: quicksilver, amount: 1 }
+    skill: { skill: M_TRANSMUTATION, level: 8 }
+    station: TRANSMUTATION_WORKBENCH
+    craftSeconds: 26.5
+    baseSuccessChance: -0.075
+
+  - id: 528
+    identifier: PHILOSOPHERS_STONE
+    effect: PRODUCE
+    output: { item: philosophers_stone, amount: 1 }
+    inputs:
+      - { item: red_mana_crystal, amount: 2 }
+      - { item: quintessence, amount: 1 }
+      - { item: cut_diamond, amount: 1 }
+    skill: { skill: M_TRANSMUTATION, level: 10 }
+    station: TRANSMUTATION_WORKBENCH
+    craftSeconds: 37.0
+    baseSuccessChance: -0.600
+
+  # --- Fluxed smelting --------------------------------------------------------------------------------
+  # The same charge as the plain smelt plus an Alchemist's flux, a quarter more likely to come out whole. Starter
+  # recipes like the plain ones: ore has no craft-axes, so they could not be discovered.
+
+  - id: 529
+    identifier: IRON_INGOT_FLUXED
+    effect: PRODUCE
+    output: { item: iron_ingot, amount: 1 }
+    inputs:
+      - { item: iron_ore, amount: 2 }
+      - { item: coal, amount: 1 }
+      - { item: smelting_flux, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 1 }
+    station: FURNACE
+    craftSeconds: 10.0
+    baseSuccessChance: 0.45
+
+  - id: 530
+    identifier: SILVER_INGOT_FLUXED
+    effect: PRODUCE
+    output: { item: silver_ingot, amount: 1 }
+    inputs:
+      - { item: silver_ore, amount: 2 }
+      - { item: coal, amount: 1 }
+      - { item: smelting_flux, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 2 }
+    station: FURNACE
+    craftSeconds: 14.0
+    baseSuccessChance: 0.3
+
+  - id: 531
+    identifier: GOLD_BAR_FLUXED
+    effect: PRODUCE
+    output: { item: gold_bar, amount: 1 }
+    inputs:
+      - { item: gold_ore, amount: 2 }
+      - { item: coal, amount: 1 }
+      - { item: smelting_flux, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 1 }
+    station: FURNACE
+    craftSeconds: 14.0
+    baseSuccessChance: 0.15
+
+  - id: 532
+    identifier: PALLADIUM_INGOT_FLUXED
+    effect: PRODUCE
+    output: { item: palladium_ingot, amount: 1 }
+    inputs:
+      - { item: palladium_ore, amount: 2 }
+      - { item: coal, amount: 1 }
+      - { item: arcane_flux, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 3 }
+    station: FURNACE
+    craftSeconds: 18.0
+    baseSuccessChance: -0.05
+
+  - id: 533
+    identifier: MITHRIL_INGOT_FLUXED
+    effect: PRODUCE
+    output: { item: mithril_ingot, amount: 1 }
+    inputs:
+      - { item: mithril_ore, amount: 2 }
+      - { item: coal, amount: 1 }
+      - { item: arcane_flux, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 3 }
+    station: FURNACE
+    craftSeconds: 20.0
+    baseSuccessChance: -0.2
+
+  - id: 534
+    identifier: ADAMANTIUM_INGOT_FLUXED
+    effect: PRODUCE
+    output: { item: adamantium_ingot, amount: 1 }
+    inputs:
+      - { item: adamantium_ore, amount: 2 }
+      - { item: coal, amount: 1 }
+      - { item: arcane_flux, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 3 }
+    station: FURNACE
+    craftSeconds: 24.0
+    baseSuccessChance: -0.35

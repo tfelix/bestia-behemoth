@@ -1,5 +1,6 @@
 package net.bestia.zone.scenarios
 
+import net.bestia.zone.crafting.RecipeRegistry
 import net.bestia.zone.account.AccountFactory
 import net.bestia.zone.account.BodyType
 import net.bestia.zone.account.Face
@@ -79,6 +80,12 @@ class CarvingTableEtchingScenarios : BestiaNoSocketScenario(autoClientConnect = 
   private lateinit var etchings: EtchingJobs
 
   @Autowired
+  private lateinit var recipes: RecipeRegistry
+
+  /** By identifier: recipe ids are content and move when `recipes.yml` does. */
+  private val etchAmethyst: Long get() = recipes.ofIdentifier("ETCH_AMETHYST")!!.id
+
+  @Autowired
   private lateinit var jobs: EtchingJobRepository
 
   @Autowired
@@ -138,7 +145,7 @@ class CarvingTableEtchingScenarios : BestiaNoSocketScenario(autoClientConnect = 
     await { assertTrue(bestias.all { playerBestias.findByIdOrNull(it)!!.depositedAtStructureId == TABLE_ID }) }
 
     val before = Instant.now()
-    bestias.forEach { bestia -> world.modify(masterEntity()) { id -> etchings.start(this, id, TABLE_ID, ETCH_AMETHYST, bestia) } }
+    bestias.forEach { bestia -> world.modify(masterEntity()) { id -> etchings.start(this, id, TABLE_ID, etchAmethyst, bestia) } }
 
     await { assertEquals(2, jobs.findAllByStructureId(TABLE_ID).size) }
     val job = jobs.findByIdOrNull(bestias[0])!!
@@ -189,6 +196,5 @@ class CarvingTableEtchingScenarios : BestiaNoSocketScenario(autoClientConnect = 
     const val LOGIN_ACCOUNT_ID = 62L
     const val TABLE_ID = 9100L
     const val CUT_AMETHYST = 136L
-    const val ETCH_AMETHYST = 153L
   }
 }

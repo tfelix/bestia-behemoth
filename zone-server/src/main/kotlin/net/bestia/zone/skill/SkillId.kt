@@ -110,6 +110,11 @@ enum class SkillId {
   M_HERBALISM,
   M_HAGGLING,
 
+  // The Alchemist's crafts: read by net.bestia.zone.crafting.CraftBonusService for chance, reach and brewing time.
+  M_ALCHEMY,
+  M_TRANSMUTATION,
+  M_ALCHEMY_MASTERY,
+
   // Capture: their levels add to every catch roll in net.bestia.zone.capture.BestiaTrapSystem.
   M_TRAPPING,
   M_BEASTFRIEND,

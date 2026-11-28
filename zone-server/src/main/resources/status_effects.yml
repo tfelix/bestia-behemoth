@@ -1035,3 +1035,46 @@ statusEffects:
     isSyncedToClient: true
     dispellable: false
     script: NineTailsReady
+
+  # An Alchemist's elixirs: one attribute each, so the six stack; see AttributeElixir.
+  - id: 305
+    identifier: STRENGTH_ELIXIR
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: StrengthElixir
+
+  - id: 306
+    identifier: VITALITY_ELIXIR
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: VitalityElixir
+
+  - id: 307
+    identifier: INTELLIGENCE_ELIXIR
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: IntelligenceElixir
+
+  - id: 308
+    identifier: DEXTERITY_ELIXIR
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: DexterityElixir
+
+  - id: 309
+    identifier: AGILITY_ELIXIR
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: AgilityElixir
+
+  - id: 310
+    identifier: WILLPOWER_ELIXIR
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: WillpowerElixir

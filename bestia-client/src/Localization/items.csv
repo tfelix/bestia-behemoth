@@ -228,7 +228,7 @@ Sets a man on his feet again, which is not quite the same as healing him."
 CATALYST,Catalyst
 CATALYST_DESC,"A shard of violet crystal clasped in brass, lit faintly from within.
 
-Spent by work that would otherwise go wrong."
+Spent by work that would otherwise go wrong. An Alchemist brews it, and binds alkahest with it."
 BOOK,Book
 BOOK_DESC,"A leather-bound volume with brass corners and a clasp.
 
@@ -1669,3 +1669,183 @@ CORRUPTED_SHARD,corrupted shard
 CORRUPTED_SHARD_DESC,"A grey, oily splinter of crystal that still crawls faintly under the fingers.
 
 The land around the crystal it came from had already begun to rot."
+ALCHEMICAL_SALT,Alchemical Salt
+ALCHEMICAL_SALT_DESC,"Coarse white crystals, salt and charcoal boiled down together and dried in the pan.
+
+The base of half the work in an Alchemy Laboratory."
+HERBAL_EXTRACT,Herbal Extract
+HERBAL_EXTRACT_DESC,"A bottle of green, bitter liquor drawn from medicinal herbs.
+
+What every healing brew above the simplest starts from."
+SMELTING_FLUX,Smelting Flux
+SMELTING_FLUX_DESC,"A grey powder of salts and ground bone.
+
+Thrown into a furnace with the ore, it draws the dross out of the melt, so iron, silver and gold smelt more surely."
+MANA_TINCTURE,Mana Tincture
+MANA_TINCTURE_DESC,"Mana herb steeped with a pinch of essence until the liquid glows a faint blue.
+
+The base of every mana brew above the simplest."
+CRYSTAL_VIAL,Crystal Vial
+CRYSTAL_VIAL_DESC,"A slender vial of glass clouded with aetherite.
+
+A plain bottle cannot hold the stronger brews; this can."
+ALKAHEST,Alkahest
+ALKAHEST_DESC,"The universal solvent: quicksilver and salts bound by a catalyst. It eats through cork, so it is kept in crystal.
+
+What lets an Alchemist dissolve the hardest reagents into a brew."
+ARCANE_FLUX,Arcane Flux
+ARCANE_FLUX_DESC,"Smelting flux transmuted with quicksilver and pure mana into a glittering violet sand.
+
+The only flux that makes palladium, mithril and adamantium give up their dross."
+QUINTESSENCE,Quintessence
+QUINTESSENCE_DESC,"A vial of something that is neither liquid nor light, distilled from pure mana and a fallen star.
+
+The fifth element, the heart of the greatest brews."
+PHILOSOPHERS_STONE,Philosopher's Stone
+PHILOSOPHERS_STONE_DESC,"A small red stone, heavier than it looks and warm to the touch.
+
+The last work of Transmutation. Only the Philosopher's Draught is worthy of it."
+ANTIDOTE,Antidote
+ANTIDOTE_DESC,"A bitter draught brewed against venom.
+
+Cures poison and heals a little health."
+VIGOR_DRAUGHT,Vigor Draught
+VIGOR_DRAUGHT_DESC,"Thornvine and apple, sharp enough to make the eyes water.
+
+Restores a good deal of stamina."
+WARMING_DRAUGHT,Warming Draught
+WARMING_DRAUGHT_DESC,"A draught steeped over a warm stone. It burns pleasantly all the way down.
+
+Keeps the cold out for a while."
+BURN_SALVE,Burn Salve
+BURN_SALVE_DESC,"A sticky, cooling salve of resin and herbal extract.
+
+Puts out a burning and heals some health."
+SWIFTNESS_POTION,Swiftness Potion
+SWIFTNESS_POTION_DESC,"A light, fizzing potion that smells of feathers and rain.
+
+The drinker runs faster for a short while."
+REGENERATION_DRAUGHT,Regeneration Draught
+REGENERATION_DRAUGHT_DESC,"A thick green draught that keeps working after it is swallowed.
+
+Heals some health at once and more over the next few seconds."
+CLARITY_DRAUGHT,Clarity Draught
+CLARITY_DRAUGHT_DESC,"Holy water clouded with mana herb and spores.
+
+Clears blindness and confusion."
+ELIXIR_OF_MIGHT,Elixir of Might
+ELIXIR_OF_MIGHT_DESC,"A dark red elixir with a horn ground into it.
+
+Raises STR for ten minutes."
+ELIXIR_OF_FORTITUDE,Elixir of Fortitude
+ELIXIR_OF_FORTITUDE_DESC,"A thick, earthy elixir in which scales were dissolved.
+
+Raises VIT for ten minutes."
+ELIXIR_OF_GRACE,Elixir of Grace
+ELIXIR_OF_GRACE_DESC,"A pale elixir, light as a feather and faintly glowing.
+
+Raises AGI for ten minutes."
+ELIXIR_OF_PRECISION,Elixir of Precision
+ELIXIR_OF_PRECISION_DESC,"A clear elixir brewed through a lens. Everything looks sharper after it.
+
+Raises DEX for ten minutes."
+ELIXIR_OF_INSIGHT,Elixir of Insight
+ELIXIR_OF_INSIGHT_DESC,"An inky blue elixir that tastes of old paper.
+
+Raises INT for ten minutes."
+GREATER_HEALTH_POTION,Greater Health Potion
+GREATER_HEALTH_POTION_DESC,"A deep red potion in a crystal vial.
+
+Heals a great amount of health."
+GREATER_MANA_POTION,Greater Mana Potion
+GREATER_MANA_POTION_DESC,"A deep blue potion in a crystal vial.
+
+Restores a great amount of mana."
+ELIXIR_OF_RESOLVE,Elixir of Resolve
+ELIXIR_OF_RESOLVE_DESC,"Holy water stirred over amethyst until it turns violet.
+
+Raises WIL for ten minutes."
+THAWING_TONIC,Thawing Tonic
+THAWING_TONIC_DESC,"A tonic with an ember core dissolved in it. It steams in the cold.
+
+Thaws a frozen or slowed body and keeps the cold out for a while."
+ENDURANCE_TONIC,Endurance Tonic
+ENDURANCE_TONIC_DESC,"A bracing, icy tonic for long marches.
+
+Restores a great deal of stamina and some health."
+COOLING_DRAUGHT,Cooling Draught
+COOLING_DRAUGHT_DESC,"Frost herb and salt, cold enough to numb the lips.
+
+Keeps the heat out for a while."
+REJUVENATION_POTION,Rejuvenation Potion
+REJUVENATION_POTION_DESC,"A potion in two colours that do not quite mix.
+
+Heals a great amount of health and restores as much mana."
+STONE_SOFTENER,Stone Softener
+STONE_SOFTENER_DESC,"Quicksilver and holy water, heavy and restless in the vial.
+
+Turns stone back into flesh. Best thrown, since the petrified cannot drink."
+BARRIER_POTION,Barrier Potion
+BARRIER_POTION_DESC,"A potion that leaves a shimmering film on the skin of whoever drinks it.
+
+Soaks up the next few blows."
+SUPERIOR_HEALTH_POTION,Superior Health Potion
+SUPERIOR_HEALTH_POTION_DESC,"A brilliant red potion, cold from the frost herb in it.
+
+Heals a huge amount of health."
+SUPERIOR_MANA_POTION,Superior Mana Potion
+SUPERIOR_MANA_POTION_DESC,"A brilliant blue potion with a frost crystal dissolved in it.
+
+Restores a huge amount of mana."
+GREATER_ELIXIR_OF_PRECISION,Greater Elixir of Precision
+GREATER_ELIXIR_OF_PRECISION_DESC,"A storm-grey elixir with an opal's fire in it.
+
+Raises DEX a great deal for ten minutes."
+GREATER_ELIXIR_OF_MIGHT,Greater Elixir of Might
+GREATER_ELIXIR_OF_MIGHT_DESC,"Wyrm bone and dragon scale, dissolved in alkahest.
+
+Raises STR a great deal for ten minutes."
+PANACEA,Panacea
+PANACEA_DESC,"A golden potion said to cure everything but death.
+
+Washes out poison, bleeding, burning, sickness, blindness, confusion, petrification, frost, slowing, crippling, weakness, withering, silence, mana seal and corrosion."
+GREATER_ELIXIR_OF_GRACE,Greater Elixir of Grace
+GREATER_ELIXIR_OF_GRACE_DESC,"An elixir as dark as a shadow, with a moonscale's shimmer in it.
+
+Raises AGI a great deal for ten minutes."
+GREATER_ELIXIR_OF_INSIGHT,Greater Elixir of Insight
+GREATER_ELIXIR_OF_INSIGHT_DESC,"Starlight in a vial. Thoughts come quick and clear after it.
+
+Raises INT a great deal for ten minutes."
+SUPREME_HEALTH_POTION,Supreme Health Potion
+SUPREME_HEALTH_POTION_DESC,"A potion of liquid sunlight, red at the heart.
+
+Heals an enormous amount of health."
+SUPREME_MANA_POTION,Supreme Mana Potion
+SUPREME_MANA_POTION_DESC,"A potion as blue as a night sky, with a star dissolved in it.
+
+Restores an enormous amount of mana."
+GREATER_ELIXIR_OF_FORTITUDE,Greater Elixir of Fortitude
+GREATER_ELIXIR_OF_FORTITUDE_DESC,"A heavy elixir brewed from a deepmaw and golden carapace.
+
+Raises VIT a great deal for ten minutes."
+GREATER_ELIXIR_OF_RESOLVE,Greater Elixir of Resolve
+GREATER_ELIXIR_OF_RESOLVE_DESC,"Ghost herb in holy water: it whispers when shaken.
+
+Raises WIL a great deal for ten minutes."
+SLIM_SUPREME_HEALTH_POTION,Slim Supreme Health Potion
+SLIM_SUPREME_HEALTH_POTION_DESC,"A supreme health potion condensed with alkahest into a vial no bigger than a finger.
+
+Heals an enormous amount of health, and weighs next to nothing."
+SLIM_SUPREME_MANA_POTION,Slim Supreme Mana Potion
+SLIM_SUPREME_MANA_POTION_DESC,"A supreme mana potion condensed with alkahest into a vial no bigger than a finger.
+
+Restores an enormous amount of mana, and weighs next to nothing."
+ELIXIR_OF_LIFE,Elixir of Life
+ELIXIR_OF_LIFE_DESC,"The Alchemist's great work: ghost herb, sun herb and the light of the deep sea, bound by quintessence.
+
+Heals an enormous amount of health, restores mana and stamina, and closes poison and wounds."
+PHILOSOPHERS_DRAUGHT,Philosopher's Draught
+PHILOSOPHERS_DRAUGHT_DESC,"A draught in which a philosopher's stone was dissolved. It tastes of nothing at all.
+
+Raises every attribute a great deal for ten minutes."

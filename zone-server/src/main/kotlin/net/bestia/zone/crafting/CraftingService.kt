@@ -235,7 +235,7 @@ class CraftingService(
     val known = crafter.skills
     val accountId = world.get(workerId, Account::class)?.accountId
     val masterId = crafter.master.masterId
-    val chance = bonuses.successChance(known, recipe, attributesOf(world, workerId))
+    val chance = bonuses.successChance(known, recipe, attributesOf(world, workerId), itemLevel = outputLevelOf(recipe) ?: 0)
 
     if (random.nextFloat() <= chance) {
       val provenance = ItemProvenance(crafterName = crafter.master.name, worldName = worldService.record.name)
@@ -365,7 +365,7 @@ class CraftingService(
     val inputs = required(recipe)
     val taken = takeInputs(inventory, inputs) ?: return refuse(accountId, OpError.CRAFT_MISSING_MATERIALS)
 
-    val chance = bonuses.successChance(known, recipe, attributesOf(world, entityId))
+    val chance = bonuses.successChance(known, recipe, attributesOf(world, entityId), itemLevel = outputLevelOf(recipe) ?: 0)
     val succeeded = random.nextFloat() <= chance
     val roll = if (succeeded) rollOutput(recipe, known, crafting.rollChanceBonus) else null
     val provenance = ItemProvenance(crafterName = crafter.master.name, worldName = worldService.record.name)
@@ -655,7 +655,7 @@ class CraftingService(
         held = inventory?.let { heldAmount(it, input.itemId) } ?: 0
       )
     },
-    successPermille = (bonuses.successChance(known, recipe, attributes) * 1000).roundToInt(),
+    successPermille = (bonuses.successChance(known, recipe, attributes, itemLevel = outputLevelOf(recipe) ?: 0) * 1000).roundToInt(),
     craftMillis = (bonuses.craftSeconds(known, recipe) * 1000).roundToInt(),
     reliableBestiaLevel = if (recipe.etches) bonuses.reliableBestiaLevel(known) else 0,
     point = blueprintPoints.pointOf(recipe.id)

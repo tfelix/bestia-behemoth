@@ -2168,7 +2168,8 @@ skills:
     cooldown: 1
     description: |
       Throws a potion from the bag onto an ally up to 7 tiles away, so it works as if the ally had
-      drunk it. A Small Health Potion, a Small Mana Potion or Medicine can be thrown. Cooldown 1s.
+      drunk it. Any health, mana or stamina potion can be thrown, and so can the cures: an Antidote, a
+      Panacea, a Stone Softener. Buffs and elixirs cannot. Cooldown 1s.
 
       `+10%/lv` health, mana and stamina from the thrown potion
 

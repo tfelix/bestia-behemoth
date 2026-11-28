@@ -3,6 +3,7 @@ package net.bestia.zone.item.script
 import com.tngtech.archunit.core.importer.ClassFileImporter
 import com.tngtech.archunit.core.importer.ImportOption
 import io.mockk.mockk
+import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.message.OutMessageProcessor
 import java.io.File
 import java.lang.reflect.Modifier
@@ -29,7 +30,10 @@ class ClientPotionsTest {
       .filter { RestorativeScript::class.java.isAssignableFrom(it) && !Modifier.isAbstract(it.modifiers) }
       .map { type ->
         val constructor = type.constructors.single()
-        constructor.newInstance(*Array(constructor.parameterCount) { messages }) as RestorativeScript
+        val arguments = constructor.parameterTypes.map { type ->
+          if (type == OutMessageProcessor::class.java) messages else mockk<StatusEffectService>(relaxed = true)
+        }
+        constructor.newInstance(*arguments.toTypedArray()) as RestorativeScript
       }
       .filter { it.isPotion }
       .map { it.itemId }

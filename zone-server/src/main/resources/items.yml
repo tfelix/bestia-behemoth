@@ -744,8 +744,7 @@ items:
   # deliberate. A log at 900 means two of them and nothing else, which is what makes a carpenter's
   # supply a haulage problem rather than a formality.
 
-  # Behind every general store counter, whatever else the town does. `MerchantStock` gives a retail
-  # trade the whole commodity list, so these are the goods a player can count on finding anywhere.
+  # Brewed by an Alchemist from mana herb. No shop sells potions yet: `MerchantStock` only stocks commodities.
   - id: 49
     item-db-name: small_mana_potion
     base-level: 3
@@ -1145,10 +1144,11 @@ items:
     weight: 15
     type: ETC
     material: CRYSTAL
+    craft-axes: { STATE: 0.9, INTEGRITY: 0.2, HEFT: -0.3, ARCANE: 0.7, COMPLEXITY: 0.7 }
     description: |
       A shard of violet crystal clasped in brass, lit faintly from within.
 
-      Spent by work that would otherwise go wrong.
+      Spent by work that would otherwise go wrong. An Alchemist brews it, and binds alkahest with it.
 
   - id: 80
     item-db-name: book
@@ -1406,6 +1406,7 @@ items:
     weight: 30
     type: ETC
     material: FOOD
+    craft-axes: { STATE: -0.2, INTEGRITY: -0.6, HEFT: -0.6, VITALITY: 0.7, COMPLEXITY: 0.4 }
     description: |
       A slab of wax comb, still dripping with honey.
 
@@ -1425,6 +1426,7 @@ items:
     weight: 5
     type: ETC
     material: PLANT
+    craft-axes: { STATE: 0.2, INTEGRITY: -0.9, HEFT: -0.9, VITALITY: -0.4, ARCANE: 0.3 }
     description: |
       A pinch of fine spores that makes the nose itch.
 
@@ -1828,7 +1830,7 @@ items:
 
       It burns the undead and anoints a weapon with the holy element.
 
-  # The first poison an Alchemist can brew. Enchant Poison works it into a blade; stronger poisons follow later.
+  # Mixed at a workbench with no skill at all, so a warrior with Enchant Poison needs no Alchemist for it.
   - id: 130
     item-db-name: basic_poison
     base-level: 5
@@ -2555,6 +2557,7 @@ items:
     weight: 300
     type: ETC
     material: FOOD
+    craft-axes: { STATE: 0.6, INTEGRITY: 0.4, HEFT: -0.4, EDGE: 0.3, VITALITY: 0.2, ARCANE: 0.6 }
     description: |
       A slim fish whose pale scales glow faintly at night. Alchemists grind them for their brews.
 
@@ -2564,6 +2567,7 @@ items:
     weight: 900
     type: ETC
     material: FOOD
+    craft-axes: { STATE: 0.1, INTEGRITY: 0.5, HEFT: 0.6, EDGE: 0.4, VITALITY: -0.3, ARCANE: 0.2 }
     description: A dark fish that is mostly mouth. It rarely leaves the cold water at the bottom.
 
   - id: 189
@@ -2572,6 +2576,7 @@ items:
     weight: 400
     type: ETC
     material: FOOD
+    craft-axes: { STATE: -0.1, INTEGRITY: 0.1, HEFT: 0.2, VITALITY: 0.3, ARCANE: 0.9, COMPLEXITY: 0.5 }
     description: A fish with a little light hanging over its head. Nobody knows how deep it lives.
 
   - id: 190
@@ -2700,7 +2705,7 @@ items:
 
       Needs both hands and arrows in the quiver.
 
-  # What Blasting burns. Brewed with Alchemy once that recipe exists; until then the GM item command hands it out.
+  # What Blasting burns. Brewed with Alchemy from charcoal, alchemical salt and lamp oil.
   - id: 202
     item-db-name: blasting_charge
     base-level: 30
@@ -11982,3 +11987,548 @@ items:
       A grey, oily splinter of crystal that still crawls faintly under the fingers.
 
       The land around the crystal it came from had already begun to rot.
+
+  # --- Alchemy: reagents, forging fluxes, potions, cures and elixirs ---------------------------------
+  # Brewed at an Alchemy Laboratory (the fluxes and the stone at a Transmutation Workbench), see recipes.yml.
+
+  - id: 648
+    item-db-name: alchemical_salt
+    base-level: 10
+    weight: 5
+    type: ETC
+    material: STONE
+    craft-axes: { STATE: 0.7, INTEGRITY: -0.6, HEFT: -0.5, EDGE: 0.2, VITALITY: 0.1, COMPLEXITY: 0.3 }
+    description: |
+      Coarse white crystals, salt and charcoal boiled down together and dried in the pan.
+
+      The base of half the work in an Alchemy Laboratory.
+
+  - id: 649
+    item-db-name: herbal_extract
+    base-level: 15
+    weight: 15
+    type: ETC
+    material: GLASS
+    craft-axes: { STATE: -0.8, INTEGRITY: -0.4, HEFT: -0.5, VITALITY: 0.8, COMPLEXITY: 0.3 }
+    description: |
+      A bottle of green, bitter liquor drawn from medicinal herbs.
+
+      What every healing brew above the simplest starts from.
+
+  - id: 650
+    item-db-name: smelting_flux
+    base-level: 25
+    weight: 10
+    type: ETC
+    material: STONE
+    craft-axes: { STATE: 0.5, INTEGRITY: -0.5, HEFT: -0.1, EDGE: -0.2, ARCANE: -0.2, COMPLEXITY: 0.4 }
+    description: |
+      A grey powder of salts and ground bone.
+
+      Thrown into a furnace with the ore, it draws the dross out of the melt, so iron, silver and gold smelt more surely.
+
+  - id: 651
+    item-db-name: mana_tincture
+    base-level: 35
+    weight: 15
+    type: ETC
+    material: GLASS
+    craft-axes: { STATE: -0.8, INTEGRITY: -0.4, HEFT: -0.5, VITALITY: 0.3, ARCANE: 0.7, COMPLEXITY: 0.3 }
+    description: |
+      Mana herb steeped with a pinch of essence until the liquid glows a faint blue.
+
+      The base of every mana brew above the simplest.
+
+  - id: 652
+    item-db-name: crystal_vial
+    base-level: 45
+    weight: 8
+    type: ETC
+    material: GLASS
+    craft-axes: { STATE: 0.8, INTEGRITY: -0.1, HEFT: -0.4, ARCANE: 0.3, COMPLEXITY: 0.6 }
+    description: |
+      A slender vial of glass clouded with aetherite.
+
+      A plain bottle cannot hold the stronger brews; this can.
+
+  - id: 653
+    item-db-name: alkahest
+    base-level: 60
+    weight: 20
+    type: ETC
+    material: GLASS
+    craft-axes: { STATE: -0.9, INTEGRITY: -0.2, HEFT: -0.2, EDGE: 0.5, VITALITY: -0.3, ARCANE: 0.4, COMPLEXITY: 0.6 }
+    description: |
+      The universal solvent: quicksilver and salts bound by a catalyst. It eats through cork, so it is kept in crystal.
+
+      What lets an Alchemist dissolve the hardest reagents into a brew.
+
+  - id: 654
+    item-db-name: arcane_flux
+    base-level: 75
+    weight: 10
+    type: ETC
+    material: CRYSTAL
+    craft-axes: { STATE: 0.3, INTEGRITY: -0.4, HEFT: -0.2, EDGE: -0.1, ARCANE: 0.8, COMPLEXITY: 0.5 }
+    description: |
+      Smelting flux transmuted with quicksilver and pure mana into a glittering violet sand.
+
+      The only flux that makes palladium, mithril and adamantium give up their dross.
+
+  - id: 655
+    item-db-name: quintessence
+    base-level: 95
+    weight: 10
+    type: ETC
+    material: GLASS
+    craft-axes: { STATE: -0.6, HEFT: -0.9, VITALITY: 0.5, ARCANE: 1.0, COMPLEXITY: 0.8 }
+    description: |
+      A vial of something that is neither liquid nor light, distilled from pure mana and a fallen star.
+
+      The fifth element, the heart of the greatest brews.
+
+  - id: 656
+    item-db-name: philosophers_stone
+    base-level: 110
+    weight: 20
+    type: ETC
+    material: CRYSTAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.9, HEFT: 0.4, VITALITY: 0.6, ARCANE: 1.0, COMPLEXITY: 1.0 }
+    description: |
+      A small red stone, heavier than it looks and warm to the touch.
+
+      The last work of Transmutation. Only the Philosopher's Draught is worthy of it.
+
+  - id: 657
+    item-db-name: antidote
+    base-level: 12
+    weight: 20
+    type: USABLE
+    material: GLASS
+    script: AntidoteScript
+    description: |
+      A bitter draught brewed against venom.
+
+      Cures poison and heals a little health.
+
+  - id: 658
+    item-db-name: vigor_draught
+    base-level: 20
+    weight: 25
+    type: USABLE
+    material: GLASS
+    script: VigorDraughtScript
+    description: |
+      Thornvine and apple, sharp enough to make the eyes water.
+
+      Restores a good deal of stamina.
+
+  - id: 659
+    item-db-name: warming_draught
+    base-level: 22
+    weight: 25
+    type: USABLE
+    material: GLASS
+    script: WarmingDraughtScript
+    description: |
+      A draught steeped over a warm stone. It burns pleasantly all the way down.
+
+      Keeps the cold out for a while.
+
+  - id: 660
+    item-db-name: burn_salve
+    base-level: 25
+    weight: 15
+    type: USABLE
+    material: PLANT
+    script: BurnSalveScript
+    description: |
+      A sticky, cooling salve of resin and herbal extract.
+
+      Puts out a burning and heals some health.
+
+  - id: 661
+    item-db-name: swiftness_potion
+    base-level: 35
+    weight: 30
+    type: USABLE
+    material: GLASS
+    script: SwiftnessPotionScript
+    description: |
+      A light, fizzing potion that smells of feathers and rain.
+
+      The drinker runs faster for a short while.
+
+  - id: 662
+    item-db-name: regeneration_draught
+    base-level: 40
+    weight: 30
+    type: USABLE
+    material: GLASS
+    script: RegenerationDraughtScript
+    description: |
+      A thick green draught that keeps working after it is swallowed.
+
+      Heals some health at once and more over the next few seconds.
+
+  - id: 663
+    item-db-name: clarity_draught
+    base-level: 40
+    weight: 25
+    type: USABLE
+    material: GLASS
+    script: ClarityDraughtScript
+    description: |
+      Holy water clouded with mana herb and spores.
+
+      Clears blindness and confusion.
+
+  - id: 664
+    item-db-name: elixir_of_might
+    base-level: 45
+    weight: 30
+    type: USABLE
+    material: GLASS
+    script: ElixirOfMightScript
+    description: |
+      A dark red elixir with a horn ground into it.
+
+      Raises STR for ten minutes.
+
+  - id: 665
+    item-db-name: elixir_of_fortitude
+    base-level: 46
+    weight: 30
+    type: USABLE
+    material: GLASS
+    script: ElixirOfFortitudeScript
+    description: |
+      A thick, earthy elixir in which scales were dissolved.
+
+      Raises VIT for ten minutes.
+
+  - id: 666
+    item-db-name: elixir_of_grace
+    base-level: 47
+    weight: 30
+    type: USABLE
+    material: GLASS
+    script: ElixirOfGraceScript
+    description: |
+      A pale elixir, light as a feather and faintly glowing.
+
+      Raises AGI for ten minutes.
+
+  - id: 667
+    item-db-name: elixir_of_precision
+    base-level: 48
+    weight: 30
+    type: USABLE
+    material: GLASS
+    script: ElixirOfPrecisionScript
+    description: |
+      A clear elixir brewed through a lens. Everything looks sharper after it.
+
+      Raises DEX for ten minutes.
+
+  - id: 668
+    item-db-name: elixir_of_insight
+    base-level: 50
+    weight: 30
+    type: USABLE
+    material: GLASS
+    script: ElixirOfInsightScript
+    description: |
+      An inky blue elixir that tastes of old paper.
+
+      Raises INT for ten minutes.
+
+  - id: 669
+    item-db-name: greater_health_potion
+    base-level: 50
+    weight: 45
+    type: USABLE
+    material: GLASS
+    script: GreaterHealthPotionScript
+    description: |
+      A deep red potion in a crystal vial.
+
+      Heals a great amount of health.
+
+  - id: 670
+    item-db-name: greater_mana_potion
+    base-level: 50
+    weight: 45
+    type: USABLE
+    material: GLASS
+    script: GreaterManaPotionScript
+    description: |
+      A deep blue potion in a crystal vial.
+
+      Restores a great amount of mana.
+
+  - id: 671
+    item-db-name: elixir_of_resolve
+    base-level: 52
+    weight: 30
+    type: USABLE
+    material: GLASS
+    script: ElixirOfResolveScript
+    description: |
+      Holy water stirred over amethyst until it turns violet.
+
+      Raises WIL for ten minutes.
+
+  - id: 672
+    item-db-name: thawing_tonic
+    base-level: 55
+    weight: 30
+    type: USABLE
+    material: GLASS
+    script: ThawingTonicScript
+    description: |
+      A tonic with an ember core dissolved in it. It steams in the cold.
+
+      Thaws a frozen or slowed body and keeps the cold out for a while.
+
+  - id: 673
+    item-db-name: endurance_tonic
+    base-level: 60
+    weight: 35
+    type: USABLE
+    material: GLASS
+    script: EnduranceTonicScript
+    description: |
+      A bracing, icy tonic for long marches.
+
+      Restores a great deal of stamina and some health.
+
+  - id: 674
+    item-db-name: cooling_draught
+    base-level: 60
+    weight: 30
+    type: USABLE
+    material: GLASS
+    script: CoolingDraughtScript
+    description: |
+      Frost herb and salt, cold enough to numb the lips.
+
+      Keeps the heat out for a while.
+
+  - id: 675
+    item-db-name: rejuvenation_potion
+    base-level: 65
+    weight: 45
+    type: USABLE
+    material: GLASS
+    script: RejuvenationPotionScript
+    description: |
+      A potion in two colours that do not quite mix.
+
+      Heals a great amount of health and restores as much mana.
+
+  - id: 676
+    item-db-name: stone_softener
+    base-level: 65
+    weight: 30
+    type: USABLE
+    material: GLASS
+    script: StoneSoftenerScript
+    description: |
+      Quicksilver and holy water, heavy and restless in the vial.
+
+      Turns stone back into flesh. Best thrown, since the petrified cannot drink.
+
+  - id: 677
+    item-db-name: barrier_potion
+    base-level: 70
+    weight: 35
+    type: USABLE
+    material: GLASS
+    script: BarrierPotionScript
+    description: |
+      A potion that leaves a shimmering film on the skin of whoever drinks it.
+
+      Soaks up the next few blows.
+
+  - id: 678
+    item-db-name: superior_health_potion
+    base-level: 75
+    weight: 50
+    type: USABLE
+    material: GLASS
+    script: SuperiorHealthPotionScript
+    description: |
+      A brilliant red potion, cold from the frost herb in it.
+
+      Heals a huge amount of health.
+
+  - id: 679
+    item-db-name: superior_mana_potion
+    base-level: 75
+    weight: 50
+    type: USABLE
+    material: GLASS
+    script: SuperiorManaPotionScript
+    description: |
+      A brilliant blue potion with a frost crystal dissolved in it.
+
+      Restores a huge amount of mana.
+
+  - id: 680
+    item-db-name: greater_elixir_of_precision
+    base-level: 88
+    weight: 30
+    type: USABLE
+    material: GLASS
+    script: GreaterElixirOfPrecisionScript
+    description: |
+      A storm-grey elixir with an opal's fire in it.
+
+      Raises DEX a great deal for ten minutes.
+
+  - id: 681
+    item-db-name: greater_elixir_of_might
+    base-level: 90
+    weight: 30
+    type: USABLE
+    material: GLASS
+    script: GreaterElixirOfMightScript
+    description: |
+      Wyrm bone and dragon scale, dissolved in alkahest.
+
+      Raises STR a great deal for ten minutes.
+
+  - id: 682
+    item-db-name: panacea
+    base-level: 90
+    weight: 30
+    type: USABLE
+    material: GLASS
+    script: PanaceaScript
+    description: |
+      A golden potion said to cure everything but death.
+
+      Washes out poison, bleeding, burning, sickness, blindness, confusion, petrification, frost, slowing, crippling, weakness, withering, silence, mana seal and corrosion.
+
+  - id: 683
+    item-db-name: greater_elixir_of_grace
+    base-level: 92
+    weight: 30
+    type: USABLE
+    material: GLASS
+    script: GreaterElixirOfGraceScript
+    description: |
+      An elixir as dark as a shadow, with a moonscale's shimmer in it.
+
+      Raises AGI a great deal for ten minutes.
+
+  - id: 684
+    item-db-name: greater_elixir_of_insight
+    base-level: 95
+    weight: 30
+    type: USABLE
+    material: GLASS
+    script: GreaterElixirOfInsightScript
+    description: |
+      Starlight in a vial. Thoughts come quick and clear after it.
+
+      Raises INT a great deal for ten minutes.
+
+  - id: 685
+    item-db-name: supreme_health_potion
+    base-level: 95
+    weight: 55
+    type: USABLE
+    material: GLASS
+    craft-axes: { STATE: -0.7, INTEGRITY: -0.5, HEFT: -0.3, VITALITY: 1.0, ARCANE: 0.2, COMPLEXITY: 0.5 }
+    script: SupremeHealthPotionScript
+    description: |
+      A potion of liquid sunlight, red at the heart.
+
+      Heals an enormous amount of health.
+
+  - id: 686
+    item-db-name: supreme_mana_potion
+    base-level: 95
+    weight: 55
+    type: USABLE
+    material: GLASS
+    craft-axes: { STATE: -0.7, INTEGRITY: -0.5, HEFT: -0.3, VITALITY: 0.4, ARCANE: 1.0, COMPLEXITY: 0.5 }
+    script: SupremeManaPotionScript
+    description: |
+      A potion as blue as a night sky, with a star dissolved in it.
+
+      Restores an enormous amount of mana.
+
+  - id: 687
+    item-db-name: greater_elixir_of_fortitude
+    base-level: 98
+    weight: 30
+    type: USABLE
+    material: GLASS
+    script: GreaterElixirOfFortitudeScript
+    description: |
+      A heavy elixir brewed from a deepmaw and golden carapace.
+
+      Raises VIT a great deal for ten minutes.
+
+  - id: 688
+    item-db-name: greater_elixir_of_resolve
+    base-level: 100
+    weight: 30
+    type: USABLE
+    material: GLASS
+    script: GreaterElixirOfResolveScript
+    description: |
+      Ghost herb in holy water: it whispers when shaken.
+
+      Raises WIL a great deal for ten minutes.
+
+  - id: 689
+    item-db-name: slim_supreme_health_potion
+    base-level: 100
+    weight: 12
+    type: USABLE
+    material: GLASS
+    script: SlimSupremeHealthPotionScript
+    description: |
+      A supreme health potion condensed with alkahest into a vial no bigger than a finger.
+
+      Heals an enormous amount of health, and weighs next to nothing.
+
+  - id: 690
+    item-db-name: slim_supreme_mana_potion
+    base-level: 100
+    weight: 12
+    type: USABLE
+    material: GLASS
+    script: SlimSupremeManaPotionScript
+    description: |
+      A supreme mana potion condensed with alkahest into a vial no bigger than a finger.
+
+      Restores an enormous amount of mana, and weighs next to nothing.
+
+  - id: 691
+    item-db-name: elixir_of_life
+    base-level: 105
+    weight: 40
+    type: USABLE
+    material: GLASS
+    script: ElixirOfLifeScript
+    description: |
+      The Alchemist's great work: ghost herb, sun herb and the light of the deep sea, bound by quintessence.
+
+      Heals an enormous amount of health, restores mana and stamina, and closes poison and wounds.
+
+  - id: 692
+    item-db-name: philosophers_draught
+    base-level: 115
+    weight: 30
+    type: USABLE
+    material: GLASS
+    script: PhilosophersDraughtScript
+    description: |
+      A draught in which a philosopher's stone was dissolved. It tastes of nothing at all.
+
+      Raises every attribute a great deal for ten minutes.
