@@ -30,8 +30,23 @@ class EconomyCatalogueTest {
     val eaten = catalogue.commodities().filter { it.perCapitaPerDay > 0.0 }.map { it.id }
     val consumed = catalogue.trades().flatMap { trade -> trade.consumes.map { it.commodity } }
 
-    assertEquals(listOf("bread", "weapon_repair_kit", "armor_repair_kit"), eaten)
+    assertEquals(listOf("bread", "weapon_repair_kit", "armor_repair_kit", "plank", "charcoal"), eaten)
     assertTrue(eaten.none { it in consumed })
+  }
+
+  @Test
+  fun `a log is cut before it is sawn or charred`() {
+    val order = catalogue.topological.map { it.id }
+
+    assertTrue(order.indexOf("log") < order.indexOf("plank"), "plank comes before its log in $order")
+    assertTrue(order.indexOf("log") < order.indexOf("charcoal"), "charcoal comes before its log in $order")
+  }
+
+  @Test
+  fun `only the woodcutter works the woods, and only the farm the fields`() {
+    val byLand = catalogue.trades().filter { it.land != null }.associate { it.id to it.land }
+
+    assertEquals(mapOf("farm" to Trade.Land.ARABLE, "woodcutting" to Trade.Land.WOODLAND), byLand)
   }
 
   @Test

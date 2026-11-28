@@ -1,7 +1,6 @@
 package net.bestia.zone.economy
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.worldgen.civ.BuildingFunction
 import net.bestia.worldgen.pop.Catchment
 import net.bestia.zone.world.WorldGenConfig
 import net.bestia.zone.world.WorldService
@@ -120,7 +119,7 @@ class SettlementDamage(
       // Ground damage reaches the trades that work the land and nothing else - a burnt field does not
       // stop a mill turning, it stops there being anything to put in it, and the Leontief minimum in
       // the step is what carries that downstream.
-      val health = if (trade.building == BuildingFunction.FARM) workplaces * ground else workplaces
+      val health = if (trade.land == Trade.Land.ARABLE) workplaces * ground else workplaces
 
       trade.id to health
     }

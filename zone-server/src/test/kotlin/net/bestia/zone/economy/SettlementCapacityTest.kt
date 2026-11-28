@@ -135,6 +135,7 @@ class SettlementCapacityTest {
 
     assertTrue(capacityOf("farm") < 0.8, "a quarter of the fields burnt and the farm is at ${capacityOf("farm")}")
     assertEquals(1.0, capacityOf("mill"), "burning a field stopped the mill turning, which it does not")
+    assertEquals(1.0, capacityOf("woodcutting"), "burning a field was charged to the woods")
   }
 
   @Test

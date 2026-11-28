@@ -58,17 +58,44 @@ commodities:
     cover-days: 30
     per-capita: 0.002
 
+  # Timber keeps, so it barely spoils. A log is priced at about 1.8 times what the PLANK and CHARCOAL
+  # recipes make of it, so neither recipe pays inside a town (I21). Cover shrinks down the chain, as it
+  # does for bread, so an emptied town restocks inside I17's sixty days.
+  - id: log
+    item: log
+    price: 20.0
+    spoil: 0.002
+    cover-days: 20
+
+  # House upkeep.
+  - id: plank
+    item: plank
+    price: 5.5
+    spoil: 0.002
+    cover-days: 10
+    per-capita: 0.01
+
+  # Household fuel.
+  - id: charcoal
+    item: charcoal
+    price: 3.7
+    spoil: 0.002
+    cover-days: 10
+    per-capita: 0.02
+
 trades:
   # `per-unit` is input per unit of output, so the chain reads as a recipe: 1.3 sacks of grain make a unit
   # of flour, and 0.35 of a unit of flour makes a loaf.
   #
-  # `building` is what player damage will be tested against; see the damage sweep.
+  # `building` is what player damage will be tested against; see the damage sweep. `land` is the ground a
+  # trade works, which decides whether burnt fields or felled woods reach it.
   #
   # Grain is grown by the farm sector rather than by a business, because that is what the generator
   # models: farming is what the households left over after the roster do.
   - id: farm
     sector: FARM
     building: FARM
+    land: ARABLE
     produces: grain
 
   - id: mill
@@ -84,6 +111,27 @@ trades:
     produces: bread
     consumes:
       - { commodity: flour, per-unit: 0.35 }
+
+  - id: woodcutting
+    business: woodcutter
+    building: FARM
+    land: WOODLAND
+    produces: log
+
+  # Per-units follow the PLANK (1 log, 2 planks) and CHARCOAL (1 log, 3 charcoal) recipes.
+  - id: carpentry
+    business: carpenter
+    building: CRAFT
+    produces: plank
+    consumes:
+      - { commodity: log, per-unit: 0.5 }
+
+  - id: charcoal_burning
+    business: charcoaler
+    building: CRAFT
+    produces: charcoal
+    consumes:
+      - { commodity: log, per-unit: 0.333 }
 
 # Hold stock and sell it without producing any of it.
 retail:
@@ -112,9 +160,6 @@ unbound:
   - { business: vintner, reason: "wine is not priced as a commodity yet" }
   - { business: fishmonger, reason: "raw_fish is not priced as a commodity yet" }
   - { business: shipwright, reason: "hull_timber is not priced as a commodity yet" }
-  - { business: carpenter, reason: "log and plank are not priced as commodities yet" }
-  - { business: woodcutter, reason: "log is not priced as a commodity yet" }
-  - { business: charcoaler, reason: "coal and the log it is charred from are not priced as commodities yet" }
   - { business: mason, reason: "quarried_stone and cut_stone are not priced as commodities yet" }
   - { business: potter, reason: "clay_pot and brick are not priced as commodities yet" }
   - { business: tanner, reason: "leather is not priced as a commodity yet" }

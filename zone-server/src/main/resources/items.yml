@@ -876,8 +876,7 @@ items:
 
       Heavy and slow to spoil, which is more than can be said for the milk.
 
-  # Timber: carpenter, charcoaler and shipwright. The charcoaler needs no item of its own - `coal` is
-  # already in the catalogue and a log is the thing it was missing to char.
+  # Timber: woodcutter, carpenter and shipwright. The charcoal burner chars logs into `charcoal`.
   - id: 59
     item-db-name: log
     base-level: 1
@@ -11684,7 +11683,7 @@ items:
       Restores a little mana when eaten.
 
   # --- Fuel and stone ---------------------------------------------------------------------------------
-  # Charcoal is the cheap furnace fuel the charcoaler business makes. Refining still names coal only.
+  # Charcoal is the cheap furnace fuel the charcoaler business makes.
   - id: 623
     item-db-name: charcoal
     base-level: 1
