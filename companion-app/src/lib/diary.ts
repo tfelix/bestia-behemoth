@@ -28,6 +28,8 @@ export function diaryText(line: DiaryEntry): string {
 			return 'Was attacked';
 		case 'RETREATED':
 			return 'Retreated home';
+		case 'HELPED':
+			return 'Joined a fight';
 		case 'OUT_OF_FOOD':
 			return 'Ran out of food and waits at home';
 		case 'LOW_FOOD':

@@ -47,6 +47,9 @@ message SetBestiaAiConfigCMSG {
   /** What a gatherer takes. Empty: everything. */
   GatherFilter gather_filter = 14;
 
+  /** Keeps out of the fights its master and its master's other bestias are in. */
+  bool stays_out_of_fights = 15;
+
   /** "When condition then action". Only the pairs the server allows; see OrderRule there. */
   message Rule {
     Condition condition = 1;

@@ -126,6 +126,7 @@ class BestiaRuntime(
     retreatLine?.let { memory.set(BestiaDomain.RETREAT_BELOW_HEALTH_PCT, it, Blackboard.PERMANENT) }
     memory.set(BestiaDomain.FLEES_ON_SIGHT, config.courage.fleesOnSight, Blackboard.PERMANENT)
     memory.set(BestiaDomain.TAKES_ON_STRONGER_FOES, config.courage.takesOnStrongerFoes, Blackboard.PERMANENT)
+    memory.set(BestiaDomain.HELPS_ALLIES, !config.staysOutOfFights, Blackboard.PERMANENT)
 
     val area = WorkArea(homePosition, areaRadius)
     listOfNotNull(config.job, config.fallbackJob).forEach { job ->

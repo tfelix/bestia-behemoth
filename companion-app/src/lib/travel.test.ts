@@ -23,6 +23,7 @@ function bestia(changes: Partial<Bestia>): Bestia {
 		allowedJobs: [],
 		careItems: { neverUse: [], alsoUse: [] },
 		gatherFilter: { skip: [], onlyItems: [] },
+		staysOutOfFights: false,
 		...changes
 	};
 }

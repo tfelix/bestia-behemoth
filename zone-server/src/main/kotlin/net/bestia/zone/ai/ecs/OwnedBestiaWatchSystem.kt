@@ -2,6 +2,7 @@ package net.bestia.zone.ai.ecs
 
 import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
+import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.ai.profile.BestiaJob
 import net.bestia.zone.battle.ecs.damage.TakenDamage
 import net.bestia.zone.battle.ecs.status.StaminaConfig
@@ -18,8 +19,8 @@ import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
- * Tells the master's diary when an owned bestia is attacked after a quiet while, and when it retreats. A guard in a
- * busy area is hit all day, so a fight is told once, not every blow. What it does, its field running empty and its
+ * Tells the master's diary when an owned bestia is attacked or joins an ally's fight after a quiet while, and when it
+ * retreats. A guard in a busy area is hit all day, so a fight is told once, not every blow. What it does, its field running empty and its
  * fallback job taking over are told once they have lasted a while, so a bestia flicking between goals tells nothing.
  */
 @SpringComponent
@@ -44,6 +45,7 @@ class OwnedBestiaWatchSystem(
   /** About two hours of work, the warning a master needs to bring food before it runs out. */
   private val lowFoodStock = (stamina.staminaPerLabourHour * LOW_FOOD_HOURS).toInt()
   private val lastHitAt = HashMap<EntityId, Long>()
+  private val lastHelpAt = HashMap<EntityId, Long>()
 
   private val stateChanges = LastingChange<EntityId, BestiaState>(LASTING_MS)
   private val fieldEmptied = LastingChange<EntityId, Boolean>(LASTING_MS)
@@ -58,6 +60,7 @@ class OwnedBestiaWatchSystem(
       val owned = get<OwnedBestia>()
       if (startedRetreat(id, get<AiAgent>())) tell(owned, BestiaHappened.Kind.RETREATED)
       if (hitAfterQuiet(world, id, time)) tell(owned, BestiaHappened.Kind.ATTACKED)
+      if (helpsAfterQuiet(id, get<AiAgent>(), time)) tell(owned, BestiaHappened.Kind.HELPED)
       watchFood(id, owned, get<AiAgent>().memory)
       watchState(world, id, owned, time)
       watchField(id, owned, get<AiAgent>().memory, time)
@@ -68,6 +71,7 @@ class OwnedBestiaWatchSystem(
     starving.retainAll(seen)
     runningLow.retainAll(seen)
     lastHitAt.keys.retainAll(seen)
+    lastHelpAt.keys.retainAll(seen)
     stateChanges.retainAll(seen)
     fieldEmptied.retainAll(seen)
     onFallback.retainAll(seen)
@@ -130,6 +134,13 @@ class OwnedBestiaWatchSystem(
   private fun hitAfterQuiet(world: World, id: EntityId, time: Long): Boolean {
     world.get(id, TakenDamage::class)?.mostRecentAttacker(HIT_WINDOW_MS, time) ?: return false
     val last = lastHitAt.put(id, time)
+
+    return last == null || time - last > QUIET_MS
+  }
+
+  private fun helpsAfterQuiet(id: EntityId, agent: AiAgent, time: Long): Boolean {
+    if (agent.currentGoal?.name != AiConfig.HELP_ALLY_GOAL) return false
+    val last = lastHelpAt.put(id, time)
 
     return last == null || time - last > QUIET_MS
   }

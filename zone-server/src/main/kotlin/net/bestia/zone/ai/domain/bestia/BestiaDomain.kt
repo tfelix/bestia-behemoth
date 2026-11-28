@@ -2,6 +2,7 @@ package net.bestia.zone.ai.domain.bestia
 
 import net.bestia.zone.battle.ecs.status.LabourLedger
 import net.bestia.zone.bestia.diary.BestiaNews
+import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.ai.profile.BestiaJob
 import net.bestia.zone.ai.profile.GatherFilter
 import net.bestia.zone.ai.profile.OrderRule
@@ -163,6 +164,12 @@ object BestiaDomain : AiDomainCatalogue {
   val RETREAT_BELOW_HEALTH_PCT = StateKey<Int>("retreatBelowHealthPct", retain = Blackboard.PERMANENT)
   val FLEES_ON_SIGHT = StateKey<Boolean>("fleesOnSight", retain = Blackboard.PERMANENT)
   val TAKES_ON_STRONGER_FOES = StateKey<Boolean>("takesOnStrongerFoes", retain = Blackboard.PERMANENT)
+
+  /** Whether it joins the fights of its master and its master's other bestias. Wild mobs have no allies. */
+  val HELPS_ALLIES = StateKey<Boolean>("helpsAllies", retain = Blackboard.PERMANENT)
+
+  /** Its target is hurting its master or another of its master's bestias. See `PerceptionSystem`. */
+  val ALLY_ATTACKED = StateKey<Boolean>("allyAttacked", observed = true)
 
   /** A foe this many levels above a bestia is stronger, and its courage decides whether to start that fight. */
   const val STRONGER_FOE_LEVEL_LEAD = 5
@@ -554,6 +561,20 @@ object BestiaDomain : AiDomainCatalogue {
     )
 
     /**
+     * An owned bestia joining a fight its master or another of its master's bestias is in. Between [KILL_ENEMY] and
+     * [KILL_ATTACKER]: an ally under attack matters more than a foe that only stands there, and its own attacker
+     * more than an ally's. Courage holds it back as from [KILL_ENEMY], and a timid one never joins.
+     */
+    val HELP_ALLY = Goal(
+      name = AiConfig.HELP_ALLY_GOAL,
+      priority = priority(base = 90f),
+      availability = Precondition { s ->
+        s.get(ALLY_ATTACKED) == true && s.get(FLEES_ON_SIGHT) != true && !courageHoldsBack(s) && !restsAtHome(s)
+      },
+      desiredState = listOf(Preconditions.equalTo(TARGET_DEAD, true)),
+    )
+
+    /**
      * Idle ambling, an ordinary goal thanks to [RESTLESSNESS]. Lowest base priority, so anything with a
      * real drive behind it wins.
      */
@@ -683,7 +704,7 @@ object BestiaDomain : AiDomainCatalogue {
 
     val ALL = listOf(
       EAT_VEGETATION, SLEEP, RETURN_HOME, KILL_ATTACKER, KILL_ENEMY, WANDER, HEAL_FROM_BAG, EAT_FROM_BAG, RETREAT,
-      GATHER, HAUL_TO_CHEST, RESTOCK_FOOD, CRAFT, MINE, RETURN_TO_MIDDLE, REST_AT_HOME,
+      GATHER, HAUL_TO_CHEST, RESTOCK_FOOD, CRAFT, MINE, RETURN_TO_MIDDLE, REST_AT_HOME, HELP_ALLY,
     )
 
     val BY_NAME = ALL.associateBy { it.name }

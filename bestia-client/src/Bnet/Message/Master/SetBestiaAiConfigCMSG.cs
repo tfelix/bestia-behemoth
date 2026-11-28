@@ -25,6 +25,7 @@ namespace BestiaBehemothClient.Bnet.Message.Master
         Job = (global::Bnet.SetBestiaAiConfigCMSG.Types.Job)Orders.Job,
         Courage = (global::Bnet.SetBestiaAiConfigCMSG.Types.Courage)Orders.Courage,
         Overrides = OrderSheet.OverridesToProto(following ? OwnOverrides : Orders.Overrides),
+        StaysOutOfFights = Orders.StaysOutOfFights,
       };
 
       if (following)

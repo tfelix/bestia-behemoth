@@ -78,6 +78,7 @@ class BestiaQueries(
           allowedJobs = SpeciesJobs.allowedFor(row.bestia).filter { it.isBuilt }.map { it.name },
           careItems = OrdersOnTheBus.careItemsOf(row.aiConfig.careItems),
           gatherFilter = OrdersOnTheBus.gatherFilterOf(row.aiConfig.gatherFilter),
+          staysOutOfFights = row.aiConfig.staysOutOfFights,
         )
       }
     )

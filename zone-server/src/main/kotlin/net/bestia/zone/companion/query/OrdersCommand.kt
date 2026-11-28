@@ -31,6 +31,7 @@ class OrdersCommand(
       query.careItems, query.gatherFilter,
     )
     val orders = OrdersOnTheBus.ordersOf(sheet).getOrElse { return BusReply.of(correlationId, Status.INVALID, it.message) }
+      .copy(staysOutOfFights = query.staysOutOfFights)
 
     var reply = BusReply.of(correlationId, Status.NOT_FOUND)
     inbox.onIo(accountId) {

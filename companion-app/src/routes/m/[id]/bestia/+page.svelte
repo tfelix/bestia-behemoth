@@ -322,6 +322,10 @@
 						/>
 						<span class="ends muted small"><span>Careful</span><span>Brave</span></span>
 					</label>
+					<label title="It does not help you or your other Bestias in a fight. For a frail Bestia that should keep away.">
+						<input type="checkbox" bind:checked={draft.staysOutOfFights} />
+						Stays out of others' fights
+					</label>
 					{#if following}
 						<p class="muted small">Job, courage, fallback and rules come from the preset. Numbers set below stay this Bestia's own.</p>
 					{/if}

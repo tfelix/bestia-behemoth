@@ -33,6 +33,7 @@ object OrdersWire {
     chestPlaceId: Long?,
     careItems: WireCareItems,
     gatherFilter: WireGatherFilter,
+    staysOutOfFights: Boolean,
   ): AiConfig? {
     val mainJob = BestiaJob.fromNameOrNull(job.name) ?: return null
     val step = Courage.fromNameOrNull(courage.name) ?: return null
@@ -42,7 +43,7 @@ object OrdersWire {
 
     val orders = AiConfig(
       mainJob, step, fallback, overridesFrom(overrides), lines, areaPlaceId, chestPlaceId, careItemsFrom(careItems),
-      filter,
+      filter, staysOutOfFights,
     )
 
     return orders.takeIf { it.isValid }
@@ -54,6 +55,7 @@ object OrdersWire {
     sheet.takeIf { it.hasChestPlaceId() }?.chestPlaceId,
     sheet.careItems,
     sheet.gatherFilter,
+    staysOutOfFights = false,
   )
 
   fun sheetOf(orders: AiConfig): OrderSheet {

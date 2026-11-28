@@ -72,7 +72,7 @@ data class AwayReport(
     const val MAX_INCIDENTS = 20
 
     private val INCIDENT_KINDS = setOf(
-      Kind.ATTACKED, Kind.RETREATED, Kind.DIED, Kind.LOST, Kind.OUT_OF_FOOD, Kind.LOW_FOOD, Kind.WORK_PAUSED,
+      Kind.ATTACKED, Kind.RETREATED, Kind.HELPED, Kind.DIED, Kind.LOST, Kind.OUT_OF_FOOD, Kind.LOW_FOOD, Kind.WORK_PAUSED,
       Kind.FIELD_EMPTY, Kind.FALLBACK_STARTED,
     )
 

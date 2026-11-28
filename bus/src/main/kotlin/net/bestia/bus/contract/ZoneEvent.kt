@@ -43,6 +43,7 @@ sealed interface ZoneEvent {
     val ownOverrides: OrderNumbers = OrderNumbers(),
     val careItems: OrderCareItems = OrderCareItems(),
     val gatherFilter: OrderGatherFilter = OrderGatherFilter(),
+    val staysOutOfFights: Boolean = false,
   ) : ZoneEvent
 
   /**

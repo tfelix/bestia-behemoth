@@ -327,6 +327,7 @@ BESTIA_NEWS_NEW_ORDERS,Got new orders: %s
 BESTIA_NEWS_FALLBACK_STARTED,Turned to its other job: %s
 BESTIA_NEWS_ATTACKED,Is under attack
 BESTIA_NEWS_RETREATED,Retreated home
+BESTIA_NEWS_HELPED,Joined a fight
 BESTIA_NEWS_DIED,Was killed
 BESTIA_NEWS_LOST,Was killed and is lost for good
 BESTIA_NEWS_OUT_OF_FOOD,Ran out of food and waits at home
@@ -352,6 +353,7 @@ BESTIA_REPORT_ATTACKED,It was attacked %s.
 BESTIA_REPORT_ATTACKED_TWICE,"It was attacked twice, first %s."
 BESTIA_REPORT_ATTACKED_TIMES,"It was attacked %d times, first %s."
 BESTIA_REPORT_RETREATED,It retreated home %s.
+BESTIA_REPORT_HELPED,It helped in a fight %s.
 BESTIA_REPORT_OUT_OF_FOOD,It ran out of food %s.
 BESTIA_REPORT_LOW_FOOD,It ran low on food %s.
 BESTIA_REPORT_WORK_PAUSED,"It stopped working %s, because %s."
@@ -391,6 +393,8 @@ ORDERS_COURAGE_2,Careful
 ORDERS_COURAGE_3,Steady
 ORDERS_COURAGE_4,Bold
 ORDERS_COURAGE_5,Brave
+ORDERS_STAYS_OUT_OF_FIGHTS,Stays out of others' fights
+ORDERS_STAYS_OUT_OF_FIGHTS_HINT,"It does not help you or your other bestias in a fight. For a frail bestia that should keep away."
 ORDERS_AREA,Work area
 ORDERS_AROUND_HOME,Around home
 ORDERS_CHEST,Chest

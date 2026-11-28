@@ -30,4 +30,5 @@ message BestiaAiConfigSMSG {
   SetBestiaAiConfigCMSG.Overrides own_overrides = 13;
   SetBestiaAiConfigCMSG.CareItems care_items = 14;
   SetBestiaAiConfigCMSG.GatherFilter gather_filter = 15;
+  bool stays_out_of_fights = 16;
 }

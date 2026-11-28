@@ -33,6 +33,8 @@ namespace BestiaBehemothClient.Bnet.Message.Master
     [Export] public Array<int> GatherSkip { get; set; } = new();
     /// <summary>Item ids; with any set, a gatherer takes only what yields one of them.</summary>
     [Export] public Array<long> GatherOnlyItems { get; set; } = new();
+    /// <summary>The bestia's own, so a preset's sheet leaves it false.</summary>
+    [Export] public bool StaysOutOfFights { get; set; }
 
     /// <summary>A copy the window can edit without changing what it was sent.</summary>
     public OrderSheet Copy()
@@ -49,6 +51,7 @@ namespace BestiaBehemothClient.Bnet.Message.Master
         AlsoUse = AlsoUse.Duplicate(),
         GatherSkip = GatherSkip.Duplicate(),
         GatherOnlyItems = GatherOnlyItems.Duplicate(),
+        StaysOutOfFights = StaysOutOfFights,
       };
       foreach (var rule in Rules)
       {
@@ -70,11 +73,14 @@ namespace BestiaBehemothClient.Bnet.Message.Master
     /// <summary>The sheet of orders as the server sent them for one bestia.</summary>
     public static OrderSheet FromProto(global::Bnet.BestiaAiConfigSMSG proto)
     {
-      return Of(
+      var sheet = Of(
         proto.Job, proto.Courage, proto.FallbackJob, proto.Overrides, proto.Rules,
         proto.HasAreaPlaceId ? proto.AreaPlaceId : 0, proto.HasChestPlaceId ? proto.ChestPlaceId : 0, proto.CareItems,
         proto.GatherFilter
       );
+      sheet.StaysOutOfFights = proto.StaysOutOfFights;
+
+      return sheet;
     }
 
     private static OrderSheet Of(

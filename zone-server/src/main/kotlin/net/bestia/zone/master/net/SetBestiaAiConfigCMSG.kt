@@ -31,6 +31,7 @@ data class SetBestiaAiConfigCMSG(
         chestPlaceId = msg.takeIf { it.hasChestPlaceId() }?.chestPlaceId,
         careItems = msg.careItems,
         gatherFilter = msg.gatherFilter,
+        staysOutOfFights = msg.staysOutOfFights,
       )
 
       return SetBestiaAiConfigCMSG(

@@ -7,7 +7,10 @@ import "messages/master/set_bestia_ai_config_cmsg.proto";
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "OrderSheetProto";
 
-/** A whole set of orders without a bestia: what a preset holds. The fields mean what they mean in SetBestiaAiConfigCMSG. */
+/**
+ * A whole set of orders without a bestia: what a preset holds. The fields mean what they mean in SetBestiaAiConfigCMSG.
+ * Staying out of fights is the bestia's own, so a preset has no say in it.
+ */
 message OrderSheet {
   SetBestiaAiConfigCMSG.Job job = 1;
   SetBestiaAiConfigCMSG.Courage courage = 2;

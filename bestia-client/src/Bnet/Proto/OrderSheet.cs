@@ -50,7 +50,9 @@ namespace Bnet {
   }
   #region Messages
   /// <summary>
-  ///* A whole set of orders without a bestia: what a preset holds. The fields mean what they mean in SetBestiaAiConfigCMSG. 
+  ///*
+  /// A whole set of orders without a bestia: what a preset holds. The fields mean what they mean in SetBestiaAiConfigCMSG.
+  /// Staying out of fights is the bestia's own, so a preset has no say in it.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class OrderSheet : pb::IMessage<OrderSheet>
