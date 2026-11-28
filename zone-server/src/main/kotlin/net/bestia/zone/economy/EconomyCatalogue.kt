@@ -208,8 +208,9 @@ class EconomyCatalogue {
     val building: BuildingFunction,
     val produces: String,
     val consumes: List<InputDto> = emptyList(),
+    val land: Trade.Land? = null,
   ) {
-    fun toTrade() = Trade(id, business, sector, building, produces, consumes.map { it.toInput() })
+    fun toTrade() = Trade(id, business, sector, building, produces, consumes.map { it.toInput() }, land)
   }
 
   private data class InputDto(

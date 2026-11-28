@@ -21,6 +21,8 @@ data class Trade(
   val building: BuildingFunction,
   val produces: String,
   val consumes: List<Input>,
+  /** The ground the trade works, or null for one that works none. */
+  val land: Land? = null,
 ) {
 
   init {
@@ -28,6 +30,9 @@ data class Trade(
       "Trade '$id' must name either a business or a sector, not both and not neither"
     }
   }
+
+  /** Which kind of ground damage reaches a trade: burnt fields or felled woods. */
+  enum class Land { ARABLE, WOODLAND }
 
   /** @param perUnit how much of [commodity] one unit of the trade's output takes. */
   data class Input(val commodity: String, val perUnit: Double) {
