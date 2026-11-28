@@ -1545,6 +1545,17 @@ QUEST_TIME_LEFT_HOURS,%d h
 QUEST_TIME_LEFT_MINUTES,%d min
 QUEST_TIME_LEFT_ENDED,ended
 QUEST_DELIVER_TITLE,Deliver {amount} {item}
+QUEST_NOVITIATE_TITLE_CHAOS,The Novitiate of Chaos
+QUEST_NOVITIATE_TITLE_ETERNITY,The Novitiate of Eternity
+QUEST_NOVITIATE_TITLE_CIRCLE,The Novitiate of the Circle
+QUEST_NOVITIATE_BIND,Bring {amount} {item} to the Envoy of Eternity in {town}. The Order binds the mana they hold.
+QUEST_NOVITIATE_SHATTER,Bring {amount} {item} to the Envoy of Chaos in {town}. The Envoy shatters them and lets the mana go.
+QUEST_NOVITIATE_HEAR_CHAOS,Hear the Envoy of Chaos in {town}.
+QUEST_NOVITIATE_HEAR_ETERNITY,Hear the Envoy of Eternity in {town}.
+QUEST_NOVITIATE_PILGRIMAGE,Walk to your Order's Envoy in {town}.
+QUEST_NOVITIATE_OATH,Swear the oath of the Order. Leaving it later is hard and costly.
+QUEST_NOVITIATE_SWEAR,I swear.
+QUEST_NOVITIATE_WITHDRAW,Not now.
 QUESTGEN_LOST_RELIC_TITLE,The lost {artifact}
 QUESTGEN_STEP_HEAR_LEGEND,Hear the legend of {artifact} in {town}.
 QUESTGEN_STEP_HEAR_OF_LOSS,Ask in {town} how {artifact} was lost.
@@ -1580,6 +1591,11 @@ BLACKBOARD_CARRIED,You carry %d
 BLACKBOARD_DROP,Drop quest
 ERROR_BLACKBOARD_NOTHING_TO_HAND_IN,You carry none of what this quest wants.
 ERROR_BLACKBOARD_HAND_IN_ELSEWHERE,This town did not ask for it. Bring it to the board of the town that did.
+ERROR_FACTION_LEVEL_TOO_LOW,You are not yet seasoned enough to join an Order.
+ERROR_FACTION_STILL_UNSWORN,You left an Order not long ago. No Order takes you back yet.
+ERROR_FACTION_SWORN_ELSEWHERE,You are sworn to another Order.
+ERROR_FACTION_NOVITIATE_ELSEWHERE,You already walk the Novitiate of another Order.
+ERROR_FACTION_NOTHING_TO_OFFER,You carry nothing the Envoy asked for.
 ERROR_STRUCTURE_NEEDS_SETTLEMENT,This can only be built in a town.
 ERROR_STRUCTURE_TOO_FAR_FROM_TOWN,Build closer to the city sign or to a building of this town.
 ERROR_STRUCTURE_TOO_CLOSE,Too close to another player's structure.
@@ -1595,6 +1611,7 @@ QUEST_LOG_SUBTITLE_NO_POSTER,%s · ends in %s · suggested Lv %d
 QUEST_ORIGIN_BLACKBOARD,Blackboard
 QUEST_ORIGIN_WORLD,Local matter
 QUEST_ORIGIN_TOWN,Town request
+QUEST_ORIGIN_ORDER,Order
 QUESTGEN_TOWN_SHORTAGE_TITLE,{town} needs {amount} {item}
 QUESTGEN_TOWN_DAMAGE_TITLE,{town} rebuilds: {amount} {item}
 QUESTGEN_TOPIC_ASK,You look troubled. What is it?

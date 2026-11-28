@@ -639,6 +639,17 @@ enum OpError {
   OBSERVATION_NO_OUTPOST = 439;
   // Only a Master who knows Observation can raise an Observation Outpost.
   OBSERVATION_OUTPOST_NEEDS_SKILL = 440;
+
+  // An Order takes no master below its level.
+  FACTION_LEVEL_TOO_LOW = 441;
+  // A master who left an Order is unsworn for a while, and no Order takes them back before.
+  FACTION_STILL_UNSWORN = 442;
+  // The master is sworn to another Order.
+  FACTION_SWORN_ELSEWHERE = 443;
+  // The master already walks the Novitiate of another Order.
+  FACTION_NOVITIATE_ELSEWHERE = 444;
+  // The Envoy wants an offering the master does not carry.
+  FACTION_NOTHING_TO_OFFER = 445;
 }
 
 message OperationError {

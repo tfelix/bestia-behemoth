@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://Game/Entity/Visual/TownsfolkVisual/TownsfolkVisual.tscn" id="2_visual"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 125
+bestia_visual = ExtResource("2_visual")
+name_key = "BESTIA_ETERNITY_ENVOY"
+description_key = "BESTIA_ETERNITY_ENVOY_DESC"
+kind = "HUMANOID"
+equip_slots = 0
+armor_types = 0
+non_combatant = true
+habitat = ""
+in_compendium = false
+temperament = "PASSIVE"
+activity_cycle = "CATHEMERAL"
+level_min = 1
+level_max = 1
+loot_item_ids = PackedInt32Array()
+loot_chances = PackedInt32Array()
+size = "MEDIUM"
+weight_kg = 60
+essence_group = ""
+essence_effect = ""
+essence_target = ""
+essence_drawback = ""

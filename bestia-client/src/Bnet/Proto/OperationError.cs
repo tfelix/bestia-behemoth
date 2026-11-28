@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSruOwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqFPQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -196,8 +196,12 @@ namespace Bnet {
             "X1JPT00QswMSFgoRSU5OX0NBTk5PVF9BRkZPUkQQtAMSFgoRSU5OX1BSSUNF",
             "X0NIQU5HRUQQtQMSDwoKSU5OX0NMT1NFRBC2AxIbChZPQlNFUlZBVElPTl9O",
             "T19PVVRQT1NUELcDEiQKH09CU0VSVkFUSU9OX09VVFBPU1RfTkVFRFNfU0tJ",
-            "TEwQuAMiBAguEC4qElNIT1BfVFJFQVNVUllfRlVMTEIsChVuZXQuYmVzdGlh",
-            "LmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
+            "TEwQuAMSGgoVRkFDVElPTl9MRVZFTF9UT09fTE9XELkDEhoKFUZBQ1RJT05f",
+            "U1RJTExfVU5TV09SThC6AxIcChdGQUNUSU9OX1NXT1JOX0VMU0VXSEVSRRC7",
+            "AxIgChtGQUNUSU9OX05PVklUSUFURV9FTFNFV0hFUkUQvAMSHQoYRkFDVElP",
+            "Tl9OT1RISU5HX1RPX09GRkVSEL0DIgQILhAuKhJTSE9QX1RSRUFTVVJZX0ZV",
+            "TExCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNPcGVyYXRpb25FcnJvclBy",
+            "b3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -1264,6 +1268,26 @@ namespace Bnet {
     /// Only a Master who knows Observation can raise an Observation Outpost.
     /// </summary>
     [pbr::OriginalName("OBSERVATION_OUTPOST_NEEDS_SKILL")] ObservationOutpostNeedsSkill = 440,
+    /// <summary>
+    /// An Order takes no master below its level.
+    /// </summary>
+    [pbr::OriginalName("FACTION_LEVEL_TOO_LOW")] FactionLevelTooLow = 441,
+    /// <summary>
+    /// A master who left an Order is unsworn for a while, and no Order takes them back before.
+    /// </summary>
+    [pbr::OriginalName("FACTION_STILL_UNSWORN")] FactionStillUnsworn = 442,
+    /// <summary>
+    /// The master is sworn to another Order.
+    /// </summary>
+    [pbr::OriginalName("FACTION_SWORN_ELSEWHERE")] FactionSwornElsewhere = 443,
+    /// <summary>
+    /// The master already walks the Novitiate of another Order.
+    /// </summary>
+    [pbr::OriginalName("FACTION_NOVITIATE_ELSEWHERE")] FactionNovitiateElsewhere = 444,
+    /// <summary>
+    /// The Envoy wants an offering the master does not carry.
+    /// </summary>
+    [pbr::OriginalName("FACTION_NOTHING_TO_OFFER")] FactionNothingToOffer = 445,
   }
 
   #endregion

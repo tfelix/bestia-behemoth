@@ -90,6 +90,9 @@ guild:
 faction:
   # A master below this level cannot swear to an Order.
   min-swear-level: 40
+  # Mana crystals the Novitiate of Eternity or Chaos asks for, and the days it has to be walked in.
+  novitiate-offerings: 3
+  novitiate-days: 30
 
 stronghold:
   min-awake-seeds: 4

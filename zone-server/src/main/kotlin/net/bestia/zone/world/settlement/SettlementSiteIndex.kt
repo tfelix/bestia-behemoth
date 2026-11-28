@@ -1,5 +1,6 @@
 package net.bestia.zone.world.settlement
 
+import net.bestia.worldgen.civ.SettlementTier
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.civ.BuildingChannels
 import net.bestia.worldgen.civ.BuildingFunction
@@ -42,6 +43,11 @@ class SettlementSiteIndex(
   }
 
   private val sites = HashMap<Int, SettlementSite>()
+
+  /** Every standing settlement of [tiers]. Builds each site, so it is for boot rather than the tick. */
+  fun sitesOf(tiers: Set<SettlementTier>): List<SettlementSite> {
+    return settlements.entriesOf(tiers).mapNotNull { siteOf(it.index) }
+  }
 
   /** The settlement [index], or null when history left nothing standing there. */
   fun siteOf(index: Int): SettlementSite? {

@@ -52,6 +52,7 @@ private fun QuestOrigin.toProto(): QuestProto.QuestOrigin {
     QuestOrigin.BLACKBOARD -> QuestProto.QuestOrigin.QUEST_ORIGIN_BLACKBOARD
     QuestOrigin.WORLD -> QuestProto.QuestOrigin.QUEST_ORIGIN_WORLD
     QuestOrigin.TOWN -> QuestProto.QuestOrigin.QUEST_ORIGIN_TOWN
+    QuestOrigin.ORDER -> QuestProto.QuestOrigin.QUEST_ORIGIN_ORDER
   }
 }
 
