@@ -284,9 +284,9 @@ class InventoryService(
     itemInstanceRepository.updateDurability(uniqueId, durability)
   }
 
-  /** Takes the light worn in [slot] off and deletes it: it burnt out, nothing is left of it. */
+  /** Takes what is worn in [slot] off and deletes it, like a light that burnt out. */
   @Transactional
-  fun burnOut(masterId: Long, playerBestiaId: PlayerBestiaId?, slot: EquipmentSlot): Boolean {
+  fun destroyWorn(masterId: Long, playerBestiaId: PlayerBestiaId?, slot: EquipmentSlot): Boolean {
     val burnt = withOwnerContainer(masterId, playerBestiaId) { container ->
       container.unequip(slot)?.uniqueId?.let { container.takeInstance(it) }
     } ?: return false

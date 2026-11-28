@@ -111,7 +111,7 @@ class InventoryServiceStackableEquipTest {
     inventoryService.recordWear(copyId, 7)
     assertEquals(7, tx.execute { itemInstanceRepository.findById(copyId).get().durability })
 
-    assertTrue(inventoryService.burnOut(master, null, EquipmentSlot.LIGHT_SOURCE))
+    assertTrue(inventoryService.destroyWorn(master, null, EquipmentSlot.LIGHT_SOURCE))
     assertNull(wornCopy())
     assertEquals(pileBefore, pile())
     assertFalse(itemInstanceRepository.existsById(copyId))

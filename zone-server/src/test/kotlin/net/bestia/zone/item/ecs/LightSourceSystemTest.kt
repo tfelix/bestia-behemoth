@@ -85,7 +85,7 @@ class LightSourceSystemTest {
 
     assertEquals(21L, light(master)?.uniqueId)
     assertNull(inventory(master).byPlayerItemId(WORN_ID))
-    verify { inventoryService.burnOut(MASTER_ID, null, EquipmentSlot.LIGHT_SOURCE) }
+    verify { inventoryService.destroyWorn(MASTER_ID, null, EquipmentSlot.LIGHT_SOURCE) }
     verify { inventoryService.equip(MASTER_ID, null, TORCH.id, 21L, EquipmentSlot.LIGHT_SOURCE) }
   }
 

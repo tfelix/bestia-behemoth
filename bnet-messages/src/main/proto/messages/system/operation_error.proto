@@ -650,6 +650,10 @@ enum OpError {
   FACTION_NOVITIATE_ELSEWHERE = 444;
   // The Envoy wants an offering the master does not carry.
   FACTION_NOTHING_TO_OFFER = 445;
+  // Only a master sworn to an Order can be banished from it.
+  FACTION_NOT_SWORN = 446;
+  // The rite of banishment consumes the Sigil of Redemption, which the master must wear.
+  FACTION_SIGIL_NOT_WORN = 447;
 }
 
 message OperationError {

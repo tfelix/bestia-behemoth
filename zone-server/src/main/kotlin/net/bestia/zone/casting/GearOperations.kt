@@ -18,9 +18,9 @@ import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
 /**
- * What a strip or a corroding blow does to worn gear: takes it off into the bag, or eats its durability, less under a
- * [GearCoating]. The world changes at once and the database follows on the owner's queue, the way
- * `UnequipItemHandler` and `LightSourceSystem` keep the two in step.
+ * What a strip, a corroding blow or a rite does to worn gear: takes it off into the bag, eats its durability (less
+ * under a [GearCoating]) or destroys it. The world changes at once and the database follows on the owner's queue,
+ * the way `UnequipItemHandler` and `LightSourceSystem` keep the two in step.
  */
 @Component
 class GearOperations(
@@ -53,6 +53,20 @@ class GearOperations(
 
     val owner = ItemOwner.of(world, entityId) ?: return true
     asyncJobExecutor.submit(key = owner.masterId) { inventoryService.unequip(owner.masterId, owner.playerBestiaId, slot) }
+
+    return true
+  }
+
+  /** Removes what [entityId] wears in [slot] for good. Returns false when nothing was worn there. */
+  fun destroy(world: World, entityId: EntityId, slot: EquipmentSlot): Boolean {
+    val equipment = world.get(entityId, Equipment::class) ?: return false
+    val inventory = world.get(entityId, Inventory::class)
+    val worn = equipmentChanges.takeOff(equipment, inventory, slot) ?: return false
+    inventory?.removeByUniqueId(worn.uniqueId)
+    world.add(entityId, IsStatusValueDirty)
+
+    val owner = ItemOwner.of(world, entityId) ?: return true
+    asyncJobExecutor.submit(key = owner.masterId) { inventoryService.destroyWorn(owner.masterId, owner.playerBestiaId, slot) }
 
     return true
   }
