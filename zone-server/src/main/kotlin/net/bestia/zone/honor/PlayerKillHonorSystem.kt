@@ -36,14 +36,15 @@ class PlayerKillHonorSystem(
   private val honor: HonorService,
   private val masters: MasterEntityResolver,
   private val aggression: Aggression,
-  private val allegiance: OrderAllegiance,
+  private val rivalry: FactionRivalry,
   private val clock: Clock = Clock.systemUTC(),
 ) : System {
   override val phase = Phase.DEATH
   override val after = setOf(PlayerDeathSystem::class, BestiaBagDropSystem::class)
 
   override val reads: ComponentClassSet =
-    setOf(Account::class, TakenDamage::class, Level::class, OwnedBestia::class) + HonorService.READS
+    setOf(Account::class, TakenDamage::class, Level::class, OwnedBestia::class) + HonorService.READS +
+      FactionRivalry.READS
   override val writes: ComponentClassSet = setOf(Dead::class) + HonorService.WRITES
 
   /** When each killer was last paid for each victim, by master id. Lost on restart, which costs one extra bounty. */
@@ -122,7 +123,7 @@ class PlayerKillHonorSystem(
     if (!world.has(victim, Master::class)) {
       return HonorAct.KILL_PLAYER_BESTIA
     }
-    if (!allegiance.areOpposing(world, killer, victim)) {
+    if (!rivalry.areOpposing(world, killer, victim)) {
       return HonorAct.KILL_PLAYER
     }
 
