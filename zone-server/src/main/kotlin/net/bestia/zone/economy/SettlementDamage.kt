@@ -4,7 +4,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.pop.Catchment
 import net.bestia.zone.world.WorldGenConfig
 import net.bestia.zone.world.WorldService
+import net.bestia.zone.ground.ColumnKey
 import net.bestia.zone.ground.fire.ScorchRegistry
+import net.bestia.zone.prop.FelledWoods
 import net.bestia.zone.prop.WorldObjectDivergenceRegistry
 import net.bestia.zone.world.settlement.SettlementSite
 import net.bestia.zone.world.settlement.SettlementSiteIndex
@@ -29,12 +31,10 @@ import kotlin.math.sqrt
  * are known, so asking the divergence map about each is cheaper than walking a map that may hold
  * thousands of felled trees.
  *
- * ### Two channels, not three
+ * ### Three channels
  *
- * Burnt ground and destroyed workplaces. The design's third - felled and collected props - has no
- * reader yet, because no trade in the catalogue takes a prop as an input: the one that would, the
- * carpenter, is blocked on there being no `log` item. Building a channel nothing consumes is how this
- * codebase ends up with subsystems that are complete, tested and never reached.
+ * Burnt ground, felled woods and destroyed workplaces. Collected props such as herbs have no channel,
+ * because no trade in the catalogue takes one as an input.
  *
  * ### Read-only, and it must stay that way
  *
@@ -48,7 +48,9 @@ class SettlementDamage(
   private val sites: SettlementSiteIndex,
   private val scorch: ScorchRegistry,
   private val divergence: WorldObjectDivergenceRegistry,
+  private val felled: FelledWoods,
   private val catalogue: EconomyCatalogue,
+  private val commodityItems: CommodityItems,
   private val worldService: WorldService,
   private val settings: WorldGenConfig,
 ) : SettlementCapacity {
@@ -63,18 +65,18 @@ class SettlementDamage(
   }
 
   /**
-   * Every settlement with a scar inside its catchment.
+   * Every settlement with a scar or a felled tree inside its catchment.
    *
-   * The reverse of the usual question, and the only place it is asked that way. Scars are few - a
-   * handful in ordinary play and none most of the time - so walking them and asking which towns are
-   * near is affordable, where walking the towns and asking which are scarred would not be.
+   * The reverse of the usual question, and the only place it is asked that way. Scarred and felled
+   * columns are few, so walking them and asking which towns are near is affordable, where walking the
+   * towns and asking which are damaged would not be.
    *
    * Destroyed buildings are deliberately not here. Knocking one down means standing in the town, so
-   * the ordinary read path has already brought that settlement into the books; a fire can be set and
-   * walked away from, which is the case that needs pushing.
+   * the ordinary read path has already brought that settlement into the books; a fire or a felled wood
+   * can be left behind, which is the case that needs pushing.
    */
   override fun damagedSettlements(): Set<Int> {
-    val keys = scorch.scarredKeys()
+    val keys = scorch.scarredKeys() + felled.felledColumns()
     if (keys.isEmpty()) return emptySet()
 
     val config = worldService.config
@@ -89,7 +91,7 @@ class SettlementDamage(
     }
 
     // The coarse pass over-selects on purpose - one reach for every tier - so the assessment itself is
-    // what decides whether the fire actually fell on that town's fields.
+    // what decides whether the damage actually fell on that town's land.
     return near.filterTo(LinkedHashSet()) { settlement ->
       assessmentOf(settlement).byTrade.values.any { it < 1.0 }
     }
@@ -112,16 +114,20 @@ class SettlementDamage(
 
   private fun assess(settlement: Int): Map<String, Double> {
     val site = sites.siteOf(settlement) ?: return emptyMap()
-    val ground = groundHealthOf(site)
+    val fields = groundHealthOf(site)
+    val woods = woodlandHealthOf(site)
 
     return catalogue.trades().associate { trade ->
-      val workplaces = workplaceHealthOf(site, trade)
-      // Ground damage reaches the trades that work the land and nothing else - a burnt field does not
+      // Land damage reaches the trades that work that land and nothing else - a burnt field does not
       // stop a mill turning, it stops there being anything to put in it, and the Leontief minimum in
       // the step is what carries that downstream.
-      val health = if (trade.land == Trade.Land.ARABLE) workplaces * ground else workplaces
+      val land = when (trade.land) {
+        Trade.Land.ARABLE -> fields
+        Trade.Land.WOODLAND -> woods
+        null -> 1.0
+      }
 
-      trade.id to health
+      trade.id to workplaceHealthOf(site, trade) * land
     }
   }
 
@@ -187,31 +193,67 @@ class SettlementDamage(
    * contested field whose two shares did not add up would hurt one village for free.
    */
   private fun burntSquareMetresIn(site: SettlementSite): Double {
-    val keys = scorch.scarredKeys()
-    if (keys.isEmpty()) return 0.0
+    val config = worldService.config
+    val cellArea = config.voxelSize * config.voxelSize
+
+    return claimWeightedSum(site, scorch.scarredKeys()) { key ->
+      (scorch.scarOf(key)?.visible?.count ?: 0) * cellArea
+    }
+  }
+
+  /**
+   * How much of the woods a settlement works are felled, as I20's felling ceiling allows.
+   *
+   * The woods worked are what the town fells in one regrowth cycle, capped by the trees it has - the
+   * same reading as the farmland, where a town works as much of its land as it eats.
+   */
+  private fun woodlandHealthOf(site: SettlementSite): Double {
+    val worked = workedTreesOf(site)
+    if (worked <= 0.0) return 1.0
+
+    val gone = claimWeightedSum(site, felled.felledColumns()) { felled.felledIn(it) }
+    if (gone <= 0.0) return 1.0
+
+    LOG.debug { "Settlement ${site.index}: ${"%.1f".format(gone)} trees felled of ${"%.1f".format(worked)} worked" }
+
+    return 1.0 - min(FELLING_CEILING, gone / worked)
+  }
+
+  private fun workedTreesOf(site: SettlementSite): Double {
+    val summary = site.population ?: return 0.0
+    val reference = SettlementReference.of(catalogue, site.index, summary.population, summary.wealth, summary.traffic)
+
+    val treesPerDay = catalogue.trades().filter { it.land == Trade.Land.WOODLAND }.sumOf { trade ->
+      val perTree = commodityItems.itemIdOf(trade.produces)?.let { felled.yieldPerTree(it) } ?: 0.0
+      if (perTree <= 0.0) 0.0 else (reference.throughput[trade.produces] ?: 0.0) / perTree
+    }
+
+    return min(summary.woodlandTrees, treesPerDay * felled.regrowthDays())
+  }
+
+  /**
+   * [amountIn] summed over the columns inside the catchment, each weighted by the settlement's claim on it.
+   *
+   * The column's centre is close enough: a chunk is 32 m against a catchment of kilometres.
+   */
+  private inline fun claimWeightedSum(site: SettlementSite, columns: List<Long>, amountIn: (Long) -> Double): Double {
+    if (columns.isEmpty()) return 0.0
 
     val config = worldService.config
     val radius = Catchment.radiusOf(site.tier, economyParams())
-    val cellArea = config.voxelSize * config.voxelSize
     val chunkMetres = config.chunkSize * config.voxelSize
 
-    var burnt = 0.0
-    for (key in keys) {
-      val scar = scorch.scarOf(key) ?: continue
-      val chunkX = (key shr 32).toInt()
-      val chunkY = key.toInt()
-
-      // The column's centre is close enough: a chunk is 32 m against a catchment of kilometres, so
-      // resolving the weight per cell would be four orders of magnitude of precision nobody can see.
-      val dx = (chunkX + 0.5) * chunkMetres - site.centre.x
-      val dy = (chunkY + 0.5) * chunkMetres - site.centre.y
+    var sum = 0.0
+    for (key in columns) {
+      val dx = (ColumnKey.chunkXOf(key) + 0.5) * chunkMetres - site.centre.x
+      val dy = (ColumnKey.chunkYOf(key) + 0.5) * chunkMetres - site.centre.y
       val distance = sqrt(dx * dx + dy * dy)
       if (distance > radius) continue
 
-      burnt += scar.visible.count * cellArea * Catchment.weightAt(distance, radius)
+      sum += amountIn(key) * Catchment.weightAt(distance, radius)
     }
 
-    return burnt
+    return sum
   }
 
   /**
@@ -236,6 +278,9 @@ class SettlementDamage(
 
     /** I20: and destroyed workplaces at most this much. */
     const val WORKPLACE_CEILING = 0.8
+
+    /** I20: and felled woods at most this much. A wood cut to the last tree never grows back. */
+    const val FELLING_CEILING = 0.6
 
     /**
      * How stale an assessment may get. The books move in game-days and the shortest is twenty real

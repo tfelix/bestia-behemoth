@@ -15,7 +15,9 @@ import net.bestia.zone.world.WorldGenConfig
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.ground.fire.Scar
 import net.bestia.zone.ground.fire.ScorchRegistry
+import net.bestia.zone.ground.ColumnKey
 import net.bestia.zone.ground.ColumnMask
+import net.bestia.zone.prop.FelledWoods
 import net.bestia.zone.prop.DivergenceEntry
 import net.bestia.zone.prop.persistence.DivergenceState
 import net.bestia.zone.entity.StaticEntityKind
@@ -44,12 +46,16 @@ class SettlementCapacityTest {
   private val divergence = mockk<WorldObjectDivergenceRegistry>()
   private val worldService = mockk<WorldService>()
   private val settings = mockk<WorldGenConfig>()
+  private val felled = mockk<FelledWoods>()
+  private val commodityItems = mockk<CommodityItems>()
 
   private val destroyed = HashSet<Long>()
   private val regrowing = HashMap<Long, Instant>()
   private var scars = emptyMap<Long, Scar>()
+  private var felledTrees = emptyMap<Long, Double>()
 
-  private val sut = SettlementDamage(sites, scorch, divergence, catalogue, worldService, settings)
+  private val sut =
+    SettlementDamage(sites, scorch, divergence, felled, catalogue, commodityItems, worldService, settings)
 
   init {
     every { sites.siteOf(VILLAGE) } returns village()
@@ -60,6 +66,11 @@ class SettlementCapacityTest {
     every { settings.paramsFor(any()) } returns WorldParams()
     every { scorch.scarredKeys() } answers { scars.keys.toList() }
     every { scorch.scarOf(any()) } answers { scars[firstArg()] }
+    every { felled.felledColumns() } answers { felledTrees.keys.toList() }
+    every { felled.felledIn(any()) } answers { felledTrees[firstArg()] ?: 0.0 }
+    every { felled.regrowthDays() } returns REGROWTH_DAYS
+    every { felled.yieldPerTree(LOG_ITEM) } returns LOGS_PER_TREE
+    every { commodityItems.itemIdOf("log") } returns LOG_ITEM
     every { divergence.of(any()) } answers {
       val propId = firstArg<Long>()
       when {
@@ -166,6 +177,40 @@ class SettlementCapacityTest {
   }
 
   @Test
+  fun `felling the woods thins the woodcutting, and only the woodcutting`() {
+    fell(trees = workedTrees() * 0.25)
+
+    assertTrue(capacityOf("woodcutting") < 0.8, "a quarter of the woods felled and the woodcutter is at ${capacityOf("woodcutting")}")
+    assertEquals(1.0, capacityOf("farm"), "felling trees was charged to the fields")
+    assertEquals(1.0, capacityOf("carpentry"), "felling trees stopped the saw, which only the Leontief minimum may")
+  }
+
+  @Test
+  fun `I20 - and a clear-cut leaves two fifths of the woodcutting`() {
+    fell(trees = workedTrees() * 2.0)
+
+    assertEquals(1.0 - SettlementDamage.FELLING_CEILING, capacityOf("woodcutting"), 1e-9)
+  }
+
+  @Test
+  fun `I19 - felling more is never better`() {
+    val outcomes = listOf(0.0, 0.05, 0.15, 0.3, 0.5).map { share ->
+      fell(trees = workedTrees() * share)
+      capacityOf("woodcutting")
+    }
+
+    assertEquals(outcomes.sortedDescending(), outcomes, "felling more of the woods helped: $outcomes")
+  }
+
+  @Test
+  fun `a wood felled out in the country belongs to nobody`() {
+    felledTrees = mapOf(ColumnKey.of(4_000, 0) to workedTrees())
+
+    assertEquals(1.0, capacityOf("woodcutting"), "a wood beyond the catchment was charged to the village")
+    assertTrue(sut.damagedSettlements().isEmpty(), "a far-away clearing pulled the village into the sweep")
+  }
+
+  @Test
   fun `a settlement that was never founded has nothing to lose`() {
     assertEquals(1.0, sut.capacityOf(VILLAGE + 1, "farm"))
   }
@@ -195,6 +240,22 @@ class SettlementCapacityTest {
 
     scars = burning
     sut.invalidate()
+  }
+
+  /** Fells [trees] in the column next to the village centre, so that the claim-weighted count is exactly that. */
+  private fun fell(trees: Double) {
+    val radius = Catchment.radiusOf(SettlementTier.VILLAGE, WorldParams().economy)
+    val distance = Math.hypot(CHUNK * 0.5, CHUNK * 0.5)
+
+    felledTrees = mapOf(ColumnKey.of(0, 0) to trees / Catchment.weightAt(distance, radius))
+  }
+
+  /** The trees the village fells in one regrowth cycle, reproduced so the tests can talk in fractions of it. */
+  private fun workedTrees(): Double {
+    val reference = SettlementReference.of(catalogue, VILLAGE, POPULATION.toInt(), wealth = 0.4, traffic = 1.5)
+    val treesPerDay = reference.throughput.getValue("log") / LOGS_PER_TREE
+
+    return minOf(WOODLAND_TREES, treesPerDay * REGROWTH_DAYS)
   }
 
   /**
@@ -229,6 +290,7 @@ class SettlementCapacityTest {
       traffic = 1.5,
       foodCapacity = FOOD_CAPACITY,
       cerealShare = CEREAL_SHARE,
+      woodlandTrees = WOODLAND_TREES,
     ),
     unordered = listOf(
       building(MILL, "miller", BuildingFunction.CRAFT),
@@ -261,6 +323,11 @@ class SettlementCapacityTest {
     /** Comfortably above the population, as a real catchment is - the village works a part of it. */
     const val FOOD_CAPACITY = 3_000.0
     const val CEREAL_SHARE = 0.4
+
+    const val WOODLAND_TREES = 50_000.0
+    const val REGROWTH_DAYS = 63.0
+    const val LOGS_PER_TREE = 4.0
+    const val LOG_ITEM = 59L
 
     val WORLD = PersistedWorld(
       name = "test",

@@ -85,6 +85,8 @@ class WorldObjectDivergenceRegistry(
 
   private val depletedListeners = ArrayList<(Long, DivergenceEntry) -> Unit>()
 
+  private val changeListeners = ArrayList<(Long, DivergenceEntry?) -> Unit>()
+
   /** Every recorded divergence. Tick thread, or at boot before the tick starts. */
   fun all(): Map<Long, DivergenceEntry> {
     return byPropId
@@ -96,6 +98,11 @@ class WorldObjectDivergenceRegistry(
    */
   fun onDepleted(listener: (propId: Long, entry: DivergenceEntry) -> Unit) {
     depletedListeners.add(listener)
+  }
+
+  /** Registers a callback for every change to the map, the boot load and evictions included. Null means gone. */
+  fun onChanged(listener: (propId: Long, entry: DivergenceEntry?) -> Unit) {
+    changeListeners.add(listener)
   }
 
   /** Null for a propId with no recorded divergence - most of them, always, for every kind but a felled tree
@@ -139,6 +146,7 @@ class WorldObjectDivergenceRegistry(
     }
 
     for (listener in depletedListeners) listener(propId, entry)
+    for (listener in changeListeners) listener(propId, entry)
   }
 
   /** Growing trees whose next stage is due by [now], at most [limit] of them. Tick thread. */
@@ -154,6 +162,7 @@ class WorldObjectDivergenceRegistry(
   fun evictRegrown(propId: Long) {
     byPropId.remove(propId)
     asyncJobExecutor.submit(propId) { repository.deleteById(propId) }
+    for (listener in changeListeners) listener(propId, null)
   }
 
   /**
@@ -173,8 +182,10 @@ class WorldObjectDivergenceRegistry(
     }
 
     valid.forEach { row ->
-      byPropId[row.propId] =
+      val entry =
         DivergenceEntry(StaticEntityKind.valueOf(row.kind), row.state, row.resumeAt, row.growthPercent, row.bonusYield)
+      byPropId[row.propId] = entry
+      for (listener in changeListeners) listener(row.propId, entry)
     }
 
     if (orphaned.isNotEmpty()) {
