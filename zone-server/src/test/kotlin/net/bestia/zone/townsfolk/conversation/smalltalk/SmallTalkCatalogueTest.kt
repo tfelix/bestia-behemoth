@@ -186,11 +186,11 @@ class SmallTalkCatalogueTest {
 
   private companion object {
     /**
-     * Three per occupation plus a dozen shared. Raised by one each for the lamplighter and the bestia keeper,
-     * the trades after the postmaster: one line each, since a trade with no unconditional line falls silent and
-     * fails the boot. The next trade is the rethink this number was holding room for.
+     * Three per occupation plus a dozen shared. Raised by one for each trade after the postmaster: the
+     * lamplighter, the bestia keeper and the three timber trades get one line each, since a trade with no
+     * unconditional line falls silent and fails the boot. The rethink this number held room for is overdue.
      */
-    const val BUDGET = 42
+    const val BUDGET = 45
 
     const val ASK_SUFFIX = "_ASK"
   }

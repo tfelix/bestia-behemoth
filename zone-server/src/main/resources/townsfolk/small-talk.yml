@@ -89,6 +89,17 @@ lines:
     variants: 4
     occupations: [miller]
 
+  # --- Timber --------------------------------------------------------------------------------------
+  - key: TALK_SMALL_WOODCUTTER_AXE
+    variants: 4
+    occupations: [woodcutter]
+  - key: TALK_SMALL_CARPENTER_GRAIN
+    variants: 4
+    occupations: [carpenter]
+  - key: TALK_SMALL_CHARCOAL_BURNER_CLAMP
+    variants: 4
+    occupations: [charcoal_burner]
+
   # --- Innkeeper -----------------------------------------------------------------------------------
   - key: TALK_SMALL_INNKEEPER_BREWING
     variants: 4
