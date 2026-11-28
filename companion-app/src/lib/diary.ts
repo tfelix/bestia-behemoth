@@ -3,7 +3,8 @@ import type { DiaryEntry } from '#lib/api/model.ts';
 import { PAUSE_TEXT, stationName } from '#lib/activity.ts';
 import { itemName, JOB_TEXT } from '#lib/names.ts';
 
-const STOPPED: Record<string, string> = {
+/** Why work stopped, as a diary line's reason names it. */
+export const STOPPED: Record<string, string> = {
 	...PAUSE_TEXT,
 	STATION_OUT: 'its fire went out',
 	CANNOT_CRAFT: 'it could not make the next one',
