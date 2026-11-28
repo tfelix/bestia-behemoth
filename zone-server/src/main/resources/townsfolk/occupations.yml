@@ -79,6 +79,22 @@ occupations:
     business: miller
     shift: { from: 6, to: 18 }
 
+  # Out to the woods at first light, back with the cart before dark.
+  - id: woodcutter
+    dialog: { greetings: 3, trade: 3 }
+    business: woodcutter
+    shift: { from: 6, to: 17 }
+
+  - id: carpenter
+    dialog: { greetings: 3, trade: 3 }
+    business: carpenter
+    shift: { from: 7, to: 18 }
+
+  - id: charcoal_burner
+    dialog: { greetings: 3, trade: 3 }
+    business: charcoaler
+    shift: { from: 7, to: 19 }
+
   # No shop of their own. A town has these whether or not its roster has room for a trade.
   - id: farmer
     dialog: { greetings: 5, trade: 5 }
@@ -130,8 +146,6 @@ unstaffed:
   - bookbinder
   - brewer
   - butcher
-  - carpenter
-  - charcoaler
   - dyer
   - fishmonger
   - healer
@@ -146,7 +160,6 @@ unstaffed:
   - tanner
   - vintner
   - weaver
-  - woodcutter
 
 # Minutes either side of the stated hours that one person's whole day is allowed to sit.
 #

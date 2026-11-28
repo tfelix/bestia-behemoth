@@ -136,6 +136,15 @@ TALK_GREETING_MILLER_2,{name} is grey to the elbow and does not seem to mind.
 TALK_GREETING_MILLER_3,{name} waves you back from the running stone first.
 TALK_GREETING_MILLER_4,"{name} listens with their head tilted, out of habit."
 TALK_GREETING_MILLER_5,"{name} shouts a greeting, then remembers you are close enough."
+TALK_GREETING_WOODCUTTER_1,{name} leans the axe against a stump before turning to you.
+TALK_GREETING_WOODCUTTER_2,{name} brushes sawdust and bark off their sleeves.
+TALK_GREETING_WOODCUTTER_3,"{name} nods, still counting the logs on the cart."
+TALK_GREETING_CARPENTER_1,{name} takes the pencil from behind one ear and points it at you.
+TALK_GREETING_CARPENTER_2,{name} sets down the plane and blows the shavings off the bench.
+TALK_GREETING_CARPENTER_3,"{name} looks you up and down, as if measuring you for a door."
+TALK_GREETING_CHARCOAL_BURNER_1,{name} wipes a black hand on a blacker apron.
+TALK_GREETING_CHARCOAL_BURNER_2,"{name} squints at you through the smoke, eyes red from it."
+TALK_GREETING_CHARCOAL_BURNER_3,{name} keeps one eye on the smouldering clamp while you talk.
 TALK_TRADE_ASK,What is it you do here?
 TALK_TRADE_GUARD_1,"The {trade}. Walk it, stand in it, walk it again."
 TALK_TRADE_GUARD_2,"I keep the {trade}. Most days that means being seen and nothing else."
@@ -198,6 +207,15 @@ TALK_TRADE_MILLER_2,I keep the {trade}. Everything the town eats comes past this
 TALK_TRADE_MILLER_3,"The {trade}. Loud, dusty, and the only one of me for some way."
 TALK_TRADE_MILLER_4,"I work the {trade}. The wheel decides the hours, not I."
 TALK_TRADE_MILLER_5,"The {trade}. I take a share of what I grind, which is how a mill lives."
+TALK_TRADE_WOODCUTTER_1,"The {trade}. The carpenter and the charcoal burner both start with me."
+TALK_TRADE_WOODCUTTER_2,"I am the {trade} here. Take too many trees and there are none next year."
+TALK_TRADE_WOODCUTTER_3,"The {trade}. A tree takes weeks to come back, and a whole wood never does."
+TALK_TRADE_CARPENTER_1,"The {trade}. Two planks from every log, if the log is honest."
+TALK_TRADE_CARPENTER_2,"I keep the {trade}. Every roof in town has my planks under it."
+TALK_TRADE_CARPENTER_3,"The {trade}. When the woodcutter is short, so am I."
+TALK_TRADE_CHARCOAL_BURNER_1,"The {trade}. One log in the clamp, three handfuls of charcoal out."
+TALK_TRADE_CHARCOAL_BURNER_2,"I am the {trade}. Every hearth and every forge in town burns what I make."
+TALK_TRADE_CHARCOAL_BURNER_3,"The {trade}. The smith takes most of it and never says thank you."
 TRADE_ALCHEMIST,alchemy workshop
 TRADE_APOTHECARY,apothecary
 TRADE_ARMOURER,armoury
@@ -664,6 +682,21 @@ TALK_SMALL_MILLER_DUST_1,Not any more. That is either habit or something worse.
 TALK_SMALL_MILLER_DUST_2,It gets in everything. My wife knows me by the grey.
 TALK_SMALL_MILLER_DUST_3,You stop seeing it. You never stop tasting it.
 TALK_SMALL_MILLER_DUST_4,"Less than fire does. Flour dust and a spark do not mix, and everyone forgets that."
+TALK_SMALL_WOODCUTTER_AXE_ASK,Is the axe keeping its edge?
+TALK_SMALL_WOODCUTTER_AXE_1,"Better than I am. I sharpen it every evening, nobody sharpens me."
+TALK_SMALL_WOODCUTTER_AXE_2,"Oak blunts it, pine gums it up. There is no good wood, only less bad."
+TALK_SMALL_WOODCUTTER_AXE_3,Ask me after the next knot. That is where an edge goes to die.
+TALK_SMALL_WOODCUTTER_AXE_4,"It is the arms that go first, not the axe."
+TALK_SMALL_CARPENTER_GRAIN_ASK,What makes a good plank?
+TALK_SMALL_CARPENTER_GRAIN_1,"Straight grain and patience. The wood has both, I have one."
+TALK_SMALL_CARPENTER_GRAIN_2,A dry log. Saw it green and it twists on you within the month.
+TALK_SMALL_CARPENTER_GRAIN_3,"No knots where the nail goes. Everything else is talk."
+TALK_SMALL_CARPENTER_GRAIN_4,"One you do not notice. Nobody looks at a floor that holds."
+TALK_SMALL_CHARCOAL_BURNER_CLAMP_ASK,How long does a clamp burn?
+TALK_SMALL_CHARCOAL_BURNER_CLAMP_1,"Days, if it is done right. Hours, if the wind finds a hole."
+TALK_SMALL_CHARCOAL_BURNER_CLAMP_2,Long enough that I sleep beside it.
+TALK_SMALL_CHARCOAL_BURNER_CLAMP_3,"Until the smoke turns blue. Then you have charcoal, or nothing."
+TALK_SMALL_CHARCOAL_BURNER_CLAMP_4,Slower than anyone wants and faster than I can watch.
 RUMOUR_BOSS_SLAIN_ASK,Has anything been happening?
 RUMOUR_BOSS_SLAIN_1,"Something big was killed out past the ridge. Folk went to look and came back quiet."
 RUMOUR_BOSS_SLAIN_2,"There was a thing out there. Somebody put it down. I have not been out that way since."
