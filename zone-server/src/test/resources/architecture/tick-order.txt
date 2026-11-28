@@ -94,6 +94,7 @@
  - SPAWN wave 55: SpawnerSystem [EverySeconds(seconds=0.25)]
  - SPAWN wave 56: TownsfolkResidencySystem [EverySeconds(seconds=0.25)]
  - SPAWN wave 57: IndoorEmergenceSystem [EverySeconds(seconds=20.0)]
+ - UPKEEP wave 58: FactionBadgeSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 58: GroundLevelDecaySystem [EveryTick]
  - UPKEEP wave 58: GuildStorageSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 58: GuildTagSystem [EverySeconds(seconds=1.0)]

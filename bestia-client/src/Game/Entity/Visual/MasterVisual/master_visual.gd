@@ -8,6 +8,8 @@ const CarriedLightScn := preload("res://Game/Entity/Visual/MasterVisual/CarriedL
 var _master_entity_id: int = 0
 var _master_name: String = ""
 var _guild_line: String = ""
+var _faction: int = OrderBadgeLine.NONE
+var _order_line: Label3D
 var _emblem_hash: String = ""
 var _emblem: NameTagEmblem = null
 var _hovered: bool = false
@@ -112,11 +114,17 @@ func set_guild_tag(tag: GuildTagComponentSMSG) -> void:
 	_apply_name_tag()
 
 
+func set_faction(faction: int) -> void:
+	_faction = faction
+	_apply_name_tag()
+
+
 func _apply_name_tag() -> void:
 	if _name_tag == null:
 		return
 	_name_tag.text = GuildTagLine.under(_master_name, _guild_line)
 	_emblem = GuildTagLine.show_emblem(_name_tag, _emblem, _emblem_hash)
+	_order_line = OrderBadgeLine.show_above(_name_tag, _order_line, _faction)
 
 
 ## Named for the method [MouseManager] duck-types across every clickable visual, not for bestias - a master

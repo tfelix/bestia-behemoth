@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "FactionBadgeComponentSMSGProto";
+
+// The Order a master is sworn to, for its name tag. On the master and its bestias, sent to everyone in range, so
+// a rival can be told from an ally before a fight. Removed, with removed = true, when the master leaves the Order.
+message FactionBadgeComponentSMSG {
+  FactionId faction = 1;
+  bool removed = 2;
+}
+
+enum FactionId {
+  FACTION_NONE = 0;
+  FACTION_CHAOS = 1;
+  FACTION_ETERNITY = 2;
+  FACTION_CIRCLE = 3;
+}
