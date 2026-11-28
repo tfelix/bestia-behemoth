@@ -9,6 +9,7 @@
 		type BestiaOrders,
 		type BestiaPlace,
 		type BestiaPlaces,
+		type Catalog,
 		type ChestWrite,
 		type OrderPreset,
 		type PresetWrite
@@ -17,20 +18,27 @@
 	import { touchesMaster } from '#lib/events.ts';
 	import { guarded } from '#lib/guard.ts';
 	import { live } from '#lib/live.svelte.ts';
-	import { COURAGE_NAME, JOB_TEXT, speciesName } from '#lib/names.ts';
+	import { COURAGE_NAME, JOB_TEXT, itemName, speciesName } from '#lib/names.ts';
 	import {
 		ACTION_NAME,
+		CARE_LISTS,
 		CONDITIONS,
+		GATHERED_ITEMS,
+		GATHER_CATEGORIES,
+		MAX_ITEMS,
 		MAX_RULES,
 		NUMBERS,
 		changed,
 		draftOf,
 		fallbacksFor,
+		gathers,
 		mayTake,
 		newRule,
 		ordersOf,
 		ruleOf,
 		sheetOf,
+		withItem,
+		withSkip,
 		type OrderDraft
 	} from '#lib/orders.ts';
 	import { activityText } from '#lib/activity.ts';
@@ -46,6 +54,22 @@
 	let chestName = $state('');
 	let drafts = $state<Record<number, Draft>>({});
 	let failure = $state<string | null>(null);
+	let items = $state<Catalog['items']>([]);
+
+	type Item = Catalog['items'][number];
+
+	function byName(a: Item, b: Item): number {
+		return itemName(a.identifier).localeCompare(itemName(b.identifier));
+	}
+
+	/** What a bestia could use on itself: the usable items. */
+	const usableItems = $derived(items.filter((item) => item.type === 'USABLE').sort(byName));
+	const gatheredItems = $derived(items.filter((item) => GATHERED_ITEMS.includes(item.id)).sort(byName));
+
+	function nameOfItem(itemId: number): string {
+		const item = items.find((each) => each.id === itemId);
+		return item ? itemName(item.identifier) : `#${itemId}`;
+	}
 
 	function freshDraft(b: Bestia, note: string | null): Draft {
 		return { ...draftOf(b), key: crypto.randomUUID(), sending: false, note, presetName: '' };
@@ -68,6 +92,12 @@
 			failure = e instanceof Error ? e.message : String(e);
 		}
 	}
+
+	$effect(() => {
+		void getJson<Catalog>('/v1/companion/catalog')
+			.then((catalog) => (items = catalog.items))
+			.catch(() => {});
+	});
 
 	$effect(() => {
 		const id = masterId;
@@ -191,6 +221,31 @@
 		}
 	}
 </script>
+
+{#snippet itemList(name: string, chosen: number[], choices: Item[], set: (next: number[]) => void)}
+	<div class="items">
+		<span class="muted small">{name}</span>
+		{#each chosen as itemId (itemId)}
+			<span class="item"
+				>{nameOfItem(itemId)}
+				<button class="btn small" aria-label="Remove item" onclick={() => set(chosen.filter((id) => id !== itemId))}>×</button></span
+			>
+		{/each}
+		{#if chosen.length < MAX_ITEMS}
+			<select
+				aria-label={`${name}: add an item`}
+				value=""
+				onchange={(e) => {
+					set(withItem(chosen, Number(e.currentTarget.value)));
+					e.currentTarget.value = '';
+				}}
+			>
+				<option value="">Add…</option>
+				{#each choices as item (item.id)}<option value={item.id}>{itemName(item.identifier)}</option>{/each}
+			</select>
+		{/if}
+	</div>
+{/snippet}
 
 <main class="page">
 	<div class="top">
@@ -319,6 +374,28 @@
 						</div>
 
 						{#if !following}
+							{#if gathers(draft)}
+								<div class="label">Gathers</div>
+								<div class="items">
+									{#each GATHER_CATEGORIES as category (category.key)}
+										<label title={category.text}>
+											<input
+												type="checkbox"
+												checked={!draft.gatherFilter.skip.includes(category.key)}
+												onchange={(e) => (draft.gatherFilter.skip = withSkip(draft.gatherFilter.skip, category.key, !e.currentTarget.checked))}
+											/>
+											{category.name}
+										</label>
+									{/each}
+								</div>
+								{@render itemList('Only these items (none: all)', draft.gatherFilter.onlyItems, gatheredItems, (next) => (draft.gatherFilter.onlyItems = next))}
+							{/if}
+
+							<div class="label">Care items <span class="muted small">(it also uses common food and bandages)</span></div>
+							{#each CARE_LISTS as list (list.key)}
+								{@render itemList(list.name, draft.careItems[list.key], usableItems, (next) => (draft.careItems[list.key] = next))}
+							{/each}
+
 							<div class="label">Rules <span class="muted small">(read from the top, the first that holds decides)</span></div>
 							{#each draft.rules as rule, i (i)}
 								{@const condition = CONDITIONS[rule.condition]}
@@ -552,6 +629,23 @@
 
 	.threshold {
 		width: 4rem;
+	}
+
+	.items {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.4rem;
+		margin: 0.35rem 0 0.6rem;
+	}
+
+	.item {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3rem;
+		padding-left: 0.5rem;
+		border: 1px solid var(--edge);
+		border-radius: 0.45rem;
 	}
 
 	.preset span:first-child {

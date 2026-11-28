@@ -37,6 +37,8 @@ namespace BestiaBehemothClient.Bnet.Message.Master
         msg.Rules.AddRange(Orders.RulesToProto());
         if (Orders.AreaPlaceId != 0) msg.AreaPlaceId = Orders.AreaPlaceId;
         if (Orders.ChestPlaceId != 0) msg.ChestPlaceId = Orders.ChestPlaceId;
+        msg.CareItems = Orders.CareItemsToProto();
+        msg.GatherFilter = Orders.GatherFilterToProto();
       }
 
       return new Envelope { SetBestiaAiConfig = msg };

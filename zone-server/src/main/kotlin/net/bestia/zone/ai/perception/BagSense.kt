@@ -4,6 +4,7 @@ import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.item.care.BagCare
+import net.bestia.zone.item.care.CareItems
 import net.bestia.zone.item.ecs.CarryCapacity
 import net.bestia.zone.item.ecs.Inventory
 import org.springframework.stereotype.Component
@@ -40,9 +41,10 @@ class BagSense(
     context.world.get(context.entityId, CarryCapacity::class)?.let { capacity ->
       context.remember(BestiaDomain.BAG_LOAD_PCT, percentOf(inventory.totalWeight, capacity.max))
     }
-    context.remember(BestiaDomain.FOOD_IN_BAG, care.hasFor(inventory, BagCare.Need.STAMINA))
-    context.remember(BestiaDomain.FOOD_STOCK_IN_BAG, care.staminaStockOf(inventory))
-    context.remember(BestiaDomain.HEAL_IN_BAG, care.hasFor(inventory, BagCare.Need.HEALTH))
+    val items = context.recall(BestiaDomain.CARE_ITEMS) ?: CareItems()
+    context.remember(BestiaDomain.FOOD_IN_BAG, care.hasFor(inventory, BagCare.Need.STAMINA, items))
+    context.remember(BestiaDomain.FOOD_STOCK_IN_BAG, care.staminaStockOf(inventory, items))
+    context.remember(BestiaDomain.HEAL_IN_BAG, care.hasFor(inventory, BagCare.Need.HEALTH, items))
   }
 
   private fun percentOf(current: Int, max: Int): Int = if (max <= 0) 100 else current * 100 / max

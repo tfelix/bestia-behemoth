@@ -87,6 +87,8 @@ sealed interface ZoneQuery {
     val areaPlaceId: Long? = null,
     val chestPlaceId: Long? = null,
     val presetId: Long? = null,
+    val careItems: OrderCareItems = OrderCareItems(),
+    val gatherFilter: OrderGatherFilter = OrderGatherFilter(),
   ) : ZoneQuery
 
   /** The master's order presets, by name. */

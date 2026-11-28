@@ -3,6 +3,7 @@ package net.bestia.zone.ai.domain.bestia
 import net.bestia.zone.battle.ecs.status.LabourLedger
 import net.bestia.zone.bestia.diary.BestiaNews
 import net.bestia.zone.ai.profile.BestiaJob
+import net.bestia.zone.ai.profile.GatherFilter
 import net.bestia.zone.ai.profile.OrderRule
 import net.bestia.zone.battle.attack.BasicAttackResolver
 import net.bestia.zone.ai.bt.Locomotion
@@ -45,6 +46,7 @@ import net.bestia.zone.battle.attack.AttackExecutionService
 import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.care.BagCare
+import net.bestia.zone.item.care.CareItems
 import net.bestia.zone.item.container.ItemHandover
 
 /**
@@ -152,6 +154,9 @@ object BestiaDomain : AiDomainCatalogue {
   val FOOD_IN_BAG = StateKey<Boolean>("foodInBag", observed = true)
   val HEAL_IN_BAG = StateKey<Boolean>("healInBag", observed = true)
 
+  /** The items an owned bestia's orders allow or forbid it on top of common food and bandages. */
+  val CARE_ITEMS = StateKey<CareItems>("careItems", retain = Blackboard.PERMANENT)
+
   /** An owned bestia's care and courage lines, from its orders. Wild mobs have none. */
   val EAT_BELOW_STAMINA_PCT = StateKey<Int>("eatBelowStaminaPct", retain = Blackboard.PERMANENT)
   val HEAL_BELOW_HEALTH_PCT = StateKey<Int>("healBelowHealthPct", retain = Blackboard.PERMANENT)
@@ -186,6 +191,9 @@ object BestiaDomain : AiDomainCatalogue {
 
   /** The job an owned bestia's orders give it first. Its fallback job waits until [mainJobIdle]. */
   val MAIN_JOB = StateKey<BestiaJob>("mainJob", retain = Blackboard.PERMANENT)
+
+  /** What an owned gatherer's orders let it take. See `GatherSense`. */
+  val GATHER_FILTER = StateKey<GatherFilter>("gatherFilter", retain = Blackboard.PERMANENT)
 
   /** The props a gatherer last saw in its area, nearest first. See `GatherSense`. */
   val GATHERABLES = StateKey<List<Gatherable>>("gatherables")

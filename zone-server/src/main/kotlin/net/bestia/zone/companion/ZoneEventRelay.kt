@@ -136,6 +136,8 @@ class ZoneEventRelay(
         orders.chestPlaceId,
         orders.presetId,
         orders.ownOverrides,
+        orders.careItems,
+        orders.gatherFilter,
       )
     )
   }

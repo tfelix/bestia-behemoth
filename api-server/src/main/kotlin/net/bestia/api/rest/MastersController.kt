@@ -1,6 +1,8 @@
 package net.bestia.api.rest
 
 import net.bestia.bus.contract.OrderRuleLine
+import net.bestia.bus.contract.OrderCareItems
+import net.bestia.bus.contract.OrderGatherFilter
 import net.bestia.bus.contract.OrderNumbers
 import net.bestia.api.auth.CompanionAuthFilter.Companion.ACCOUNT_ID
 import net.bestia.api.bus.ZoneClient
@@ -79,6 +81,8 @@ class MastersController(
     val activity: ZoneAnswer.Roster.Activity?,
     /** The jobs its species may take; the orders page greys out the rest. */
     val allowedJobs: List<String>,
+    val careItems: OrderCareItems,
+    val gatherFilter: OrderGatherFilter,
   )
 
   /** [route] is the way still ahead as planned; [waypoints] from [nextIndex] on are still to visit. */
@@ -195,6 +199,8 @@ class MastersController(
         ownOverrides = it.ownOverrides,
         activity = it.activity,
         allowedJobs = it.allowedJobs,
+        careItems = it.careItems,
+        gatherFilter = it.gatherFilter,
       )
     }
   }

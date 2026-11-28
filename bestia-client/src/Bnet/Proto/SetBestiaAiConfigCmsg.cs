@@ -25,7 +25,7 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci9tZXNzYWdlcy9tYXN0ZXIvc2V0X2Jlc3RpYV9haV9jb25maWdfY21zZy5w",
-            "cm90bxIEYm5ldCLhCgoVU2V0QmVzdGlhQWlDb25maWdDTVNHEhgKEHBsYXll",
+            "cm90bxIEYm5ldCLbDQoVU2V0QmVzdGlhQWlDb25maWdDTVNHEhgKEHBsYXll",
             "cl9iZXN0aWFfaWQYASABKAQSLAoDam9iGAUgASgOMh8uYm5ldC5TZXRCZXN0",
             "aWFBaUNvbmZpZ0NNU0cuSm9iEjQKB2NvdXJhZ2UYBiABKA4yIy5ibmV0LlNl",
             "dEJlc3RpYUFpQ29uZmlnQ01TRy5Db3VyYWdlEjUKDGZhbGxiYWNrX2pvYhgH",
@@ -34,34 +34,44 @@ namespace Bnet {
             "cmlkZXMSLwoFcnVsZXMYCSADKAsyIC5ibmV0LlNldEJlc3RpYUFpQ29uZmln",
             "Q01TRy5SdWxlEhYKCXByZXNldF9pZBgKIAEoBEgAiAEBEhoKDWFyZWFfcGxh",
             "Y2VfaWQYCyABKARIAYgBARIbCg5jaGVzdF9wbGFjZV9pZBgMIAEoBEgCiAEB",
-            "GrYDCgRSdWxlEj0KCWNvbmRpdGlvbhgBIAEoDjIqLmJuZXQuU2V0QmVzdGlh",
-            "QWlDb25maWdDTVNHLlJ1bGUuQ29uZGl0aW9uEhYKCXRocmVzaG9sZBgCIAEo",
-            "BUgAiAEBEjcKBmFjdGlvbhgDIAEoDjInLmJuZXQuU2V0QmVzdGlhQWlDb25m",
-            "aWdDTVNHLlJ1bGUuQWN0aW9uIokBCglDb25kaXRpb24SGQoVQ09ORElUSU9O",
-            "X1VOU1BFQ0lGSUVEEAASEQoNU1RBTUlOQV9CRUxPVxABEhAKDEhFQUxUSF9C",
-            "RUxPVxACEg0KCUJBR19BQk9WRRADEgkKBU5JR0hUEAQSBwoDREFZEAUSGQoV",
-            "U1RST05HRVJfRk9FX0lOX1NJR0hUEAYigwEKBkFjdGlvbhIWChJBQ1RJT05f",
-            "VU5TUEVDSUZJRUQQABIHCgNFQVQQARIQCgxSRVNUX0FUX0hPTUUQAhIICgRI",
-            "RUFMEAMSCwoHUkVUUkVBVBAEEgwKCEhBVUxfTk9XEAUSEAoMS0VFUF9XT1JL",
-            "SU5HEAYSDwoLSE9MRF9HUk9VTkQQB0IMCgpfdGhyZXNob2xkGqkCCglPdmVy",
-            "cmlkZXMSJQoYcmV0cmVhdF9iZWxvd19oZWFsdGhfcGN0GAEgASgFSACIAQES",
-            "IgoVZWF0X2JlbG93X3N0YW1pbmFfcGN0GAIgASgFSAGIAQESIgoVaGVhbF9i",
-            "ZWxvd19oZWFsdGhfcGN0GAMgASgFSAKIAQESHQoQaGF1bF9hdF9sb2FkX3Bj",
-            "dBgEIAEoBUgDiAEBEhgKC2FyZWFfcmFkaXVzGAUgASgFSASIAQFCGwoZX3Jl",
-            "dHJlYXRfYmVsb3dfaGVhbHRoX3BjdEIYChZfZWF0X2JlbG93X3N0YW1pbmFf",
-            "cGN0QhgKFl9oZWFsX2JlbG93X2hlYWx0aF9wY3RCEwoRX2hhdWxfYXRfbG9h",
-            "ZF9wY3RCDgoMX2FyZWFfcmFkaXVzIlAKA0pvYhITCg9KT0JfVU5TUEVDSUZJ",
-            "RUQQABIJCgVHVUFSRBABEggKBFJFU1QQAhIKCgZHQVRIRVIQAxIJCgVDUkFG",
-            "VBAEEggKBE1JTkUQBSJbCgdDb3VyYWdlEhcKE0NPVVJBR0VfVU5TUEVDSUZJ",
-            "RUQQABIJCgVUSU1JRBABEgsKB0NBUkVGVUwQAhIKCgZTVEVBRFkQAxIICgRC",
-            "T0xEEAQSCQoFQlJBVkUQBUIMCgpfcHJlc2V0X2lkQhAKDl9hcmVhX3BsYWNl",
-            "X2lkQhEKD19jaGVzdF9wbGFjZV9pZEoECAIQA0oECAMQBEoECAQQBUIzChVu",
-            "ZXQuYmVzdGlhLmJuZXQucHJvdG9CGlNldEJlc3RpYUFpQ29uZmlnQ21zZ1By",
-            "b3RvYgZwcm90bzM="));
+            "EjkKCmNhcmVfaXRlbXMYDSABKAsyJS5ibmV0LlNldEJlc3RpYUFpQ29uZmln",
+            "Q01TRy5DYXJlSXRlbXMSPwoNZ2F0aGVyX2ZpbHRlchgOIAEoCzIoLmJuZXQu",
+            "U2V0QmVzdGlhQWlDb25maWdDTVNHLkdhdGhlckZpbHRlchq2AwoEUnVsZRI9",
+            "Cgljb25kaXRpb24YASABKA4yKi5ibmV0LlNldEJlc3RpYUFpQ29uZmlnQ01T",
+            "Ry5SdWxlLkNvbmRpdGlvbhIWCgl0aHJlc2hvbGQYAiABKAVIAIgBARI3CgZh",
+            "Y3Rpb24YAyABKA4yJy5ibmV0LlNldEJlc3RpYUFpQ29uZmlnQ01TRy5SdWxl",
+            "LkFjdGlvbiKJAQoJQ29uZGl0aW9uEhkKFUNPTkRJVElPTl9VTlNQRUNJRklF",
+            "RBAAEhEKDVNUQU1JTkFfQkVMT1cQARIQCgxIRUFMVEhfQkVMT1cQAhINCglC",
+            "QUdfQUJPVkUQAxIJCgVOSUdIVBAEEgcKA0RBWRAFEhkKFVNUUk9OR0VSX0ZP",
+            "RV9JTl9TSUdIVBAGIoMBCgZBY3Rpb24SFgoSQUNUSU9OX1VOU1BFQ0lGSUVE",
+            "EAASBwoDRUFUEAESEAoMUkVTVF9BVF9IT01FEAISCAoESEVBTBADEgsKB1JF",
+            "VFJFQVQQBBIMCghIQVVMX05PVxAFEhAKDEtFRVBfV09SS0lORxAGEg8KC0hP",
+            "TERfR1JPVU5EEAdCDAoKX3RocmVzaG9sZBowCglDYXJlSXRlbXMSEQoJbmV2",
+            "ZXJfdXNlGAEgAygEEhAKCGFsc29fdXNlGAIgAygEGskBCgxHYXRoZXJGaWx0",
+            "ZXISRQoEc2tpcBgBIAMoDjI3LmJuZXQuU2V0QmVzdGlhQWlDb25maWdDTVNH",
+            "LkdhdGhlckZpbHRlci5HYXRoZXJDYXRlZ29yeRISCgpvbmx5X2l0ZW1zGAIg",
+            "AygEIl4KDkdhdGhlckNhdGVnb3J5Eh8KG0dBVEhFUl9DQVRFR09SWV9VTlNQ",
+            "RUNJRklFRBAAEgkKBUxPT1NFEAESCQoFUExBTlQQAhIICgRUUkVFEAMSCwoH",
+            "Q1JZU1RBTBAEGqkCCglPdmVycmlkZXMSJQoYcmV0cmVhdF9iZWxvd19oZWFs",
+            "dGhfcGN0GAEgASgFSACIAQESIgoVZWF0X2JlbG93X3N0YW1pbmFfcGN0GAIg",
+            "ASgFSAGIAQESIgoVaGVhbF9iZWxvd19oZWFsdGhfcGN0GAMgASgFSAKIAQES",
+            "HQoQaGF1bF9hdF9sb2FkX3BjdBgEIAEoBUgDiAEBEhgKC2FyZWFfcmFkaXVz",
+            "GAUgASgFSASIAQFCGwoZX3JldHJlYXRfYmVsb3dfaGVhbHRoX3BjdEIYChZf",
+            "ZWF0X2JlbG93X3N0YW1pbmFfcGN0QhgKFl9oZWFsX2JlbG93X2hlYWx0aF9w",
+            "Y3RCEwoRX2hhdWxfYXRfbG9hZF9wY3RCDgoMX2FyZWFfcmFkaXVzIlAKA0pv",
+            "YhITCg9KT0JfVU5TUEVDSUZJRUQQABIJCgVHVUFSRBABEggKBFJFU1QQAhIK",
+            "CgZHQVRIRVIQAxIJCgVDUkFGVBAEEggKBE1JTkUQBSJbCgdDb3VyYWdlEhcK",
+            "E0NPVVJBR0VfVU5TUEVDSUZJRUQQABIJCgVUSU1JRBABEgsKB0NBUkVGVUwQ",
+            "AhIKCgZTVEVBRFkQAxIICgRCT0xEEAQSCQoFQlJBVkUQBUIMCgpfcHJlc2V0",
+            "X2lkQhAKDl9hcmVhX3BsYWNlX2lkQhEKD19jaGVzdF9wbGFjZV9pZEoECAIQ",
+            "A0oECAMQBEoECAQQBUIzChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CGlNldEJl",
+            "c3RpYUFpQ29uZmlnQ21zZ1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG), global::Bnet.SetBestiaAiConfigCMSG.Parser, new[]{ "PlayerBestiaId", "Job", "Courage", "FallbackJob", "Overrides", "Rules", "PresetId", "AreaPlaceId", "ChestPlaceId" }, new[]{ "PresetId", "AreaPlaceId", "ChestPlaceId" }, new[]{ typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Job), typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Courage) }, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Rule), global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Parser, new[]{ "Condition", "Threshold", "Action" }, new[]{ "Threshold" }, new[]{ typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Condition), typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Action) }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG), global::Bnet.SetBestiaAiConfigCMSG.Parser, new[]{ "PlayerBestiaId", "Job", "Courage", "FallbackJob", "Overrides", "Rules", "PresetId", "AreaPlaceId", "ChestPlaceId", "CareItems", "GatherFilter" }, new[]{ "PresetId", "AreaPlaceId", "ChestPlaceId" }, new[]{ typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Job), typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Courage) }, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Rule), global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Parser, new[]{ "Condition", "Threshold", "Action" }, new[]{ "Threshold" }, new[]{ typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Condition), typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Action) }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.CareItems), global::Bnet.SetBestiaAiConfigCMSG.Types.CareItems.Parser, new[]{ "NeverUse", "AlsoUse" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter), global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter.Parser, new[]{ "Skip", "OnlyItems" }, null, new[]{ typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter.Types.GatherCategory) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides), global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides.Parser, new[]{ "RetreatBelowHealthPct", "EatBelowStaminaPct", "HealBelowHealthPct", "HaulAtLoadPct", "AreaRadius" }, new[]{ "RetreatBelowHealthPct", "EatBelowStaminaPct", "HealBelowHealthPct", "HaulAtLoadPct", "AreaRadius" }, null, null, null)})
           }));
     }
@@ -123,6 +133,8 @@ namespace Bnet {
       presetId_ = other.presetId_;
       areaPlaceId_ = other.areaPlaceId_;
       chestPlaceId_ = other.chestPlaceId_;
+      careItems_ = other.careItems_ != null ? other.careItems_.Clone() : null;
+      gatherFilter_ = other.gatherFilter_ != null ? other.gatherFilter_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -305,6 +317,36 @@ namespace Bnet {
       _hasBits0 &= ~4;
     }
 
+    /// <summary>Field number for the "care_items" field.</summary>
+    public const int CareItemsFieldNumber = 13;
+    private global::Bnet.SetBestiaAiConfigCMSG.Types.CareItems careItems_;
+    /// <summary>
+    ///* The items it may use to look after itself, beyond common food and bandages. 
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.SetBestiaAiConfigCMSG.Types.CareItems CareItems {
+      get { return careItems_; }
+      set {
+        careItems_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "gather_filter" field.</summary>
+    public const int GatherFilterFieldNumber = 14;
+    private global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter gatherFilter_;
+    /// <summary>
+    ///* What a gatherer takes. Empty: everything. 
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter GatherFilter {
+      get { return gatherFilter_; }
+      set {
+        gatherFilter_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -329,6 +371,8 @@ namespace Bnet {
       if (PresetId != other.PresetId) return false;
       if (AreaPlaceId != other.AreaPlaceId) return false;
       if (ChestPlaceId != other.ChestPlaceId) return false;
+      if (!object.Equals(CareItems, other.CareItems)) return false;
+      if (!object.Equals(GatherFilter, other.GatherFilter)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -345,6 +389,8 @@ namespace Bnet {
       if (HasPresetId) hash ^= PresetId.GetHashCode();
       if (HasAreaPlaceId) hash ^= AreaPlaceId.GetHashCode();
       if (HasChestPlaceId) hash ^= ChestPlaceId.GetHashCode();
+      if (careItems_ != null) hash ^= CareItems.GetHashCode();
+      if (gatherFilter_ != null) hash ^= GatherFilter.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -396,6 +442,14 @@ namespace Bnet {
         output.WriteRawTag(96);
         output.WriteUInt64(ChestPlaceId);
       }
+      if (careItems_ != null) {
+        output.WriteRawTag(106);
+        output.WriteMessage(CareItems);
+      }
+      if (gatherFilter_ != null) {
+        output.WriteRawTag(114);
+        output.WriteMessage(GatherFilter);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -439,6 +493,14 @@ namespace Bnet {
         output.WriteRawTag(96);
         output.WriteUInt64(ChestPlaceId);
       }
+      if (careItems_ != null) {
+        output.WriteRawTag(106);
+        output.WriteMessage(CareItems);
+      }
+      if (gatherFilter_ != null) {
+        output.WriteRawTag(114);
+        output.WriteMessage(GatherFilter);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -473,6 +535,12 @@ namespace Bnet {
       }
       if (HasChestPlaceId) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(ChestPlaceId);
+      }
+      if (careItems_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(CareItems);
+      }
+      if (gatherFilter_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(GatherFilter);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -513,6 +581,18 @@ namespace Bnet {
       }
       if (other.HasChestPlaceId) {
         ChestPlaceId = other.ChestPlaceId;
+      }
+      if (other.careItems_ != null) {
+        if (careItems_ == null) {
+          CareItems = new global::Bnet.SetBestiaAiConfigCMSG.Types.CareItems();
+        }
+        CareItems.MergeFrom(other.CareItems);
+      }
+      if (other.gatherFilter_ != null) {
+        if (gatherFilter_ == null) {
+          GatherFilter = new global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter();
+        }
+        GatherFilter.MergeFrom(other.GatherFilter);
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -572,6 +652,20 @@ namespace Bnet {
             ChestPlaceId = input.ReadUInt64();
             break;
           }
+          case 106: {
+            if (careItems_ == null) {
+              CareItems = new global::Bnet.SetBestiaAiConfigCMSG.Types.CareItems();
+            }
+            input.ReadMessage(CareItems);
+            break;
+          }
+          case 114: {
+            if (gatherFilter_ == null) {
+              GatherFilter = new global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter();
+            }
+            input.ReadMessage(GatherFilter);
+            break;
+          }
         }
       }
     #endif
@@ -628,6 +722,20 @@ namespace Bnet {
           }
           case 96: {
             ChestPlaceId = input.ReadUInt64();
+            break;
+          }
+          case 106: {
+            if (careItems_ == null) {
+              CareItems = new global::Bnet.SetBestiaAiConfigCMSG.Types.CareItems();
+            }
+            input.ReadMessage(CareItems);
+            break;
+          }
+          case 114: {
+            if (gatherFilter_ == null) {
+              GatherFilter = new global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter();
+            }
+            input.ReadMessage(GatherFilter);
             break;
           }
         }
@@ -989,6 +1097,480 @@ namespace Bnet {
       }
 
       /// <summary>
+      ///* Item ids, at most 8 in each list. 
+      /// </summary>
+      [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+      public sealed partial class CareItems : pb::IMessage<CareItems>
+      #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+          , pb::IBufferMessage
+      #endif
+      {
+        private static readonly pb::MessageParser<CareItems> _parser = new pb::MessageParser<CareItems>(() => new CareItems());
+        private pb::UnknownFieldSet _unknownFields;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public static pb::MessageParser<CareItems> Parser { get { return _parser; } }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public static pbr::MessageDescriptor Descriptor {
+          get { return global::Bnet.SetBestiaAiConfigCMSG.Descriptor.NestedTypes[1]; }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        pbr::MessageDescriptor pb::IMessage.Descriptor {
+          get { return Descriptor; }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public CareItems() {
+          OnConstruction();
+        }
+
+        partial void OnConstruction();
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public CareItems(CareItems other) : this() {
+          neverUse_ = other.neverUse_.Clone();
+          alsoUse_ = other.alsoUse_.Clone();
+          _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public CareItems Clone() {
+          return new CareItems(this);
+        }
+
+        /// <summary>Field number for the "never_use" field.</summary>
+        public const int NeverUseFieldNumber = 1;
+        private static readonly pb::FieldCodec<ulong> _repeated_neverUse_codec
+            = pb::FieldCodec.ForUInt64(10);
+        private readonly pbc::RepeatedField<ulong> neverUse_ = new pbc::RepeatedField<ulong>();
+        /// <summary>
+        ///* Never used, even where they would qualify. 
+        /// </summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public pbc::RepeatedField<ulong> NeverUse {
+          get { return neverUse_; }
+        }
+
+        /// <summary>Field number for the "also_use" field.</summary>
+        public const int AlsoUseFieldNumber = 2;
+        private static readonly pb::FieldCodec<ulong> _repeated_alsoUse_codec
+            = pb::FieldCodec.ForUInt64(18);
+        private readonly pbc::RepeatedField<ulong> alsoUse_ = new pbc::RepeatedField<ulong>();
+        /// <summary>
+        ///* Used on top of common food and bandages, for example a healing potion. 
+        /// </summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public pbc::RepeatedField<ulong> AlsoUse {
+          get { return alsoUse_; }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public override bool Equals(object other) {
+          return Equals(other as CareItems);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public bool Equals(CareItems other) {
+          if (ReferenceEquals(other, null)) {
+            return false;
+          }
+          if (ReferenceEquals(other, this)) {
+            return true;
+          }
+          if(!neverUse_.Equals(other.neverUse_)) return false;
+          if(!alsoUse_.Equals(other.alsoUse_)) return false;
+          return Equals(_unknownFields, other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public override int GetHashCode() {
+          int hash = 1;
+          hash ^= neverUse_.GetHashCode();
+          hash ^= alsoUse_.GetHashCode();
+          if (_unknownFields != null) {
+            hash ^= _unknownFields.GetHashCode();
+          }
+          return hash;
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public override string ToString() {
+          return pb::JsonFormatter.ToDiagnosticString(this);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public void WriteTo(pb::CodedOutputStream output) {
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+          output.WriteRawMessage(this);
+        #else
+          neverUse_.WriteTo(output, _repeated_neverUse_codec);
+          alsoUse_.WriteTo(output, _repeated_alsoUse_codec);
+          if (_unknownFields != null) {
+            _unknownFields.WriteTo(output);
+          }
+        #endif
+        }
+
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+          neverUse_.WriteTo(ref output, _repeated_neverUse_codec);
+          alsoUse_.WriteTo(ref output, _repeated_alsoUse_codec);
+          if (_unknownFields != null) {
+            _unknownFields.WriteTo(ref output);
+          }
+        }
+        #endif
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public int CalculateSize() {
+          int size = 0;
+          size += neverUse_.CalculateSize(_repeated_neverUse_codec);
+          size += alsoUse_.CalculateSize(_repeated_alsoUse_codec);
+          if (_unknownFields != null) {
+            size += _unknownFields.CalculateSize();
+          }
+          return size;
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public void MergeFrom(CareItems other) {
+          if (other == null) {
+            return;
+          }
+          neverUse_.Add(other.neverUse_);
+          alsoUse_.Add(other.alsoUse_);
+          _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public void MergeFrom(pb::CodedInputStream input) {
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+          input.ReadRawMessage(this);
+        #else
+          uint tag;
+          while ((tag = input.ReadTag()) != 0) {
+          if ((tag & 7) == 4) {
+            // Abort on any end group tag.
+            return;
+          }
+          switch(tag) {
+              default:
+                _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+                break;
+              case 10:
+              case 8: {
+                neverUse_.AddEntriesFrom(input, _repeated_neverUse_codec);
+                break;
+              }
+              case 18:
+              case 16: {
+                alsoUse_.AddEntriesFrom(input, _repeated_alsoUse_codec);
+                break;
+              }
+            }
+          }
+        #endif
+        }
+
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+          uint tag;
+          while ((tag = input.ReadTag()) != 0) {
+          if ((tag & 7) == 4) {
+            // Abort on any end group tag.
+            return;
+          }
+          switch(tag) {
+              default:
+                _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+                break;
+              case 10:
+              case 8: {
+                neverUse_.AddEntriesFrom(ref input, _repeated_neverUse_codec);
+                break;
+              }
+              case 18:
+              case 16: {
+                alsoUse_.AddEntriesFrom(ref input, _repeated_alsoUse_codec);
+                break;
+              }
+            }
+          }
+        }
+        #endif
+
+      }
+
+      [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+      public sealed partial class GatherFilter : pb::IMessage<GatherFilter>
+      #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+          , pb::IBufferMessage
+      #endif
+      {
+        private static readonly pb::MessageParser<GatherFilter> _parser = new pb::MessageParser<GatherFilter>(() => new GatherFilter());
+        private pb::UnknownFieldSet _unknownFields;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public static pb::MessageParser<GatherFilter> Parser { get { return _parser; } }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public static pbr::MessageDescriptor Descriptor {
+          get { return global::Bnet.SetBestiaAiConfigCMSG.Descriptor.NestedTypes[2]; }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        pbr::MessageDescriptor pb::IMessage.Descriptor {
+          get { return Descriptor; }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public GatherFilter() {
+          OnConstruction();
+        }
+
+        partial void OnConstruction();
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public GatherFilter(GatherFilter other) : this() {
+          skip_ = other.skip_.Clone();
+          onlyItems_ = other.onlyItems_.Clone();
+          _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public GatherFilter Clone() {
+          return new GatherFilter(this);
+        }
+
+        /// <summary>Field number for the "skip" field.</summary>
+        public const int SkipFieldNumber = 1;
+        private static readonly pb::FieldCodec<global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter.Types.GatherCategory> _repeated_skip_codec
+            = pb::FieldCodec.ForEnum(10, x => (int) x, x => (global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter.Types.GatherCategory) x);
+        private readonly pbc::RepeatedField<global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter.Types.GatherCategory> skip_ = new pbc::RepeatedField<global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter.Types.GatherCategory>();
+        /// <summary>
+        ///* The kinds of things it leaves alone. 
+        /// </summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public pbc::RepeatedField<global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter.Types.GatherCategory> Skip {
+          get { return skip_; }
+        }
+
+        /// <summary>Field number for the "only_items" field.</summary>
+        public const int OnlyItemsFieldNumber = 2;
+        private static readonly pb::FieldCodec<ulong> _repeated_onlyItems_codec
+            = pb::FieldCodec.ForUInt64(18);
+        private readonly pbc::RepeatedField<ulong> onlyItems_ = new pbc::RepeatedField<ulong>();
+        /// <summary>
+        ///* Item ids, at most 8. When set, it takes only a prop that yields one of them; a tree yields its logs and resin. 
+        /// </summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public pbc::RepeatedField<ulong> OnlyItems {
+          get { return onlyItems_; }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public override bool Equals(object other) {
+          return Equals(other as GatherFilter);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public bool Equals(GatherFilter other) {
+          if (ReferenceEquals(other, null)) {
+            return false;
+          }
+          if (ReferenceEquals(other, this)) {
+            return true;
+          }
+          if(!skip_.Equals(other.skip_)) return false;
+          if(!onlyItems_.Equals(other.onlyItems_)) return false;
+          return Equals(_unknownFields, other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public override int GetHashCode() {
+          int hash = 1;
+          hash ^= skip_.GetHashCode();
+          hash ^= onlyItems_.GetHashCode();
+          if (_unknownFields != null) {
+            hash ^= _unknownFields.GetHashCode();
+          }
+          return hash;
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public override string ToString() {
+          return pb::JsonFormatter.ToDiagnosticString(this);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public void WriteTo(pb::CodedOutputStream output) {
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+          output.WriteRawMessage(this);
+        #else
+          skip_.WriteTo(output, _repeated_skip_codec);
+          onlyItems_.WriteTo(output, _repeated_onlyItems_codec);
+          if (_unknownFields != null) {
+            _unknownFields.WriteTo(output);
+          }
+        #endif
+        }
+
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+          skip_.WriteTo(ref output, _repeated_skip_codec);
+          onlyItems_.WriteTo(ref output, _repeated_onlyItems_codec);
+          if (_unknownFields != null) {
+            _unknownFields.WriteTo(ref output);
+          }
+        }
+        #endif
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public int CalculateSize() {
+          int size = 0;
+          size += skip_.CalculateSize(_repeated_skip_codec);
+          size += onlyItems_.CalculateSize(_repeated_onlyItems_codec);
+          if (_unknownFields != null) {
+            size += _unknownFields.CalculateSize();
+          }
+          return size;
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public void MergeFrom(GatherFilter other) {
+          if (other == null) {
+            return;
+          }
+          skip_.Add(other.skip_);
+          onlyItems_.Add(other.onlyItems_);
+          _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public void MergeFrom(pb::CodedInputStream input) {
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+          input.ReadRawMessage(this);
+        #else
+          uint tag;
+          while ((tag = input.ReadTag()) != 0) {
+          if ((tag & 7) == 4) {
+            // Abort on any end group tag.
+            return;
+          }
+          switch(tag) {
+              default:
+                _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+                break;
+              case 10:
+              case 8: {
+                skip_.AddEntriesFrom(input, _repeated_skip_codec);
+                break;
+              }
+              case 18:
+              case 16: {
+                onlyItems_.AddEntriesFrom(input, _repeated_onlyItems_codec);
+                break;
+              }
+            }
+          }
+        #endif
+        }
+
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+          uint tag;
+          while ((tag = input.ReadTag()) != 0) {
+          if ((tag & 7) == 4) {
+            // Abort on any end group tag.
+            return;
+          }
+          switch(tag) {
+              default:
+                _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+                break;
+              case 10:
+              case 8: {
+                skip_.AddEntriesFrom(ref input, _repeated_skip_codec);
+                break;
+              }
+              case 18:
+              case 16: {
+                onlyItems_.AddEntriesFrom(ref input, _repeated_onlyItems_codec);
+                break;
+              }
+            }
+          }
+        }
+        #endif
+
+        #region Nested types
+        /// <summary>Container for nested types declared in the GatherFilter message type.</summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public static partial class Types {
+          public enum GatherCategory {
+            [pbr::OriginalName("GATHER_CATEGORY_UNSPECIFIED")] Unspecified = 0,
+            /// <summary>
+            ///* Sticks, resin, loose stones, reeds. 
+            /// </summary>
+            [pbr::OriginalName("LOOSE")] Loose = 1,
+            /// <summary>
+            ///* Herbs and shrubs. 
+            /// </summary>
+            [pbr::OriginalName("PLANT")] Plant = 2,
+            [pbr::OriginalName("TREE")] Tree = 3,
+            /// <summary>
+            ///* Mana and aetherite crystals. 
+            /// </summary>
+            [pbr::OriginalName("CRYSTAL")] Crystal = 4,
+          }
+
+        }
+        #endregion
+
+      }
+
+      /// <summary>
       ///* An unset field keeps what the courage step and the job choose. 
       /// </summary>
       [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
@@ -1007,7 +1589,7 @@ namespace Bnet {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
         public static pbr::MessageDescriptor Descriptor {
-          get { return global::Bnet.SetBestiaAiConfigCMSG.Descriptor.NestedTypes[1]; }
+          get { return global::Bnet.SetBestiaAiConfigCMSG.Descriptor.NestedTypes[3]; }
         }
 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

@@ -2,7 +2,9 @@ package net.bestia.zone.ai.ecs
 
 import io.mockk.every
 import net.bestia.zone.ai.profile.AiConfig
+import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.ai.profile.BestiaJob
+import net.bestia.zone.ai.profile.GatherFilter
 import net.bestia.zone.battle.ecs.exp.GainExp
 import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.entity.StaticEntityKind
@@ -19,6 +21,7 @@ import net.bestia.zone.item.care.TestBagCare.bagWith
 import net.bestia.zone.item.ecs.CarryCapacity
 import net.bestia.zone.item.ecs.ChestStorage
 import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.prop.GatherCategory
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -43,8 +46,8 @@ class GathererTest {
     return ai.spawnChest(chestAt, structureId = CHEST)
   }
 
-  private fun bestia(job: BestiaJob = BestiaJob.GATHER): EntityId {
-    val id = ai.spawnMob("passive_wanderer", home, orders = AiConfig(job))
+  private fun bestia(job: BestiaJob = BestiaJob.GATHER, filter: GatherFilter = GatherFilter()): EntityId {
+    val id = ai.spawnMob("passive_wanderer", home, orders = AiConfig(job, gatherFilter = filter))
     ai.world.add(id, OwnedBestia(masterId = 1L, playerBestiaId = id))
     return id
   }
@@ -66,6 +69,44 @@ class GathererTest {
     assertNull(ai.divergence.of(3L), "it gathered outside its area")
     // A stick and a stone at item level 1: 2 * 1 + 5 each.
     assertEquals(14, ai.world.getOrThrow(gatherer, GainExp::class).value)
+  }
+
+  @Test
+  fun `a gatherer told to leave loose things alone picks the herb and not the stick`() {
+    bestia(filter = GatherFilter(skip = setOf(GatherCategory.LOOSE)))
+    chest()
+    ai.spawnProp(StaticEntityKind.STICK, Vec3L(5, 0, 0), propId = 1L)
+    ai.spawnProp(StaticEntityKind.HERB, Vec3L(9, 0, 0), propId = 2L)
+
+    ai.tickUntil(describe = { "it never took the herb" }) { isTaken(2L) }
+    ai.tick(times = 20 * 10)
+
+    assertNull(ai.divergence.of(1L), "it took the stick")
+  }
+
+  @Test
+  fun `a gatherer told to take only stones sees neither the stick nor the tree`() {
+    val gatherer = bestia(filter = GatherFilter(onlyItems = listOf(LOOSE_STONE)))
+    chest()
+    ai.spawnProp(StaticEntityKind.STICK, Vec3L(5, 0, 0), propId = 1L)
+    ai.spawnProp(StaticEntityKind.LOOSE_STONE, Vec3L(-6, 4, 0), propId = 2L)
+    ai.spawnProp(StaticEntityKind.TREE, Vec3L(3, 3, 0), propId = 3L)
+
+    ai.tickUntil(describe = { "it never saw the stone" }) { ai.beliefOf(gatherer, BestiaDomain.GATHERABLES) != null }
+
+    assertEquals(listOf(2L), ai.beliefOf(gatherer, BestiaDomain.GATHERABLES)?.map { it.propId })
+  }
+
+  @Test
+  fun `a gatherer told to take only logs still fells trees`() {
+    val gatherer = bestia(filter = GatherFilter(onlyItems = listOf(LOG)))
+    chest()
+    ai.spawnProp(StaticEntityKind.STICK, Vec3L(5, 0, 0), propId = 1L)
+    ai.spawnProp(StaticEntityKind.TREE, Vec3L(3, 3, 0), propId = 2L)
+
+    ai.tickUntil(describe = { "it never saw the tree" }) { ai.beliefOf(gatherer, BestiaDomain.GATHERABLES) != null }
+
+    assertEquals(listOf(2L), ai.beliefOf(gatherer, BestiaDomain.GATHERABLES)?.map { it.propId })
   }
 
   @Test
@@ -201,5 +242,6 @@ class GathererTest {
     const val ACCOUNT = 77L
     const val CHEST = 500L
     const val LOG = 59L
+    const val LOOSE_STONE = 116L
   }
 }

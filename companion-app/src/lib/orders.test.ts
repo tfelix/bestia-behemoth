@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Bestia } from '#lib/api/model.ts';
-import { changed, draftOf, fallbacksFor, mayTake, ordersOf, ruleOf, sheetOf } from './orders';
+import { MAX_ITEMS, changed, draftOf, fallbacksFor, gathers, mayTake, ordersOf, ruleOf, sheetOf, withItem, withSkip } from './orders';
 
 function bestia(changes: Partial<Bestia>): Bestia {
 	return {
@@ -19,6 +19,8 @@ function bestia(changes: Partial<Bestia>): Bestia {
 		rules: [],
 		ownOverrides: {},
 		allowedJobs: [],
+		careItems: { neverUse: [], alsoUse: [] },
+		gatherFilter: { skip: [], onlyItems: [] },
 		...changes
 	};
 }
@@ -69,7 +71,42 @@ describe('orders', () => {
 			overrides: {},
 			rules: [{ condition: 'DAY', threshold: undefined, action: 'KEEP_WORKING' }],
 			areaPlaceId: undefined,
-			chestPlaceId: undefined
+			chestPlaceId: undefined,
+			careItems: { neverUse: [], alsoUse: [] },
+			gatherFilter: { skip: [], onlyItems: [] }
 		});
+	});
+
+	it('sends its care items, and none while it follows a preset', () => {
+		const careItems = { neverUse: [46], alsoUse: [3] };
+		const own = draftOf(bestia({ careItems }));
+		expect(ordersOf(own).careItems).toEqual(careItems);
+		expect(changed(bestia({ careItems }), own)).toBe(false);
+
+		own.careItems.alsoUse.push(4);
+		expect(changed(bestia({ careItems }), own)).toBe(true);
+		expect(ordersOf({ ...own, presetId: 3 }).careItems).toEqual({ neverUse: [], alsoUse: [] });
+	});
+
+	it('keeps skipped categories in the zone order, so an unchanged filter is no change', () => {
+		const gatherer = bestia({ gatherFilter: { skip: ['LOOSE', 'TREE'], onlyItems: [] } });
+		const draft = draftOf(gatherer);
+		draft.gatherFilter.skip = withSkip(withSkip(draft.gatherFilter.skip, 'LOOSE', false), 'LOOSE', true);
+
+		expect(draft.gatherFilter.skip).toEqual(['LOOSE', 'TREE']);
+		expect(changed(gatherer, draft)).toBe(false);
+	});
+
+	it('shows the gather filter to a gatherer and to one that gathers when idle', () => {
+		expect(gathers(draftOf(bestia({ job: 'GATHER' })))).toBe(true);
+		expect(gathers(draftOf(bestia({ job: 'MINE', fallbackJob: 'GATHER' })))).toBe(true);
+		expect(gathers(draftOf(bestia({ job: 'GUARD', fallbackJob: 'GATHER' })))).toBe(false);
+	});
+
+	it('adds an item once, and no more than fit', () => {
+		expect(withItem([3], 3)).toEqual([3]);
+		expect(withItem([3], 4)).toEqual([3, 4]);
+		const full = Array.from({ length: MAX_ITEMS }, (_, i) => i + 1);
+		expect(withItem(full, 99)).toBe(full);
 	});
 });

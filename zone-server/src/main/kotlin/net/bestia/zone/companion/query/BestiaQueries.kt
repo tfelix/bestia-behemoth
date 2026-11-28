@@ -74,6 +74,8 @@ class BestiaQueries(
           ownOverrides = OrdersOnTheBus.numbersOf(row.ownOverrides),
           activity = row.entityId?.let { doing[it] },
           allowedJobs = SpeciesJobs.allowedFor(row.bestia).filter { it.isBuilt }.map { it.name },
+          careItems = OrdersOnTheBus.careItemsOf(row.aiConfig.careItems),
+          gatherFilter = OrdersOnTheBus.gatherFilterOf(row.aiConfig.gatherFilter),
         )
       }
     )

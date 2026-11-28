@@ -22,6 +22,8 @@ data class BestiaAiConfigSMSG(
       .setOverrides(OrdersWire.overridesTo(config.overrides))
       .addAllRules(OrdersWire.rulesTo(config.rules))
       .setOwnOverrides(OrdersWire.overridesTo(stored.ownOverrides))
+      .setCareItems(OrdersWire.careItemsTo(config.careItems))
+      .setGatherFilter(OrdersWire.gatherFilterTo(config.gatherFilter))
     stored.presetId?.let(payload::setPresetId)
     config.areaPlaceId?.let(payload::setAreaPlaceId)
     config.chestPlaceId?.let(payload::setChestPlaceId)

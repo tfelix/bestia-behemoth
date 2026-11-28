@@ -26,20 +26,23 @@ namespace Bnet {
           string.Concat(
             "CiFtZXNzYWdlcy9tYXN0ZXIvb3JkZXJfc2hlZXQucHJvdG8SBGJuZXQaL21l",
             "c3NhZ2VzL21hc3Rlci9zZXRfYmVzdGlhX2FpX2NvbmZpZ19jbXNnLnByb3Rv",
-            "IvACCgpPcmRlclNoZWV0EiwKA2pvYhgBIAEoDjIfLmJuZXQuU2V0QmVzdGlh",
+            "IuwDCgpPcmRlclNoZWV0EiwKA2pvYhgBIAEoDjIfLmJuZXQuU2V0QmVzdGlh",
             "QWlDb25maWdDTVNHLkpvYhI0Cgdjb3VyYWdlGAIgASgOMiMuYm5ldC5TZXRC",
             "ZXN0aWFBaUNvbmZpZ0NNU0cuQ291cmFnZRI1CgxmYWxsYmFja19qb2IYAyAB",
             "KA4yHy5ibmV0LlNldEJlc3RpYUFpQ29uZmlnQ01TRy5Kb2ISOAoJb3ZlcnJp",
             "ZGVzGAQgASgLMiUuYm5ldC5TZXRCZXN0aWFBaUNvbmZpZ0NNU0cuT3ZlcnJp",
             "ZGVzEi8KBXJ1bGVzGAUgAygLMiAuYm5ldC5TZXRCZXN0aWFBaUNvbmZpZ0NN",
             "U0cuUnVsZRIaCg1hcmVhX3BsYWNlX2lkGAYgASgESACIAQESGwoOY2hlc3Rf",
-            "cGxhY2VfaWQYByABKARIAYgBAUIQCg5fYXJlYV9wbGFjZV9pZEIRCg9fY2hl",
-            "c3RfcGxhY2VfaWRCKAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQg9PcmRlclNo",
-            "ZWV0UHJvdG9iBnByb3RvMw=="));
+            "cGxhY2VfaWQYByABKARIAYgBARI5CgpjYXJlX2l0ZW1zGAggASgLMiUuYm5l",
+            "dC5TZXRCZXN0aWFBaUNvbmZpZ0NNU0cuQ2FyZUl0ZW1zEj8KDWdhdGhlcl9m",
+            "aWx0ZXIYCSABKAsyKC5ibmV0LlNldEJlc3RpYUFpQ29uZmlnQ01TRy5HYXRo",
+            "ZXJGaWx0ZXJCEAoOX2FyZWFfcGxhY2VfaWRCEQoPX2NoZXN0X3BsYWNlX2lk",
+            "QigKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IPT3JkZXJTaGVldFByb3RvYgZw",
+            "cm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.SetBestiaAiConfigCmsgReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.OrderSheet), global::Bnet.OrderSheet.Parser, new[]{ "Job", "Courage", "FallbackJob", "Overrides", "Rules", "AreaPlaceId", "ChestPlaceId" }, new[]{ "AreaPlaceId", "ChestPlaceId" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.OrderSheet), global::Bnet.OrderSheet.Parser, new[]{ "Job", "Courage", "FallbackJob", "Overrides", "Rules", "AreaPlaceId", "ChestPlaceId", "CareItems", "GatherFilter" }, new[]{ "AreaPlaceId", "ChestPlaceId" }, null, null, null)
           }));
     }
     #endregion
@@ -93,6 +96,8 @@ namespace Bnet {
       rules_ = other.rules_.Clone();
       areaPlaceId_ = other.areaPlaceId_;
       chestPlaceId_ = other.chestPlaceId_;
+      careItems_ = other.careItems_ != null ? other.careItems_.Clone() : null;
+      gatherFilter_ = other.gatherFilter_ != null ? other.gatherFilter_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -215,6 +220,30 @@ namespace Bnet {
       _hasBits0 &= ~2;
     }
 
+    /// <summary>Field number for the "care_items" field.</summary>
+    public const int CareItemsFieldNumber = 8;
+    private global::Bnet.SetBestiaAiConfigCMSG.Types.CareItems careItems_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.SetBestiaAiConfigCMSG.Types.CareItems CareItems {
+      get { return careItems_; }
+      set {
+        careItems_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "gather_filter" field.</summary>
+    public const int GatherFilterFieldNumber = 9;
+    private global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter gatherFilter_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter GatherFilter {
+      get { return gatherFilter_; }
+      set {
+        gatherFilter_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -237,6 +266,8 @@ namespace Bnet {
       if(!rules_.Equals(other.rules_)) return false;
       if (AreaPlaceId != other.AreaPlaceId) return false;
       if (ChestPlaceId != other.ChestPlaceId) return false;
+      if (!object.Equals(CareItems, other.CareItems)) return false;
+      if (!object.Equals(GatherFilter, other.GatherFilter)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -251,6 +282,8 @@ namespace Bnet {
       hash ^= rules_.GetHashCode();
       if (HasAreaPlaceId) hash ^= AreaPlaceId.GetHashCode();
       if (HasChestPlaceId) hash ^= ChestPlaceId.GetHashCode();
+      if (careItems_ != null) hash ^= CareItems.GetHashCode();
+      if (gatherFilter_ != null) hash ^= GatherFilter.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -294,6 +327,14 @@ namespace Bnet {
         output.WriteRawTag(56);
         output.WriteUInt64(ChestPlaceId);
       }
+      if (careItems_ != null) {
+        output.WriteRawTag(66);
+        output.WriteMessage(CareItems);
+      }
+      if (gatherFilter_ != null) {
+        output.WriteRawTag(74);
+        output.WriteMessage(GatherFilter);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -329,6 +370,14 @@ namespace Bnet {
         output.WriteRawTag(56);
         output.WriteUInt64(ChestPlaceId);
       }
+      if (careItems_ != null) {
+        output.WriteRawTag(66);
+        output.WriteMessage(CareItems);
+      }
+      if (gatherFilter_ != null) {
+        output.WriteRawTag(74);
+        output.WriteMessage(GatherFilter);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -357,6 +406,12 @@ namespace Bnet {
       }
       if (HasChestPlaceId) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(ChestPlaceId);
+      }
+      if (careItems_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(CareItems);
+      }
+      if (gatherFilter_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(GatherFilter);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -391,6 +446,18 @@ namespace Bnet {
       }
       if (other.HasChestPlaceId) {
         ChestPlaceId = other.ChestPlaceId;
+      }
+      if (other.careItems_ != null) {
+        if (careItems_ == null) {
+          CareItems = new global::Bnet.SetBestiaAiConfigCMSG.Types.CareItems();
+        }
+        CareItems.MergeFrom(other.CareItems);
+      }
+      if (other.gatherFilter_ != null) {
+        if (gatherFilter_ == null) {
+          GatherFilter = new global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter();
+        }
+        GatherFilter.MergeFrom(other.GatherFilter);
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -442,6 +509,20 @@ namespace Bnet {
             ChestPlaceId = input.ReadUInt64();
             break;
           }
+          case 66: {
+            if (careItems_ == null) {
+              CareItems = new global::Bnet.SetBestiaAiConfigCMSG.Types.CareItems();
+            }
+            input.ReadMessage(CareItems);
+            break;
+          }
+          case 74: {
+            if (gatherFilter_ == null) {
+              GatherFilter = new global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter();
+            }
+            input.ReadMessage(GatherFilter);
+            break;
+          }
         }
       }
     #endif
@@ -490,6 +571,20 @@ namespace Bnet {
           }
           case 56: {
             ChestPlaceId = input.ReadUInt64();
+            break;
+          }
+          case 66: {
+            if (careItems_ == null) {
+              CareItems = new global::Bnet.SetBestiaAiConfigCMSG.Types.CareItems();
+            }
+            input.ReadMessage(CareItems);
+            break;
+          }
+          case 74: {
+            if (gatherFilter_ == null) {
+              GatherFilter = new global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter();
+            }
+            input.ReadMessage(GatherFilter);
             break;
           }
         }

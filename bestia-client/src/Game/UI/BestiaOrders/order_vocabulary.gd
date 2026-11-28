@@ -7,6 +7,7 @@ class_name OrderVocabulary
 enum Job { UNSET, GUARD, REST, GATHER, CRAFT, MINE }
 enum Condition { UNSET, STAMINA_BELOW, HEALTH_BELOW, BAG_ABOVE, NIGHT, DAY, STRONGER_FOE_IN_SIGHT }
 enum Action { UNSET, EAT, REST_AT_HOME, HEAL, RETREAT, HAUL_NOW, KEEP_WORKING, HOLD_GROUND }
+enum GatherCategory { UNSET, LOOSE, PLANT, TREE, CRYSTAL }
 
 ## The PlaceKind ordinals of order_book_smsg.proto.
 const PLACE_AREA := 1
@@ -17,6 +18,15 @@ const JOBS: Array[int] = [Job.GUARD, Job.GATHER, Job.CRAFT, Job.MINE, Job.REST]
 const COURAGE_STEPS: Array[int] = [1, 2, 3, 4, 5]
 
 const MAX_RULES := 8
+## In each list of items, such as the care items.
+const MAX_ITEMS := 8
+
+const GATHER_CATEGORIES: Array[int] = [
+	GatherCategory.LOOSE, GatherCategory.PLANT, GatherCategory.TREE, GatherCategory.CRYSTAL,
+]
+## The items gathering yields, as zone-server's prop-kinds.yml says: what is picked up, and a felled tree's loot.
+const GATHERED_ITEMS: Array[int] = [6, 7, 30, 31, 32, 59, 108, 116, 118, 131, 142, 171, 172, 173, 174, 175, 230, 612]
+
 const THRESHOLD_MIN := 1
 const THRESHOLD_MAX := 99
 const NEW_RULE_THRESHOLD := 30
@@ -75,6 +85,25 @@ static func fitted(rule: Dictionary) -> Dictionary:
 	if takes_threshold(condition):
 		threshold = rule["threshold"] if rule["threshold"] >= 0 else NEW_RULE_THRESHOLD
 	return {"condition": condition, "action": action, "threshold": threshold}
+
+
+## What a bestia could use on itself: the usable items, by name.
+static func care_item_choices() -> Array[ItemResource]:
+	return _items_by_name(func(item: ItemResource) -> bool: return item.type == ItemResource.ItemType.USABLE)
+
+
+static func gathered_item_choices() -> Array[ItemResource]:
+	return _items_by_name(func(item: ItemResource) -> bool: return item.item_id in GATHERED_ITEMS)
+
+
+static func _items_by_name(wanted: Callable) -> Array[ItemResource]:
+	var items: Array[ItemResource] = []
+	for item in ItemDB.get_instance().all_items():
+		if wanted.call(item):
+			items.append(item)
+	items.sort_custom(func(a: ItemResource, b: ItemResource) -> bool:
+		return str(TranslationServer.translate(a.name_key)).naturalnocasecmp_to(str(TranslationServer.translate(b.name_key))) < 0)
+	return items
 
 
 static func new_rule() -> Dictionary:

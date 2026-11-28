@@ -16,4 +16,6 @@ message OrderSheet {
   repeated SetBestiaAiConfigCMSG.Rule rules = 5;
   optional uint64 area_place_id = 6;
   optional uint64 chest_place_id = 7;
+  SetBestiaAiConfigCMSG.CareItems care_items = 8;
+  SetBestiaAiConfigCMSG.GatherFilter gather_filter = 9;
 }
