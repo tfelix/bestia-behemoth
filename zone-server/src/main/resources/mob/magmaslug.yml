@@ -43,3 +43,4 @@ armor-types: [CLOTH, LIGHT]
 loot:
   - { item: coal, chance: 2500 }
   - { item: ember_core, chance: 1000 }
+  - { item: magma_jelly, chance: 3000 }

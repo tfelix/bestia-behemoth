@@ -148,6 +148,24 @@ class StatusEffectPersistenceRoundTripTest {
     assertEquals(1, persistedStatusEffectRepository.findAllByOwnerEntityId(entityId).size)
   }
 
+  /** SATISFIED carries the meal it came from as its amount, which must survive a relog or the buff grants nothing. */
+  @Test
+  fun `an effect's amount round-trips`() {
+    val spawnWorld = newWorld()
+    val entityId = spawnWorld.createEntity { id ->
+      statusEffectService.applyEffect(this, id, StatusEffectId.SATISFIED.id, level = 1, durationSeconds = 900.0, amount = 17)
+    }
+
+    statusEffectPersistenceService.persist(listOfNotNull(spawnWorld.read { statusEffectPersistenceService.snapshot(this, entityId) }))
+
+    val reloadWorld = newWorld()
+    val loaded = statusEffectPersistenceService.load(entityId)
+    reloadWorld.createEntity(entityId) { id -> statusEffectPersistenceService.attach(this, id, loaded) }
+
+    val satisfied = reloadWorld.read { get(entityId, StatusEffects::class)!!.activeEffects.single() }
+    assertEquals(17, satisfied.amount)
+  }
+
   /** An isolated, non-ticking world so the duration system can't perturb the assertions. */
   /**
    * One generator across every world this test builds. A fresh `SnowflakeEntityIdGenerator` restarts its

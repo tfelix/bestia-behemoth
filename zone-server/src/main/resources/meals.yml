@@ -1,0 +1,270 @@
+# Every meal Cooking makes: what eating one restores, and what it leaves behind. Read at boot into `MealCatalog`.
+#
+# Eating is a channel of `channel-seconds` on the cast bar; moving, a hit or a stun break it off and the meal stays
+# in the bag. Once through, the meal restores `restore` and lays SATISFIED ("Gesättigt") on its eater for
+# `duration-seconds`, granting `bonus`. There is only ever one SATISFIED: eating again replaces it whole, bonus and
+# timer both, even with a shorter one.
+#
+# `meal` is the item's `item-db-name` in items.yml. Each meal item names `script: MealScript` there; the script itself
+# comes from this file.
+#
+# `bonus` keys (all optional; percent fields are percentage points):
+#   stamina-regen-percent, hp-regen, mana-regen (flat per regen tick), regenerate-in-combat (true/false)
+#   strength, intelligence, vitality, dexterity, willpower, agility, all-attributes
+#   hit, flee, crit, max-hp-percent, max-mana-percent, heal-received-percent, aspd-percent, cast-time-reduction
+#   stamina-cost-reduction (skills), stamina-drain-reduction (weather, road and work)
+#   carry-capacity-percent, off-road-speed-percent, notice-range-cut-percent, block-chance-percent
+#   leech-permille, catch-chance-points
+#   element-resistance: { FIRE: 10 }, element-damage: { FIRE: 5 }, status-resistance: { POISON: 10 }
+# An unknown key fails the boot.
+#
+# `grants` lays further status effects on, by their identifier in status_effects.yml, each with its own stacking rules:
+#   grants:
+#     - { effect: INCREASE_AGI, level: 1, duration-seconds: 300 }   # omit duration-seconds for the effect's own
+channel-seconds: 6.0
+
+meals:
+
+  # 1. Hearty Stew (Lv 1)
+  - meal: hearty_stew
+    duration-seconds: 900
+    restore: { health: 60, stamina: 40 }
+    bonus: { stamina-regen-percent: 10, vitality: 2 }
+
+  # 2. Grilled Skewer (Lv 2)
+  - meal: grilled_skewer
+    duration-seconds: 900
+    restore: { health: 60, stamina: 46 }
+    bonus: { stamina-regen-percent: 10, off-road-speed-percent: 5 }
+
+  # 3. Jelly Dumplings (Lv 2)
+  - meal: jelly_dumplings
+    duration-seconds: 900
+    restore: { health: 60, stamina: 46 }
+    bonus: { stamina-regen-percent: 10, heal-received-percent: 3 }
+
+  # 4. Garlic Fish (Lv 3)
+  - meal: garlic_fish
+    duration-seconds: 900
+    restore: { health: 70, stamina: 49 }
+    bonus: { stamina-regen-percent: 10, hit: 3 }
+
+  # 5. Rat-Grain Porridge (Lv 3)
+  - meal: grain_porridge
+    duration-seconds: 900
+    restore: { health: 70, stamina: 49 }
+    bonus: { stamina-regen-percent: 10, stamina-cost-reduction: 10 }
+
+  # 6. Fried Egg & Herbs (Lv 4)
+  - meal: fried_egg_and_herbs
+    duration-seconds: 900
+    restore: { health: 80, stamina: 52 }
+    bonus: { stamina-regen-percent: 10, hp-regen: 2 }
+
+  # 7. Crab-Claw Broth (Lv 5)
+  - meal: crab_claw_broth
+    duration-seconds: 900
+    restore: { health: 90, stamina: 56 }
+    bonus: { stamina-regen-percent: 10, element-resistance: { WATER: 5 } }
+
+  # 8. Mushroom Pan (Lv 5)
+  - meal: mushroom_pan
+    duration-seconds: 900
+    restore: { health: 90, stamina: 56 }
+    bonus: { stamina-regen-percent: 10, intelligence: 2, mana-regen: 2 }
+
+  # 9. Sweetroot Mash (Lv 7)
+  - meal: sweetroot_mash
+    duration-seconds: 900
+    restore: { health: 110, stamina: 62 }
+    bonus: { stamina-regen-percent: 10, stamina-drain-reduction: 15 }
+
+  # 10. Berry Tart (Lv 8)
+  - meal: berry_tart
+    duration-seconds: 900
+    restore: { health: 120, stamina: 65 }
+    bonus: { stamina-regen-percent: 10, agility: 2 }
+
+  # 11. Garlic Snails (Lv 9)
+  - meal: garlic_snails
+    duration-seconds: 900
+    restore: { health: 130, stamina: 68 }
+    bonus: { stamina-regen-percent: 10, status-resistance: { POISON: 10 } }
+
+  # 12. Smoked Perch (Lv 10)
+  - meal: smoked_perch
+    duration-seconds: 900
+    restore: { health: 140, stamina: 71 }
+    bonus: { stamina-regen-percent: 10, carry-capacity-percent: 5 }
+
+  # 13. Puffcap Risotto (Lv 14)
+  - meal: puffcap_risotto
+    duration-seconds: 900
+    restore: { health: 180, stamina: 83 }
+    bonus: { stamina-regen-percent: 10, willpower: 3 }
+
+  # 14. Cranberry Boar Roast (Lv 16)
+  - meal: cranberry_boar_roast
+    duration-seconds: 900
+    restore: { health: 200, stamina: 90 }
+    bonus: { stamina-regen-percent: 10, strength: 3 }
+
+  # 15. Crispy Scorpion (Lv 18)
+  - meal: crispy_scorpion
+    duration-seconds: 900
+    restore: { health: 220, stamina: 96 }
+    bonus: { stamina-regen-percent: 10, crit: 3 }
+
+  # 16. Bream Rice Bowl (Lv 20)
+  - meal: bream_rice_bowl
+    duration-seconds: 900
+    restore: { health: 240, stamina: 102 }
+    bonus: { stamina-regen-percent: 10, carry-capacity-percent: 5, stamina-drain-reduction: 5 }
+
+  # 17. Venison Pie (Lv 22)
+  - meal: venison_pie
+    duration-seconds: 1200
+    restore: { health: 260, stamina: 108 }
+    bonus: { stamina-regen-percent: 20, vitality: 4, max-hp-percent: 3 }
+
+  # 18. Frost-Mint Tea Cake (Lv 24)
+  - meal: frost_mint_tea_cake
+    duration-seconds: 1200
+    restore: { health: 280, stamina: 114 }
+    bonus: { stamina-regen-percent: 20, element-resistance: { WATER: 10 }, stamina-drain-reduction: 10 }
+    grants:
+      - { effect: WARMED, level: 1, duration-seconds: 1200 }
+
+  # 19. Peppered Pike (Lv 26)
+  - meal: peppered_pike
+    duration-seconds: 1200
+    restore: { health: 300, stamina: 121 }
+    bonus: { stamina-regen-percent: 20, hit: 5, flee: 3 }
+
+  # 20. Yak Butter Bread (Lv 28)
+  - meal: yak_butter_bread
+    duration-seconds: 1200
+    restore: { health: 320, stamina: 127 }
+    bonus: { stamina-regen-percent: 20, stamina-drain-reduction: 25 }
+
+  # 21. Veil-Jelly Aspic (Lv 30)
+  - meal: veil_jelly_aspic
+    duration-seconds: 1200
+    restore: { health: 340, stamina: 133 }
+    bonus: { stamina-regen-percent: 20, max-mana-percent: 5, mana-regen: 4 }
+
+  # 22. Mutton Hotpot (Lv 32)
+  - meal: mutton_hotpot
+    duration-seconds: 1200
+    restore: { health: 360, stamina: 139 }
+    bonus: { stamina-regen-percent: 20, carry-capacity-percent: 10 }
+
+  # 23. Date-Stuffed Eel (Lv 34)
+  - meal: date_stuffed_eel
+    duration-seconds: 1200
+    restore: { health: 380, stamina: 145 }
+    bonus: { stamina-regen-percent: 20, element-resistance: { FIRE: 10 } }
+    grants:
+      - { effect: COOLED, level: 1, duration-seconds: 1200 }
+
+  # 24. Cinnamon Honeycakes (Lv 36)
+  - meal: cinnamon_honeycakes
+    duration-seconds: 1200
+    restore: { health: 400, stamina: 152 }
+    bonus: { stamina-regen-percent: 20, dexterity: 4, cast-time-reduction: 5 }
+
+  # 25. Blubber Stew (Lv 38)
+  - meal: blubber_stew
+    duration-seconds: 1200
+    restore: { health: 420, stamina: 158 }
+    bonus: { stamina-regen-percent: 20, regenerate-in-combat: true }
+
+  # 26. Lava-Jelly Flambé (Lv 40)
+  - meal: lava_jelly_flambe
+    duration-seconds: 1200
+    restore: { health: 440, stamina: 164 }
+    bonus: { stamina-regen-percent: 20, element-damage: { EARTH: 8 } }
+
+  # 27. Royal Jelly Custard (Lv 42)
+  - meal: royal_jelly_custard
+    duration-seconds: 1800
+    restore: { health: 460, stamina: 170 }
+    bonus: { stamina-regen-percent: 30, all-attributes: 3 }
+
+  # 28. Smoked Salmon Plate (Lv 44)
+  - meal: smoked_salmon_plate
+    duration-seconds: 1800
+    restore: { health: 480, stamina: 176 }
+    bonus: { stamina-regen-percent: 30, willpower: 6, heal-received-percent: 5 }
+
+  # 29. Croc-Tail Gumbo (Lv 46)
+  - meal: croc_tail_gumbo
+    duration-seconds: 1800
+    restore: { health: 500, stamina: 183 }
+    bonus: { stamina-regen-percent: 30, status-resistance: { POISON: 10, BLEEDING: 10 } }
+
+  # 30. Sunmane Steak (Lv 48)
+  - meal: sunmane_steak
+    duration-seconds: 1800
+    restore: { health: 520, stamina: 189 }
+    bonus: { stamina-regen-percent: 30, strength: 6, aspd-percent: 3 }
+
+  # 31. Cloudberry Parfait (Lv 50)
+  - meal: cloudberry_parfait
+    duration-seconds: 1800
+    restore: { health: 540, stamina: 195 }
+    bonus: { stamina-regen-percent: 30, notice-range-cut-percent: 15 }
+
+  # 32. Truffle Venison (Lv 54)
+  - meal: truffle_venison
+    duration-seconds: 1800
+    restore: { health: 580, stamina: 207 }
+    bonus: { stamina-regen-percent: 30, catch-chance-points: 5 }
+
+  # 33. Queen's Honey Glaze (Lv 56)
+  - meal: queens_honey_glaze
+    duration-seconds: 1800
+    restore: { health: 600, stamina: 214 }
+    bonus: { stamina-regen-percent: 30, stamina-drain-reduction: 40, carry-capacity-percent: 10 }
+
+  # 34. Thunder-Egg Soufflé (Lv 60)
+  - meal: thunder_egg_souffle
+    duration-seconds: 1800
+    restore: { health: 640, stamina: 226 }
+    bonus: { stamina-regen-percent: 30, agility: 8, off-road-speed-percent: 10 }
+
+  # 35. Drake Steak Diane (Lv 64)
+  - meal: drake_steak_diane
+    duration-seconds: 2700
+    restore: { health: 680, stamina: 238 }
+    bonus: { stamina-regen-percent: 40, max-hp-percent: 6, vitality: 8 }
+
+  # 36. Serpent Sushi (Lv 70)
+  - meal: serpent_sushi
+    duration-seconds: 2700
+    restore: { health: 740, stamina: 257 }
+    bonus: { stamina-regen-percent: 40, dexterity: 8, hit: 8 }
+
+  # 37. Hydra Heart Ragout (Lv 76)
+  - meal: hydra_heart_ragout
+    duration-seconds: 2700
+    restore: { health: 800, stamina: 276 }
+    bonus: { stamina-regen-percent: 40, leech-permille: 10 }
+
+  # 38. Wyvern Wellington (Lv 82)
+  - meal: wyvern_wellington
+    duration-seconds: 3600
+    restore: { health: 860, stamina: 294 }
+    bonus: { stamina-regen-percent: 50, strength: 10, element-resistance: { FIRE: 10, WATER: 10 } }
+
+  # 39. Lotus Leviathan Broth (Lv 100)
+  - meal: lotus_leviathan_broth
+    duration-seconds: 3600
+    restore: { health: 1040, stamina: 350 }
+    bonus: { stamina-regen-percent: 50, max-hp-percent: 10, max-mana-percent: 10, stamina-cost-reduction: 20 }
+
+  # 40. Phoenix Feast (Lv 115)
+  - meal: phoenix_feast
+    duration-seconds: 3600
+    restore: { health: 1190, stamina: 396 }
+    bonus: { stamina-regen-percent: 50, all-attributes: 10, regenerate-in-combat: true }

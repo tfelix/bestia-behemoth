@@ -49,5 +49,5 @@ equip-slots: [HEAD_UPPER, ARMOR, GARMENT, ACCESSORY_1, ACCESSORY_2]
 armor-types: [CLOTH, LIGHT, MEDIUM, HEAVY]
 loot:
   - { item: soft_fur, chance: 2000 }
-  - { item: raw_meat, chance: 2000 }
+  - { item: raw_meat, chance: 3000 }
   - { item: apple, chance: 1000 }

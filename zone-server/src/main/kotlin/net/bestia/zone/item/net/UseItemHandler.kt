@@ -12,6 +12,7 @@ import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.item.container.InventoryService
+import net.bestia.zone.item.eating.EatingService
 import net.bestia.zone.item.script.ItemScriptExecutionService
 import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.OperationErrorSMSG
@@ -37,6 +38,7 @@ class UseItemHandler(
   private val noviceGate: NoviceGate,
   private val outMessageProcessor: OutMessageProcessor,
   private val world: WorldView,
+  private val eatingService: EatingService,
   private val actionReactions: ActionReactions = ActionReactions.NONE,
 ) : IoMessageHandler<UseItemCMSG> {
   override val wire = decoder(MessageCase.USE_ITEM) { accountId, envelope ->
@@ -76,6 +78,12 @@ class UseItemHandler(
     // Asked before the database gives the item up, so a refusal costs nothing and needs nothing given back.
     if (item.noviceOnly && !isNovice(activeEntityId)) {
       outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(OperationErrorProto.OpError.ITEM_NOVICE_ONLY))
+      return true
+    }
+
+    // A meal is eaten over a channel and only taken from the bag once it is through, see EatingService.
+    if (eatingService.isMeal(item.id)) {
+      world.modify(activeEntityId) { id -> eatingService.begin(this, id, held.playerItemId) }
       return true
     }
 

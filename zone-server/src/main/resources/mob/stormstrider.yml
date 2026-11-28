@@ -50,3 +50,4 @@ armor-types: [CLOTH, LIGHT]
 loot:
   - { item: feather, chance: 4000 }
   - { item: raw_meat, chance: 2500 }
+  - { item: thunder_egg, chance: 1500 }

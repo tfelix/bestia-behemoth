@@ -53,7 +53,6 @@ class RestorativeScriptTest {
     val potions = listOf(SmallHealthPotionScript(messages), SmallManaPotionScript(), MedicineScript(messages))
     val others = listOf(
       BandageScript(messages), NoviceHealthPotionScript(messages), NoviceManaPotionScript(), BreadScript(), AleScript(),
-      HeartyStewScript(messages),
     )
 
     assertTrue(potions.all { it.isPotion })

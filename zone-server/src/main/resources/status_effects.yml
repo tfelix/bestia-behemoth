@@ -1078,3 +1078,12 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: WillpowerElixir
+
+  # Satisfied ("Gesättigt"): what a meal leaves behind. Only ever one - a new meal replaces it whole. What it
+  # grants is not here but in `meals.yml`, under the meal the bearer ate, which the effect carries as its amount.
+  - id: 311
+    identifier: SATISFIED
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Satisfied

@@ -47,3 +47,4 @@ loot:
   - { item: feather, chance: 10000 }
   - { item: ember_core, chance: 8000 }
   - { item: aetherite_shard, chance: 2500 }
+  - { item: phoenix_egg, chance: 10000 }

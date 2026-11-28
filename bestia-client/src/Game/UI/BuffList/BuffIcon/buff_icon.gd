@@ -7,6 +7,8 @@ extends VBoxContainer
 
 const _FADE_MIN_ALPHA: float = 0.3
 const _FADE_HALF_PERIOD_SECONDS: float = 0.9
+## The server's SATISFIED: a meal's buff, whose amount is the item id of the meal behind it.
+const _SATISFIED: int = 311
 
 @onready var _button: TextureButton = $BuffIconButton
 @onready var _duration_label: Label = $DurationLabel
@@ -25,7 +27,7 @@ func setup(entry: StatusEffectListEntry) -> void:
 	_effect_id = entry.EffectId
 	_is_debuff = entry.Debuff
 	_button.modulate = Color(1.0, 0.55, 0.55) if entry.Debuff else Color(1.0, 1.0, 1.0)
-	_button.tooltip_text = _description_of(entry.EffectId)
+	_button.tooltip_text = _meal_description_of(entry.Amount) if entry.EffectId == _SATISFIED else _description_of(entry.EffectId)
 	_remaining_seconds = entry.RemainingSeconds
 
 	# Infinite for an effect held until the server takes it away, such as a ward: there is no clock to show.
@@ -62,6 +64,15 @@ func _description_of(effect_id: int) -> String:
 	var key := "STATUS_EFFECT_%d" % effect_id
 	var text := tr(key)
 	return "" if text == key else text
+
+
+## SATISFIED names its meal, and the meal's description says what it grants. A meal this client does not know falls
+## back to the plain effect text.
+func _meal_description_of(meal_item_id: int) -> String:
+	var meal := ItemDB.get_instance().get_item(meal_item_id)
+	if meal == null:
+		return _description_of(_SATISFIED)
+	return tr("STATUS_EFFECT_311_MEAL") % [tr(meal.name_key), tr(meal.description_key)]
 
 
 func _set_fading(should_fade: bool) -> void:

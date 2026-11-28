@@ -803,6 +803,11 @@ world-time:
 stamina:
   drain-interval-seconds: 30
   drain-health-percent: 0.3
+  # What an owned bestia's work costs it in stamina, before its drain reduction (a worker's meal takes a share off).
+  work:
+    gather: 2                   # per prop picked
+    mine: 3                     # per voxel mined out of a shaft
+    craft-per-ten-seconds: 1.0  # per ten seconds an item took at a station
 
 socket:
   ip-address: 127.0.0.1

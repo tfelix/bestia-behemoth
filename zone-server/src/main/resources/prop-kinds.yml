@@ -391,6 +391,15 @@ kinds:
     regrow-seconds: 600
     collect: { item-id: 175, amount: 1 }
 
+  # A forage patch: one to two of whatever the biome grows, rolled from `forage.yml` when it is picked. The item
+  # here is what a biome without a table yields: a wild herb.
+  - kind: FORAGE_PATCH
+    max-hp: 5
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+    regrow-seconds: 900
+    collect: { item-id: 30, amount: 1 }
+
   - kind: SHRUB
     max-hp: 16
     collider: { half-x: 1, half-y: 1, height: 2 }

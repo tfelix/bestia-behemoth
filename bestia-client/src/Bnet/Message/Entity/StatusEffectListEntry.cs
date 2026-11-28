@@ -12,6 +12,8 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     [Export] public uint Level { get; set; }
     [Export] public float RemainingSeconds { get; set; }
     [Export] public bool Debuff { get; set; }
+    /// <summary>What the effect carries beyond its level. For SATISFIED, the item id of the meal behind it.</summary>
+    [Export] public int Amount { get; set; }
 
     /// <summary>
     /// Creates a BuffListEntry from protobuf data
@@ -23,7 +25,8 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         EffectId = protoEntry.EffectId,
         Level = protoEntry.Level,
         RemainingSeconds = protoEntry.RemainingSeconds,
-        Debuff = protoEntry.Debuff
+        Debuff = protoEntry.Debuff,
+        Amount = protoEntry.Amount
       };
     }
   }

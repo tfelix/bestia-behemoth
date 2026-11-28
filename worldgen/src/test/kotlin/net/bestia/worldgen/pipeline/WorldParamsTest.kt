@@ -151,7 +151,8 @@ class WorldParamsTest {
     // leave this one alone, and a chunk-tier one the reverse. This is the half the chunk cache is keyed on.
     // Moved with `ChunkMaterializer.VERSION` 19, when POIs stopped being props, and with `LootScatterParams` and
     // `ChunkMaterializer.VERSION` 20, when amethyst was scattered in the mountains.
-    assertEquals(-8_087_113_806_675_941_324L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
+    // Moved with `GroundCoverParams.forageShare`, when forage patches began growing among the herbs.
+    assertEquals(4_780_829_806_853_492_056L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
   }
 
   private fun config() = StandardWorld.demoConfig().copy(widthCells = 64, heightCells = 64)

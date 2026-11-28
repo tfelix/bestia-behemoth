@@ -55,3 +55,4 @@ loot:
   - { item: raw_hide, chance: 10000 }
   - { item: horn, chance: 10000 }
   - { item: aetherite_shard, chance: 3000 }
+  - { item: behemoth_rib, chance: 10000 }

@@ -48,3 +48,4 @@ armor-types: [LIGHT, MEDIUM]
 loot:
   - { item: chitin, chance: 1500 }
   - { item: apple, chance: 1500 }
+  - { item: nectar_drop, chance: 2000 }

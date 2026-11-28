@@ -13,7 +13,9 @@ data class StatusEffectsComponentSMSG(
     val effectId: Long,
     val level: Int,
     val remainingSeconds: Float,
-    val debuff: Boolean
+    val debuff: Boolean,
+    /** For SATISFIED, the meal behind it. See [ActiveStatusEffect.amount]. */
+    val amount: Int = 0
   )
 
   override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
@@ -25,6 +27,7 @@ data class StatusEffectsComponentSMSG(
             .setLevel(entry.level)
             .setRemainingSeconds(entry.remainingSeconds)
             .setDebuff(entry.debuff)
+            .setAmount(entry.amount)
             .build()
         }
       )

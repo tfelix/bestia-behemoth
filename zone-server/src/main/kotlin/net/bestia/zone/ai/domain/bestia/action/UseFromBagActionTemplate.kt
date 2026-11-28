@@ -40,9 +40,18 @@ class UseFromBagActionTemplate private constructor(
     )
   }
 
+  /** Uses the item, and for a meal stays running through its channel. A meal broken off still counts as used. */
   private class UseFromBag(private val care: BagCare, private val need: BagCare.Need) : BtNode {
-    override fun tick(context: BtContext): Status =
-      if (care.use(context.world, context.entityId, need)) Status.SUCCESS else Status.FAILURE
+    private var begun = false
+
+    override fun tick(context: BtContext): Status {
+      if (!begun) {
+        if (!care.use(context.world, context.entityId, need)) return Status.FAILURE
+        begun = true
+      }
+
+      return if (care.isEating(context.world, context.entityId)) Status.RUNNING else Status.SUCCESS
+    }
 
     override fun toString(): String = "UseFromBag($need)"
   }

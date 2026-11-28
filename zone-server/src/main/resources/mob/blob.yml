@@ -66,6 +66,6 @@ armor-types:
   - LIGHT
 loot:
   - item: jelly
-    chance: 1000
+    chance: 2500
   - item: apple
     chance: 1000

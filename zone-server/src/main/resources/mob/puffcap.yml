@@ -45,3 +45,4 @@ loot:
   - { item: wild_herb, chance: 1500 }
   - { item: glowcap, chance: 1500 }
   - { item: deathcap, chance: 1000 }
+  - { item: puffcap_cap, chance: 2500 }

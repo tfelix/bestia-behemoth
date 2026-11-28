@@ -53,3 +53,4 @@ loot:
   - { item: dragon_scale, chance: 8000 }
   - { item: salt, chance: 8000 }
   - { item: sea_pearl, chance: 6000 }
+  - { item: leviathan_steak, chance: 10000 }

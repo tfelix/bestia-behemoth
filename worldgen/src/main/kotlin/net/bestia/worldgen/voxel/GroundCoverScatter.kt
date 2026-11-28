@@ -134,7 +134,13 @@ data class GroundCoverParams(
   val manaHerbMinMana: Double = 0.6,
 
   /** Canopy from which a forest floor grows medicinal herbs; the temperate and tropical forests clear it. */
-  val medicinalHerbMinCanopy: Double = 0.5
+  val medicinalHerbMinCanopy: Double = 0.5,
+
+  /**
+   * How often a herb on unblighted ground is a forage patch instead, see [HerbKind.FORAGE]. Taken from the top of
+   * the same roll the rare herbs take from the bottom, so it and the largest rare share must leave room for each other.
+   */
+  val forageShare: Double = 0.25,
 ) : Params {
 
   init {
@@ -157,6 +163,10 @@ data class GroundCoverParams(
     listOf(ghostHerbShare, manaHerbShare, frostHerbShare, sunHerbShare, medicinalHerbShare, manaHerbMinMana)
       .forEach { require(it in 0.0..1.0) { "herb shares and the mana floor must be in [0,1], was $it" } }
     require(medicinalHerbMinCanopy in 0.0..1.0) { "medicinalHerbMinCanopy must be in [0,1], was $medicinalHerbMinCanopy" }
+    val largestRareShare = maxOf(manaHerbShare, frostHerbShare, sunHerbShare, medicinalHerbShare)
+    require(forageShare >= 0.0 && forageShare + largestRareShare <= 1.0) {
+      "forageShare must be at least 0 and leave room for the rare herbs, was $forageShare"
+    }
   }
 
   override fun digest(): ParamsDigest {
@@ -184,6 +194,7 @@ data class GroundCoverParams(
       .put("medicinalHerbShare", medicinalHerbShare)
       .put("manaHerbMinMana", manaHerbMinMana)
       .put("medicinalHerbMinCanopy", medicinalHerbMinCanopy)
+      .put("forageShare", forageShare)
   }
 }
 

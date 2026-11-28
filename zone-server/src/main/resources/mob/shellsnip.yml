@@ -51,3 +51,4 @@ loot:
   - { item: raw_fish, chance: 2000 }
   - { item: chitin, chance: 1500 }
   - { item: salt, chance: 1000 }
+  - { item: crab_claw, chance: 2500 }

@@ -193,7 +193,8 @@ class StatusEffects(
           effectId = it.definitionId,
           level = it.level,
           remainingSeconds = if (it.showsCountdown) it.remainingSeconds else Float.POSITIVE_INFINITY,
-          debuff = it.polarity == StatusEffectPolarity.DEBUFF
+          debuff = it.polarity == StatusEffectPolarity.DEBUFF,
+          amount = it.amount
         )
       }
     )

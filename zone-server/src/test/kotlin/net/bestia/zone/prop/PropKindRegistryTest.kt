@@ -201,13 +201,14 @@ class PropKindRegistryTest {
       StaticEntityKind.BLIGHTED_REED
     )
 
-    /** The herbs a `HerbKind` other than WILD becomes. */
+    /** The herbs a `HerbKind` other than WILD becomes, the forage patch among them. */
     val RARE_HERBS = setOf(
       StaticEntityKind.MEDICINAL_HERB,
       StaticEntityKind.MANA_HERB,
       StaticEntityKind.FROST_HERB,
       StaticEntityKind.SUN_HERB,
-      StaticEntityKind.GHOST_HERB
+      StaticEntityKind.GHOST_HERB,
+      StaticEntityKind.FORAGE_PATCH,
     )
 
     /** Picked up as it lies, and back after a while: worldgen's loose stones, sticks, resin, sand and amethyst. */

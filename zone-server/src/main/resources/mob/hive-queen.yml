@@ -50,3 +50,4 @@ loot:
   - { item: honeycomb, chance: 8000 }
   - { item: chitin, chance: 6000 }
   - { item: venom_sac, chance: 3000 }
+  - { item: queen_honey, chance: 10000 }

@@ -1,5 +1,8 @@
 package net.bestia.zone.crafting.station
 
+import net.bestia.zone.prop.CollectPropIntentSystem
+import net.bestia.zone.battle.ecs.status.WorkFatigue
+import net.bestia.zone.battle.ecs.status.StaminaConfig
 import net.bestia.zone.bestia.diary.BestiaNews
 import net.bestia.zone.bestia.diary.BestiaHappened
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -60,22 +63,24 @@ class StationWorkSystem(
   private val campfires: CampfireService,
   private val clock: Clock = Clock.systemUTC(),
   private val news: BestiaNews = BestiaNews { },
+  private val fatigue: WorkFatigue = WorkFatigue(StaminaConfig()),
 ) : System {
 
   // In ITEMS rather than ACTIONS so every move of the tick is done before the range check, and before the grant
   // path so a finished item is in the bag the same tick. Before GainExpSystem so the work EXP of a finished item
   // is booked the same tick too.
   override val phase = Phase.ITEMS
-  override val before = setOf(ObtainItemIntentSystem::class, GainExpSystem::class)
+  // Before a pick, as both tire a worker.
+  override val before = setOf(ObtainItemIntentSystem::class, GainExpSystem::class, CollectPropIntentSystem::class)
   // Level and GuildMembership are read, and the ledger and GainExp written, when a finished item pays work EXP.
   override val reads: ComponentClassSet = setOf(
     Position::class, Inventory::class, CarryCapacity::class, Master::class, AiAgent::class, Level::class,
     GuildMembership::class,
-  )
+  ) + WorkFatigue.READS
   override val writes: ComponentClassSet = setOf(
     ObtainItemIntent.CreateItemIntent::class, WorkAssignment::class, SimulationAnchor::class, WorkExpLedger::class,
     GainExp::class,
-  )
+  ) + WorkFatigue.WRITES
 
   override fun update(world: World, deltaTime: Float) {
     structures.all()
@@ -150,6 +155,8 @@ class StationWorkSystem(
       tellStopped(station, StationPause.CANNOT_CRAFT)
       return
     }
+
+    fatigue.chargeCraft(world, workerId, craftSeconds)
 
     val held = station.held.toMutableMap()
     recipe.inputTotals.forEach { (itemId, amount) -> held.merge(itemId, -amount, Int::plus) }

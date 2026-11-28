@@ -236,15 +236,17 @@ items:
   # The one thing Cooking makes, and the only crafted item that is USABLE rather than a material.
   - id: 17
     item-db-name: hearty_stew
-    base-level: 5
+    base-level: 1
     weight: 60
     type: USABLE
     material: FOOD
-    script: HeartyStewScript
+    script: MealScript
     description: |
       A bowl of thick stew made from whatever was to hand, still steaming from the fire.
 
       Restores health and stamina both, which no potion does.
+
+      Satisfied for 15 min: +10% stamina regeneration, +2 VIT.
 
   # --- Forged gear --------------------------------------------------------------------------------
   # What Forge Weapon and Forge Armor produce, and the reason they exist: the catalogue had only two
@@ -518,6 +520,7 @@ items:
     weight: 5
     type: ETC
     material: PLANT
+    craft-axes: { STATE: 0.1, INTEGRITY: -0.4, HEFT: -0.8, VITALITY: 0.6 }
     description: |
       A handful of leaves and roots, pulled up at the wayside.
 
@@ -529,6 +532,7 @@ items:
     weight: 10
     type: ETC
     material: PLANT
+    craft-axes: { STATE: -0.3, INTEGRITY: -0.6, HEFT: -0.7, EDGE: 0.4, VITALITY: 0.5 }
     description: |
       Dark berries picked off a thorny shrub, still cold from the shade.
 
@@ -686,6 +690,7 @@ items:
     weight: 30
     type: ETC
     material: PLANT
+    craft-axes: { STATE: 0.8, INTEGRITY: -0.2, HEFT: -0.5, VITALITY: 0.3, COMPLEXITY: -0.3 }
     description: |
       A sack of threshed grain, still smelling of the field it came out of.
 
@@ -805,6 +810,7 @@ items:
     weight: 120
     type: ETC
     material: FOOD
+    craft-axes: { STATE: 0.3, INTEGRITY: 0.2, HEFT: 0.5, VITALITY: 0.6 }
     description: |
       A thick cut of meat on the bone, marbled with fat.
 
@@ -852,6 +858,7 @@ items:
     weight: 100
     type: ETC
     material: FOOD
+    craft-axes: { STATE: 0.1, INTEGRITY: -0.1, HEFT: 0.3, EDGE: 0.1, VITALITY: 0.6 }
     description: |
       A silver-scaled fish, caught this morning.
 
@@ -2501,6 +2508,7 @@ items:
     weight: 20
     type: ETC
     material: FOOD
+    craft-axes: { STATE: 0.1, HEFT: 0.1, EDGE: 0.2, VITALITY: 0.6, COMPLEXITY: 0.1 }
     description: A striped little fish with a spiny back. Every pond seems to have one more.
 
   - id: 181
@@ -2509,6 +2517,7 @@ items:
     weight: 40
     type: ETC
     material: FOOD
+    craft-axes: { STATE: 0.1, HEFT: 0.3, VITALITY: 0.6, COMPLEXITY: 0.2 }
     description: A flat, bronze fish that feeds along the bottom. Bony, but filling.
 
   - id: 182
@@ -2517,6 +2526,7 @@ items:
     weight: 150
     type: ETC
     material: FOOD
+    craft-axes: { STATE: 0.2, INTEGRITY: 0.2, HEFT: 0.5, EDGE: 0.5, VITALITY: 0.5 }
     description: A long green hunter with a mouth full of teeth. Mind your fingers when you take the hook out.
 
   - id: 183
@@ -2525,6 +2535,7 @@ items:
     weight: 80
     type: ETC
     material: FOOD
+    craft-axes: { STATE: -0.3, INTEGRITY: 0.3, HEFT: 0.3, VITALITY: 0.6, ARCANE: 0.2 }
     description: A slick, snake-like fish that keeps wriggling long after it should have stopped.
 
   - id: 184
@@ -2533,6 +2544,7 @@ items:
     weight: 200
     type: ETC
     material: FOOD
+    craft-axes: { STATE: 0.2, INTEGRITY: 0.1, HEFT: 0.5, VITALITY: 0.8, COMPLEXITY: 0.2 }
     description: A strong silver fish with pink flesh. Cooks pay well for a fresh one.
 
   - id: 185
@@ -2541,6 +2553,7 @@ items:
     weight: 600
     type: ETC
     material: FOOD
+    craft-axes: { STATE: 0.2, INTEGRITY: 0.4, HEFT: 0.8, VITALITY: 0.6, COMPLEXITY: 0.4 }
     description: An old, armoured fish from the deep channels. Some say they live a hundred years.
 
   - id: 186
@@ -12532,3 +12545,1003 @@ items:
       A draught in which a philosopher's stone was dissolved. It tastes of nothing at all.
 
       Raises every attribute a great deal for ten minutes.
+
+  # --- Cooking: ingredients a meal is made of. Forage comes from forage patches (forage.yml), the rest from bestias. ---
+
+  - id: 693
+    item-db-name: wild_garlic
+    base-level: 1
+    weight: 5
+    type: ETC
+    material: PLANT
+    craft-axes: { STATE: 0.3, INTEGRITY: -0.2, HEFT: -0.6, EDGE: 0.4, VITALITY: 0.5 }
+    description: |
+      A bulb of wild garlic, dug from the forest floor. The smell stays on your hands for a day.
+
+      Grows in forage patches of the temperate forests and the grasslands.
+
+  - id: 694
+    item-db-name: wild_onion
+    base-level: 1
+    weight: 8
+    type: ETC
+    material: PLANT
+    craft-axes: { STATE: 0.2, INTEGRITY: -0.3, HEFT: -0.5, EDGE: 0.3, VITALITY: 0.4, COMPLEXITY: -0.2 }
+    description: |
+      A small, sharp onion with its green still on.
+
+      Grows in forage patches of the grasslands and the dry plains.
+
+  - id: 695
+    item-db-name: field_mushroom
+    base-level: 3
+    weight: 5
+    type: ETC
+    material: PLANT
+    craft-axes: { STATE: -0.1, INTEGRITY: -0.5, HEFT: -0.6, VITALITY: 0.4, COMPLEXITY: 0.1 }
+    description: |
+      A pale, meaty mushroom that is, for once, entirely safe to eat.
+
+      Grows in forage patches of the temperate forests.
+
+  - id: 696
+    item-db-name: sweetroot
+    base-level: 5
+    weight: 15
+    type: ETC
+    material: PLANT
+    craft-axes: { STATE: 0.5, INTEGRITY: 0.1, HEFT: -0.2, VITALITY: 0.7 }
+    description: |
+      A knobbly orange root that turns soft and sweet over a fire.
+
+      Grows in forage patches of the temperate forests and along the rivers.
+
+  - id: 697
+    item-db-name: sea_kelp
+    base-level: 6
+    weight: 10
+    type: ETC
+    material: PLANT
+    craft-axes: { STATE: -0.3, INTEGRITY: 0.2, HEFT: -0.6, VITALITY: 0.4, ARCANE: 0.1 }
+    description: |
+      A rubbery ribbon of kelp, still smelling of the tide.
+
+      Grows in forage patches on the beaches.
+
+  - id: 698
+    item-db-name: bog_cranberry
+    base-level: 8
+    weight: 5
+    type: ETC
+    material: PLANT
+    craft-axes: { STATE: -0.2, INTEGRITY: -0.5, HEFT: -0.8, EDGE: 0.3, VITALITY: 0.6 }
+    description: |
+      A handful of tart red berries from the moss of a bog.
+
+      Grows in forage patches of the bogs and swamps.
+
+  - id: 699
+    item-db-name: marsh_rice
+    base-level: 9
+    weight: 10
+    type: ETC
+    material: PLANT
+    craft-axes: { STATE: 0.7, INTEGRITY: -0.1, HEFT: -0.6, VITALITY: 0.4, COMPLEXITY: 0.1 }
+    description: |
+      Long dark grains stripped from a stalk of wild rice.
+
+      Grows in forage patches of the swamps and along the rivers.
+
+  - id: 700
+    item-db-name: frost_mint
+    base-level: 22
+    weight: 3
+    type: ETC
+    material: PLANT
+    craft-axes: { INTEGRITY: -0.4, HEFT: -0.8, EDGE: 0.3, VITALITY: 0.5, ARCANE: 0.6 }
+    description: |
+      Pale mint leaves rimed with frost that never quite melts.
+
+      Grows in forage patches of the tundra and the taiga.
+
+  - id: 701
+    item-db-name: peppercorn
+    base-level: 25
+    weight: 2
+    type: ETC
+    material: PLANT
+    craft-axes: { STATE: 0.8, INTEGRITY: -0.2, HEFT: -0.8, EDGE: 0.8, VITALITY: 0.1, COMPLEXITY: 0.2 }
+    description: |
+      A twist of black peppercorns from a jungle vine. Worth more than its weight in copper.
+
+      Grows in forage patches of the seasonal tropical forests.
+
+  - id: 702
+    item-db-name: desert_date
+    base-level: 30
+    weight: 5
+    type: ETC
+    material: PLANT
+    craft-axes: { STATE: 0.1, INTEGRITY: -0.3, HEFT: -0.5, VITALITY: 0.7, COMPLEXITY: 0.3 }
+    description: |
+      A sticky, honey-sweet date from a palm that should not grow where it does.
+
+      Grows in forage patches of the deserts and dry plains.
+
+  - id: 703
+    item-db-name: cinnamon_bark
+    base-level: 34
+    weight: 3
+    type: ETC
+    material: PLANT
+    craft-axes: { STATE: 0.8, INTEGRITY: 0.3, HEFT: -0.6, EDGE: 0.4, VITALITY: 0.3, COMPLEXITY: 0.4 }
+    description: |
+      A curl of fragrant inner bark, peeled from a tropical tree.
+
+      Grows in forage patches of the tropical forests.
+
+  - id: 704
+    item-db-name: ember_chili
+    base-level: 42
+    weight: 2
+    type: ETC
+    material: PLANT
+    craft-axes: { STATE: 0.3, INTEGRITY: -0.4, HEFT: -0.7, EDGE: 0.9, VITALITY: 0.2, ARCANE: 0.3 }
+    description: |
+      A chili that glows faintly red in the dark. Do not rub your eyes.
+
+      Grows in forage patches on the lava fields and in the badlands.
+
+  - id: 705
+    item-db-name: cloudberry
+    base-level: 46
+    weight: 3
+    type: ETC
+    material: PLANT
+    craft-axes: { STATE: -0.2, INTEGRITY: -0.6, HEFT: -0.9, VITALITY: 0.6, ARCANE: 0.3, COMPLEXITY: 0.2 }
+    description: |
+      A golden berry from the high meadows, said to taste of the clouds it grows under.
+
+      Grows in forage patches of the alpine heights.
+
+  - id: 706
+    item-db-name: black_truffle
+    base-level: 52
+    weight: 5
+    type: ETC
+    material: PLANT
+    craft-axes: { STATE: 0.4, INTEGRITY: 0.2, HEFT: -0.3, VITALITY: 0.5, ARCANE: 0.2, COMPLEXITY: 0.8 }
+    description: |
+      A lumpy black truffle with a smell that fills a room.
+
+      Grows, rarely, in forage patches of the temperate rainforests.
+
+  - id: 707
+    item-db-name: vanilla_pod
+    base-level: 58
+    weight: 1
+    type: ETC
+    material: PLANT
+    craft-axes: { STATE: 0.4, INTEGRITY: -0.2, HEFT: -0.8, VITALITY: 0.4, ARCANE: 0.3, COMPLEXITY: 0.7 }
+    description: |
+      A long, dark, glossy pod from an orchid of the deep jungle.
+
+      Grows, rarely, in forage patches of the tropical rainforests.
+
+  - id: 708
+    item-db-name: saffron_thread
+    base-level: 66
+    weight: 1
+    type: ETC
+    material: PLANT
+    craft-axes: { STATE: 0.5, INTEGRITY: -0.5, HEFT: -0.9, EDGE: 0.2, VITALITY: 0.5, ARCANE: 0.4, COMPLEXITY: 0.9 }
+    description: |
+      A pinch of crimson threads from a crocus of the dry heights. Gold is easier to come by.
+
+      Grows, rarely, in forage patches of the dry plains and cold deserts.
+
+  - id: 709
+    item-db-name: starlight_lotus
+    base-level: 80
+    weight: 3
+    type: ETC
+    material: PLANT
+    craft-axes: { STATE: -0.1, INTEGRITY: -0.3, HEFT: -0.8, VITALITY: 0.8, ARCANE: 0.9, COMPLEXITY: 0.6 }
+    description: |
+      A lotus that opens only under the stars, and keeps a little of their light.
+
+      Grows, rarely, in forage patches on the shores of lakes.
+
+  - id: 710
+    item-db-name: ambrosia_bloom
+    base-level: 100
+    weight: 2
+    type: ETC
+    material: PLANT
+    craft-axes: { STATE: 0.0, INTEGRITY: 0.2, HEFT: -0.7, VITALITY: 1.0, ARCANE: 0.8, COMPLEXITY: 0.9 }
+    description: |
+      A flower from the hot springs whose nectar the old songs call the food of gods.
+
+      Grows, rarely, in forage patches of the geothermal basins.
+
+  - id: 711
+    item-db-name: speckled_egg
+    base-level: 2
+    weight: 10
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: -0.3, INTEGRITY: -0.7, HEFT: -0.3, VITALITY: 0.7, COMPLEXITY: 0.1 }
+    description: |
+      A brown egg speckled like a pecklet's breast. Handle with care.
+
+      Dropped by pecklets.
+
+  - id: 712
+    item-db-name: crab_claw
+    base-level: 4
+    weight: 30
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: 0.6, INTEGRITY: 0.5, HEFT: 0.2, EDGE: 0.4, VITALITY: 0.5 }
+    description: |
+      A shellsnip's claw, heavy with sweet white meat once you crack it.
+
+      Dropped by shellsnips.
+
+  - id: 713
+    item-db-name: nectar_drop
+    base-level: 6
+    weight: 5
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: -0.8, INTEGRITY: -0.6, HEFT: -0.8, VITALITY: 0.7, COMPLEXITY: 0.2 }
+    description: |
+      A bead of golden nectar a buzzlet was carrying home.
+
+      Dropped by buzzlets.
+
+  - id: 714
+    item-db-name: snail_meat
+    base-level: 7
+    weight: 20
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: -0.4, INTEGRITY: -0.2, HEFT: 0.1, VITALITY: 0.5, ARCANE: 0.1 }
+    description: |
+      The chewy foot of a bogsnail. Better than it sounds, with enough garlic.
+
+      Dropped by bogsnails.
+
+  - id: 715
+    item-db-name: puffcap_cap
+    base-level: 10
+    weight: 10
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: -0.1, INTEGRITY: -0.7, HEFT: -0.7, VITALITY: 0.3, ARCANE: 0.3 }
+    description: |
+      The spongy cap of a puffcap, emptied of its spores. Nutty, once cooked.
+
+      Dropped by puffcaps.
+
+  - id: 716
+    item-db-name: scorpion_tail
+    base-level: 12
+    weight: 15
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: 0.6, INTEGRITY: 0.4, HEFT: -0.2, EDGE: 0.7, VITALITY: 0.2 }
+    description: |
+      A stingtail's tail with the sting cut off. Crunchy.
+
+      Dropped by stingtails.
+
+  - id: 717
+    item-db-name: venison
+    base-level: 20
+    weight: 120
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: 0.4, INTEGRITY: 0.4, HEFT: 0.6, VITALITY: 0.7, COMPLEXITY: 0.2 }
+    description: |
+      A lean, dark haunch of deer.
+
+      Dropped by tallhorns and mossback stags.
+
+  - id: 718
+    item-db-name: yak_butter
+    base-level: 25
+    weight: 40
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: -0.2, INTEGRITY: -0.3, HEFT: 0.2, VITALITY: 0.8, COMPLEXITY: 0.3 }
+    description: |
+      A pale yellow block of butter churned from a woolhorn yak's milk.
+
+      Dropped by woolhorn yaks.
+
+  - id: 719
+    item-db-name: veil_jelly
+    base-level: 26
+    weight: 15
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: -0.8, INTEGRITY: -0.5, HEFT: -0.6, VITALITY: 0.4, ARCANE: 0.5 }
+    description: |
+      A cool, blue-glowing jelly from a jellyveil's bell. It stops stinging once it is cooked.
+
+      Dropped by jellyveils.
+
+  - id: 720
+    item-db-name: mountain_mutton
+    base-level: 29
+    weight: 120
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: 0.4, INTEGRITY: 0.5, HEFT: 0.7, VITALITY: 0.6, COMPLEXITY: -0.2 }
+    description: |
+      A tough, gamey cut from a crag ram that wants a long time in the pot.
+
+      Dropped by crag rams.
+
+  - id: 721
+    item-db-name: seal_blubber
+    base-level: 34
+    weight: 80
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: -0.4, INTEGRITY: 0.1, HEFT: 0.7, VITALITY: 0.8 }
+    description: |
+      A slab of tuskseal blubber. It keeps a body warm from the inside.
+
+      Dropped by tuskseals.
+
+  - id: 722
+    item-db-name: croc_tail
+    base-level: 37
+    weight: 150
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: 0.5, INTEGRITY: 0.7, HEFT: 0.6, EDGE: 0.2, VITALITY: 0.5 }
+    description: |
+      A mudjaw's tail, scaled and boned. Tastes like a chicken that could eat you.
+
+      Dropped by mudjaws.
+
+  - id: 723
+    item-db-name: magma_jelly
+    base-level: 39
+    weight: 20
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: -0.6, INTEGRITY: -0.4, HEFT: 0.1, EDGE: 0.3, VITALITY: 0.3, ARCANE: 0.6 }
+    description: |
+      A lump of jelly from a magmaslug, still warm enough to cook an egg on.
+
+      Dropped by magmaslugs.
+
+  - id: 724
+    item-db-name: royal_jelly
+    base-level: 42
+    weight: 20
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: -0.7, INTEGRITY: -0.5, HEFT: -0.4, VITALITY: 0.9, ARCANE: 0.4, COMPLEXITY: 0.5 }
+    description: |
+      The rich, shimmering jelly a blob queen is made of. Blobs fight over every drop.
+
+      Dropped by the blob queen.
+
+  - id: 725
+    item-db-name: sunmane_flank
+    base-level: 44
+    weight: 140
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: 0.4, INTEGRITY: 0.5, HEFT: 0.7, VITALITY: 0.8, ARCANE: 0.3 }
+    description: |
+      A flank of sunmane, golden-marbled and warm to the touch.
+
+      Dropped by sunmanes.
+
+  - id: 726
+    item-db-name: queen_honey
+    base-level: 54
+    weight: 30
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: -0.5, INTEGRITY: -0.5, HEFT: -0.3, VITALITY: 0.9, ARCANE: 0.3, COMPLEXITY: 0.6 }
+    description: |
+      Dark amber honey from the heart of a hive queen's comb.
+
+      Dropped by the hive queen.
+
+  - id: 727
+    item-db-name: thunder_egg
+    base-level: 55
+    weight: 40
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: 0.2, INTEGRITY: 0.3, HEFT: 0.1, VITALITY: 0.6, ARCANE: 0.8 }
+    description: |
+      A stormstrider's egg that crackles when you shake it. Don't.
+
+      Dropped by stormstriders.
+
+  - id: 728
+    item-db-name: frost_marrow
+    base-level: 60
+    weight: 60
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: -0.3, INTEGRITY: 0.4, HEFT: 0.6, VITALITY: 0.7, ARCANE: 0.4 }
+    description: |
+      A marrow bone from a rimehulk yeti, cold as a glacier at its core.
+
+      Dropped by rimehulk yetis.
+
+  - id: 729
+    item-db-name: drake_steak
+    base-level: 62
+    weight: 160
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: 0.5, INTEGRITY: 0.7, HEFT: 0.8, VITALITY: 0.8, ARCANE: 0.4 }
+    description: |
+      A thick steak from a geyser drake, steaming even when raw.
+
+      Dropped by geyser drakes.
+
+  - id: 730
+    item-db-name: serpent_fillet
+    base-level: 70
+    weight: 100
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: 0.2, INTEGRITY: 0.4, HEFT: 0.5, EDGE: 0.2, VITALITY: 0.7, ARCANE: 0.3, COMPLEXITY: 0.3 }
+    description: |
+      A translucent fillet from a brineserpent, fine enough to eat raw.
+
+      Dropped by brineserpents.
+
+  - id: 731
+    item-db-name: hydra_heart
+    base-level: 75
+    weight: 80
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: -0.2, INTEGRITY: 0.5, HEFT: 0.6, VITALITY: 1.0, ARCANE: 0.6 }
+    description: |
+      One of a hydra's hearts. It still beats now and then.
+
+      Dropped by hydras.
+
+  - id: 732
+    item-db-name: wyvern_tenderloin
+    base-level: 78
+    weight: 140
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: 0.4, INTEGRITY: 0.6, HEFT: 0.7, VITALITY: 0.9, ARCANE: 0.5, COMPLEXITY: 0.4 }
+    description: |
+      The tenderest cut of a wyvern, from under the wing.
+
+      Dropped by frost wyverns and canyon wyverns.
+
+  - id: 733
+    item-db-name: ember_gland
+    base-level: 79
+    weight: 20
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: -0.5, INTEGRITY: -0.2, HEFT: -0.2, EDGE: 0.6, VITALITY: 0.3, ARCANE: 0.8 }
+    description: |
+      The gland a salamander breathes fire from. A cook's spice, used by the grain.
+
+      Dropped by salamanders.
+
+  - id: 734
+    item-db-name: phoenix_egg
+    base-level: 105
+    weight: 50
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: 0.1, INTEGRITY: 0.3, HEFT: 0.2, VITALITY: 1.0, ARCANE: 1.0, COMPLEXITY: 0.6 }
+    description: |
+      An egg of the ember phoenix, too hot to hold without gloves.
+
+      Dropped by the ember phoenix.
+
+  - id: 735
+    item-db-name: leviathan_steak
+    base-level: 112
+    weight: 300
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: 0.3, INTEGRITY: 0.8, HEFT: 1.0, VITALITY: 0.9, ARCANE: 0.6, COMPLEXITY: 0.3 }
+    description: |
+      A steak cut from a leviathan, enough to feed a village, if a village dared.
+
+      Dropped by the leviathan.
+
+  - id: 736
+    item-db-name: behemoth_rib
+    base-level: 120
+    weight: 400
+    type: ETC
+    material: FOOD
+    craft-axes: { STATE: 0.6, INTEGRITY: 1.0, HEFT: 1.0, VITALITY: 0.9, ARCANE: 0.5, COMPLEXITY: 0.2 }
+    description: |
+      A single rib of the behemoth, with meat on it. It takes two to carry.
+
+      Dropped by the behemoth.
+
+  # --- Cooking: the meals. What they do is in meals.yml; eating one takes six seconds. ---
+
+  - id: 737
+    item-db-name: grilled_skewer
+    base-level: 2
+    weight: 32
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      Chunks of meat and onion charred on a stick over an open fire.
+
+      Satisfied for 15 min: +10% stamina regeneration, +5% speed off the road.
+
+  - id: 738
+    item-db-name: jelly_dumplings
+    base-level: 2
+    weight: 32
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      Wobbly dumplings with a sweet jelly heart. Better than they look.
+
+      Satisfied for 15 min: +10% stamina regeneration, +3% healing received.
+
+  - id: 739
+    item-db-name: garlic_fish
+    base-level: 3
+    weight: 33
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A whole fish roasted with a bulb of wild garlic in its belly.
+
+      Satisfied for 15 min: +10% stamina regeneration, +3 HIT.
+
+  - id: 740
+    item-db-name: grain_porridge
+    base-level: 3
+    weight: 33
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A thick porridge of field grain with a grated apple stirred in. Farmhands swear by it.
+
+      Satisfied for 15 min: +10% stamina regeneration, skills cost 10% less stamina.
+
+  - id: 741
+    item-db-name: fried_egg_and_herbs
+    base-level: 4
+    weight: 34
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A speckled egg fried in a pan, scattered with chopped herbs.
+
+      Satisfied for 15 min: +10% stamina regeneration, +2 HP regeneration.
+
+  - id: 742
+    item-db-name: crab_claw_broth
+    base-level: 5
+    weight: 35
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A salty broth of crab and kelp that tastes of the sea.
+
+      Satisfied for 15 min: +10% stamina regeneration, +5% water resistance.
+
+  - id: 743
+    item-db-name: mushroom_pan
+    base-level: 5
+    weight: 35
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      Mushrooms and strips of meat sizzled together in their own juices.
+
+      Satisfied for 15 min: +10% stamina regeneration, +2 INT, +2 mana regeneration.
+
+  - id: 744
+    item-db-name: sweetroot_mash
+    base-level: 7
+    weight: 37
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A bowl of mashed sweetroot, smooth with a spoon of jelly. A worker's breakfast.
+
+      Satisfied for 15 min: +10% stamina regeneration, 15% less stamina lost to work, weather and the road.
+
+  - id: 745
+    item-db-name: berry_tart
+    base-level: 8
+    weight: 38
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A crumbly tart of bramble berries glazed with nectar.
+
+      Satisfied for 15 min: +10% stamina regeneration, +2 AGI.
+
+  - id: 746
+    item-db-name: garlic_snails
+    base-level: 9
+    weight: 39
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      Bogsnail cooked in its own juices with plenty of garlic. The bog has never tasted better.
+
+      Satisfied for 15 min: +10% stamina regeneration, +10% poison resistance.
+
+  - id: 747
+    item-db-name: smoked_perch
+    base-level: 10
+    weight: 40
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A perch salted and hung in the smoke of the campfire overnight.
+
+      Satisfied for 15 min: +10% stamina regeneration, +5% carry capacity.
+
+  - id: 748
+    item-db-name: puffcap_risotto
+    base-level: 14
+    weight: 44
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      Creamy marsh rice stirred slowly with puffcap and herbs.
+
+      Satisfied for 15 min: +10% stamina regeneration, +3 WIL.
+
+  - id: 749
+    item-db-name: cranberry_boar_roast
+    base-level: 16
+    weight: 46
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A roast of boar glazed with tart bog cranberries.
+
+      Satisfied for 15 min: +10% stamina regeneration, +3 STR.
+
+  - id: 750
+    item-db-name: crispy_scorpion
+    base-level: 18
+    weight: 48
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      Stingtail tails fried until they crack between the teeth.
+
+      Satisfied for 15 min: +10% stamina regeneration, +3 CRIT.
+
+  - id: 751
+    item-db-name: bream_rice_bowl
+    base-level: 20
+    weight: 50
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      Flaked bream on a bed of marsh rice, wrapped in kelp to carry.
+
+      Satisfied for 15 min: +10% stamina regeneration, +5% carry capacity, 5% less stamina lost to work, weather and the road.
+
+  - id: 752
+    item-db-name: venison_pie
+    base-level: 22
+    weight: 52
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A deep pie of venison and mushrooms under a golden crust.
+
+      Satisfied for 20 min: +20% stamina regeneration, +4 VIT, +3% max HP.
+
+  - id: 753
+    item-db-name: frost_mint_tea_cake
+    base-level: 24
+    weight: 54
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A sweet little cake that leaves a cool tingle and, oddly, a warm belly.
+
+      Satisfied for 20 min: +20% stamina regeneration, +10% water resistance, 10% less stamina lost to work, weather and the road, and keeps you warm in the cold.
+
+  - id: 754
+    item-db-name: peppered_pike
+    base-level: 26
+    weight: 56
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A pike steak crusted thick with cracked pepper.
+
+      Satisfied for 20 min: +20% stamina regeneration, +5 HIT, +3 FLEE.
+
+  - id: 755
+    item-db-name: yak_butter_bread
+    base-level: 28
+    weight: 58
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A heavy flatbread soaked in yak butter. The mountain folk work all day on one.
+
+      Satisfied for 20 min: +20% stamina regeneration, 25% less stamina lost to work, weather and the road.
+
+  - id: 756
+    item-db-name: veil_jelly_aspic
+    base-level: 30
+    weight: 60
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A cold, faintly glowing aspic of jellyveil and mint.
+
+      Satisfied for 20 min: +20% stamina regeneration, +5% max mana, +4 mana regeneration.
+
+  - id: 757
+    item-db-name: mutton_hotpot
+    base-level: 32
+    weight: 62
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      Crag ram stewed for hours with sweetroot and garlic until it falls apart.
+
+      Satisfied for 20 min: +20% stamina regeneration, +10% carry capacity.
+
+  - id: 758
+    item-db-name: date_stuffed_eel
+    base-level: 34
+    weight: 64
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      An eel roasted with sweet desert dates in its belly. It keeps a body cool under any sun.
+
+      Satisfied for 20 min: +20% stamina regeneration, +10% fire resistance, and keeps you cool in the heat.
+
+  - id: 759
+    item-db-name: cinnamon_honeycakes
+    base-level: 36
+    weight: 66
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      Small sticky cakes of honey and cinnamon. Fingers stay nimble, if sticky.
+
+      Satisfied for 20 min: +20% stamina regeneration, +4 DEX, 5% faster casting.
+
+  - id: 760
+    item-db-name: blubber_stew
+    base-level: 38
+    weight: 68
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A rich, oily stew from the ice shelves. Nothing keeps a fighter going like it.
+
+      Satisfied for 20 min: +20% stamina regeneration, HP and mana keep regenerating in combat.
+
+  - id: 761
+    item-db-name: lava_jelly_flambe
+    base-level: 40
+    weight: 70
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      Magmaslug jelly set alight at the table. Eat it before it eats the table.
+
+      Satisfied for 20 min: +20% stamina regeneration, +8% damage against earth creatures.
+
+  - id: 762
+    item-db-name: royal_jelly_custard
+    base-level: 42
+    weight: 72
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A trembling custard made with the blob queen's own jelly. Fit for a king, or a very large blob.
+
+      Satisfied for 30 min: +30% stamina regeneration, +3 to every attribute.
+
+  - id: 763
+    item-db-name: smoked_salmon_plate
+    base-level: 44
+    weight: 74
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      Thin slices of smoked salmon dressed with frost mint.
+
+      Satisfied for 30 min: +30% stamina regeneration, +6 WIL, +5% healing received.
+
+  - id: 764
+    item-db-name: croc_tail_gumbo
+    base-level: 46
+    weight: 76
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A dark, peppery swamp stew with chunks of mudjaw tail.
+
+      Satisfied for 30 min: +30% stamina regeneration, +10% poison and bleeding resistance.
+
+  - id: 765
+    item-db-name: sunmane_steak
+    base-level: 48
+    weight: 78
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A sunmane steak seared hot and fast, with a chili rub that bites back.
+
+      Satisfied for 30 min: +30% stamina regeneration, +6 STR, +3% attack speed.
+
+  - id: 766
+    item-db-name: cloudberry_parfait
+    base-level: 50
+    weight: 80
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A light, airy parfait of cloudberries. You feel you could float past anyone.
+
+      Satisfied for 30 min: +30% stamina regeneration, 15% shorter range at which creatures notice you.
+
+  - id: 767
+    item-db-name: truffle_venison
+    base-level: 54
+    weight: 84
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      Venison with shaved black truffle. Bestias follow the smell for miles.
+
+      Satisfied for 30 min: +30% stamina regeneration, +5 catch chance when taming.
+
+  - id: 768
+    item-db-name: queens_honey_glaze
+    base-level: 56
+    weight: 86
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      Sturgeon lacquered in the hive queen's dark honey. A whole workday in one plate.
+
+      Satisfied for 30 min: +30% stamina regeneration, 40% less stamina lost to work, weather and the road, +10% carry capacity.
+
+  - id: 769
+    item-db-name: thunder_egg_souffle
+    base-level: 60
+    weight: 90
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A soufflé that rises with a crackle of static. Your feet feel lighter for hours.
+
+      Satisfied for 30 min: +30% stamina regeneration, +8 AGI, +10% speed off the road.
+
+  - id: 770
+    item-db-name: drake_steak_diane
+    base-level: 64
+    weight: 94
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      Drake steak in a saffron and marrow sauce. Hot drake, cold marrow, and a warrior's appetite.
+
+      Satisfied for 45 min: +40% stamina regeneration, +6% max HP, +8 VIT.
+
+  - id: 771
+    item-db-name: serpent_sushi
+    base-level: 70
+    weight: 100
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      Rolls of brineserpent and moonscale on marsh rice. Demands a steady hand to make and gives one back.
+
+      Satisfied for 45 min: +40% stamina regeneration, +8 DEX, +8 HIT.
+
+  - id: 772
+    item-db-name: hydra_heart_ragout
+    base-level: 76
+    weight: 106
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A ragout of hydra heart. Every bite makes you a little hungrier for the next fight.
+
+      Satisfied for 45 min: +40% stamina regeneration, 1% of damage dealt heals you.
+
+  - id: 773
+    item-db-name: wyvern_wellington
+    base-level: 82
+    weight: 112
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      Wyvern tenderloin wrapped in pastry, spiced with ember gland and saffron.
+
+      Satisfied for 60 min: +50% stamina regeneration, +10 STR, +10% fire and water resistance.
+
+  - id: 774
+    item-db-name: lotus_leviathan_broth
+    base-level: 100
+    weight: 130
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A clear broth of the deep, with a starlight lotus floating in it.
+
+      Satisfied for 60 min: +50% stamina regeneration, +10% max HP and mana, skills cost 20% less stamina.
+
+  - id: 775
+    item-db-name: phoenix_feast
+    base-level: 115
+    weight: 145
+    type: USABLE
+    material: FOOD
+    script: MealScript
+    description: |
+      A feast of legends: behemoth rib, phoenix egg and ambrosia. They will sing of the cook.
+
+      Satisfied for 60 min: +50% stamina regeneration, +10 to every attribute, HP and mana keep regenerating in combat.

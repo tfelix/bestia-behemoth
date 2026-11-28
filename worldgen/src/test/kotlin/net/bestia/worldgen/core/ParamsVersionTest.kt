@@ -267,7 +267,7 @@ class ParamsVersionTest {
       "DropletParams" to 8_150_952_456_997_203_313L,
       "CrystalParams" to 7_903_608_439_399_290_165L,
       // The pickable plants. Chunk tier only, so it moves `chunkTierVersion` and no stage version.
-      "GroundCoverParams" to 780_591_524_799_301_061L,
+      "GroundCoverParams" to 3_060_074_338_817_062_261L,
       // Re-pinned when `windVeerRadians` was added, so a region's wind could back and veer over time.
       "WeatherParams" to -7_060_824_393_580_613_959L,
       "Culture" to -8_541_605_725_367_154_968L

@@ -9,6 +9,8 @@ import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.fishing.FishingCatalogue
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
+import net.bestia.zone.item.meal.MealCatalog
+import net.bestia.zone.prop.forage.ForageTable
 import net.bestia.zone.spawn.ecs.MobLootSpawner
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
@@ -27,6 +29,8 @@ class CatalogueWarmUpBootRunner(
   private val bestias: BestiaCatalogue,
   private val skills: SkillExecutionService,
   private val fishing: FishingCatalogue,
+  private val meals: MealCatalog,
+  private val forage: ForageTable,
 ) : CommandLineRunner {
 
   override fun run(vararg args: String?) {
@@ -36,5 +40,7 @@ class CatalogueWarmUpBootRunner(
     bestias.warmUp()
     skills.warmUp()
     fishing.warmUp()
+    meals.warmUp()
+    forage.warmUp()
   }
 }

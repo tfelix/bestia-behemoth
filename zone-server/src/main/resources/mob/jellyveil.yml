@@ -50,3 +50,4 @@ loot:
   - { item: jelly, chance: 3000 }
   - { item: venom_sac, chance: 800 }
   - { item: sea_pearl, chance: 200 }
+  - { item: veil_jelly, chance: 2500 }

@@ -234,7 +234,13 @@ enum class StaticEntityKind {
   OBSERVATION_OUTPOST,
 
   /** Where a Trader mints gold bars into coin. */
-  MINT;
+  MINT,
+
+  /**
+   * A forage patch: worldgen's HERB with `HerbKind.FORAGE`. Picked like a herb, but what it yields is rolled from
+   * the biome it grows in, see `forage.yml`.
+   */
+  FORAGE_PATCH;
 
   /** A scar the mana left, which nothing may break. */
   val isOmen: Boolean get() = name.startsWith("OMEN_")
@@ -296,6 +302,7 @@ enum class StaticEntityKind {
         HerbKind.FROST -> FROST_HERB
         HerbKind.SUN -> SUN_HERB
         HerbKind.GHOST -> GHOST_HERB
+        HerbKind.FORAGE -> FORAGE_PATCH
       }
       PropKind.SHRUB -> if (blighted) BLIGHTED_SHRUB else SHRUB
       PropKind.REED -> if (blighted) BLIGHTED_REED else REED

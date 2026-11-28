@@ -49,3 +49,4 @@ armor-types: [CLOTH, LIGHT]
 loot:
   - { item: feather, chance: 3000 }
   - { item: grain, chance: 1000 }
+  - { item: speckled_egg, chance: 2500 }

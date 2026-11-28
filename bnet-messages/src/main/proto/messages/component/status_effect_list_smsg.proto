@@ -20,4 +20,6 @@ message StatusEffectEntry {
   // Infinity for an effect that lasts until the server says it is gone, like the ward: show it without a timer.
   float remaining_seconds = 3;
   bool debuff = 4;
+  // What the instance carries beyond its level. For SATISFIED, the item id of the meal behind it.
+  int32 amount = 5;
 }

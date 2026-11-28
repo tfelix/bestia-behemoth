@@ -50,3 +50,4 @@ armor-types: [MEDIUM, HEAVY]
 loot:
   - { item: frost_crystal, chance: 2000 }
   - { item: dragon_scale, chance: 800 }
+  - { item: wyvern_tenderloin, chance: 2000 }

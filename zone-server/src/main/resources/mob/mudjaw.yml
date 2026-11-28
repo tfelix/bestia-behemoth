@@ -50,3 +50,4 @@ loot:
   - { item: reptile_scale, chance: 2500 }
   - { item: raw_meat, chance: 2500 }
   - { item: sharp_fang, chance: 1000 }
+  - { item: croc_tail, chance: 2500 }

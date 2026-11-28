@@ -142,7 +142,8 @@ class UseItemHandlerTest {
       actionGuard = ActionGuard(),
       noviceGate = NoviceGate(skillTree),
       outMessageProcessor = messages,
-      world = world
+      world = world,
+      eatingService = mockk { every { isMeal(any()) } returns false },
     )
   }
 

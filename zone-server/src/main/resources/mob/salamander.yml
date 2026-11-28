@@ -43,3 +43,4 @@ armor-types: []
 loot:
   - { item: ember_core, chance: 2500 }
   - { item: reptile_scale, chance: 1500 }
+  - { item: ember_gland, chance: 2000 }

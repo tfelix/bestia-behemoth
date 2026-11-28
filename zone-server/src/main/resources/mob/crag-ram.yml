@@ -51,3 +51,4 @@ loot:
   - { item: horn, chance: 2500 }
   - { item: wool, chance: 2000 }
   - { item: earth_crystal, chance: 300 }
+  - { item: mountain_mutton, chance: 3000 }

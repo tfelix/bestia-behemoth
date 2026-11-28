@@ -49,3 +49,4 @@ loot:
   - { item: clay, chance: 2000 }
   - { item: venom_sac, chance: 800 }
   - { item: deathcap, chance: 1200 }
+  - { item: snail_meat, chance: 2500 }

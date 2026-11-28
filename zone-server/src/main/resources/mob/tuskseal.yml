@@ -50,3 +50,4 @@ loot:
   - { item: raw_fish, chance: 3000 }
   - { item: raw_hide, chance: 2000 }
   - { item: horn, chance: 1500 }
+  - { item: seal_blubber, chance: 2500 }

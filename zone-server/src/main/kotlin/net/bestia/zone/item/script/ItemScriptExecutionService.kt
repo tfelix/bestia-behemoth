@@ -9,10 +9,14 @@ import org.springframework.stereotype.Service
 
 @Service
 class ItemScriptExecutionService(
-  itemScripts: List<ItemScript>
+  private val itemScripts: List<ItemScript>,
+  private val sources: List<ItemScriptSource> = emptyList(),
 ) {
 
-  private val itemScriptsById = itemScripts.associateBy { it.itemId }
+  /** Every script: the one-class-per-item ones and the catalogue ones. Lazy, as a source's item names resolve. */
+  val allScripts: List<ItemScript> by lazy { itemScripts + sources.flatMap { it.scripts() } }
+
+  private val itemScriptsById by lazy { allScripts.associateBy { it.itemId } }
 
   /**
    * Executes [item]'s script for the given user and, on success, consumes one from the held item

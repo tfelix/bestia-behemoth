@@ -51,3 +51,4 @@ loot:
   - { item: horn, chance: 2500 }
   - { item: raw_hide, chance: 2500 }
   - { item: wild_herb, chance: 1500 }
+  - { item: venison, chance: 2500 }

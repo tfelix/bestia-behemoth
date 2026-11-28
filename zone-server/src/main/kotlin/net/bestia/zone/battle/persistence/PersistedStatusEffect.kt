@@ -54,6 +54,11 @@ class PersistedStatusEffect(
   @Column(name = "potency", nullable = false)
   @ColumnDefault("0")
   var potency: Int = 0,
+
+  /** What the instance carries beyond its level, like the meal behind SATISFIED. */
+  @Column(name = "amount", nullable = false)
+  @ColumnDefault("0")
+  var amount: Int = 0,
 ) {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

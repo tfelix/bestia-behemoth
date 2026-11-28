@@ -24,8 +24,15 @@ class HerbKindTest {
 
   @Test
   fun `the rest of a special land still grows wild herbs`() {
-    assertEquals(HerbKind.WILD, herbAt(Biome.TEMPERATE_FOREST, roll = 0.9))
+    assertEquals(HerbKind.WILD, herbAt(Biome.TEMPERATE_FOREST, roll = 0.6))
     assertEquals(HerbKind.WILD, herbAt(Biome.GRASSLAND, roll = 0.9, blighted = true))
+  }
+
+  @Test
+  fun `the top of the roll is a forage patch anywhere but on blighted ground`() {
+    assertEquals(HerbKind.FORAGE, herbAt(Biome.TEMPERATE_FOREST, roll = 0.9))
+    assertEquals(HerbKind.FORAGE, herbAt(Biome.DESERT, roll = 0.9, mana = 0.9))
+    assertEquals(HerbKind.WILD, herbAt(Biome.GRASSLAND, roll = 0.99, blighted = true))
   }
 
   @Test
