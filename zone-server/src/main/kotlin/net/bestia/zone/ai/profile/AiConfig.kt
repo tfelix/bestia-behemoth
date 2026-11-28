@@ -58,11 +58,15 @@ data class AiConfig(
   @Convert(converter = CareItemsConverter::class)
   @Column(name = "care_items", length = 400)
   val careItems: CareItems = CareItems(),
+
+  @Convert(converter = GatherFilterConverter::class)
+  @Column(name = "gather_filter", length = 400)
+  val gatherFilter: GatherFilter = GatherFilter(),
 ) {
 
   /**
    * Whether these orders can be followed: a fallback only behind a job that runs out of work and not itself, a
-   * short list of rules that each make sense, and short lists of care items.
+   * short list of rules that each make sense, and short lists of items.
    */
   val isValid: Boolean
     get() {
@@ -70,7 +74,7 @@ data class AiConfig(
         (job.takesFallback && fallbackJob != job && fallbackJob != BestiaJob.REST && fallbackJob?.isBuilt == true)
       val rulesFit = rules.size <= OrderRule.MAX_RULES && rules.all { it.isValid }
 
-      return job.isBuilt && fallbackFits && rulesFit && careItems.isValid
+      return job.isBuilt && fallbackFits && rulesFit && careItems.isValid && gatherFilter.isValid
     }
 
   companion object {

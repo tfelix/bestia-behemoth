@@ -44,6 +44,9 @@ message SetBestiaAiConfigCMSG {
   /** The items it may use to look after itself, beyond common food and bandages. */
   CareItems care_items = 13;
 
+  /** What a gatherer takes. Empty: everything. */
+  GatherFilter gather_filter = 14;
+
   /** "When condition then action". Only the pairs the server allows; see OrderRule there. */
   message Rule {
     Condition condition = 1;
@@ -79,6 +82,24 @@ message SetBestiaAiConfigCMSG {
     repeated uint64 never_use = 1;
     /** Used on top of common food and bandages, for example a healing potion. */
     repeated uint64 also_use = 2;
+  }
+
+  message GatherFilter {
+    /** The kinds of things it leaves alone. */
+    repeated GatherCategory skip = 1;
+    /** Item ids, at most 8. When set, it takes only a prop that yields one of them; a tree yields its logs and resin. */
+    repeated uint64 only_items = 2;
+
+    enum GatherCategory {
+      GATHER_CATEGORY_UNSPECIFIED = 0;
+      /** Sticks, resin, loose stones, reeds. */
+      LOOSE = 1;
+      /** Herbs and shrubs. */
+      PLANT = 2;
+      TREE = 3;
+      /** Mana and aetherite crystals. */
+      CRYSTAL = 4;
+    }
   }
 
   /** An unset field keeps what the courage step and the job choose. */

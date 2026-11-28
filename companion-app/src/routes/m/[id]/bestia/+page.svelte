@@ -23,18 +23,22 @@
 		ACTION_NAME,
 		CARE_LISTS,
 		CONDITIONS,
+		GATHERED_ITEMS,
+		GATHER_CATEGORIES,
 		MAX_ITEMS,
 		MAX_RULES,
 		NUMBERS,
 		changed,
 		draftOf,
 		fallbacksFor,
+		gathers,
 		mayTake,
 		newRule,
 		ordersOf,
 		ruleOf,
 		sheetOf,
 		withItem,
+		withSkip,
 		type OrderDraft
 	} from '#lib/orders.ts';
 	import { activityText } from '#lib/activity.ts';
@@ -52,10 +56,15 @@
 	let failure = $state<string | null>(null);
 	let items = $state<Catalog['items']>([]);
 
-	/** What a bestia could use on itself: the usable items, by name. */
-	const usableItems = $derived(
-		items.filter((item) => item.type === 'USABLE').sort((a, b) => itemName(a.identifier).localeCompare(itemName(b.identifier)))
-	);
+	type Item = Catalog['items'][number];
+
+	function byName(a: Item, b: Item): number {
+		return itemName(a.identifier).localeCompare(itemName(b.identifier));
+	}
+
+	/** What a bestia could use on itself: the usable items. */
+	const usableItems = $derived(items.filter((item) => item.type === 'USABLE').sort(byName));
+	const gatheredItems = $derived(items.filter((item) => GATHERED_ITEMS.includes(item.id)).sort(byName));
 
 	function nameOfItem(itemId: number): string {
 		const item = items.find((each) => each.id === itemId);
@@ -213,6 +222,31 @@
 	}
 </script>
 
+{#snippet itemList(name: string, chosen: number[], choices: Item[], set: (next: number[]) => void)}
+	<div class="items">
+		<span class="muted small">{name}</span>
+		{#each chosen as itemId (itemId)}
+			<span class="item"
+				>{nameOfItem(itemId)}
+				<button class="btn small" aria-label="Remove item" onclick={() => set(chosen.filter((id) => id !== itemId))}>×</button></span
+			>
+		{/each}
+		{#if chosen.length < MAX_ITEMS}
+			<select
+				aria-label={`${name}: add an item`}
+				value=""
+				onchange={(e) => {
+					set(withItem(chosen, Number(e.currentTarget.value)));
+					e.currentTarget.value = '';
+				}}
+			>
+				<option value="">Add…</option>
+				{#each choices as item (item.id)}<option value={item.id}>{itemName(item.identifier)}</option>{/each}
+			</select>
+		{/if}
+	</div>
+{/snippet}
+
 <main class="page">
 	<div class="top">
 		<h1 class="title">Bestia</h1>
@@ -340,30 +374,26 @@
 						</div>
 
 						{#if !following}
+							{#if gathers(draft)}
+								<div class="label">Gathers</div>
+								<div class="items">
+									{#each GATHER_CATEGORIES as category (category.key)}
+										<label title={category.text}>
+											<input
+												type="checkbox"
+												checked={!draft.gatherFilter.skip.includes(category.key)}
+												onchange={(e) => (draft.gatherFilter.skip = withSkip(draft.gatherFilter.skip, category.key, !e.currentTarget.checked))}
+											/>
+											{category.name}
+										</label>
+									{/each}
+								</div>
+								{@render itemList('Only these items (none: all)', draft.gatherFilter.onlyItems, gatheredItems, (next) => (draft.gatherFilter.onlyItems = next))}
+							{/if}
+
 							<div class="label">Care items <span class="muted small">(it also uses common food and bandages)</span></div>
 							{#each CARE_LISTS as list (list.key)}
-								<div class="items">
-									<span class="muted small">{list.name}</span>
-									{#each draft.careItems[list.key] as itemId, i (itemId)}
-										<span class="item"
-											>{nameOfItem(itemId)}
-											<button class="btn small" aria-label="Remove item" onclick={() => draft.careItems[list.key].splice(i, 1)}>×</button></span
-										>
-									{/each}
-									{#if draft.careItems[list.key].length < MAX_ITEMS}
-										<select
-											aria-label={`${list.name}: add an item`}
-											value=""
-											onchange={(e) => {
-												draft.careItems[list.key] = withItem(draft.careItems[list.key], Number(e.currentTarget.value));
-												e.currentTarget.value = '';
-											}}
-										>
-											<option value="">Add…</option>
-											{#each usableItems as item (item.id)}<option value={item.id}>{itemName(item.identifier)}</option>{/each}
-										</select>
-									{/if}
-								</div>
+								{@render itemList(list.name, draft.careItems[list.key], usableItems, (next) => (draft.careItems[list.key] = next))}
 							{/each}
 
 							<div class="label">Rules <span class="muted small">(read from the top, the first that holds decides)</span></div>

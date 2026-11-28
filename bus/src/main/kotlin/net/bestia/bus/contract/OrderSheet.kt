@@ -10,4 +10,5 @@ data class OrderSheet(
   val areaPlaceId: Long? = null,
   val chestPlaceId: Long? = null,
   val careItems: OrderCareItems = OrderCareItems(),
+  val gatherFilter: OrderGatherFilter = OrderGatherFilter(),
 )

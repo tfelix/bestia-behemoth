@@ -3,6 +3,7 @@ package net.bestia.zone.ai.domain.bestia
 import net.bestia.zone.battle.ecs.status.LabourLedger
 import net.bestia.zone.bestia.diary.BestiaNews
 import net.bestia.zone.ai.profile.BestiaJob
+import net.bestia.zone.ai.profile.GatherFilter
 import net.bestia.zone.ai.profile.OrderRule
 import net.bestia.zone.battle.attack.BasicAttackResolver
 import net.bestia.zone.ai.bt.Locomotion
@@ -190,6 +191,9 @@ object BestiaDomain : AiDomainCatalogue {
 
   /** The job an owned bestia's orders give it first. Its fallback job waits until [mainJobIdle]. */
   val MAIN_JOB = StateKey<BestiaJob>("mainJob", retain = Blackboard.PERMANENT)
+
+  /** What an owned gatherer's orders let it take. See `GatherSense`. */
+  val GATHER_FILTER = StateKey<GatherFilter>("gatherFilter", retain = Blackboard.PERMANENT)
 
   /** The props a gatherer last saw in its area, nearest first. See `GatherSense`. */
   val GATHERABLES = StateKey<List<Gatherable>>("gatherables")

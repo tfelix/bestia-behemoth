@@ -103,6 +103,7 @@ class BestiaRuntime(
     memory.set(BestiaDomain.MAIN_JOB, config.job, Blackboard.PERMANENT)
     memory.set(BestiaDomain.RULES, config.rules, Blackboard.PERMANENT)
     memory.set(BestiaDomain.CARE_ITEMS, config.careItems, Blackboard.PERMANENT)
+    memory.set(BestiaDomain.GATHER_FILTER, config.gatherFilter, Blackboard.PERMANENT)
     config.areaPlaceId?.let { memory.set(BestiaDomain.AREA_PLACE_ID, it, Blackboard.PERMANENT) }
     config.chestPlaceId?.let { memory.set(BestiaDomain.CHEST_PLACE_ID, it, Blackboard.PERMANENT) }
     memory.set(BestiaDomain.WANDER_RADIUS, areaRadius, Blackboard.PERMANENT)

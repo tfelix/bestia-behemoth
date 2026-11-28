@@ -1,12 +1,15 @@
 package net.bestia.zone.master.bestia
 
+import net.bestia.bnet.proto.SetBestiaAiConfigCmsgProto.SetBestiaAiConfigCMSG.GatherFilter as WireGatherFilter
 import net.bestia.bnet.proto.SetBestiaAiConfigCmsgProto.SetBestiaAiConfigCMSG.Job
 import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.ai.profile.BestiaJob
 import net.bestia.zone.ai.profile.Courage
+import net.bestia.zone.ai.profile.GatherFilter
 import net.bestia.zone.ai.profile.OrderOverrides
 import net.bestia.zone.ai.profile.OrderRule
 import net.bestia.zone.item.care.CareItems
+import net.bestia.zone.prop.GatherCategory
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
@@ -22,6 +25,7 @@ class OrdersWireTest {
       areaPlaceId = 11,
       chestPlaceId = 12,
       careItems = CareItems(neverUse = listOf(46, 58), alsoUse = listOf(3)),
+      gatherFilter = GatherFilter(skip = setOf(GatherCategory.TREE, GatherCategory.PLANT), onlyItems = listOf(32, 142)),
     )
 
     assertEquals(orders, OrdersWire.ordersFrom(OrdersWire.sheetOf(orders)))
@@ -32,6 +36,14 @@ class OrdersWireTest {
     val tooMany = AiConfig(BestiaJob.REST, careItems = CareItems(alsoUse = (1L..9L).toList()))
 
     assertNull(OrdersWire.ordersFrom(OrdersWire.sheetOf(tooMany)))
+  }
+
+  @Test
+  fun `a sheet that skips a gather category this server does not know is refused`() {
+    val unknown = WireGatherFilter.newBuilder().addSkip(WireGatherFilter.GatherCategory.GATHER_CATEGORY_UNSPECIFIED)
+    val sheet = OrdersWire.sheetOf(AiConfig(BestiaJob.GATHER)).toBuilder().setGatherFilter(unknown).build()
+
+    assertNull(OrdersWire.ordersFrom(sheet))
   }
 
   @Test

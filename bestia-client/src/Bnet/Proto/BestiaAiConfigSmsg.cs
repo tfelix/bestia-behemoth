@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CittZXNzYWdlcy9tYXN0ZXIvYmVzdGlhX2FpX2NvbmZpZ19zbXNnLnByb3Rv",
             "EgRibmV0Gi9tZXNzYWdlcy9tYXN0ZXIvc2V0X2Jlc3RpYV9haV9jb25maWdf",
-            "Y21zZy5wcm90byLDBAoSQmVzdGlhQWlDb25maWdTTVNHEhgKEHBsYXllcl9i",
+            "Y21zZy5wcm90byKEBQoSQmVzdGlhQWlDb25maWdTTVNHEhgKEHBsYXllcl9i",
             "ZXN0aWFfaWQYASABKAQSLAoDam9iGAUgASgOMh8uYm5ldC5TZXRCZXN0aWFB",
             "aUNvbmZpZ0NNU0cuSm9iEjQKB2NvdXJhZ2UYBiABKA4yIy5ibmV0LlNldEJl",
             "c3RpYUFpQ29uZmlnQ01TRy5Db3VyYWdlEjUKDGZhbGxiYWNrX2pvYhgHIAEo",
@@ -37,14 +37,15 @@ namespace Bnet {
             "aWQYCyABKARIAYgBARIbCg5jaGVzdF9wbGFjZV9pZBgMIAEoBEgCiAEBEjwK",
             "DW93bl9vdmVycmlkZXMYDSABKAsyJS5ibmV0LlNldEJlc3RpYUFpQ29uZmln",
             "Q01TRy5PdmVycmlkZXMSOQoKY2FyZV9pdGVtcxgOIAEoCzIlLmJuZXQuU2V0",
-            "QmVzdGlhQWlDb25maWdDTVNHLkNhcmVJdGVtc0IMCgpfcHJlc2V0X2lkQhAK",
-            "Dl9hcmVhX3BsYWNlX2lkQhEKD19jaGVzdF9wbGFjZV9pZEoECAIQA0oECAMQ",
-            "BEoECAQQBUIwChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CF0Jlc3RpYUFpQ29u",
-            "ZmlnU21zZ1Byb3RvYgZwcm90bzM="));
+            "QmVzdGlhQWlDb25maWdDTVNHLkNhcmVJdGVtcxI/Cg1nYXRoZXJfZmlsdGVy",
+            "GA8gASgLMiguYm5ldC5TZXRCZXN0aWFBaUNvbmZpZ0NNU0cuR2F0aGVyRmls",
+            "dGVyQgwKCl9wcmVzZXRfaWRCEAoOX2FyZWFfcGxhY2VfaWRCEQoPX2NoZXN0",
+            "X3BsYWNlX2lkSgQIAhADSgQIAxAESgQIBBAFQjAKFW5ldC5iZXN0aWEuYm5l",
+            "dC5wcm90b0IXQmVzdGlhQWlDb25maWdTbXNnUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.SetBestiaAiConfigCmsgReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.BestiaAiConfigSMSG), global::Bnet.BestiaAiConfigSMSG.Parser, new[]{ "PlayerBestiaId", "Job", "Courage", "FallbackJob", "Overrides", "Rules", "PresetId", "AreaPlaceId", "ChestPlaceId", "OwnOverrides", "CareItems" }, new[]{ "PresetId", "AreaPlaceId", "ChestPlaceId" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.BestiaAiConfigSMSG), global::Bnet.BestiaAiConfigSMSG.Parser, new[]{ "PlayerBestiaId", "Job", "Courage", "FallbackJob", "Overrides", "Rules", "PresetId", "AreaPlaceId", "ChestPlaceId", "OwnOverrides", "CareItems", "GatherFilter" }, new[]{ "PresetId", "AreaPlaceId", "ChestPlaceId" }, null, null, null)
           }));
     }
     #endregion
@@ -104,6 +105,7 @@ namespace Bnet {
       chestPlaceId_ = other.chestPlaceId_;
       ownOverrides_ = other.ownOverrides_ != null ? other.ownOverrides_.Clone() : null;
       careItems_ = other.careItems_ != null ? other.careItems_.Clone() : null;
+      gatherFilter_ = other.gatherFilter_ != null ? other.gatherFilter_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -295,6 +297,18 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "gather_filter" field.</summary>
+    public const int GatherFilterFieldNumber = 15;
+    private global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter gatherFilter_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter GatherFilter {
+      get { return gatherFilter_; }
+      set {
+        gatherFilter_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -321,6 +335,7 @@ namespace Bnet {
       if (ChestPlaceId != other.ChestPlaceId) return false;
       if (!object.Equals(OwnOverrides, other.OwnOverrides)) return false;
       if (!object.Equals(CareItems, other.CareItems)) return false;
+      if (!object.Equals(GatherFilter, other.GatherFilter)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -339,6 +354,7 @@ namespace Bnet {
       if (HasChestPlaceId) hash ^= ChestPlaceId.GetHashCode();
       if (ownOverrides_ != null) hash ^= OwnOverrides.GetHashCode();
       if (careItems_ != null) hash ^= CareItems.GetHashCode();
+      if (gatherFilter_ != null) hash ^= GatherFilter.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -398,6 +414,10 @@ namespace Bnet {
         output.WriteRawTag(114);
         output.WriteMessage(CareItems);
       }
+      if (gatherFilter_ != null) {
+        output.WriteRawTag(122);
+        output.WriteMessage(GatherFilter);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -449,6 +469,10 @@ namespace Bnet {
         output.WriteRawTag(114);
         output.WriteMessage(CareItems);
       }
+      if (gatherFilter_ != null) {
+        output.WriteRawTag(122);
+        output.WriteMessage(GatherFilter);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -489,6 +513,9 @@ namespace Bnet {
       }
       if (careItems_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(CareItems);
+      }
+      if (gatherFilter_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(GatherFilter);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -541,6 +568,12 @@ namespace Bnet {
           CareItems = new global::Bnet.SetBestiaAiConfigCMSG.Types.CareItems();
         }
         CareItems.MergeFrom(other.CareItems);
+      }
+      if (other.gatherFilter_ != null) {
+        if (gatherFilter_ == null) {
+          GatherFilter = new global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter();
+        }
+        GatherFilter.MergeFrom(other.GatherFilter);
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -614,6 +647,13 @@ namespace Bnet {
             input.ReadMessage(CareItems);
             break;
           }
+          case 122: {
+            if (gatherFilter_ == null) {
+              GatherFilter = new global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter();
+            }
+            input.ReadMessage(GatherFilter);
+            break;
+          }
         }
       }
     #endif
@@ -684,6 +724,13 @@ namespace Bnet {
               CareItems = new global::Bnet.SetBestiaAiConfigCMSG.Types.CareItems();
             }
             input.ReadMessage(CareItems);
+            break;
+          }
+          case 122: {
+            if (gatherFilter_ == null) {
+              GatherFilter = new global::Bnet.SetBestiaAiConfigCMSG.Types.GatherFilter();
+            }
+            input.ReadMessage(GatherFilter);
             break;
           }
         }

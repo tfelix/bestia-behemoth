@@ -54,6 +54,10 @@ var _area: OptionButton
 var _chest: OptionButton
 var _fine_tune_toggle: Button
 var _fine_tune: VBoxContainer
+var _gather_row: Control
+## Ticked is gathered; keyed by [enum OrderVocabulary.GatherCategory].
+var _gathers: Dictionary = {}
+var _only_items: OrderItemsEditor
 var _numbers: OrderNumbersEditor
 var _never_use: OrderItemsEditor
 var _also_use: OrderItemsEditor
@@ -175,6 +179,12 @@ func _show_draft() -> void:
 		_numbers.set_numbers(_sheet.Overrides, {})
 	else:
 		_numbers.set_numbers(_own, _preset_sheet().Overrides if following else {})
+	for category in _gathers:
+		_gathers[category].set_pressed_no_signal(category not in _sheet.GatherSkip)
+		_gathers[category].disabled = locked
+	_only_items.set_items(_sheet.GatherOnlyItems)
+	_only_items.set_editable(not locked)
+	_toggle_gather_filter()
 	_never_use.set_items(_sheet.NeverUse)
 	_also_use.set_items(_sheet.AlsoUse)
 	_rules.set_rules(_sheet.Rules)
@@ -188,6 +198,13 @@ func _show_draft() -> void:
 	_rules.set_editable(not locked)
 	_give.text = tr("ORDERS_SAVE_PRESET") if _editing_preset else tr("ORDERS_GIVE")
 	_update_give()
+
+
+## Only a bestia that gathers, as its job or while idle, has use for the gather filter.
+func _toggle_gather_filter() -> void:
+	var gathers := OrderVocabulary.Job.GATHER in [_sheet.Job, _sheet.FallbackJob]
+	_gather_row.visible = gathers
+	_only_items.visible = gathers
 
 
 func _fill_preset_picker() -> void:
@@ -267,6 +284,11 @@ func _on_job_selected(index: int) -> void:
 	_show_draft()
 
 
+func _on_fallback_selected(_index: int) -> void:
+	_update_give()
+	_toggle_gather_filter()
+
+
 func _on_courage_changed(value: float) -> void:
 	_courage_name.text = OrderVocabulary.courage_name(int(value))
 	_update_give()
@@ -279,6 +301,10 @@ func _read_widgets() -> void:
 	_sheet.FallbackJob = _fallback.get_selected_id() if _fallback_row.visible else OrderVocabulary.Job.UNSET
 	_sheet.AreaPlaceId = _area.get_selected_id()
 	_sheet.ChestPlaceId = _chest.get_selected_id()
+	_sheet.GatherSkip.assign(OrderVocabulary.GATHER_CATEGORIES.filter(
+		func(category: int) -> bool: return not _gathers[category].button_pressed
+	))
+	_sheet.GatherOnlyItems.assign(_only_items.get_items())
 	_sheet.NeverUse.assign(_never_use.get_items())
 	_sheet.AlsoUse.assign(_also_use.get_items())
 	_sheet.Rules.assign(_rules.get_rules())
@@ -296,7 +322,7 @@ func _key_of(sheet: OrderSheet, preset_id: int, own: Dictionary) -> String:
 		return JSON.stringify([preset_id, _sorted(own)])
 	return JSON.stringify([
 		sheet.Job, sheet.Courage, sheet.FallbackJob, _sorted(sheet.Overrides), sheet.Rules, sheet.AreaPlaceId,
-		sheet.ChestPlaceId, sheet.NeverUse, sheet.AlsoUse,
+		sheet.ChestPlaceId, sheet.NeverUse, sheet.AlsoUse, sheet.GatherSkip, sheet.GatherOnlyItems,
 	])
 
 
@@ -414,7 +440,7 @@ func _build() -> void:
 	_job_hint.custom_minimum_size = Vector2(300, 0)
 	_body.add_child(_job_hint)
 
-	_fallback = _add_picker(_body, tr("ORDERS_FALLBACK"), func(_i: int) -> void: _update_give())
+	_fallback = _add_picker(_body, tr("ORDERS_FALLBACK"), _on_fallback_selected)
 	_fallback_row = _fallback.get_parent()
 	_fallback.tooltip_text = tr("ORDERS_FALLBACK_HINT")
 
@@ -455,6 +481,15 @@ func _build() -> void:
 	_fine_tune = UiStyle.vbox(6)
 	_fine_tune.visible = false
 	_body.add_child(_fine_tune)
+	_gather_row = _add_row(_fine_tune, tr("ORDERS_GATHERS"))
+	for category in OrderVocabulary.GATHER_CATEGORIES:
+		var tick := CheckBox.new()
+		tick.text = tr("ORDERS_GATHER_%d" % category)
+		tick.tooltip_text = tr("ORDERS_GATHER_HINT_%d" % category)
+		tick.toggled.connect(func(_on: bool) -> void: _update_give())
+		_gather_row.add_child(tick)
+		_gathers[category] = tick
+	_only_items = _add_items_editor(tr("ORDERS_ONLY_ITEMS"), OrderVocabulary.gathered_item_choices())
 	_numbers = OrderNumbersEditor.new()
 	_numbers.changed.connect(_update_give)
 	_fine_tune.add_child(_numbers)

@@ -32,6 +32,8 @@
 #
 # Presence of `collect` is the whole rule for what may be clicked - there is no separate `collectible` flag,
 # so a kind added below is not collectible until someone says what it yields.
+#
+# A `collect` block's `gather` is what a gathering bestia's orders call it: LOOSE (the default), PLANT or CRYSTAL.
 kinds:
   - kind: TREE
     max-hp: 120
@@ -63,13 +65,13 @@ kinds:
     max-hp: 40
     collider: { half-x: 1, half-y: 1, height: 2 }
     variants: 3
-    collect: { item-id: 6, amount: 1 }
+    collect: { item-id: 6, amount: 1, gather: CRYSTAL }
 
   - kind: MANA_CRYSTAL_LARGE
     max-hp: 90
     collider: { half-x: 1, half-y: 1, height: 4 }
     variants: 3
-    collect: { item-id: 6, amount: 2 }
+    collect: { item-id: 6, amount: 2, gather: CRYSTAL }
 
   - kind: WOUND_SPIRE
     max-hp: 200
@@ -82,13 +84,13 @@ kinds:
     max-hp: 60
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 3
-    collect: { item-id: 7, amount: 1 }
+    collect: { item-id: 7, amount: 1, gather: CRYSTAL }
 
   - kind: AETHERITE_SHARD_LARGE
     max-hp: 130
     collider: { half-x: 1, half-y: 1, height: 3 }
     variants: 3
-    collect: { item-id: 7, amount: 2 }
+    collect: { item-id: 7, amount: 2, gather: CRYSTAL }
 
   # The POIs: one row per entry in worldgen's `PoiKind`, and mandatory. They are entities raised at boot by
   # `PoiService`, not props, so `poi` says how they fight and which `EntityScript` runs on a click.
@@ -346,14 +348,14 @@ kinds:
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
     regrow-seconds: 600
-    collect: { item-id: 30, amount: 1 }
+    collect: { item-id: 30, amount: 1, gather: PLANT }
 
   - kind: BLIGHTED_HERB
     max-hp: 4
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
     regrow-seconds: 600
-    collect: { item-id: 30, amount: 1 }
+    collect: { item-id: 30, amount: 1, gather: PLANT }
 
   # The rare herbs. Each yields its own herb, which Herbalism has to be high enough to pick.
   - kind: MEDICINAL_HERB
@@ -361,49 +363,49 @@ kinds:
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
     regrow-seconds: 600
-    collect: { item-id: 171, amount: 1 }
+    collect: { item-id: 171, amount: 1, gather: PLANT }
 
   - kind: MANA_HERB
     max-hp: 5
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
     regrow-seconds: 600
-    collect: { item-id: 172, amount: 1 }
+    collect: { item-id: 172, amount: 1, gather: PLANT }
 
   - kind: FROST_HERB
     max-hp: 5
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
     regrow-seconds: 600
-    collect: { item-id: 173, amount: 1 }
+    collect: { item-id: 173, amount: 1, gather: PLANT }
 
   - kind: SUN_HERB
     max-hp: 5
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
     regrow-seconds: 600
-    collect: { item-id: 174, amount: 1 }
+    collect: { item-id: 174, amount: 1, gather: PLANT }
 
   - kind: GHOST_HERB
     max-hp: 5
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
     regrow-seconds: 600
-    collect: { item-id: 175, amount: 1 }
+    collect: { item-id: 175, amount: 1, gather: PLANT }
 
   - kind: SHRUB
     max-hp: 16
     collider: { half-x: 1, half-y: 1, height: 2 }
     variants: 1
     regrow-seconds: 1200
-    collect: { item-id: 31, amount: 1 }
+    collect: { item-id: 31, amount: 1, gather: PLANT }
 
   - kind: BLIGHTED_SHRUB
     max-hp: 12
     collider: { half-x: 1, half-y: 1, height: 2 }
     variants: 1
     regrow-seconds: 1200
-    collect: { item-id: 31, amount: 1 }
+    collect: { item-id: 31, amount: 1, gather: PLANT }
 
   - kind: REED
     max-hp: 6
@@ -520,7 +522,7 @@ kinds:
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
     regrow-seconds: 3600
-    collect: { item-id: 131, amount: 1 }
+    collect: { item-id: 131, amount: 1, gather: CRYSTAL }
 
   # A ritual ring of Mana Concentrate laid flat into the ground; used up when its ritual ends.
   - kind: MANA_CIRCLE

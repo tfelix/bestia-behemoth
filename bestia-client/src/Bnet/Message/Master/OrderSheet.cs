@@ -29,6 +29,10 @@ namespace BestiaBehemothClient.Bnet.Message.Master
     [Export] public Array<long> NeverUse { get; set; } = new();
     /// <summary>Item ids it may use on top of common food and bandages.</summary>
     [Export] public Array<long> AlsoUse { get; set; } = new();
+    /// <summary>The <c>GatherFilter.GatherCategory</c> ordinals a gatherer leaves alone.</summary>
+    [Export] public Array<int> GatherSkip { get; set; } = new();
+    /// <summary>Item ids; with any set, a gatherer takes only what yields one of them.</summary>
+    [Export] public Array<long> GatherOnlyItems { get; set; } = new();
 
     /// <summary>A copy the window can edit without changing what it was sent.</summary>
     public OrderSheet Copy()
@@ -43,6 +47,8 @@ namespace BestiaBehemothClient.Bnet.Message.Master
         ChestPlaceId = ChestPlaceId,
         NeverUse = NeverUse.Duplicate(),
         AlsoUse = AlsoUse.Duplicate(),
+        GatherSkip = GatherSkip.Duplicate(),
+        GatherOnlyItems = GatherOnlyItems.Duplicate(),
       };
       foreach (var rule in Rules)
       {
@@ -56,7 +62,8 @@ namespace BestiaBehemothClient.Bnet.Message.Master
     {
       return Of(
         proto.Job, proto.Courage, proto.FallbackJob, proto.Overrides, proto.Rules,
-        proto.HasAreaPlaceId ? proto.AreaPlaceId : 0, proto.HasChestPlaceId ? proto.ChestPlaceId : 0, proto.CareItems
+        proto.HasAreaPlaceId ? proto.AreaPlaceId : 0, proto.HasChestPlaceId ? proto.ChestPlaceId : 0, proto.CareItems,
+        proto.GatherFilter
       );
     }
 
@@ -65,7 +72,8 @@ namespace BestiaBehemothClient.Bnet.Message.Master
     {
       return Of(
         proto.Job, proto.Courage, proto.FallbackJob, proto.Overrides, proto.Rules,
-        proto.HasAreaPlaceId ? proto.AreaPlaceId : 0, proto.HasChestPlaceId ? proto.ChestPlaceId : 0, proto.CareItems
+        proto.HasAreaPlaceId ? proto.AreaPlaceId : 0, proto.HasChestPlaceId ? proto.ChestPlaceId : 0, proto.CareItems,
+        proto.GatherFilter
       );
     }
 
@@ -77,7 +85,8 @@ namespace BestiaBehemothClient.Bnet.Message.Master
       global::System.Collections.Generic.IEnumerable<Wire.Types.Rule> rules,
       ulong areaPlaceId,
       ulong chestPlaceId,
-      Wire.Types.CareItems careItems)
+      Wire.Types.CareItems careItems,
+      Wire.Types.GatherFilter gatherFilter)
     {
       var sheet = new OrderSheet
       {
@@ -97,6 +106,11 @@ namespace BestiaBehemothClient.Bnet.Message.Master
         foreach (var itemId in careItems.NeverUse) sheet.NeverUse.Add((long)itemId);
         foreach (var itemId in careItems.AlsoUse) sheet.AlsoUse.Add((long)itemId);
       }
+      if (gatherFilter != null)
+      {
+        foreach (var category in gatherFilter.Skip) sheet.GatherSkip.Add((int)category);
+        foreach (var itemId in gatherFilter.OnlyItems) sheet.GatherOnlyItems.Add((long)itemId);
+      }
 
       return sheet;
     }
@@ -110,6 +124,7 @@ namespace BestiaBehemothClient.Bnet.Message.Master
         FallbackJob = (Wire.Types.Job)FallbackJob,
         Overrides = OverridesToProto(Overrides),
         CareItems = CareItemsToProto(),
+        GatherFilter = GatherFilterToProto(),
       };
       proto.Rules.AddRange(RulesToProto());
       if (AreaPlaceId != 0) proto.AreaPlaceId = AreaPlaceId;
@@ -138,6 +153,14 @@ namespace BestiaBehemothClient.Bnet.Message.Master
       var proto = new Wire.Types.CareItems();
       foreach (var itemId in NeverUse) proto.NeverUse.Add((ulong)itemId);
       foreach (var itemId in AlsoUse) proto.AlsoUse.Add((ulong)itemId);
+      return proto;
+    }
+
+    public Wire.Types.GatherFilter GatherFilterToProto()
+    {
+      var proto = new Wire.Types.GatherFilter();
+      foreach (var category in GatherSkip) proto.Skip.Add((Wire.Types.GatherFilter.Types.GatherCategory)category);
+      foreach (var itemId in GatherOnlyItems) proto.OnlyItems.Add((ulong)itemId);
       return proto;
     }
 

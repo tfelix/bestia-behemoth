@@ -3,6 +3,7 @@ package net.bestia.zone.ai.perception
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.ai.domain.bestia.WorkArea
 import net.bestia.zone.ai.domain.bestia.Gatherable
+import net.bestia.zone.ai.profile.GatherFilter
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -11,14 +12,16 @@ import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.entity.ecs.StaticVisual
 import net.bestia.zone.entity.ecs.WorldObjectIdentity
+import net.bestia.zone.prop.GatherCategory
+import net.bestia.zone.prop.PropKindDto
 import net.bestia.zone.prop.PropKindRegistry
 import net.bestia.zone.prop.WorldObjectDivergenceRegistry
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
 /**
- * Notices what a gatherer could take in its area, nearest first. Only a bestia under GATHER orders has an area,
- * so for every other creature this costs one memory lookup.
+ * Notices what a gatherer could take in its area and its orders let it, nearest first. Only a bestia under GATHER
+ * orders has an area, so for every other creature this costs one memory lookup.
  */
 @Component
 class GatherSense(
@@ -37,8 +40,9 @@ class GatherSense(
     val area = context.recall(BestiaDomain.GATHER_AREA) ?: return
 
     val givenUp = context.recall(BestiaDomain.GIVEN_UP).orEmpty()
+    val filter = context.recall(BestiaDomain.GATHER_FILTER) ?: GatherFilter()
     val nearest = aoi.queryEntitiesInCube(area.center, area.radius * 2, AoiLayer.STATIC_ONLY)
-      .mapNotNull { gatherableOf(context.world, it, area) }
+      .mapNotNull { gatherableOf(context.world, it, area, filter) }
       .filter { it.propId !in givenUp }
       .sortedBy { it.position.distance(context.position) }
       .take(MAX_REMEMBERED)
@@ -46,7 +50,7 @@ class GatherSense(
     context.remember(BestiaDomain.GATHERABLES, nearest)
   }
 
-  private fun gatherableOf(world: World, id: EntityId, area: WorkArea): Gatherable? {
+  private fun gatherableOf(world: World, id: EntityId, area: WorkArea, filter: GatherFilter): Gatherable? {
     val pose = world.get(id, PropPose::class) ?: return null
     if (!area.contains(pose.position)) return null
 
@@ -56,8 +60,17 @@ class GatherSense(
     if (divergence.of(identity.propId) != null) return null
 
     val work = workOn(visual) ?: return null
+    if (!isAllowed(filter, kinds.of(visual.kind), work)) return null
 
     return Gatherable(id, identity.propId, pose.position, work)
+  }
+
+  /** A felled tree counts as yielding all of its loot. */
+  private fun isAllowed(filter: GatherFilter, kind: PropKindDto, work: Gatherable.Work): Boolean {
+    return when (work) {
+      Gatherable.Work.COLLECT -> kind.collect?.let { filter.allows(it.gather, listOf(it.itemId)) } == true
+      Gatherable.Work.FELL -> filter.allows(GatherCategory.TREE, kind.loot.map { it.itemId })
+    }
   }
 
   private fun workOn(visual: StaticVisual): Gatherable.Work? {

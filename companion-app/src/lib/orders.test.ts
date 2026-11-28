@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Bestia } from '#lib/api/model.ts';
-import { MAX_ITEMS, changed, draftOf, fallbacksFor, mayTake, ordersOf, ruleOf, sheetOf, withItem } from './orders';
+import { MAX_ITEMS, changed, draftOf, fallbacksFor, gathers, mayTake, ordersOf, ruleOf, sheetOf, withItem, withSkip } from './orders';
 
 function bestia(changes: Partial<Bestia>): Bestia {
 	return {
@@ -20,6 +20,7 @@ function bestia(changes: Partial<Bestia>): Bestia {
 		ownOverrides: {},
 		allowedJobs: [],
 		careItems: { neverUse: [], alsoUse: [] },
+		gatherFilter: { skip: [], onlyItems: [] },
 		...changes
 	};
 }
@@ -71,7 +72,8 @@ describe('orders', () => {
 			rules: [{ condition: 'DAY', threshold: undefined, action: 'KEEP_WORKING' }],
 			areaPlaceId: undefined,
 			chestPlaceId: undefined,
-			careItems: { neverUse: [], alsoUse: [] }
+			careItems: { neverUse: [], alsoUse: [] },
+			gatherFilter: { skip: [], onlyItems: [] }
 		});
 	});
 
@@ -84,6 +86,21 @@ describe('orders', () => {
 		own.careItems.alsoUse.push(4);
 		expect(changed(bestia({ careItems }), own)).toBe(true);
 		expect(ordersOf({ ...own, presetId: 3 }).careItems).toEqual({ neverUse: [], alsoUse: [] });
+	});
+
+	it('keeps skipped categories in the zone order, so an unchanged filter is no change', () => {
+		const gatherer = bestia({ gatherFilter: { skip: ['LOOSE', 'TREE'], onlyItems: [] } });
+		const draft = draftOf(gatherer);
+		draft.gatherFilter.skip = withSkip(withSkip(draft.gatherFilter.skip, 'LOOSE', false), 'LOOSE', true);
+
+		expect(draft.gatherFilter.skip).toEqual(['LOOSE', 'TREE']);
+		expect(changed(gatherer, draft)).toBe(false);
+	});
+
+	it('shows the gather filter to a gatherer and to one that gathers when idle', () => {
+		expect(gathers(draftOf(bestia({ job: 'GATHER' })))).toBe(true);
+		expect(gathers(draftOf(bestia({ job: 'MINE', fallbackJob: 'GATHER' })))).toBe(true);
+		expect(gathers(draftOf(bestia({ job: 'GUARD', fallbackJob: 'GATHER' })))).toBe(false);
 	});
 
 	it('adds an item once, and no more than fit', () => {

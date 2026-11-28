@@ -22,6 +22,7 @@ function bestia(changes: Partial<Bestia>): Bestia {
 		ownOverrides: {},
 		allowedJobs: [],
 		careItems: { neverUse: [], alsoUse: [] },
+		gatherFilter: { skip: [], onlyItems: [] },
 		...changes
 	};
 }

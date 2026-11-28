@@ -7,6 +7,7 @@ import net.bestia.bus.contract.BusRequest
 import net.bestia.bus.contract.ZoneAnswer
 import net.bestia.bus.contract.MapPoint
 import net.bestia.bus.contract.OrderCareItems
+import net.bestia.bus.contract.OrderGatherFilter
 import net.bestia.bus.contract.OrderNumbers
 import net.bestia.bus.contract.ZoneEvent
 import net.bestia.bus.contract.ZoneQuery
@@ -36,6 +37,8 @@ class BusFrameTest {
       ZoneQuery.DeletePlace(7, placeId = 3),
       ZoneQuery.SetOrders(7, 11, "GATHER", "STEADY", areaPlaceId = 3, chestPlaceId = 4),
       ZoneQuery.SetOrders(7, 11, "GATHER", "STEADY", careItems = OrderCareItems(neverUse = listOf(46), alsoUse = listOf(3, 4))),
+      ZoneQuery.SetOrders(7, 11, "GATHER", "STEADY", gatherFilter = OrderGatherFilter(skip = listOf("TREE"), onlyItems = listOf(32))),
+      ZoneQuery.SaveOrderPreset(7, null, "Reeds", OrderSheet("GATHER", "BOLD", gatherFilter = OrderGatherFilter(onlyItems = listOf(32)))),
       ZoneQuery.Workshop(7),
       ZoneQuery.QueueAtStation(7, structureId = 5, recipeId = 42, amount = 3),
       ZoneQuery.CancelAtStation(7, structureId = 5, index = 1),
@@ -114,6 +117,7 @@ class BusFrameTest {
       ZoneAnswer.OrderPresets(listOf(ZoneAnswer.OrderPresets.Preset(3, "Camp", OrderSheet("MINE", "STEADY", "GUARD"), bestias = 2))),
       ZoneAnswer.Orders(2, "MINE", "BOLD", fallbackJob = "GUARD", overrides = OrderNumbers(retreatBelowHealthPct = 0)),
       ZoneAnswer.Orders(2, "GATHER", "BOLD", careItems = OrderCareItems(alsoUse = listOf(3))),
+      ZoneAnswer.Orders(2, "GATHER", "BOLD", gatherFilter = OrderGatherFilter(skip = listOf("PLANT", "CRYSTAL"))),
       ZoneAnswer.ChatSent(null),
       ZoneAnswer.ChatSent(ZoneAnswer.ChatSent.NOT_IN_GUILD),
       ZoneAnswer.ChatSent(ZoneAnswer.ChatSent.TARGET_UNAVAILABLE),
@@ -162,6 +166,7 @@ class BusFrameTest {
       ZoneEvent.JourneyEnded(1, 2, 3, "Rex", "wolf", "Ore run", "STUCK", MapPoint(1.0, 2.0), whilePlaying = false),
       ZoneEvent.BestiaHappening(1, 2, 3, "Rex", "wolf", "WORK_PAUSED", "CAMPFIRE", "STATION_OUT", whilePlaying = false),
       ZoneEvent.OrdersChanged(1, 2, 3, "GATHER", "STEADY", careItems = OrderCareItems(neverUse = listOf(46))),
+      ZoneEvent.OrdersChanged(1, 2, 3, "GATHER", "STEADY", gatherFilter = OrderGatherFilter(onlyItems = listOf(142))),
     )
 
     for (event in events) {

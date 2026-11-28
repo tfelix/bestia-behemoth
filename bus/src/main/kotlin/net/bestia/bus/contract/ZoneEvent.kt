@@ -42,6 +42,7 @@ sealed interface ZoneEvent {
     val presetId: Long? = null,
     val ownOverrides: OrderNumbers = OrderNumbers(),
     val careItems: OrderCareItems = OrderCareItems(),
+    val gatherFilter: OrderGatherFilter = OrderGatherFilter(),
   ) : ZoneEvent
 
   /**

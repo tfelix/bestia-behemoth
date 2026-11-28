@@ -29,4 +29,5 @@ message BestiaAiConfigSMSG {
   /** The numbers the bestia keeps as its own while it follows a preset. */
   SetBestiaAiConfigCMSG.Overrides own_overrides = 13;
   SetBestiaAiConfigCMSG.CareItems care_items = 14;
+  SetBestiaAiConfigCMSG.GatherFilter gather_filter = 15;
 }

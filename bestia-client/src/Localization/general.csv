@@ -335,6 +335,16 @@ ORDERS_ACTION_4,retreat
 ORDERS_ACTION_5,haul to the chest now
 ORDERS_ACTION_6,keep working
 ORDERS_ACTION_7,hold the ground
+ORDERS_GATHERS,Gathers
+ORDERS_GATHER_1,Loose things
+ORDERS_GATHER_2,Plants
+ORDERS_GATHER_3,Trees
+ORDERS_GATHER_4,Mana crystals
+ORDERS_GATHER_HINT_1,"Sticks, resin, loose stones, reeds"
+ORDERS_GATHER_HINT_2,Herbs and shrubs
+ORDERS_GATHER_HINT_3,Fells trees for logs and resin
+ORDERS_GATHER_HINT_4,Mana and aetherite crystals
+ORDERS_ONLY_ITEMS,Only these items (none: all)
 ORDERS_CARE_ITEMS,"Care items, besides common food and bandages"
 ORDERS_NEVER_USE,Never use
 ORDERS_ALSO_USE,May also use

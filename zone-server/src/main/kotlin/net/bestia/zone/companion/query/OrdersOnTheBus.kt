@@ -1,6 +1,7 @@
 package net.bestia.zone.companion.query
 
 import net.bestia.bus.contract.OrderCareItems
+import net.bestia.bus.contract.OrderGatherFilter
 import net.bestia.bus.contract.OrderNumbers
 import net.bestia.bus.contract.OrderRuleLine
 import net.bestia.bus.contract.OrderSheet
@@ -8,9 +9,11 @@ import net.bestia.bus.contract.ZoneAnswer
 import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.ai.profile.BestiaJob
 import net.bestia.zone.ai.profile.Courage
+import net.bestia.zone.ai.profile.GatherFilter
 import net.bestia.zone.ai.profile.OrderOverrides
 import net.bestia.zone.ai.profile.OrderRule
 import net.bestia.zone.item.care.CareItems
+import net.bestia.zone.prop.GatherCategory
 import net.bestia.zone.master.bestia.StoredOrders
 
 /** Bestia orders to and from the bus the companion app talks over. */
@@ -27,8 +30,13 @@ object OrdersOnTheBus {
       OrderRule.fromNamesOrNull(it.condition, it.threshold, it.action) ?: return invalid("Unknown rule $it")
     }
     val careItems = CareItems(sheet.careItems.neverUse, sheet.careItems.alsoUse)
+    val skip = sheet.gatherFilter.skip.map { name ->
+      GatherCategory.entries.find { it.name == name } ?: return invalid("Unknown gather category '$name'")
+    }
+    val gatherFilter = GatherFilter(skip.toSet(), sheet.gatherFilter.onlyItems)
     val orders = AiConfig(
       job, courage, fallbackJob, overridesOf(sheet.overrides), rules, sheet.areaPlaceId, sheet.chestPlaceId, careItems,
+      gatherFilter,
     )
 
     return if (orders.isValid) Result.success(orders) else invalid("Orders that cannot be followed: $orders")
@@ -43,6 +51,7 @@ object OrdersOnTheBus {
     areaPlaceId = orders.areaPlaceId,
     chestPlaceId = orders.chestPlaceId,
     careItems = careItemsOf(orders.careItems),
+    gatherFilter = gatherFilterOf(orders.gatherFilter),
   )
 
   fun answerOf(playerBestiaId: Long, stored: StoredOrders): ZoneAnswer.Orders {
@@ -50,6 +59,7 @@ object OrdersOnTheBus {
     return ZoneAnswer.Orders(
       playerBestiaId, sheet.job, sheet.courage, sheet.fallbackJob, sheet.overrides, sheet.rules,
       sheet.areaPlaceId, sheet.chestPlaceId, stored.presetId, numbersOf(stored.ownOverrides), sheet.careItems,
+      sheet.gatherFilter,
     )
   }
 
@@ -63,6 +73,10 @@ object OrdersOnTheBus {
 
   fun careItemsOf(items: CareItems): OrderCareItems {
     return OrderCareItems(neverUse = items.neverUse, alsoUse = items.alsoUse)
+  }
+
+  fun gatherFilterOf(filter: GatherFilter): OrderGatherFilter {
+    return OrderGatherFilter(skip = filter.skip.sorted().map { it.name }, onlyItems = filter.onlyItems)
   }
 
   fun linesOf(rules: List<OrderRule>) = rules.map { OrderRuleLine(it.condition.name, it.threshold, it.action.name) }

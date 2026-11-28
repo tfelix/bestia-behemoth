@@ -29,7 +29,7 @@ data class PropLootEntryDto(val itemId: Long, val amount: Int = 1, val dropChanc
  *
  * `itemId` is not validated against the item catalogue - see [PropKindRegistry.load].
  */
-data class PropCollectDto(val itemId: Long, val amount: Int = 1)
+data class PropCollectDto(val itemId: Long, val amount: Int = 1, val gather: GatherCategory = GatherCategory.LOOSE)
 
 /**
  * One stage of a tree growing back, against the grown tree.
