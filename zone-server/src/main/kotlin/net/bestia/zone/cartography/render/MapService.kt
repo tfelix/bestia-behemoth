@@ -98,6 +98,7 @@ enum class MapService(
       "barracks" to GUARD,
       "post_office" to null,
       "bestia_center" to BESTIA_CENTER,
+      "woodcutter" to MERCHANT,
     )
 
     /** The kind a trade is drawn as, or null for one kept off the map or one nobody has decided about. */

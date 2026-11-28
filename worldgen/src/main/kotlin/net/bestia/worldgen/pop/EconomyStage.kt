@@ -2,6 +2,7 @@ package net.bestia.worldgen.pop
 
 import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.bio.BiomeStage
+import net.bestia.worldgen.bio.VegetationStage
 import net.bestia.worldgen.civ.BuildingChannels
 import net.bestia.worldgen.civ.BuildingFunction
 import net.bestia.worldgen.civ.Culture
@@ -42,6 +43,7 @@ import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.StationTable
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.worldgen.vector.VectorFeature
+import net.bestia.worldgen.voxel.VegetationParams
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -184,17 +186,23 @@ data class EconomyParams(
  */
 class EconomyStage(
   override val resolution: Resolution = Resolution.KILOMETRE,
-  private val params: EconomyParams = EconomyParams()
+  private val params: EconomyParams = EconomyParams(),
+  /** How many fellable trees a canopy cover means - the same conversion the prop emitter uses. */
+  private val vegetation: VegetationParams = VegetationParams()
 ) : Stage {
 
   override val id = ID
   // 2: road traffic is read from the stored `RoadClass` instead of guessed from the width, which had counted
   // every road in the world as a highway.
-  override val version = 2
+  // 3: the catchment counts its trees, for the runtime to measure felled woods against.
+  override val version = 3
 
-  override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest(), BusinessCatalogue.digest())
+  override val paramsVersion get() = GenRng.hash(
+    params.digest().value, vegetation.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest(),
+    BusinessCatalogue.digest()
+  )
   override val dependencies = listOf(
-    ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, BiomeStage.ID, ResourceStage.ID,
+    ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, BiomeStage.ID, ResourceStage.ID, VegetationStage.ID,
     SettlementStage.ID, HistoryStage.ID, TownStage.ID
   )
   override val scale = StageScale.WORLD
@@ -243,7 +251,7 @@ class EconomyStage(
     region: CellRegion,
     places: List<EconomyReader.Place>
   ): List<Pair<EconomyReader.Place, Evaluated>> {
-    val land = Catchments(ctx, region, params)
+    val land = Catchments(ctx, region, params, vegetation)
     val catchments = land.shareOut(places)
 
     return places.map { place ->
@@ -307,6 +315,7 @@ class EconomyStage(
         .channel(EconomyChannels.HOUSEHOLD_COUNT) { households.toDouble() }
         .channel(EconomyChannels.HOUSEHOLD_SEED) { householdSeed(place.index).toDouble() }
         .channel(EconomyChannels.TRAFFIC) { place.traffic }
+        .channel(EconomyChannels.WOODLAND_TREES) { catchment.woodlandTrees }
         .build()
     )
   }
@@ -496,6 +505,8 @@ class EconomyStage(
     type.id == "barracks" -> listOf(BuildingFunction.FORTIFICATION, BuildingFunction.CIVIC)
     type.id == "scribe" || type.id == "banker" -> listOf(BuildingFunction.CIVIC, BuildingFunction.SHOP)
     type.id == "shipwright" -> listOf(BuildingFunction.WAREHOUSE, BuildingFunction.CRAFT)
+    // A woodyard wants room and the road out to the trees, which is where the farm lots are.
+    type.id == "woodcutter" -> listOf(BuildingFunction.FARM, BuildingFunction.WAREHOUSE)
     type.sector == Sector.CRAFT -> listOf(BuildingFunction.CRAFT, BuildingFunction.SHOP)
     type.sector == Sector.TRADE -> listOf(BuildingFunction.SHOP, BuildingFunction.MARKET)
     else -> listOf(BuildingFunction.SHOP, BuildingFunction.RESIDENCE)
@@ -749,7 +760,8 @@ internal object EconomyReader {
 internal class Catchments(
   private val ctx: GenContext,
   private val region: CellRegion,
-  private val params: EconomyParams
+  private val params: EconomyParams,
+  private val vegetation: VegetationParams
 ) {
 
   class Result(
@@ -762,7 +774,9 @@ internal class Catchments(
     val hasFreshWater: Boolean,
     val resources: Set<ResourceType>,
     /** Square kilometres actually claimed after competition. Reported by the census view. */
-    val claimedSquareKm: Double
+    val claimedSquareKm: Double,
+    /** Fellable tree props on the claimed ground. */
+    val woodlandTrees: Double
   )
 
   private val fertility: FloatLayer = ctx.layers.float(LayerId.SOIL_FERTILITY)
@@ -786,6 +800,9 @@ internal class Catchments(
    * stage's layer *through world coordinates*, never by index, unless it knows the two resolutions are equal.
    */
   private val warmth: Grid = Grid.resampled(temperature, region)
+
+  /** Through world coordinates for the reason [warmth] gives, even though both run at a kilometre today. */
+  private val canopy: Grid = Grid.resampled(ctx.layers.float(LayerId.CANOPY_COVER), region)
 
   private val metres = region.resolution.metresPerCell
   private val squareKmPerCell = metres * metres / 1_000_000.0
@@ -812,6 +829,7 @@ internal class Catchments(
       var pastureSum = 0.0
       var cells = 0
       var claimed = 0.0
+      var trees = 0.0
       var fresh = false
       val types = HashSet<ResourceType>()
 
@@ -849,6 +867,7 @@ internal class Catchments(
           pastureSum += grazing
           cells++
           claimed += squareKmPerCell * share
+          trees += vegetation.entitiesPerSquareMetre(canopy.data[cell]) * squareKmPerCell * 1_000_000.0 * share
           if (local.isForest()) types.add(ResourceType.TIMBER)
           // Rock at the surface, from either direction: a biome that is bare by nature, or ground steep
           // enough that soil has washed off it whatever the climate. The second used to be the `CLIFF`
@@ -876,7 +895,8 @@ internal class Catchments(
         pasture = if (cells == 0) 0.0 else pastureSum / cells,
         hasFreshWater = fresh,
         resources = types,
-        claimedSquareKm = claimed
+        claimedSquareKm = claimed,
+        woodlandTrees = trees
       )
     }
 

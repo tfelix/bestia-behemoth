@@ -67,7 +67,12 @@ class PopulationSummary(
    */
   val foodCapacity: Double = 0.0,
   /** Share of that capacity which is cereal rather than pasture, orchard or fish. */
-  val cerealShare: Double = 0.0
+  val cerealShare: Double = 0.0,
+  /**
+   * Fellable trees in the catchment, claim-weighted like the farmland. What the runtime measures felled
+   * trees against. Defaults to none, so a forgetful caller gets a town with no woods to lose.
+   */
+  val woodlandTrees: Double = 0.0
 )
 
 /**
