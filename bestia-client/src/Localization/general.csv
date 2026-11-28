@@ -1255,6 +1255,7 @@ STATUS_EFFECT_311,Satisfied: a good meal keeps your stamina coming back faster.
 STATUS_EFFECT_311_MEAL,"Satisfied by %s.
 
 %s"
+STATUS_EFFECT_312,"Unsworn: you left your Order. Your attributes are halved, and no Order takes you yet."
 STATUS_EFFECT_235,Playing War March: everyone on your side near you moves and swings faster.
 STATUS_EFFECT_236,War March: a Bard's song. You move and swing faster.
 STATUS_EFFECT_237,Playing Mirage Dance: everyone on your side near you dodges more often.
@@ -1596,6 +1597,8 @@ ERROR_FACTION_STILL_UNSWORN,You left an Order not long ago. No Order takes you b
 ERROR_FACTION_SWORN_ELSEWHERE,You are sworn to another Order.
 ERROR_FACTION_NOVITIATE_ELSEWHERE,You already walk the Novitiate of another Order.
 ERROR_FACTION_NOTHING_TO_OFFER,You carry nothing the Envoy asked for.
+ERROR_FACTION_NOT_SWORN,You are sworn to no Order.
+ERROR_FACTION_SIGIL_NOT_WORN,The rite needs the Sigil of Redemption. You must wear it.
 ERROR_STRUCTURE_NEEDS_SETTLEMENT,This can only be built in a town.
 ERROR_STRUCTURE_TOO_FAR_FROM_TOWN,Build closer to the city sign or to a building of this town.
 ERROR_STRUCTURE_TOO_CLOSE,Too close to another player's structure.

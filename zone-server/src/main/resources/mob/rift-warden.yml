@@ -34,3 +34,4 @@ armor-types: []
 loot:
   - { item: mana_crystal, chance: 10000 }
   - { item: mana_crystal, chance: 6000 }
+  - { item: citadel_banishment_scroll, chance: 200 }

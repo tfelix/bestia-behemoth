@@ -1087,3 +1087,13 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: Satisfied
+
+  # Put on a master who left an Order by the rite of banishment, until no Order would take them back. Halves every
+  # attribute. UnswornSystem keeps it on from the stored membership, so it is never stored itself.
+  - id: 312
+    identifier: UNSWORN
+    polarity: NEUTRAL
+    showIcon: true
+    isSyncedToClient: true
+    dispellable: false
+    script: Unsworn

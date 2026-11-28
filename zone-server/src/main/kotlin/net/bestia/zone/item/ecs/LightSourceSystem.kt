@@ -80,7 +80,7 @@ class LightSourceSystem(
     val owner = ItemOwner.of(world, entityId)
     if (owner != null) {
       asyncJobExecutor.submit(key = owner.masterId) {
-        inventoryService.burnOut(owner.masterId, owner.playerBestiaId, EquipmentSlot.LIGHT_SOURCE)
+        inventoryService.destroyWorn(owner.masterId, owner.playerBestiaId, EquipmentSlot.LIGHT_SOURCE)
         when {
           relit == null -> Unit
           relitFromPile -> inventoryService.equipFromPile(

@@ -2183,3 +2183,7 @@ PHOENIX_FEAST,Phoenix Feast
 PHOENIX_FEAST_DESC,"A feast of legends: behemoth rib, phoenix egg and ambrosia. They will sing of the cook.
 
 Satisfied for 60 min: +50% stamina regeneration, +10 to every attribute, HP and mana keep regenerating in combat."
+CITADEL_BANISHMENT_SCROLL,Banished from the Citadel
+CITADEL_BANISHMENT_SCROLL_DESC,"A scroll sealed in black wax: the rite of Banished from the Citadel.
+
+Read it while you wear the Sigil of Redemption, and your Order lets you go. The sigil is spent. For a long time afterwards, you are unsworn: your attributes are halved, and no Order takes you."

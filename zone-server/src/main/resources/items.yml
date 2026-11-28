@@ -11707,8 +11707,8 @@ items:
       A block of white, veined stone. The finest building stone there is.
 
   # --- Rites ------------------------------------------------------------------------------------------
-  # Worn by the master who performs the rite of Banished From The Citadel and consumed by it (factions.md).
-  # The rite itself is not built yet, so for now the sigil is only an accessory with no bonus.
+  # Worn by the master who performs the rite of Banished From The Citadel and consumed by it, see
+  # CitadelBanishmentScript. An accessory with no bonus.
   - id: 625
     item-db-name: sigil_of_redemption
     base-level: 73
@@ -13545,3 +13545,16 @@ items:
       A feast of legends: behemoth rib, phoenix egg and ambrosia. They will sing of the cook.
 
       Satisfied for 60 min: +50% stamina regeneration, +10 to every attribute, HP and mana keep regenerating in combat.
+
+  # Read by a sworn master who wears the Sigil of Redemption: the rite of Banished From The Citadel. Drop only.
+  - id: 776
+    item-db-name: citadel_banishment_scroll
+    base-level: 60
+    weight: 10
+    type: USABLE
+    material: PAPER
+    script: CitadelBanishmentScript
+    description: |
+      A scroll sealed in black wax: the rite of Banished from the Citadel.
+
+      Read it while you wear the Sigil of Redemption, and your Order lets you go. The sigil is spent. For a long time afterwards, you are unsworn: your attributes are halved, and no Order takes you.
