@@ -27,6 +27,10 @@ export function diaryText(line: DiaryEntry): string {
 			return 'Was attacked';
 		case 'RETREATED':
 			return 'Retreated home';
+		case 'OUT_OF_FOOD':
+			return 'Ran out of food and waits at home';
+		case 'LOW_FOOD':
+			return 'Has food for about two more hours of work';
 		case 'DIED':
 			return 'Was killed';
 		case 'LOST':

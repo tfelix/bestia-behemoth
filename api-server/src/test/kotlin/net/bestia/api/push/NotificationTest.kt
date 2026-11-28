@@ -28,6 +28,15 @@ class NotificationTest {
   }
 
   @Test
+  fun `a bestia out of food says it waits for some, and low food is not pushed`() {
+    val notification = Notification.of(happening("OUT_OF_FOOD"))!!
+
+    assertEquals("Rex ran out of food", notification.title)
+    assertEquals("/m/7/bestia", notification.url)
+    assertNull(Notification.of(happening("LOW_FOOD")))
+  }
+
+  @Test
   fun `nothing is pushed while the player is in the game, nor for a haul or new orders`() {
     assertNull(Notification.of(happening("ATTACKED", whilePlaying = true)))
     assertNull(Notification.of(happening("HAULED")))

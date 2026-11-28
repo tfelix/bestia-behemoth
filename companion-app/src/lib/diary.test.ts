@@ -26,4 +26,9 @@ describe('diary', () => {
 			'Felt something of the mana stir near the outpost'
 		);
 	});
+
+	it('says when food runs low and when it runs out', () => {
+		expect(diaryText({ ...line, kind: 'LOW_FOOD' })).toBe('Has food for about two more hours of work');
+		expect(diaryText({ ...line, kind: 'OUT_OF_FOOD' })).toBe('Ran out of food and waits at home');
+	});
 });

@@ -32,6 +32,7 @@ class BagSense(
     val inventory = context.world.get(context.entityId, Inventory::class)
     if (inventory == null) {
       context.forget(BestiaDomain.FOOD_IN_BAG)
+      context.forget(BestiaDomain.FOOD_STOCK_IN_BAG)
       context.forget(BestiaDomain.HEAL_IN_BAG)
       return
     }
@@ -40,6 +41,7 @@ class BagSense(
       context.remember(BestiaDomain.BAG_LOAD_PCT, percentOf(inventory.totalWeight, capacity.max))
     }
     context.remember(BestiaDomain.FOOD_IN_BAG, care.hasFor(inventory, BagCare.Need.STAMINA))
+    context.remember(BestiaDomain.FOOD_STOCK_IN_BAG, care.staminaStockOf(inventory))
     context.remember(BestiaDomain.HEAL_IN_BAG, care.hasFor(inventory, BagCare.Need.HEALTH))
   }
 

@@ -59,6 +59,8 @@ function bestiaHappening(d: Record<string, string | number | boolean | null>): {
 		case 'QUEUE_FINISHED':
 		case 'ATTACKED':
 		case 'RETREATED':
+		case 'OUT_OF_FOOD':
+		case 'LOW_FOOD':
 		case 'EVENT_SENSED':
 			return { title: String(who), body: diaryText(line) + '.' };
 		default:

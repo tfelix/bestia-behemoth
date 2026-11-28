@@ -56,6 +56,11 @@ class BagCare(
     return true
   }
 
+  /** How much stamina the food in [inventory] would give, all eaten: what a worker has left to work on. */
+  fun staminaStockOf(inventory: Inventory): Int {
+    return candidatesFor(inventory, Need.STAMINA).sumOf { (held, script) -> held.amount * script.stamina }
+  }
+
   /** The items in [inventory] a bestia may use for [need], best first. */
   fun suppliesFor(inventory: Inventory, need: Need): List<Inventory.Item> {
     return candidatesFor(inventory, need).sortedByDescending { (_, script) -> script.restores(need) }.map { it.first }

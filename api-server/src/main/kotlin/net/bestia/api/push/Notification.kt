@@ -61,7 +61,7 @@ data class Notification(val title: String, val body: String, val url: String, va
     }
 
     /** Pushed only for these, and only when the master is away. */
-    val STOPPED_KINDS = setOf("WORK_PAUSED", "QUEUE_FINISHED")
+    val STOPPED_KINDS = setOf("WORK_PAUSED", "QUEUE_FINISHED", "OUT_OF_FOOD")
     val FIGHT_KINDS = setOf("ATTACKED", "RETREATED")
 
     private val STOPPED_BECAUSE = mapOf(
@@ -83,6 +83,9 @@ data class Notification(val title: String, val body: String, val url: String, va
         "QUEUE_FINISHED" -> Notification(
           "Queue finished", "$who finished the queue${event.place?.let { " at the ${stationName(it)}" } ?: ""}.",
           "/m/${event.masterId}/workshop", "queue-${event.playerBestiaId}",
+        )
+        "OUT_OF_FOOD" -> Notification(
+          "$who ran out of food", "It waits at home until there is food in its bag or its chest.", bestiaPage, tag,
         )
         "ATTACKED" -> Notification("$who is under attack", "It fights back as its courage allows.", bestiaPage, tag)
         "RETREATED" -> Notification("$who retreated", "It was losing the fight and went home.", bestiaPage, tag)

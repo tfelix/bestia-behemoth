@@ -53,6 +53,7 @@ class JobChestSense(
       context.forget(BestiaDomain.CHEST_HAS_ROOM)
       context.forget(BestiaDomain.GOODS_TO_HAUL)
       context.forget(BestiaDomain.FOOD_IN_CHEST)
+      context.forget(BestiaDomain.FOOD_STOCK_IN_CHEST)
       return
     }
 
@@ -66,6 +67,7 @@ class JobChestSense(
     context.remember(BestiaDomain.CHEST_HAS_ROOM, contents.size() < ChestStorage.SLOTS || goodsThatFit.isNotEmpty())
     context.remember(BestiaDomain.GOODS_TO_HAUL, goodsThatFit.isNotEmpty())
     context.remember(BestiaDomain.FOOD_IN_CHEST, care.hasFor(contents, BagCare.Need.STAMINA))
+    context.remember(BestiaDomain.FOOD_STOCK_IN_CHEST, care.staminaStockOf(contents))
   }
 
   /** Once per stretch of being full: a bestia whose chest takes nothing more has stopped working. */

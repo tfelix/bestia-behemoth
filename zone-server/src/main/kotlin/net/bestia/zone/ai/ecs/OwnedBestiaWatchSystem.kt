@@ -1,6 +1,9 @@
 package net.bestia.zone.ai.ecs
 
+import net.bestia.zone.ai.core.state.Blackboard
+import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.battle.ecs.damage.TakenDamage
+import net.bestia.zone.battle.ecs.status.StaminaConfig
 import net.bestia.zone.bestia.diary.BestiaHappened
 import net.bestia.zone.bestia.diary.BestiaNews
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Component as SpringComponent
 @SpringComponent
 class OwnedBestiaWatchSystem(
   private val news: BestiaNews,
+  stamina: StaminaConfig = StaminaConfig(),
   private val now: () -> Long = java.lang.System::currentTimeMillis,
 ) : System {
   // After the act stage, so it sees the goal the agent has just taken up.
@@ -29,6 +33,11 @@ class OwnedBestiaWatchSystem(
   override val writes: ComponentClassSet = emptySet()
 
   private val retreating = HashSet<EntityId>()
+  private val starving = HashSet<EntityId>()
+  private val runningLow = HashSet<EntityId>()
+
+  /** About two hours of work, the warning a master needs to bring food before it runs out. */
+  private val lowFoodStock = (stamina.staminaPerLabourHour * LOW_FOOD_HOURS).toInt()
   private val lastHitAt = HashMap<EntityId, Long>()
 
   override fun update(world: World, deltaTime: Float) {
@@ -40,9 +49,12 @@ class OwnedBestiaWatchSystem(
       val owned = get<OwnedBestia>()
       if (startedRetreat(id, get<AiAgent>())) tell(owned, BestiaHappened.Kind.RETREATED)
       if (hitAfterQuiet(world, id, time)) tell(owned, BestiaHappened.Kind.ATTACKED)
+      watchFood(id, owned, get<AiAgent>().memory)
     }
 
     retreating.retainAll(seen)
+    starving.retainAll(seen)
+    runningLow.retainAll(seen)
     lastHitAt.keys.retainAll(seen)
   }
 
@@ -52,6 +64,23 @@ class OwnedBestiaWatchSystem(
     if (retreatingNow) retreating.add(id) else retreating.remove(id)
 
     return retreatingNow && !wasRetreating
+  }
+
+  /** Told once when food runs low and once when it runs out; food brought in starts the watch over. */
+  private fun watchFood(id: EntityId, owned: OwnedBestia, memory: Blackboard) {
+    if (BestiaDomain.outOfFood(memory)) {
+      if (starving.add(id)) tell(owned, BestiaHappened.Kind.OUT_OF_FOOD)
+      return
+    }
+    starving.remove(id)
+
+    val worker = memory.get(BestiaDomain.MAIN_JOB)?.takesFallback == true
+    val stock = (memory.get(BestiaDomain.FOOD_STOCK_IN_BAG) ?: 0) + (memory.get(BestiaDomain.FOOD_STOCK_IN_CHEST) ?: 0)
+    if (worker && stock < lowFoodStock) {
+      if (runningLow.add(id)) tell(owned, BestiaHappened.Kind.LOW_FOOD)
+    } else {
+      runningLow.remove(id)
+    }
   }
 
   private fun hitAfterQuiet(world: World, id: EntityId, time: Long): Boolean {
@@ -67,6 +96,7 @@ class OwnedBestiaWatchSystem(
 
   companion object {
     private const val RETREAT_GOAL = "Retreat"
+    private const val LOW_FOOD_HOURS = 2.0
 
     /** A hit this recent is what the sweep, once a second, has not seen yet. */
     private const val HIT_WINDOW_MS = 1_500L

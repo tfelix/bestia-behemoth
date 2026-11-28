@@ -35,6 +35,12 @@ class BestiaHappened(
 
     /** Overkilled: it is gone for good. */
     LOST,
+    /** Below its eat line with no food in its bag or its chest: it waits at home until somebody brings some. */
+    OUT_OF_FOOD,
+
+    /** The food it may eat lasts about two more hours of work. */
+    LOW_FOOD,
+
     /** Keeping watch at an Observation Outpost, it felt a world event begin to stir; [reason] is its kind. */
     EVENT_SENSED,
   }

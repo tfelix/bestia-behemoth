@@ -205,6 +205,10 @@ object BestiaDomain : AiDomainCatalogue {
   /** Whether the job chest holds food the bestia may eat. */
   val FOOD_IN_CHEST = StateKey<Boolean>("foodInChest", observed = true)
 
+  /** The stamina all the food it may eat would give, in its bag and in its job chest. See `BagCare.staminaStockOf`. */
+  val FOOD_STOCK_IN_BAG = StateKey<Int>("foodStockInBag", observed = true)
+  val FOOD_STOCK_IN_CHEST = StateKey<Int>("foodStockInChest", observed = true)
+
   /** Its station waits because the next product does not fit in its bag. Set by the station while it waits. */
   val NO_ROOM_FOR_PRODUCT = StateKey<Boolean>("noRoomForProduct", observed = true, retain = 10f)
 
@@ -375,9 +379,9 @@ object BestiaDomain : AiDomainCatalogue {
     return hurt || frightened || ruleSays(state, OrderRule.Action.RETREAT)
   }
 
-  /** Whether its way home is warranted: out of a fight, or told by a rule to rest there. */
+  /** Whether its way home is warranted: out of a fight, told by a rule to rest there, or out of food. */
   fun headsHome(state: WorldState): Boolean =
-    retreatWarranted(state) || ruleSays(state, OrderRule.Action.REST_AT_HOME)
+    retreatWarranted(state) || restsAtHome(state)
 
   /** Whether the first of its rules that holds says to [action]. Wild mobs have no rules. */
   fun ruleSays(state: WorldState, action: OrderRule.Action): Boolean {
@@ -398,8 +402,29 @@ object BestiaDomain : AiDomainCatalogue {
     }
   }
 
-  /** Told by a rule to rest at home: no work, no roaming, until the rule stops holding. */
-  private fun restsAtHome(state: WorldState): Boolean = ruleSays(state, OrderRule.Action.REST_AT_HOME)
+  /** Told by a rule to rest at home, or out of food: no work, no roaming, until that no longer holds. */
+  private fun restsAtHome(state: WorldState): Boolean {
+    return ruleSays(state, OrderRule.Action.REST_AT_HOME) || outOfFood(state)
+  }
+
+  /**
+   * Below its eat line with nothing it may eat in its bag or its chest. It waits at home, where rest alone never
+   * lifts it back over the line, until somebody brings food. Wild mobs have no eat line to fall below.
+   */
+  fun outOfFood(state: WorldState): Boolean {
+    return outOfFood(state.get(EAT_BELOW_STAMINA_PCT), state.get(STAMINA_PCT), state.get(FOOD_IN_BAG), state.get(FOOD_IN_CHEST))
+  }
+
+  /** The same, against live memory, for a watcher that is not planning. */
+  fun outOfFood(memory: Blackboard): Boolean {
+    return outOfFood(memory.get(EAT_BELOW_STAMINA_PCT), memory.get(STAMINA_PCT), memory.get(FOOD_IN_BAG), memory.get(FOOD_IN_CHEST))
+  }
+
+  private fun outOfFood(eatLine: Int?, staminaPct: Int?, foodInBag: Boolean?, foodInChest: Boolean?): Boolean {
+    val hungry = eatLine != null && (staminaPct ?: 100) < eatLine
+
+    return hungry && foodInBag != true && foodInChest != true
+  }
 
   /** Wild mobs have no courage and take on anything. */
   private fun courageHoldsBack(state: WorldState): Boolean {
