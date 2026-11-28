@@ -75,6 +75,8 @@ var _last_health_msg: HealthComponentSMSG = null
 var _last_mana_msg: ManaComponentSMSG = null
 var _last_worn_gear_msg: WornGearComponentSMSG = null
 var _guild_tag: GuildTagComponentSMSG = null
+## The Order its master is sworn to, as the wire value; OrderBadgeLine.NONE while unsworn.
+var _faction: int = OrderBadgeLine.NONE
 ## A player bestia's own name and its owner, for its name tag.
 var _bestia_tag: BestiaTagComponentSMSG = null
 var _item_enchantments: ItemEnchantmentsComponentSMSG = null
@@ -764,6 +766,8 @@ func _seed_visual(visual: Node) -> void:
 		visual.update_worn_gear(_last_worn_gear_msg)
 	if _guild_tag != null and visual.has_method("set_guild_tag"):
 		visual.set_guild_tag(_guild_tag)
+	if _faction != OrderBadgeLine.NONE and visual.has_method("set_faction"):
+		visual.set_faction(_faction)
 	if _bestia_tag != null and visual.has_method("set_bestia_tag"):
 		visual.set_bestia_tag(_bestia_tag)
 	if _last_offer_msg != null and visual.has_method("set_offer"):
@@ -1560,6 +1564,13 @@ func update_guild_tag(msg: GuildTagComponentSMSG) -> void:
 
 func get_guild_tag() -> GuildTagComponentSMSG:
 	return _guild_tag
+
+
+func update_faction_badge(msg: FactionBadgeComponentSMSG) -> void:
+	_faction = OrderBadgeLine.of(msg)
+	var visual = _get_visual_for_method("set_faction")
+	if visual != null:
+		visual.set_faction(_faction)
 
 
 func update_bestia_tag(msg: BestiaTagComponentSMSG) -> void:

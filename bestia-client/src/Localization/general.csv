@@ -992,6 +992,9 @@ EMOTE_BAR_TITLE,Emote bar - Alt+1 to Alt+0
 EMOTE_WINDOW_HINT,"Click an emote to play it, or drag it onto the bar. Typing /cheer, /sit and the rest works too; /help lists them."
 NAME_TAG_LEVEL,Lv. %d
 NAME_TAG_OWNER,"%s's Bestia"
+ORDER_BADGE_CHAOS,Order of Chaos
+ORDER_BADGE_ETERNITY,Order of Eternity
+ORDER_BADGE_CIRCLE,Order of the Circle
 LETTERS_WRITE,Write a letter
 LETTERS_EMPTY,"No letters. A pigeon brings them to you, wherever you are."
 LETTERS_FROM,From %s on %s

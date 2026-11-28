@@ -468,6 +468,8 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 		entity.update_status_points(msg)
 	elif msg is GuildTagComponentSMSG:
 		entity.update_guild_tag(msg)
+	elif msg is FactionBadgeComponentSMSG:
+		entity.update_faction_badge(msg)
 	elif msg is BestiaTagComponentSMSG:
 		entity.update_bestia_tag(msg)
 	elif msg is ItemEnchantmentsComponentSMSG:

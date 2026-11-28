@@ -63,6 +63,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         case global::Bnet.ComponentDelta.ComponentOneofCase.WornGear: return WornGearComponentSMSG.FromProto(entityId, delta.WornGear);
         case global::Bnet.ComponentDelta.ComponentOneofCase.GuildMemberBeacon: return GuildMemberBeaconComponentSMSG.FromProto(entityId, delta.GuildMemberBeacon);
         case global::Bnet.ComponentDelta.ComponentOneofCase.GuildTag: return GuildTagComponentSMSG.FromProto(entityId, delta.GuildTag);
+        case global::Bnet.ComponentDelta.ComponentOneofCase.FactionBadge: return FactionBadgeComponentSMSG.FromProto(entityId, delta.FactionBadge);
         case global::Bnet.ComponentDelta.ComponentOneofCase.BestiaTag: return BestiaTagComponentSMSG.FromProto(entityId, delta.BestiaTag);
         case global::Bnet.ComponentDelta.ComponentOneofCase.LootClaim: return LootClaimComponentSMSG.FromProto(entityId, delta.LootClaim);
         case global::Bnet.ComponentDelta.ComponentOneofCase.Journey: return JourneyComponentSMSG.FromProto(entityId, delta.Journey);

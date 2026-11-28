@@ -54,6 +54,8 @@ var _aggressive: bool = false
 var _guild_line: String = ""
 var _emblem_hash: String = ""
 var _emblem: NameTagEmblem = null
+var _faction: int = OrderBadgeLine.NONE
+var _order_line: Label3D
 var _hovered: bool = false
 ## The emote this body is showing, so IDLE can play its way out of it rather than snap.
 var _emote_clips: EmoteClips = null
@@ -174,6 +176,11 @@ func set_guild_tag(tag: GuildTagComponentSMSG) -> void:
 	_apply_name_tag()
 
 
+func set_faction(faction: int) -> void:
+	_faction = faction
+	_apply_name_tag()
+
+
 func set_level(level: int) -> void:
 	_level = level
 	_apply_name_tag()
@@ -187,6 +194,7 @@ func _apply_name_tag() -> void:
 		bestia_name = "%s\n%s" % [bestia_name, tr("NAME_TAG_OWNER") % _owner_name]
 	_name_tag.text = GuildTagLine.under(bestia_name, _guild_line)
 	_emblem = GuildTagLine.show_emblem(_name_tag, _emblem, _emblem_hash)
+	_order_line = OrderBadgeLine.show_above(_name_tag, _order_line, _faction)
 	_tint_name_tag()
 	_apply_level_line()
 
