@@ -1,5 +1,6 @@
 package net.bestia.zone.doomsday
 
+import net.bestia.zone.config.BootCompletion
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.doomsday.persistence.StoredWorldEnd
 import net.bestia.zone.doomsday.persistence.StoredWorldEndRepository
@@ -39,6 +40,7 @@ class WorldEnd(
   private val out: OutMessageProcessor,
   private val events: ApplicationEventPublisher,
   private val avatarFall: DoomAvatarFall,
+  private val boot: BootCompletion,
   private val clock: Clock = Clock.systemUTC(),
 ) {
 
@@ -56,7 +58,7 @@ class WorldEnd(
   @Transactional
   @Synchronized
   fun run() {
-    if (!worldService.isLoaded || hasEnded()) {
+    if (!boot.isComplete || hasEnded()) {
       return
     }
     val open = openWindow() ?: openByFate() ?: return

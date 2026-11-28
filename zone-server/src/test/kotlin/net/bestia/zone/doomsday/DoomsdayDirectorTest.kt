@@ -1,5 +1,6 @@
 package net.bestia.zone.doomsday
 
+import net.bestia.zone.config.BootCompletion
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -79,7 +80,10 @@ class DoomsdayDirectorTest {
 
   private fun director(nowDays: Double = 0.0, config: DoomsdayConfig = DoomsdayConfig()): DoomsdayDirector {
     val now = BORN.plusSeconds((nowDays * 86_400).toLong())
-    return DoomsdayDirector(config, repository, worldService, threats, signs, events, foreshadow, Clock.fixed(now, ZoneOffset.UTC))
+    return DoomsdayDirector(
+      config, repository, worldService, threats, signs, events, foreshadow, BootCompletion().apply { onReady() },
+      Clock.fixed(now, ZoneOffset.UTC),
+    )
   }
 
   @Test
