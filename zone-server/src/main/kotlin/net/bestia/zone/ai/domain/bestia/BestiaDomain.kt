@@ -1,5 +1,6 @@
 package net.bestia.zone.ai.domain.bestia
 
+import net.bestia.zone.battle.ecs.status.LabourLedger
 import net.bestia.zone.bestia.diary.BestiaNews
 import net.bestia.zone.ai.profile.BestiaJob
 import net.bestia.zone.ai.profile.OrderRule
@@ -672,6 +673,9 @@ object BestiaDomain : AiDomainCatalogue {
     val news: BestiaNews = BestiaNews { },
     /** An item's identifier, which the diary names it by. */
     val identifierOf: (Long) -> String? = { null },
+    /** Where work is booked for stamina, and what felling one tree is worth there; see `StaminaConfig`. */
+    val labour: LabourLedger = LabourLedger(),
+    val fellLabourSeconds: Float = 0f,
   )
 
   /**
@@ -694,7 +698,9 @@ object BestiaDomain : AiDomainCatalogue {
     "eatFromBag" to { c -> UseFromBagActionTemplate.eat(c.care) },
     "retreatHome" to { c -> RetreatHomeActionTemplate(c.locomotion) },
     "collectProp" to { c -> CollectPropActionTemplate(c.locomotion) },
-    "fellTree" to { c -> FellTreeActionTemplate(c.locomotion, c.attackExecution, c.promotion, c.aoi, c.attacks) },
+    "fellTree" to { c ->
+      FellTreeActionTemplate(c.locomotion, c.attackExecution, c.promotion, c.aoi, c.attacks, c.labour, c.fellLabourSeconds)
+    },
     "haulToChest" to { c -> HaulToChestActionTemplate(c.locomotion, c.care, c.handover, c.aoi, c.news, c.identifierOf) },
     "takeFoodFromChest" to { c -> TakeFoodFromChestActionTemplate(c.locomotion, c.care, c.handover, c.aoi) },
     "claimStation" to { c -> ClaimStationActionTemplate.forStations(c.locomotion, c.stations) },

@@ -1,5 +1,6 @@
 package net.bestia.zone.crafting.station
 
+import net.bestia.zone.battle.ecs.status.LabourLedger
 import net.bestia.zone.bestia.diary.BestiaNews
 import net.bestia.zone.bestia.diary.BestiaHappened
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -60,6 +61,7 @@ class StationWorkSystem(
   private val campfires: CampfireService,
   private val clock: Clock = Clock.systemUTC(),
   private val news: BestiaNews = BestiaNews { },
+  private val labour: LabourLedger = LabourLedger(),
 ) : System {
 
   // In ITEMS rather than ACTIONS so every move of the tick is done before the range check, and before the grant
@@ -157,6 +159,7 @@ class StationWorkSystem(
     val queue = if (entry.left == 1) rest else listOf(entry.copy(done = entry.done + 1)) + rest
 
     progress.seconds = 0f
+    labour.record(workerId, craftSeconds)
     structures.setStationContents(station.id, queue, held)
     structures.of(station.id)?.let(states::send)
     if (queue.isEmpty()) tell(station, BestiaHappened.Kind.QUEUE_FINISHED)

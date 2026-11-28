@@ -1,6 +1,7 @@
 package net.bestia.zone.prop.ecs.construction
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.battle.ecs.status.LabourLedger
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -42,6 +43,7 @@ class ConstructionSystem(
   private val registry: PlayerStructureRegistry,
   private val propKinds: PropKindRegistry,
   completions: List<SiteCompletion>,
+  private val labour: LabourLedger = LabourLedger(),
 ) : System {
 
   private val completionByKind = completions.associateBy { it.kind }
@@ -75,6 +77,7 @@ class ConstructionSystem(
 
       if (canWorkOn(world, workerId, siteId)) {
         workersPerSite.merge(siteId, 1, Int::plus)
+        labour.record(workerId, deltaTime)
       } else {
         (abandoned ?: mutableListOf<EntityId>().also { abandoned = it }).add(workerId)
       }

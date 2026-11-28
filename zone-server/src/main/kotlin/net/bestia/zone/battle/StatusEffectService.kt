@@ -319,14 +319,14 @@ class StatusEffectService(
     return if (isStun && SteadyAboveHalfHealth.holds(world, targetId)) seconds / 2 else seconds
   }
 
-  /** A harmful effect is harm like a blow, so the gate that stops a blow stops it too. */
+  /** A harmful effect is harm like a blow, so the gate that stops a blow stops it too. A price paid is no blow. */
   private fun isTurnedAway(
     world: World,
     definition: StatusEffectDefinition,
     sourceEntityId: EntityId?,
     targetId: EntityId
   ): Boolean {
-    return definition.polarity == StatusEffectPolarity.DEBUFF &&
+    return definition.polarity == StatusEffectPolarity.DEBUFF && definition.id !in PRICES_PAID &&
         DamageGate.verdict(world, sourceEntityId, targetId) != DamageGate.Verdict.ADMITTED
   }
 
@@ -415,8 +415,10 @@ class StatusEffectService(
 
     /**
      * Debuffs that are the price of a choice, not a foe's attack: an Enrage, a ritual, commanding a Bestia far above
-     * its master. No blanket immunity waives the price.
+     * its master, a day's work. No blanket immunity waives the price.
      */
-    val PRICES_PAID = setOf(StatusEffectId.FATIGUE.id, StatusEffectId.RITUAL_FATIGUE.id, StatusEffectId.UNRULY.id)
+    val PRICES_PAID = setOf(
+      StatusEffectId.FATIGUE.id, StatusEffectId.RITUAL_FATIGUE.id, StatusEffectId.UNRULY.id, StatusEffectId.WORN_OUT.id
+    )
   }
 }

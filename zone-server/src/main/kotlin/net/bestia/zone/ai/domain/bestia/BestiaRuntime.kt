@@ -1,5 +1,7 @@
 package net.bestia.zone.ai.domain.bestia
 
+import net.bestia.zone.battle.ecs.status.LabourLedger
+import net.bestia.zone.battle.ecs.status.StaminaConfig
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.bestia.diary.BestiaNews
 import net.bestia.zone.ai.core.precondition.Precondition
@@ -53,6 +55,8 @@ class BestiaRuntime(
   random: Random = Random.Default,
   private val news: BestiaNews = BestiaNews { },
   private val items: ItemTemplateRegistry? = null,
+  private val stamina: StaminaConfig = StaminaConfig(),
+  private val labour: LabourLedger = LabourLedger(),
 ) : AiDomainRuntime {
 
   /** One shared instance: it holds only stateless collaborators, so there is nothing per-agent about it. */
@@ -146,7 +150,7 @@ class BestiaRuntime(
       profile.actionIds,
       BestiaDomain.Collaborators(
         locomotion, skills, attackExecution, basicAttacks, care, promotion, aoi, handover, stations, profile.attacks,
-        news, { itemId -> items?.identifierOf(itemId) },
+        news, { itemId -> items?.identifierOf(itemId) }, labour, stamina.fellLabourSeconds,
       )
     )
   }

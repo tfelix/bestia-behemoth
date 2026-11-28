@@ -2,6 +2,8 @@ package net.bestia.zone.prop
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto
+import net.bestia.zone.battle.ecs.status.LabourLedger
+import net.bestia.zone.battle.ecs.status.StaminaConfig
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.item.GatheringExp
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -64,6 +66,8 @@ class CollectPropIntentSystem(
   private val outMessageProcessor: OutMessageProcessor,
   private val gatheringExp: GatheringExp,
   private val herbs: HerbPicking,
+  private val stamina: StaminaConfig = StaminaConfig(),
+  private val labour: LabourLedger = LabourLedger(),
 ) : System {
   override val phase = Phase.ITEMS
 
@@ -130,6 +134,7 @@ class CollectPropIntentSystem(
     removal.removed(world, propId, PropRemoval.Cause.USED_UP)
     world.add(collectorId, ObtainItemIntent.CreateItemIntent(collect.itemId, collect.amount))
     gatheringExp.award(world, collectorId, collect.itemId, collect.amount)
+    labour.record(collectorId, stamina.collectLabourSeconds)
     // Bends down for it, as for a stack off the ground: nothing else says who took the crystal that just vanished.
     world.get(collectorId, Animation::class)?.startPickUp()
 

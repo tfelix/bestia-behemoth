@@ -1008,3 +1008,21 @@ statusEffects:
     isSyncedToClient: true
     dispellable: false
     script: NineTailsReady
+
+  # Worked a while ago: stamina comes back only from food until this runs out. Every unit of work starts it anew.
+  - id: 305
+    identifier: WORN_OUT
+    polarity: DEBUFF
+    showIcon: true
+    isSyncedToClient: true
+    dispellable: false
+    script: WornOut
+
+  # Sitting, lying down or asleep: the only time stamina comes back by itself.
+  - id: 306
+    identifier: RESTING
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    dispellable: false
+    script: Resting

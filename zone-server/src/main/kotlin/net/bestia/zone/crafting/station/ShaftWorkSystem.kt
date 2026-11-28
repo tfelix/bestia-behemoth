@@ -1,5 +1,6 @@
 package net.bestia.zone.crafting.station
 
+import net.bestia.zone.battle.ecs.status.LabourLedger
 import net.bestia.zone.bestia.diary.BestiaNews
 import net.bestia.zone.bestia.diary.BestiaHappened
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
@@ -41,6 +42,7 @@ class ShaftWorkSystem(
   private val mining: MiningSkill,
   private val ore: ShaftOre,
   private val news: BestiaNews = BestiaNews { },
+  private val labourLedger: LabourLedger = LabourLedger(),
 ) : System {
 
   override val phase = Phase.ITEMS
@@ -88,6 +90,7 @@ class ShaftWorkSystem(
 
     val dug = ore.dig(shaft.id, shaft.position, reach, shaft.ownerAccountId ?: NO_ACCOUNT, miner)
     labour[shaft.id] = done - dug * secondsPerVoxel
+    labourLedger.record(miner, dug * secondsPerVoxel)
   }
 
   /** A shaft dug out, or a master who cannot mine: its miner goes back to its area and looks for another. */

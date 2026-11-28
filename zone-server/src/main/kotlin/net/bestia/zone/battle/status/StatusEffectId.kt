@@ -140,7 +140,9 @@ enum class StatusEffectId(val id: Long) {
   CAPTAINS_ORDERS(301),
   TIDEWALL_SPENT(302),
   NINE_TAILS_COUNT(303),
-  NINE_TAILS_READY(304);
+  NINE_TAILS_READY(304),
+  WORN_OUT(305),
+  RESTING(306);
 
   companion object {
     private val byId = entries.associateBy { it.id }

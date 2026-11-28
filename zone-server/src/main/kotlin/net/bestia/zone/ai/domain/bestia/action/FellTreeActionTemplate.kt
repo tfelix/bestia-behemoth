@@ -19,6 +19,7 @@ import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.battle.CombatTargetPromotion
 import net.bestia.zone.battle.attack.AttackExecutionService
+import net.bestia.zone.battle.ecs.status.LabourLedger
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.geometry.Vec3L
@@ -39,6 +40,8 @@ class FellTreeActionTemplate(
   private val promotion: CombatTargetPromotion,
   private val aoi: EntityAOIService,
   attacks: List<AttackDefinition>,
+  private val labour: LabourLedger = LabourLedger(),
+  private val fellLabourSeconds: Float = 0f,
   private val maxCandidates: Int = 3,
 ) : ActionTemplate {
   override val id = "fellTree"
@@ -65,6 +68,10 @@ class FellTreeActionTemplate(
               +MoveTo(tree.position, locomotion, arrivalRadius = axe.range)
               +Promote(tree, promotion, axe.range)
               +fellUntilDown(tree.entityId, axe)
+              run("worn by the felling") { ctx ->
+                labour.record(ctx.entityId, fellLabourSeconds)
+                Status.SUCCESS
+              }
               +MoveTo(tree.position, locomotion, arrivalRadius = LOOT_REACH)
               +PickUpDrops(tree.position, aoi)
             })

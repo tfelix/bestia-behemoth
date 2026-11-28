@@ -136,6 +136,7 @@ class EnvironmentalExposureSystem(
         else -> 0.0
       }
       if (excess <= 0.0) return@each
+      stamina.exposedAtTick = world.tickCount
 
       // A wanderer's tune or a tough body loses less to the weather.
       val reduction = world.get(entityId, CombatStats::class)?.values?.staminaDrainReduction ?: 0
